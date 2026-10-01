@@ -177,12 +177,14 @@ export function LearnsetSection({ speciesId }: { speciesId: number }) {
 
           {status.state === "ready" && active && (
             <div className="mt-4">
-              <label className="flex items-center gap-3 text-sm">
-                <span className="font-semibold text-slate-600 dark:text-slate-400">Game</span>
+              <label className="block text-sm sm:flex sm:items-center sm:gap-3">
+                <span className="mb-1.5 block font-semibold text-slate-600 dark:text-slate-400 sm:mb-0 sm:shrink-0">
+                  Game
+                </span>
                 <select
                   value={gameIdx}
                   onChange={(e) => setGameIdx(Number(e.target.value))}
-                  className="max-w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-800 focus:border-emerald-500 focus:outline-none dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100"
+                  className="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-800 focus:border-emerald-500 focus:outline-none dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 sm:w-auto sm:min-w-0 sm:flex-1"
                 >
                   {games.map((g, i) => (
                     <option key={g.vg} value={i}>
