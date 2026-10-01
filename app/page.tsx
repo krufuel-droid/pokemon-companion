@@ -67,8 +67,9 @@ export default function HomePage() {
             Your Pokémon journey, all in one place
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-lg text-slate-600">
-            Explore a full Pokédex, sharpen your strategy with battle tools, and
-            — soon — connect with a trainer community.
+            Explore a full Pokédex, sharpen your strategy with battle tools,
+            look up items, catch up on the latest news, and connect with a
+            trainer community.
           </p>
           <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Link

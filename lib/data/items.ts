@@ -8,7 +8,11 @@
  */
 import { getAllSpecies } from "@/lib/pokedex";
 
-export type ItemCategory = "mega-stone" | "evolution-stone" | "evolution-item";
+export type ItemCategory =
+  | "mega-stone"
+  | "evolution-stone"
+  | "evolution-item"
+  | "battle-item";
 
 export interface ItemEntry {
   name: string;
@@ -17,12 +21,15 @@ export interface ItemEntry {
   /** Species names this item works on (may be empty). */
   pokemon: string[];
   games: string[];
+  /** 1–3 notable places/methods to obtain the item (kept general when unsure). */
+  obtain: string;
 }
 
 export const CATEGORY_LABEL: Record<ItemCategory, string> = {
   "mega-stone": "Mega Stones",
   "evolution-stone": "Evolution Stones",
   "evolution-item": "Evolution Items",
+  "battle-item": "Battle Items",
 };
 
 const MEGA_GAMES = [
@@ -34,12 +41,20 @@ const MEGA_GAMES = [
   "Champions",
 ];
 
-const megaStone = (name: string, pokemon: string): ItemEntry => ({
+const MEGA_STONE_OBTAIN =
+  "Gift and pickup spots across Kalos and Hoenn (X/Y, OR/AS); Battle Tree BP exchange (Sun/Moon)";
+
+const megaStone = (
+  name: string,
+  pokemon: string,
+  obtain: string = MEGA_STONE_OBTAIN
+): ItemEntry => ({
   name,
   category: "mega-stone",
   description: `Lets ${pokemon} Mega Evolve in battle when held.`,
   pokemon: [pokemon],
   games: MEGA_GAMES,
+  obtain,
 });
 
 export const ITEMS: ItemEntry[] = [
@@ -54,8 +69,8 @@ export const ITEMS: ItemEntry[] = [
   megaStone("Pinsirite", "Pinsir"),
   megaStone("Gyaradosite", "Gyarados"),
   megaStone("Aerodactylite", "Aerodactyl"),
-  megaStone("Mewtwonite X", "Mewtwo"),
-  megaStone("Mewtwonite Y", "Mewtwo"),
+  megaStone("Mewtwonite X", "Mewtwo", "Pokémon Village (X)"),
+  megaStone("Mewtwonite Y", "Mewtwo", "Pokémon Village (Y)"),
   megaStone("Ampharosite", "Ampharos"),
   megaStone("Scizorite", "Scizor"),
   megaStone("Heracronite", "Heracross"),
@@ -70,7 +85,7 @@ export const ITEMS: ItemEntry[] = [
   megaStone("Banettite", "Banette"),
   megaStone("Absolite", "Absol"),
   megaStone("Garchompite", "Garchomp"),
-  megaStone("Lucarionite", "Lucario"),
+  megaStone("Lucarionite", "Lucario", "Gift from Korrina in Shalour City (X/Y)"),
   megaStone("Abomasite", "Abomasnow"),
   megaStone("Beedrillite", "Beedrill"),
   megaStone("Pidgeotite", "Pidgeot"),
@@ -99,6 +114,7 @@ export const ITEMS: ItemEntry[] = [
     description: "A peculiar stone that makes certain Pokémon evolve. It burns as hot as a volcano.",
     pokemon: ["Vulpix", "Growlithe", "Eevee", "Pansear"],
     games: ["Red/Blue", "Gold/Silver", "X/Y", "Sword/Shield", "Scarlet/Violet"],
+    obtain: "Celadon Dept. Store (RBY); Delibird Presents (SV); sparkling pickups in most games",
   },
   {
     name: "Thunder Stone",
@@ -106,6 +122,7 @@ export const ITEMS: ItemEntry[] = [
     description: "A peculiar stone that makes certain Pokémon evolve. It crackles with electricity.",
     pokemon: ["Pikachu", "Eevee", "Eelektrik", "Charjabug", "Tadbulb"],
     games: ["Red/Blue", "Black/White", "Sun/Moon", "Sword/Shield", "Scarlet/Violet"],
+    obtain: "Celadon Dept. Store (RBY); Delibird Presents (SV); sparkling pickups in most games",
   },
   {
     name: "Water Stone",
@@ -113,6 +130,7 @@ export const ITEMS: ItemEntry[] = [
     description: "A peculiar stone that makes certain Pokémon evolve. It glistens like the ocean.",
     pokemon: ["Poliwhirl", "Shellder", "Staryu", "Eevee", "Lombre", "Panpour"],
     games: ["Red/Blue", "Diamond/Pearl", "X/Y", "Sword/Shield", "Scarlet/Violet"],
+    obtain: "Celadon Dept. Store (RBY); Delibird Presents (SV); sparkling pickups in most games",
   },
   {
     name: "Leaf Stone",
@@ -120,6 +138,7 @@ export const ITEMS: ItemEntry[] = [
     description: "A peculiar stone that makes certain Pokémon evolve. It smells faintly of leaves.",
     pokemon: ["Gloom", "Weepinbell", "Exeggcute", "Nuzleaf", "Pansage"],
     games: ["Red/Blue", "Diamond/Pearl", "Black/White", "Sword/Shield", "Scarlet/Violet"],
+    obtain: "Celadon Dept. Store (RBY); Delibird Presents (SV); sparkling pickups in most games",
   },
   {
     name: "Moon Stone",
@@ -127,6 +146,7 @@ export const ITEMS: ItemEntry[] = [
     description: "A peculiar stone that makes certain Pokémon evolve. It glows faintly at night.",
     pokemon: ["Nidorina", "Nidorino", "Clefairy", "Jigglypuff", "Skitty", "Munna"],
     games: ["Red/Blue", "Gold/Silver", "Diamond/Pearl", "Sword/Shield"],
+    obtain: "Mt. Moon (RBY); Delibird Presents (SV); wild Clefairy hold (most games)",
   },
   {
     name: "Sun Stone",
@@ -134,6 +154,7 @@ export const ITEMS: ItemEntry[] = [
     description: "A peculiar stone that makes certain Pokémon evolve. It feels warm as sunshine.",
     pokemon: ["Gloom", "Sunkern", "Cottonee", "Petilil", "Heliolisk"],
     games: ["Gold/Silver", "Diamond/Pearl", "Black/White", "Sword/Shield", "Scarlet/Violet"],
+    obtain: "Bug-Catching Contest prize (GS); Delibird Presents (SV); wild Solrock hold",
   },
   {
     name: "Shiny Stone",
@@ -141,6 +162,7 @@ export const ITEMS: ItemEntry[] = [
     description: "A peculiar stone that makes certain Pokémon evolve. It shines with dazzling light.",
     pokemon: ["Togetic", "Roselia", "Minccino", "Floette"],
     games: ["Diamond/Pearl", "Black/White", "X/Y", "Sword/Shield"],
+    obtain: "Sinnoh route pickups (D/P); Delibird Presents (SV); Battle Tower BP (SwSh)",
   },
   {
     name: "Dusk Stone",
@@ -148,6 +170,7 @@ export const ITEMS: ItemEntry[] = [
     description: "A peculiar stone that makes certain Pokémon evolve. It holds shadows within.",
     pokemon: ["Murkrow", "Misdreavus", "Lampent", "Doublade"],
     games: ["Diamond/Pearl", "Black/White", "X/Y", "Sword/Shield", "Scarlet/Violet"],
+    obtain: "Late-game Sinnoh pickups (D/P); Delibird Presents (SV); wild Honedge line hold",
   },
   {
     name: "Dawn Stone",
@@ -155,6 +178,7 @@ export const ITEMS: ItemEntry[] = [
     description: "A peculiar stone that makes certain Pokémon evolve. It sparkles like a sunrise.",
     pokemon: ["Kirlia", "Snorunt"],
     games: ["Diamond/Pearl", "Black/White", "Sword/Shield", "Scarlet/Violet"],
+    obtain: "Mt. Coronet (D/P); Delibird Presents (SV); Dusty Bowl wild area (SwSh)",
   },
   {
     name: "Ice Stone",
@@ -162,6 +186,7 @@ export const ITEMS: ItemEntry[] = [
     description: "A peculiar stone that makes certain Pokémon evolve. It is cold enough to freeze skin.",
     pokemon: ["Vulpix", "Sandshrew", "Darumaka", "Eevee", "Crabrawler"],
     games: ["Sun/Moon", "Sword/Shield", "Scarlet/Violet"],
+    obtain: "Po Town (Sun/Moon); Delibird Presents (SV); wild-area pickups (SwSh)",
   },
 
   // ---- Other evolution items ----
@@ -171,6 +196,7 @@ export const ITEMS: ItemEntry[] = [
     description: "Trade while holding to evolve Poliwhirl into Politoed or Slowpoke into Slowking. May make foes flinch when held.",
     pokemon: ["Poliwhirl", "Slowpoke"],
     games: ["Gold/Silver", "Diamond/Pearl", "Black/White", "Sword/Shield"],
+    obtain: "Slowpoke Well (GS); Battle Tower BP (SwSh); wild Poliwhirl hold",
   },
   {
     name: "Metal Coat",
@@ -178,6 +204,7 @@ export const ITEMS: ItemEntry[] = [
     description: "Trade while holding to evolve Onix into Steelix or Scyther into Scizor. Boosts Steel moves when held.",
     pokemon: ["Onix", "Scyther"],
     games: ["Gold/Silver", "Diamond/Pearl", "Legends: Arceus", "Scarlet/Violet"],
+    obtain: "Wild Magnemite/Magneton hold (most games); Battle Tower BP (SwSh)",
   },
   {
     name: "Dragon Scale",
@@ -185,6 +212,7 @@ export const ITEMS: ItemEntry[] = [
     description: "Trade while holding to evolve Seadra into Kingdra.",
     pokemon: ["Seadra"],
     games: ["Gold/Silver", "Diamond/Pearl", "Black/White"],
+    obtain: "Wild Horsea/Seadra hold (most games); Battle Tower BP",
   },
   {
     name: "Up-Grade",
@@ -192,6 +220,7 @@ export const ITEMS: ItemEntry[] = [
     description: "Trade while holding to evolve Porygon into Porygon2.",
     pokemon: ["Porygon"],
     games: ["Gold/Silver", "Diamond/Pearl", "Legends: Arceus"],
+    obtain: "Late-game Johto/Kanto pickups (GS); Battle Tower BP (SwSh)",
   },
   {
     name: "Dubious Disc",
@@ -199,6 +228,7 @@ export const ITEMS: ItemEntry[] = [
     description: "Trade while holding to evolve Porygon2 into Porygon-Z.",
     pokemon: ["Porygon2"],
     games: ["Diamond/Pearl", "Legends: Arceus"],
+    obtain: "Team Galactic HQ, Veilstone (D/P); satchel returns (Legends: Arceus)",
   },
   {
     name: "Electirizer",
@@ -206,6 +236,7 @@ export const ITEMS: ItemEntry[] = [
     description: "Trade while holding to evolve Electabuzz into Electivire.",
     pokemon: ["Electabuzz"],
     games: ["Diamond/Pearl", "Legends: Arceus"],
+    obtain: "Wild Electabuzz hold (D/P); space-time distortions (Legends: Arceus)",
   },
   {
     name: "Magmarizer",
@@ -213,6 +244,7 @@ export const ITEMS: ItemEntry[] = [
     description: "Trade while holding to evolve Magmar into Magmortar.",
     pokemon: ["Magmar"],
     games: ["Diamond/Pearl", "Legends: Arceus"],
+    obtain: "Wild Magmar hold (D/P); space-time distortions (Legends: Arceus)",
   },
   {
     name: "Protector",
@@ -220,6 +252,7 @@ export const ITEMS: ItemEntry[] = [
     description: "Trade while holding to evolve Rhydon into Rhyperior.",
     pokemon: ["Rhydon"],
     games: ["Diamond/Pearl", "Legends: Arceus"],
+    obtain: "Iron Island (D/P); space-time distortions (Legends: Arceus)",
   },
   {
     name: "Reaper Cloth",
@@ -227,6 +260,7 @@ export const ITEMS: ItemEntry[] = [
     description: "Trade while holding to evolve Dusclops into Dusknoir.",
     pokemon: ["Dusclops"],
     games: ["Diamond/Pearl", "Legends: Arceus"],
+    obtain: "Route 229 (D/P); space-time distortions (Legends: Arceus)",
   },
   {
     name: "Razor Claw",
@@ -234,6 +268,7 @@ export const ITEMS: ItemEntry[] = [
     description: "Level up at night while holding to evolve Sneasel into Weavile. Boosts critical-hit ratio when held.",
     pokemon: ["Sneasel"],
     games: ["Diamond/Pearl", "Legends: Arceus", "Scarlet/Violet"],
+    obtain: "Sinnoh late-game pickups (D/P); Delibird Presents (SV); wild Sneasel hold",
   },
   {
     name: "Razor Fang",
@@ -241,6 +276,7 @@ export const ITEMS: ItemEntry[] = [
     description: "Level up at night while holding to evolve Gligar into Gliscor. May make foes flinch when held.",
     pokemon: ["Gligar"],
     games: ["Diamond/Pearl", "Legends: Arceus"],
+    obtain: "Battle Tower BP (D/P, SwSh); wild Gligar hold",
   },
   {
     name: "Oval Stone",
@@ -248,6 +284,7 @@ export const ITEMS: ItemEntry[] = [
     description: "Level up during the day while holding to evolve Happiny into Chansey.",
     pokemon: ["Happiny"],
     games: ["Diamond/Pearl", "Legends: Arceus"],
+    obtain: "Lost Tower (D/P); wild Happiny hold; space-time distortions (Legends: Arceus)",
   },
   {
     name: "Prism Scale",
@@ -255,6 +292,7 @@ export const ITEMS: ItemEntry[] = [
     description: "Trade while holding to evolve Feebas into Milotic.",
     pokemon: ["Feebas"],
     games: ["Black/White", "X/Y", "Sword/Shield"],
+    obtain: "Unova route pickups (B/W); wild Feebas hold; Battle Tower BP (SwSh)",
   },
   {
     name: "Sachet",
@@ -262,6 +300,7 @@ export const ITEMS: ItemEntry[] = [
     description: "Trade while holding to evolve Spritzee into Aromatisse.",
     pokemon: ["Spritzee"],
     games: ["X/Y", "Sword/Shield"],
+    obtain: "Kalos route pickups (X/Y); Battle Tower BP (SwSh)",
   },
   {
     name: "Whipped Dream",
@@ -269,6 +308,7 @@ export const ITEMS: ItemEntry[] = [
     description: "Trade while holding to evolve Swirlix into Slurpuff.",
     pokemon: ["Swirlix"],
     games: ["X/Y", "Sword/Shield"],
+    obtain: "Kalos route pickups (X/Y); Battle Tower BP (SwSh)",
   },
   {
     name: "Sweet Apple",
@@ -276,6 +316,7 @@ export const ITEMS: ItemEntry[] = [
     description: "Evolves Applin into Appletun.",
     pokemon: ["Applin"],
     games: ["Sword/Shield", "Scarlet/Violet"],
+    obtain: "Delibird Presents (SV); wild-area sparkling pickups (SwSh)",
   },
   {
     name: "Tart Apple",
@@ -283,6 +324,7 @@ export const ITEMS: ItemEntry[] = [
     description: "Evolves Applin into Flapple.",
     pokemon: ["Applin"],
     games: ["Sword/Shield", "Scarlet/Violet"],
+    obtain: "Delibird Presents (SV); wild-area sparkling pickups (SwSh)",
   },
   {
     name: "Cracked Pot",
@@ -290,6 +332,7 @@ export const ITEMS: ItemEntry[] = [
     description: "Evolves Sinistea into Polteageist.",
     pokemon: ["Sinistea"],
     games: ["Sword/Shield", "Scarlet/Violet"],
+    obtain: "Stow-on-Side bargain shop (SwSh); Porto Marinada auctions (SV)",
   },
   {
     name: "Linking Cord",
@@ -297,6 +340,7 @@ export const ITEMS: ItemEntry[] = [
     description: "A mysterious cord from Hisui that evolves trade-evolution Pokémon without trading.",
     pokemon: ["Kadabra", "Machoke", "Graveler", "Haunter"],
     games: ["Legends: Arceus"],
+    obtain: "Space-time distortions; satchel returns; trading post (Legends: Arceus)",
   },
   {
     name: "Black Augurite",
@@ -304,6 +348,7 @@ export const ITEMS: ItemEntry[] = [
     description: "Evolves Scyther into Kleavor in Hisui.",
     pokemon: ["Scyther"],
     games: ["Legends: Arceus"],
+    obtain: "Dropped by wild Graveler; space-time distortions (Legends: Arceus)",
   },
   {
     name: "Peat Block",
@@ -311,6 +356,7 @@ export const ITEMS: ItemEntry[] = [
     description: "Use on Ursaring during a full moon in Hisui to evolve it into Ursaluna.",
     pokemon: ["Ursaring"],
     games: ["Legends: Arceus"],
+    obtain: "Digging with Ursaluna; Crimson Mirelands pickups (Legends: Arceus)",
   },
   {
     name: "Scroll of Darkness",
@@ -318,6 +364,7 @@ export const ITEMS: ItemEntry[] = [
     description: "Lets Kubfu evolve into Single Strike Style Urshifu after training at the Tower of Darkness.",
     pokemon: ["Kubfu"],
     games: ["Sword/Shield (Isle of Armor)"],
+    obtain: "Clear the Tower of Darkness, Isle of Armor (SwSh)",
   },
   {
     name: "Scroll of Waters",
@@ -325,6 +372,7 @@ export const ITEMS: ItemEntry[] = [
     description: "Lets Kubfu evolve into Rapid Strike Style Urshifu after training at the Tower of Waters.",
     pokemon: ["Kubfu"],
     games: ["Sword/Shield (Isle of Armor)"],
+    obtain: "Clear the Tower of Waters, Isle of Armor (SwSh)",
   },
   {
     name: "Galarica Cuff",
@@ -332,6 +380,7 @@ export const ITEMS: ItemEntry[] = [
     description: "Braided from Galarica Twigs; evolves Galarian Slowpoke into Galarian Slowbro.",
     pokemon: ["Slowpoke"],
     games: ["Sword/Shield (Isle of Armor)"],
+    obtain: "Crafted from Galarica Twigs on the Isle of Armor (SwSh)",
   },
   {
     name: "Galarica Wreath",
@@ -339,6 +388,7 @@ export const ITEMS: ItemEntry[] = [
     description: "Braided from Galarica Twigs; evolves Galarian Slowpoke into Galarian Slowking.",
     pokemon: ["Slowpoke"],
     games: ["Sword/Shield (Crown Tundra)"],
+    obtain: "Crafted from Galarica Twigs in the Crown Tundra (SwSh)",
   },
   {
     name: "Max Soup",
@@ -346,6 +396,209 @@ export const ITEMS: ItemEntry[] = [
     description: "Made from Max Mushrooms; gives a Gigantamax-capable Pokémon its Gigantamax form.",
     pokemon: [],
     games: ["Sword/Shield (Isle of Armor)"],
+    obtain: "Master Dojo kitchen after the Max Mushroom hunt, Isle of Armor (SwSh)",
+  },
+
+  // ---- Battle items (held items) ----
+  {
+    name: "Choice Scarf",
+    category: "battle-item",
+    description: "Boosts the holder's Speed by 50%, but it can only use one move.",
+    pokemon: [],
+    games: ["Diamond/Pearl", "Black/White", "X/Y", "Sword/Shield", "Scarlet/Violet"],
+    obtain: "Delibird Presents (SV); Battle Tower BP (SwSh, D/P)",
+  },
+  {
+    name: "Choice Band",
+    category: "battle-item",
+    description: "Boosts the holder's Attack by 50%, but it can only use one move.",
+    pokemon: [],
+    games: ["Ruby/Sapphire", "Diamond/Pearl", "Sword/Shield", "Scarlet/Violet"],
+    obtain: "Delibird Presents (SV); Battle Tower BP (SwSh)",
+  },
+  {
+    name: "Choice Specs",
+    category: "battle-item",
+    description: "Boosts the holder's Sp. Atk by 50%, but it can only use one move.",
+    pokemon: [],
+    games: ["Diamond/Pearl", "Black/White", "Sword/Shield", "Scarlet/Violet"],
+    obtain: "Delibird Presents (SV); Battle Tower BP (SwSh, D/P)",
+  },
+  {
+    name: "Life Orb",
+    category: "battle-item",
+    description: "Boosts damaging moves by 30%, but the holder loses 10% of its max HP per hit.",
+    pokemon: [],
+    games: ["Diamond/Pearl", "Black/White", "X/Y", "Sword/Shield", "Scarlet/Violet"],
+    obtain: "Delibird Presents (SV); Battle Tower BP (older games)",
+  },
+  {
+    name: "Leftovers",
+    category: "battle-item",
+    description: "Restores 1/16 of the holder's max HP at the end of each turn.",
+    pokemon: [],
+    games: ["Gold/Silver", "Ruby/Sapphire", "Diamond/Pearl", "Sword/Shield", "Scarlet/Violet"],
+    obtain: "Held by wild Snorlax/Munchlax; Battle facilities (BP) in most games",
+  },
+  {
+    name: "Focus Sash",
+    category: "battle-item",
+    description: "If the holder is at full HP, it survives a KO hit with 1 HP. Breaks after use.",
+    pokemon: [],
+    games: ["Diamond/Pearl", "Black/White", "X/Y", "Sword/Shield", "Scarlet/Violet"],
+    obtain: "Delibird Presents (SV); Battle Tower BP (D/P onward)",
+  },
+  {
+    name: "Assault Vest",
+    category: "battle-item",
+    description: "Boosts the holder's Sp. Def by 50%, but it can't use status moves.",
+    pokemon: [],
+    games: ["X/Y", "Sun/Moon", "Sword/Shield", "Scarlet/Violet"],
+    obtain: "Delibird Presents (SV); Battle Maison BP (X/Y)",
+  },
+  {
+    name: "Weakness Policy",
+    category: "battle-item",
+    description: "When hit by a super-effective move, the holder's Attack and Sp. Atk sharply rise. Consumed after use.",
+    pokemon: [],
+    games: ["X/Y", "Sun/Moon", "Sword/Shield", "Scarlet/Violet"],
+    obtain: "Delibird Presents (SV); Battle Tree BP (Sun/Moon)",
+  },
+  {
+    name: "Rocky Helmet",
+    category: "battle-item",
+    description: "Attackers that make contact lose 1/6 of their max HP.",
+    pokemon: [],
+    games: ["Black/White", "X/Y", "Sword/Shield", "Scarlet/Violet"],
+    obtain: "Delibird Presents (SV); Battle Subway BP (B/W)",
+  },
+  {
+    name: "Heavy-Duty Boots",
+    category: "battle-item",
+    description: "Protects the holder from entry hazards and other field damage when switching in.",
+    pokemon: [],
+    games: ["Sword/Shield", "Scarlet/Violet"],
+    obtain: "Delibird Presents (SV); Battle Tower BP (SwSh)",
+  },
+  {
+    name: "Safety Goggles",
+    category: "battle-item",
+    description: "Protects the holder from powder and spore moves, plus damage from weather.",
+    pokemon: [],
+    games: ["X/Y", "Sun/Moon", "Sword/Shield", "Scarlet/Violet"],
+    obtain: "Delibird Presents (SV); Battle Maison BP (X/Y)",
+  },
+  {
+    name: "Mental Herb",
+    category: "battle-item",
+    description: "Snaps the holder out of infatuation, Taunt, Encore, and similar effects once. Consumed after use.",
+    pokemon: [],
+    games: ["Diamond/Pearl", "Black/White", "Sword/Shield", "Scarlet/Violet"],
+    obtain: "Battle facilities (BP) in most games; Delibird Presents (SV)",
+  },
+  {
+    name: "Power Herb",
+    category: "battle-item",
+    description: "Lets the holder use a charging move in a single turn. Consumed after use.",
+    pokemon: [],
+    games: ["Diamond/Pearl", "Black/White", "Sword/Shield", "Scarlet/Violet"],
+    obtain: "Battle facilities (BP) in most games; Delibird Presents (SV)",
+  },
+  {
+    name: "White Herb",
+    category: "battle-item",
+    description: "Restores any of the holder's lowered stats once. Consumed after use.",
+    pokemon: [],
+    games: ["Ruby/Sapphire", "Diamond/Pearl", "Sword/Shield", "Scarlet/Violet"],
+    obtain: "Battle facilities (BP) in most games; Delibird Presents (SV)",
+  },
+  {
+    name: "Expert Belt",
+    category: "battle-item",
+    description: "Boosts the power of the holder's super-effective moves by 20%.",
+    pokemon: [],
+    games: ["Diamond/Pearl", "Black/White", "Sword/Shield", "Scarlet/Violet"],
+    obtain: "Battle Tower BP (D/P onward); Delibird Presents (SV)",
+  },
+  {
+    name: "Muscle Band",
+    category: "battle-item",
+    description: "Boosts the power of the holder's physical moves by 10%.",
+    pokemon: [],
+    games: ["Diamond/Pearl", "Black/White", "Sword/Shield", "Scarlet/Violet"],
+    obtain: "Battle Tower BP (D/P onward); Delibird Presents (SV)",
+  },
+  {
+    name: "Wise Glasses",
+    category: "battle-item",
+    description: "Boosts the power of the holder's special moves by 10%.",
+    pokemon: [],
+    games: ["Diamond/Pearl", "Black/White", "Sword/Shield", "Scarlet/Violet"],
+    obtain: "Battle Tower BP (D/P onward); Delibird Presents (SV)",
+  },
+  {
+    name: "Scope Lens",
+    category: "battle-item",
+    description: "Raises the holder's critical-hit ratio by one stage.",
+    pokemon: [],
+    games: ["Ruby/Sapphire", "Diamond/Pearl", "Sword/Shield", "Scarlet/Violet"],
+    obtain: "Battle facilities (BP) in most games; Delibird Presents (SV)",
+  },
+  {
+    name: "Eject Button",
+    category: "battle-item",
+    description: "When the holder is hit by a damaging move, it immediately switches out. Consumed after use.",
+    pokemon: [],
+    games: ["Black/White", "X/Y", "Sword/Shield", "Scarlet/Violet"],
+    obtain: "Battle Tower BP (SwSh); Delibird Presents (SV)",
+  },
+  {
+    name: "Red Card",
+    category: "battle-item",
+    description: "When the holder is hit by a damaging move, the attacker is forced to switch out. Consumed after use.",
+    pokemon: [],
+    games: ["Black/White", "X/Y", "Sword/Shield", "Scarlet/Violet"],
+    obtain: "Battle facilities (BP) in most games; Delibird Presents (SV)",
+  },
+  {
+    name: "Air Balloon",
+    category: "battle-item",
+    description: "The holder floats, immune to Ground-type moves, until it takes a direct hit and the balloon pops.",
+    pokemon: [],
+    games: ["Black/White", "X/Y", "Sword/Shield", "Scarlet/Violet"],
+    obtain: "Battle Subway BP (B/W); Battle facilities (BP) in later games",
+  },
+  {
+    name: "Covert Cloak",
+    category: "battle-item",
+    description: "Protects the holder from the added effects of damaging moves.",
+    pokemon: [],
+    games: ["Scarlet/Violet"],
+    obtain: "Delibird Presents (SV)",
+  },
+  {
+    name: "Loaded Dice",
+    category: "battle-item",
+    description: "The holder's multi-strike moves hit more times.",
+    pokemon: [],
+    games: ["Scarlet/Violet"],
+    obtain: "Delibird Presents (SV)",
+  },
+  {
+    name: "Booster Energy",
+    category: "battle-item",
+    description: "Activates a Paradox Pokémon's Protosynthesis or Quark Drive ability. Consumed after use.",
+    pokemon: [],
+    games: ["Scarlet/Violet"],
+    obtain: "Ground pickups in Area Zero (SV)",
+  },
+  {
+    name: "Mirror Herb",
+    category: "battle-item",
+    description: "When an opponent raises its stats, the holder copies those boosts. Consumed after use.",
+    pokemon: [],
+    games: ["Scarlet/Violet"],
+    obtain: "Delibird Presents (SV)",
   },
 ];
 
