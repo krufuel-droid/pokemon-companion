@@ -9,7 +9,9 @@ const LINKS = [
   { href: "/pokedex", label: "Pokédex" },
   { href: "/tools", label: "Tools" },
   { href: "/community", label: "Community" },
+  { href: "/champions", label: "Champions" },
   { href: "/items", label: "Items" },
+  { href: "/moves", label: "Moves" },
   { href: "/news", label: "News" },
 ] as const;
 

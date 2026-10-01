@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { NEWS } from "@/lib/data/news";
 
 export const metadata: Metadata = {
@@ -32,6 +33,22 @@ export default function NewsPage() {
           The latest from the world of Pokémon — Champions rotations, new
           game announcements, and app updates.
         </p>
+
+        <Link
+          href="/champions"
+          className="mt-6 block rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-600 p-5 text-white shadow-sm transition hover:shadow-md"
+        >
+          <p className="text-xs font-bold uppercase tracking-wide text-violet-200">
+            New
+          </p>
+          <p className="mt-1 text-lg font-extrabold">
+            Pokémon Champions Hub →
+          </p>
+          <p className="mt-1 text-sm text-violet-100">
+            The current meta, winning teams from Worlds and Regionals, and the
+            players to watch — with links to follow them.
+          </p>
+        </Link>
 
         <div className="mt-6 space-y-4">
           {NEWS.map((item) => (
