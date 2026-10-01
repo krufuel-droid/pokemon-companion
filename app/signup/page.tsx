@@ -22,6 +22,8 @@ function SignupForm() {
     setBusy(true);
     try {
       const supabase = createClient();
+      // Clear any stale local session first (see login page for why).
+      await supabase.auth.signOut({ scope: "local" }).catch(() => {});
       const { data, error } = await supabase.auth.signUp({
         email: email.trim(),
         password,

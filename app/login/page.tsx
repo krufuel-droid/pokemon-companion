@@ -21,6 +21,12 @@ function LoginForm() {
     setBusy(true);
     try {
       const supabase = createClient();
+      // Clear any stale local session first (cookies left over from earlier
+      // attempts). A stale/expired session here can make the client try a
+      // doomed token refresh right after login, which signs the user straight
+      // back out. Scope "local" only clears this browser's cookies — it never
+      // touches sessions on Amanda's other devices.
+      await supabase.auth.signOut({ scope: "local" }).catch(() => {});
       const { error } = await supabase.auth.signInWithPassword({
         email: email.trim(),
         password,
