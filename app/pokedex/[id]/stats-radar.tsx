@@ -41,7 +41,7 @@ export function StatsRadar({ stats }: { stats: BaseStat[] }) {
   return (
     <section
       aria-label="Base stats"
-      className="mt-6 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200"
+      className="mt-6 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700"
     >
       <h2 className="text-lg font-bold">Base stats</h2>
       <div className="mt-4 flex flex-col items-center gap-6 sm:flex-row sm:items-start">
@@ -57,7 +57,7 @@ export function StatsRadar({ stats }: { stats: BaseStat[] }) {
               key={f}
               d={polygonPath(f)}
               fill="none"
-              stroke="#e2e8f0"
+              className="stroke-slate-200 dark:stroke-slate-700"
               strokeWidth="1"
             />
           ))}
@@ -72,7 +72,7 @@ export function StatsRadar({ stats }: { stats: BaseStat[] }) {
                   y1={CENTER}
                   x2={x}
                   y2={y}
-                  stroke="#e2e8f0"
+                  className="stroke-slate-200 dark:stroke-slate-700"
                   strokeWidth="1"
                 />
                 <text
@@ -80,7 +80,7 @@ export function StatsRadar({ stats }: { stats: BaseStat[] }) {
                   y={ly}
                   textAnchor="middle"
                   dominantBaseline="middle"
-                  className="fill-slate-500"
+                  className="fill-slate-500 dark:fill-slate-400"
                   fontSize="11"
                   fontWeight="600"
                 >
@@ -105,7 +105,7 @@ export function StatsRadar({ stats }: { stats: BaseStat[] }) {
                 x={p.x}
                 y={p.y - 9}
                 textAnchor="middle"
-                className="fill-slate-800"
+                className="fill-slate-800 dark:fill-slate-100"
                 fontSize="11"
                 fontWeight="700"
               >
@@ -119,12 +119,12 @@ export function StatsRadar({ stats }: { stats: BaseStat[] }) {
         <dl className="w-full min-w-0 flex-1 space-y-2">
           {stats.map((s) => (
             <div key={s.key} className="flex items-center gap-3">
-              <dt className="w-16 shrink-0 text-sm font-medium text-slate-500">
+              <dt className="w-16 shrink-0 text-sm font-medium text-slate-500 dark:text-slate-400">
                 {LABELS[s.key] ?? s.key}
               </dt>
               <dd className="flex min-w-0 flex-1 items-center gap-2">
                 <div
-                  className="h-2 min-w-0 rounded-full bg-slate-100"
+                  className="h-2 min-w-0 rounded-full bg-slate-100 dark:bg-slate-800"
                   style={{ flexGrow: 1 }}
                 >
                   <div
@@ -132,17 +132,17 @@ export function StatsRadar({ stats }: { stats: BaseStat[] }) {
                     style={{ width: `${Math.min(100, (s.value / scale) * 100)}%` }}
                   />
                 </div>
-                <span className="w-8 shrink-0 text-right text-sm font-bold text-slate-800">
+                <span className="w-8 shrink-0 text-right text-sm font-bold text-slate-800 dark:text-slate-100">
                   {s.value}
                 </span>
               </dd>
             </div>
           ))}
-          <div className="flex items-center gap-3 border-t border-slate-100 pt-2">
-            <dt className="w-16 shrink-0 text-sm font-semibold text-slate-700">
+          <div className="flex items-center gap-3 border-t border-slate-100 pt-2 dark:border-slate-800">
+            <dt className="w-16 shrink-0 text-sm font-semibold text-slate-700 dark:text-slate-300">
               Total
             </dt>
-            <dd className="text-sm font-bold text-slate-900">{total}</dd>
+            <dd className="text-sm font-bold text-slate-900 dark:text-slate-100">{total}</dd>
           </div>
         </dl>
       </div>

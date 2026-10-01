@@ -6,9 +6,9 @@ import { typeColor } from "@/lib/theme";
 import { Learners } from "./learners";
 
 const CATEGORY_BADGE: Record<string, string> = {
-  Physical: "bg-orange-100 text-orange-800",
-  Special: "bg-indigo-100 text-indigo-800",
-  Status: "bg-slate-200 text-slate-700",
+  Physical: "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200",
+  Special: "bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200",
+  Status: "bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-300",
 };
 
 function TypeBadge({ type }: { type: string }) {
@@ -24,11 +24,11 @@ function TypeBadge({ type }: { type: string }) {
 
 function StatCard({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-xl bg-slate-50 px-4 py-3 text-center ring-1 ring-slate-100">
-      <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+    <div className="rounded-xl bg-slate-50 px-4 py-3 text-center ring-1 ring-slate-100 dark:bg-slate-800 dark:ring-slate-800">
+      <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">
         {label}
       </p>
-      <p className="mt-1 text-xl font-bold tabular-nums text-slate-900">{value}</p>
+      <p className="mt-1 text-xl font-bold tabular-nums text-slate-900 dark:text-slate-100">{value}</p>
     </div>
   );
 }
@@ -65,29 +65,29 @@ export default async function MovePage({
     <main className="mx-auto max-w-3xl px-4 py-8">
       <Link
         href="/moves"
-        className="text-sm font-semibold text-emerald-700 hover:text-emerald-900"
+        className="text-sm font-semibold text-emerald-700 hover:text-emerald-900 dark:text-emerald-300 dark:hover:text-emerald-100"
       >
         ← All moves
       </Link>
 
       <section
         aria-label={`${move.name} details`}
-        className="mt-4 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 sm:p-8"
+        className="mt-4 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 sm:p-8 dark:bg-slate-900 dark:ring-slate-700"
       >
-        <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">
+        <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100">
           {move.name}
         </h1>
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <TypeBadge type={move.type} />
           <span
             className={`inline-block rounded-full px-3 py-1 text-sm font-semibold ${
-              CATEGORY_BADGE[move.category] ?? "bg-slate-200 text-slate-700"
+              CATEGORY_BADGE[move.category] ?? "bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-300"
             }`}
           >
             {move.category}
           </span>
           {gen && (
-            <span className="inline-block rounded-full bg-emerald-100 px-3 py-1 text-sm font-semibold text-emerald-800">
+            <span className="inline-block rounded-full bg-emerald-100 px-3 py-1 text-sm font-semibold text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200">
               Introduced in {gen}
             </span>
           )}
@@ -107,21 +107,21 @@ export default async function MovePage({
         </div>
 
         {move.shortEffect && (
-          <p className="mt-6 text-slate-700">{move.shortEffect}</p>
+          <p className="mt-6 text-slate-700 dark:text-slate-300">{move.shortEffect}</p>
         )}
         {move.effect && move.effect !== move.shortEffect && (
-          <p className="mt-2 text-sm text-slate-500">{move.effect}</p>
+          <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">{move.effect}</p>
         )}
       </section>
 
       <section
         aria-label="Pokémon that learn this move"
-        className="mt-6 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 sm:p-8"
+        className="mt-6 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 sm:p-8 dark:bg-slate-900 dark:ring-slate-700"
       >
-        <h2 className="text-lg font-bold text-slate-900">
+        <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">
           Pokémon that learn it
           {move.learnedBy.length > 0 && (
-            <span className="ml-2 text-sm font-medium text-slate-400">
+            <span className="ml-2 text-sm font-medium text-slate-400 dark:text-slate-500">
               · {move.learnedBy.length}
             </span>
           )}

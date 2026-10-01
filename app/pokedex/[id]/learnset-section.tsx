@@ -28,14 +28,20 @@ interface LearnsetFile {
   games: LearnsetGame[];
 }
 
+/**
+ * Bump this whenever public/learnsets/*.json are regenerated so browsers
+ * fetch fresh data instead of a stale cached copy.
+ */
+const LEARNSET_VERSION = 2;
+
 const CATEGORY_BADGE: Record<string, string> = {
-  Physical: "bg-orange-100 text-orange-800",
-  Special: "bg-indigo-100 text-indigo-800",
-  Status: "bg-slate-200 text-slate-700",
+  Physical: "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200",
+  Special: "bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200",
+  Status: "bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-300",
 };
 
 function TypeBadge({ type }: { type: string | null }) {
-  if (!type) return <span className="text-slate-400">—</span>;
+  if (!type) return <span className="text-slate-400 dark:text-slate-500">—</span>;
   return (
     <span
       className="inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold text-white"
@@ -49,12 +55,12 @@ function TypeBadge({ type }: { type: string | null }) {
 function LevelCell({ level }: { level: number }) {
   if (level === 0) {
     return (
-      <span className="inline-block rounded-full bg-violet-100 px-2 py-0.5 text-xs font-bold text-violet-800">
+      <span className="inline-block rounded-full bg-violet-100 px-2 py-0.5 text-xs font-bold text-violet-800 dark:bg-violet-900 dark:text-violet-200">
         Evo
       </span>
     );
   }
-  return <span className="font-bold text-slate-700">{level}</span>;
+  return <span className="font-bold text-slate-700 dark:text-slate-300">{level}</span>;
 }
 
 type Status =
@@ -74,7 +80,7 @@ export function LearnsetSection({ speciesId }: { speciesId: number }) {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 15000);
 
-    fetch(`/learnsets/${speciesId}.json`, { signal: controller.signal })
+    fetch(`/learnsets/${speciesId}.json?v=${LEARNSET_VERSION}`, { signal: controller.signal })
       .then((res) => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return res.json() as Promise<LearnsetFile>;
@@ -82,10 +88,10 @@ export function LearnsetSection({ speciesId }: { speciesId: number }) {
       .then((file) => {
         if (cancelled) return;
         clearTimeout(timeout);
+        // Guarantee newest-first ordering regardless of file order.
+        const games = [...file.games].sort((a, b) => b.order - a.order);
         setStatus(
-          file.games.length === 0
-            ? { state: "empty" }
-            : { state: "ready", games: file.games }
+          games.length === 0 ? { state: "empty" } : { state: "ready", games }
         );
       })
       .catch(() => {
@@ -107,7 +113,7 @@ export function LearnsetSection({ speciesId }: { speciesId: number }) {
   return (
     <section
       aria-label="Level-up moves"
-      className="mt-6 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200"
+      className="mt-6 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700"
     >
       <button
         type="button"
@@ -119,12 +125,12 @@ export function LearnsetSection({ speciesId }: { speciesId: number }) {
           <span className="text-lg font-bold">
             Level-up moves
             {status.state === "ready" && (
-              <span className="ml-2 text-sm font-medium text-slate-400">
+              <span className="ml-2 text-sm font-medium text-slate-400 dark:text-slate-500">
                 · {games.length} {games.length === 1 ? "game" : "games"}
               </span>
             )}
           </span>
-          <span className="mt-1 block text-sm font-normal text-slate-500">
+          <span className="mt-1 block text-sm font-normal text-slate-500 dark:text-slate-400">
             Moves learned by leveling up, per game — newest first.
           </span>
         </span>
@@ -151,20 +157,20 @@ export function LearnsetSection({ speciesId }: { speciesId: number }) {
       {open && (
         <>
           {status.state === "loading" && (
-            <p className="mt-3 text-sm text-slate-500">
+            <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">
               Looking up level-up learnsets…
             </p>
           )}
 
           {status.state === "error" && (
-            <p className="mt-3 text-sm text-slate-500">
+            <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">
               Couldn&apos;t load learnset data right now — the rest of the page
               is unaffected.
             </p>
           )}
 
           {status.state === "empty" && (
-            <p className="mt-3 text-sm text-slate-500">
+            <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">
               No level-up moves recorded for this Pokémon.
             </p>
           )}
@@ -172,11 +178,11 @@ export function LearnsetSection({ speciesId }: { speciesId: number }) {
           {status.state === "ready" && active && (
             <div className="mt-4">
               <label className="flex items-center gap-3 text-sm">
-                <span className="font-semibold text-slate-600">Game</span>
+                <span className="font-semibold text-slate-600 dark:text-slate-400">Game</span>
                 <select
                   value={gameIdx}
                   onChange={(e) => setGameIdx(Number(e.target.value))}
-                  className="max-w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-800 focus:border-emerald-500 focus:outline-none"
+                  className="max-w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-800 focus:border-emerald-500 focus:outline-none dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100"
                 >
                   {games.map((g, i) => (
                     <option key={g.vg} value={i}>
@@ -186,10 +192,10 @@ export function LearnsetSection({ speciesId }: { speciesId: number }) {
                 </select>
               </label>
 
-              <div className="mt-3 overflow-x-auto rounded-xl ring-1 ring-slate-200">
-                <table className="w-full min-w-[520px] border-collapse bg-white text-sm">
+              <div className="mt-3 overflow-x-auto rounded-xl ring-1 ring-slate-200 dark:ring-slate-700">
+                <table className="w-full min-w-[520px] border-collapse bg-white text-sm dark:bg-slate-900">
                   <thead>
-                    <tr className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-400">
+                    <tr className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-400 dark:bg-slate-800 dark:text-slate-500">
                       <th className="px-4 py-2 font-semibold">Lv</th>
                       <th className="px-4 py-2 font-semibold">Move</th>
                       <th className="px-4 py-2 font-semibold">Type</th>
@@ -198,9 +204,9 @@ export function LearnsetSection({ speciesId }: { speciesId: number }) {
                       <th className="px-4 py-2 text-right font-semibold">Acc</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100">
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                     {active.moves.map((m) => (
-                      <tr key={`${m.level}-${m.move}`} className="hover:bg-slate-50">
+                      <tr key={`${m.level}-${m.move}`} className="hover:bg-slate-50 dark:hover:bg-slate-800">
                         <td className="px-4 py-2">
                           <LevelCell level={m.level} />
                         </td>
@@ -208,12 +214,12 @@ export function LearnsetSection({ speciesId }: { speciesId: number }) {
                           {m.id ? (
                             <Link
                               href={`/moves/${m.id}`}
-                              className="text-slate-800 hover:text-emerald-700 hover:underline"
+                              className="text-slate-800 hover:text-emerald-700 hover:underline dark:text-slate-100 dark:hover:text-emerald-300"
                             >
                               {m.move}
                             </Link>
                           ) : (
-                            <span className="text-slate-800">{m.move}</span>
+                            <span className="text-slate-800 dark:text-slate-100">{m.move}</span>
                           )}
                         </td>
                         <td className="px-4 py-2">
@@ -224,19 +230,19 @@ export function LearnsetSection({ speciesId }: { speciesId: number }) {
                             <span
                               className={`inline-block rounded-full px-2 py-0.5 text-xs font-semibold ${
                                 CATEGORY_BADGE[m.category] ??
-                                "bg-slate-200 text-slate-700"
+                                "bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-300"
                               }`}
                             >
                               {m.category}
                             </span>
                           ) : (
-                            <span className="text-slate-400">—</span>
+                            <span className="text-slate-400 dark:text-slate-500">—</span>
                           )}
                         </td>
-                        <td className="px-4 py-2 text-right tabular-nums text-slate-600">
+                        <td className="px-4 py-2 text-right tabular-nums text-slate-600 dark:text-slate-400">
                           {m.power ?? "—"}
                         </td>
-                        <td className="px-4 py-2 text-right tabular-nums text-slate-600">
+                        <td className="px-4 py-2 text-right tabular-nums text-slate-600 dark:text-slate-400">
                           {m.accuracy ?? "—"}
                         </td>
                       </tr>
@@ -244,7 +250,7 @@ export function LearnsetSection({ speciesId }: { speciesId: number }) {
                   </tbody>
                 </table>
               </div>
-              <p className="mt-2 text-xs text-slate-400">
+              <p className="mt-2 text-xs text-slate-400 dark:text-slate-500">
                 “Evo” moves are learned automatically when the Pokémon evolves.
                 Data via PokéAPI.
               </p>

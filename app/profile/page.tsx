@@ -9,8 +9,8 @@ import SupabaseNeeded from "@/components/SupabaseNeeded";
 import { searchSpecies } from "@/lib/pokedex";
 
 const inputClass =
-  "w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-mint focus:outline-none focus:ring-2 focus:ring-mint/40";
-const labelClass = "mb-1 block text-sm font-medium text-slate-700";
+  "w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-mint focus:outline-none focus:ring-2 focus:ring-mint/40 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500";
+const labelClass = "mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300";
 
 const USERNAME_RE = /^[a-zA-Z0-9_]{3,24}$/;
 
@@ -58,9 +58,9 @@ function ProfileSetupForm({ userId, onDone }: { userId: string; onDone: () => vo
 
   return (
     <div className="mx-auto max-w-md px-4 py-16 sm:px-6">
-      <div className="rounded-2xl border border-stone-200 bg-white p-8 shadow-sm">
-        <h1 className="text-2xl font-bold text-slate-900">Set up your trainer profile</h1>
-        <p className="mt-1 text-sm text-slate-600">
+      <div className="rounded-2xl border border-stone-200 bg-white p-8 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Set up your trainer profile</h1>
+        <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
           Pick the name other trainers will see. You can change everything later.
         </p>
         <form onSubmit={onSubmit} className="mt-6 space-y-4">
@@ -79,14 +79,14 @@ function ProfileSetupForm({ userId, onDone }: { userId: string; onDone: () => vo
             />
           </div>
           {error && (
-            <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
+            <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950 dark:text-red-300">
               {error}
             </p>
           )}
           <button
             type="submit"
             disabled={busy}
-            className="w-full rounded-lg bg-mint px-4 py-2.5 text-sm font-bold text-slate-900 shadow-sm transition hover:brightness-95 disabled:opacity-60"
+            className="w-full rounded-lg bg-mint px-4 py-2.5 text-sm font-bold text-slate-900 shadow-sm transition hover:brightness-95 disabled:opacity-60 dark:text-slate-100"
           >
             {busy ? "Saving…" : "Create profile"}
           </button>
@@ -163,17 +163,17 @@ function ProfileEditor({ profile, onSaved }: { profile: Profile; onSaved: () => 
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6">
-      <div className="rounded-2xl border border-stone-200 bg-white p-8 shadow-sm">
+      <div className="rounded-2xl border border-stone-200 bg-white p-8 shadow-sm dark:border-slate-700 dark:bg-slate-900">
         <div className="flex items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">Your trainer profile</h1>
-            <p className="mt-1 text-sm text-slate-600">
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Your trainer profile</h1>
+            <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
               This is how other trainers see you.
             </p>
           </div>
           <Link
             href={`/trainers/${encodeURIComponent(profile.username)}`}
-            className="shrink-0 rounded-full border border-stone-300 px-4 py-1.5 text-sm font-medium text-slate-700 hover:border-mint hover:text-slate-900"
+            className="shrink-0 rounded-full border border-stone-300 px-4 py-1.5 text-sm font-medium text-slate-700 hover:border-mint hover:text-slate-900 dark:border-slate-600 dark:text-slate-300 dark:hover:text-slate-100"
           >
             View public page
           </Link>
@@ -207,7 +207,7 @@ function ProfileEditor({ profile, onSaved }: { profile: Profile; onSaved: () => 
           </div>
           <div>
             <label htmlFor="bio" className={labelClass}>
-              Bio <span className="font-normal text-slate-400">(max 500 characters)</span>
+              Bio <span className="font-normal text-slate-400 dark:text-slate-500">(max 500 characters)</span>
             </label>
             <textarea
               id="bio"
@@ -233,19 +233,19 @@ function ProfileEditor({ profile, onSaved }: { profile: Profile; onSaved: () => 
             <FavoritePreview name={favorite} />
           </div>
           {error && (
-            <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
+            <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950 dark:text-red-300">
               {error}
             </p>
           )}
           {saved && (
-            <p role="status" className="rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+            <p role="status" className="rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
               Profile saved!
             </p>
           )}
           <button
             type="submit"
             disabled={busy}
-            className="rounded-lg bg-mint px-6 py-2.5 text-sm font-bold text-slate-900 shadow-sm transition hover:brightness-95 disabled:opacity-60"
+            className="rounded-lg bg-mint px-6 py-2.5 text-sm font-bold text-slate-900 shadow-sm transition hover:brightness-95 disabled:opacity-60 dark:text-slate-100"
           >
             {busy ? "Saving…" : "Save changes"}
           </button>
@@ -262,7 +262,7 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-md px-4 py-16 text-center text-sm text-slate-500">
+      <div className="mx-auto max-w-md px-4 py-16 text-center text-sm text-slate-500 dark:text-slate-400">
         Loading your profile…
       </div>
     );
@@ -271,14 +271,14 @@ export default function ProfilePage() {
   if (!user) {
     return (
       <div className="mx-auto max-w-md px-4 py-16 sm:px-6">
-        <div className="rounded-2xl border border-stone-200 bg-white p-8 text-center shadow-sm">
-          <h1 className="text-xl font-bold text-slate-900">Sign in to view your profile</h1>
-          <p className="mt-2 text-sm text-slate-600">
+        <div className="rounded-2xl border border-stone-200 bg-white p-8 text-center shadow-sm dark:border-slate-700 dark:bg-slate-900">
+          <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100">Sign in to view your profile</h1>
+          <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
             Trainer profiles are for members of the community.
           </p>
           <Link
             href="/login"
-            className="mt-6 inline-block rounded-lg bg-mint px-6 py-2.5 text-sm font-bold text-slate-900 shadow-sm transition hover:brightness-95"
+            className="mt-6 inline-block rounded-lg bg-mint px-6 py-2.5 text-sm font-bold text-slate-900 shadow-sm transition hover:brightness-95 dark:text-slate-100"
           >
             Sign in
           </Link>

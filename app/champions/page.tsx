@@ -41,7 +41,7 @@ function MonLink({ mon }: { mon: TeamMon }) {
         className="h-14 w-14 shrink-0 object-contain transition group-hover:scale-110"
         loading="lazy"
       />
-      <span className="text-sm font-bold text-slate-900 group-hover:underline">
+      <span className="text-sm font-bold text-slate-900 group-hover:underline dark:text-slate-100">
         {label}
       </span>
     </Link>
@@ -57,7 +57,7 @@ function SocialPills({ socials }: { socials: SocialLinks }) {
   if (links.length === 0) return null;
   return (
     <div className="mt-3 flex flex-wrap items-center gap-2">
-      <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+      <span className="text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">
         Follow
       </span>
       {links.map((link) => (
@@ -77,12 +77,12 @@ function SocialPills({ socials }: { socials: SocialLinks }) {
 
 export default function ChampionsPage() {
   return (
-    <main className="min-h-screen bg-slate-50 text-slate-800">
+    <main className="min-h-screen bg-slate-50 text-slate-800 dark:bg-slate-800 dark:text-slate-100">
       <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
-        <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">
+        <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100">
           Pokémon Champions Hub
         </h1>
-        <p className="mt-2 max-w-2xl text-slate-600">
+        <p className="mt-2 max-w-2xl text-slate-600 dark:text-slate-400">
           The current competitive meta, the teams actually winning tournaments,
           and the players shaping the format — so you can steal their ideas and
           cheer them on.
@@ -91,10 +91,10 @@ export default function ChampionsPage() {
         {/* Regulation banner */}
         <section className="mt-6 rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-600 p-6 text-white shadow-sm">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="rounded-full bg-white/20 px-3 py-1 text-xs font-bold uppercase tracking-wide">
+            <span className="rounded-full bg-white/20 px-3 py-1 text-xs font-bold uppercase tracking-wide dark:bg-slate-900/20">
               Current regulation
             </span>
-            <span className="rounded-full bg-white/20 px-3 py-1 text-xs font-semibold">
+            <span className="rounded-full bg-white/20 px-3 py-1 text-xs font-semibold dark:bg-slate-900/20">
               Meta snapshot: {SNAPSHOT_DATE}
             </span>
           </div>
@@ -109,17 +109,17 @@ export default function ChampionsPage() {
 
         {/* Current meta */}
         <section className="mt-10">
-          <h2 className="text-2xl font-extrabold tracking-tight text-slate-900">
+          <h2 className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100">
             The current meta
           </h2>
-          <p className="mt-1 text-sm text-slate-600">
+          <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
             Doubles is Champions&apos; main competitive format. Usage
             percentages come from{" "}
             <a
               href={META_SOURCE.url}
               target="_blank"
               rel="noreferrer"
-              className="font-semibold text-indigo-700 hover:underline"
+              className="font-semibold text-indigo-700 hover:underline dark:text-indigo-300"
             >
               {META_SOURCE.label} ↗
             </a>
@@ -131,7 +131,7 @@ export default function ChampionsPage() {
               return (
                 <div
                   key={pick.name}
-                  className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200"
+                  className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700"
                 >
                   <div className="flex items-center gap-3">
                     {card && (
@@ -144,25 +144,25 @@ export default function ChampionsPage() {
                     )}
                     <Link
                       href={card ? `/pokedex/${card.id}` : "#"}
-                      className="text-base font-bold text-slate-900 hover:underline"
+                      className="text-base font-bold text-slate-900 hover:underline dark:text-slate-100"
                     >
                       {pick.name}
                     </Link>
                   </div>
-                  <p className="mt-2 text-sm leading-relaxed text-slate-600">
+                  <p className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
                     {pick.note}
                   </p>
                 </div>
               );
             })}
           </div>
-          <p className="mt-4 text-sm italic text-slate-500">
+          <p className="mt-4 text-sm italic text-slate-500 dark:text-slate-400">
             {HONORABLE_MENTIONS}
           </p>
 
           <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
-            <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
-              <h3 className="text-sm font-bold uppercase tracking-wide text-slate-500">
+            <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
+              <h3 className="text-sm font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                 Singles ladder staples
               </h3>
               <ul className="mt-3 space-y-2">
@@ -172,31 +172,31 @@ export default function ChampionsPage() {
                     <li key={pick.name} className="text-sm">
                       <Link
                         href={card ? `/pokedex/${card.id}` : "#"}
-                        className="font-semibold text-slate-900 hover:underline"
+                        className="font-semibold text-slate-900 hover:underline dark:text-slate-100"
                       >
                         {pick.name}
                       </Link>
-                      <span className="text-slate-500"> — {pick.note}</span>
+                      <span className="text-slate-500 dark:text-slate-400"> — {pick.note}</span>
                     </li>
                   );
                 })}
               </ul>
             </div>
-            <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
-              <h3 className="text-sm font-bold uppercase tracking-wide text-slate-500">
+            <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
+              <h3 className="text-sm font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                 Most-held items
               </h3>
               <div className="mt-3 flex flex-wrap gap-2">
                 {TOP_ITEMS.map((item) => (
                   <span
                     key={item}
-                    className="rounded-full bg-emerald-50 px-3 py-1.5 text-sm font-semibold text-emerald-900 ring-1 ring-emerald-200"
+                    className="rounded-full bg-emerald-50 px-3 py-1.5 text-sm font-semibold text-emerald-900 ring-1 ring-emerald-200 dark:bg-emerald-950 dark:text-emerald-100 dark:ring-emerald-800"
                   >
                     {item}
                   </span>
                 ))}
               </div>
-              <p className="mt-4 text-sm leading-relaxed text-slate-600">
+              <p className="mt-4 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
                 The format&apos;s default toolkit: Focus Sash and Sitrus Berry
                 keep attackers alive, Life Orb and Choice Scarf turn them into
                 sweepers, and Light Clay stretches screens across doubles
@@ -208,10 +208,10 @@ export default function ChampionsPage() {
 
         {/* Featured winning teams */}
         <section className="mt-10">
-          <h2 className="text-2xl font-extrabold tracking-tight text-slate-900">
+          <h2 className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100">
             Winning teams
           </h2>
-          <p className="mt-1 text-sm text-slate-600">
+          <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
             The actual six that lifted trophies — with items, natures, and
             movesets where tournament coverage published them.
           </p>
@@ -219,24 +219,24 @@ export default function ChampionsPage() {
             {FEATURED_TEAMS.map((team) => (
               <article
                 key={`${team.event}-${team.player}`}
-                className="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200"
+                className="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700"
               >
-                <div className="border-b border-slate-100 bg-slate-50/60 px-6 py-4">
+                <div className="border-b border-slate-100 bg-slate-50/60 px-6 py-4 dark:border-slate-800 dark:bg-slate-800/60">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="rounded-full bg-mint px-2.5 py-0.5 text-xs font-bold text-slate-900">
+                    <span className="rounded-full bg-mint px-2.5 py-0.5 text-xs font-bold text-slate-900 dark:text-slate-100">
                       {team.placement}
                     </span>
-                    <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                    <span className="text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">
                       {team.date}
                     </span>
                   </div>
-                  <h3 className="mt-2 text-lg font-extrabold text-slate-900">
+                  <h3 className="mt-2 text-lg font-extrabold text-slate-900 dark:text-slate-100">
                     {team.event}
                   </h3>
-                  <p className="text-sm font-semibold text-slate-600">
+                  <p className="text-sm font-semibold text-slate-600 dark:text-slate-400">
                     {team.player}
                   </p>
-                  <p className="mt-2 text-sm leading-relaxed text-slate-600">
+                  <p className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
                     {team.headline}
                   </p>
                 </div>
@@ -244,13 +244,13 @@ export default function ChampionsPage() {
                   {team.team.map((mon) => (
                     <div
                       key={mon.name}
-                      className="rounded-xl bg-slate-50 p-3 ring-1 ring-slate-100"
+                      className="rounded-xl bg-slate-50 p-3 ring-1 ring-slate-100 dark:bg-slate-800 dark:ring-slate-800"
                     >
                       <MonLink mon={mon} />
-                      <dl className="mt-2 space-y-0.5 text-xs text-slate-600">
+                      <dl className="mt-2 space-y-0.5 text-xs text-slate-600 dark:text-slate-400">
                         {mon.ability && (
                           <div className="flex gap-1">
-                            <dt className="font-semibold text-slate-400">
+                            <dt className="font-semibold text-slate-400 dark:text-slate-500">
                               Ability:
                             </dt>
                             <dd>{mon.ability}</dd>
@@ -258,7 +258,7 @@ export default function ChampionsPage() {
                         )}
                         {mon.item && (
                           <div className="flex gap-1">
-                            <dt className="font-semibold text-slate-400">
+                            <dt className="font-semibold text-slate-400 dark:text-slate-500">
                               Item:
                             </dt>
                             <dd>{mon.item}</dd>
@@ -266,7 +266,7 @@ export default function ChampionsPage() {
                         )}
                         {mon.nature && (
                           <div className="flex gap-1">
-                            <dt className="font-semibold text-slate-400">
+                            <dt className="font-semibold text-slate-400 dark:text-slate-500">
                               Nature:
                             </dt>
                             <dd>{mon.nature}</dd>
@@ -274,17 +274,17 @@ export default function ChampionsPage() {
                         )}
                       </dl>
                       {mon.moves && (
-                        <p className="mt-2 text-xs leading-relaxed text-slate-500">
+                        <p className="mt-2 text-xs leading-relaxed text-slate-500 dark:text-slate-400">
                           {mon.moves.join(" · ")}
                         </p>
                       )}
                     </div>
                   ))}
                 </div>
-                <div className="flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-slate-100 px-6 py-4">
+                <div className="flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-slate-100 px-6 py-4 dark:border-slate-800">
                   {team.replicaCode && (
-                    <p className="text-sm text-slate-600">
-                      <span className="font-semibold text-slate-400">
+                    <p className="text-sm text-slate-600 dark:text-slate-400">
+                      <span className="font-semibold text-slate-400 dark:text-slate-500">
                         Replica code:{" "}
                       </span>
                       <code className="rounded bg-slate-900 px-2 py-0.5 font-mono text-xs font-bold text-white">
@@ -296,13 +296,13 @@ export default function ChampionsPage() {
                     href={team.source.url}
                     target="_blank"
                     rel="noreferrer"
-                    className="text-sm font-semibold text-indigo-700 hover:underline"
+                    className="text-sm font-semibold text-indigo-700 hover:underline dark:text-indigo-300"
                   >
                     Source: {team.source.label} ↗
                   </a>
                 </div>
                 {team.footnote && (
-                  <p className="border-t border-slate-100 bg-amber-50/60 px-6 py-3 text-xs leading-relaxed text-amber-900">
+                  <p className="border-t border-slate-100 bg-amber-50/60 px-6 py-3 text-xs leading-relaxed text-amber-900 dark:border-slate-800 dark:bg-amber-950/60 dark:text-amber-100">
                     {team.footnote}
                   </p>
                 )}
@@ -313,17 +313,17 @@ export default function ChampionsPage() {
 
         {/* Players to watch */}
         <section className="mt-10">
-          <h2 className="text-2xl font-extrabold tracking-tight text-slate-900">
+          <h2 className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100">
             Players to watch
           </h2>
-          <p className="mt-1 text-sm text-slate-600">
+          <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
             The gamers behind the teams — follow and support them. Rankings
             from{" "}
             <a
               href={PLAYER_RANKINGS_SOURCE.url}
               target="_blank"
               rel="noreferrer"
-              className="font-semibold text-indigo-700 hover:underline"
+              className="font-semibold text-indigo-700 hover:underline dark:text-indigo-300"
             >
               {PLAYER_RANKINGS_SOURCE.label} ↗
             </a>
@@ -333,15 +333,15 @@ export default function ChampionsPage() {
             {PLAYERS_TO_WATCH.map((player) => (
               <div
                 key={player.name}
-                className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200"
+                className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700"
               >
-                <h3 className="text-base font-extrabold text-slate-900">
+                <h3 className="text-base font-extrabold text-slate-900 dark:text-slate-100">
                   {player.name}
                 </h3>
-                <p className="mt-0.5 text-xs font-bold uppercase tracking-wide text-indigo-600">
+                <p className="mt-0.5 text-xs font-bold uppercase tracking-wide text-indigo-600 dark:text-indigo-400">
                   {player.tagline}
                 </p>
-                <p className="mt-2 text-sm leading-relaxed text-slate-600">
+                <p className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
                   {player.bio}
                 </p>
                 {player.socials && <SocialPills socials={player.socials} />}
@@ -352,35 +352,35 @@ export default function ChampionsPage() {
 
         {/* Upcoming tournaments */}
         <section className="mt-10">
-          <h2 className="text-2xl font-extrabold tracking-tight text-slate-900">
+          <h2 className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100">
             Upcoming tournaments
           </h2>
-          <p className="mt-1 text-sm text-slate-600">
+          <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
             The next stops on the Championship Series — a static snapshot, so
             check the{" "}
             <a
               href={EVENT_FINDER_URL}
               target="_blank"
               rel="noreferrer"
-              className="font-semibold text-indigo-700 hover:underline"
+              className="font-semibold text-indigo-700 hover:underline dark:text-indigo-300"
             >
               full schedule at the official event finder ↗
             </a>
             .
           </p>
-          <ul className="mt-4 divide-y divide-emerald-100 overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-emerald-200">
+          <ul className="mt-4 divide-y divide-emerald-100 overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-emerald-200 dark:divide-emerald-900 dark:bg-slate-900 dark:ring-emerald-800">
             {UPCOMING_TOURNAMENTS.map((tourney) => (
               <li
                 key={tourney.name}
                 className="flex items-center gap-3 px-4 py-3"
               >
-                <span className="w-28 shrink-0 rounded-full bg-mint px-2.5 py-1 text-center text-xs font-bold text-slate-900">
+                <span className="w-28 shrink-0 rounded-full bg-mint px-2.5 py-1 text-center text-xs font-bold text-slate-900 dark:text-slate-100">
                   {tourney.dates}
                 </span>
-                <span className="min-w-0 flex-1 truncate text-sm font-semibold text-slate-900">
+                <span className="min-w-0 flex-1 truncate text-sm font-semibold text-slate-900 dark:text-slate-100">
                   2027 {tourney.name}
                 </span>
-                <span className="hidden shrink-0 rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-900 ring-1 ring-emerald-200 sm:inline">
+                <span className="hidden shrink-0 rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-900 ring-1 ring-emerald-200 sm:inline dark:bg-emerald-950 dark:text-emerald-100 dark:ring-emerald-800">
                   {tourney.kind}
                 </span>
               </li>
@@ -390,7 +390,7 @@ export default function ChampionsPage() {
 
         {/* Follow the scene */}
         <section className="mt-10">
-          <h2 className="text-2xl font-extrabold tracking-tight text-slate-900">
+          <h2 className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100">
             Follow the scene
           </h2>
           <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -400,32 +400,32 @@ export default function ChampionsPage() {
                 href={link.url}
                 target="_blank"
                 rel="noreferrer"
-                className="block rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:shadow-md"
+                className="block rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:shadow-md dark:bg-slate-900 dark:ring-slate-700"
               >
-                <p className="text-base font-extrabold text-slate-900">
+                <p className="text-base font-extrabold text-slate-900 dark:text-slate-100">
                   {link.label}{" "}
-                  <span className="font-semibold text-slate-400">
+                  <span className="font-semibold text-slate-400 dark:text-slate-500">
                     {link.handle}
                   </span>{" "}
                   ↗
                 </p>
-                <p className="mt-1 text-sm text-slate-600">{link.note}</p>
+                <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">{link.note}</p>
               </a>
             ))}
           </div>
         </section>
 
-        <footer className="mt-10 rounded-2xl bg-slate-100 p-5 text-sm text-slate-500 ring-1 ring-slate-200">
+        <footer className="mt-10 rounded-2xl bg-slate-100 p-5 text-sm text-slate-500 ring-1 ring-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:ring-slate-700">
           <p>
             This hub is a hand-curated snapshot as of {SNAPSHOT_DATE}. The meta
             moves fast — check the{" "}
-            <Link href="/news" className="font-semibold text-indigo-700 hover:underline">
+            <Link href="/news" className="font-semibold text-indigo-700 hover:underline dark:text-indigo-300">
               News
             </Link>{" "}
             page for the latest regulation changes, and the{" "}
             <Link
               href="/pokedex"
-              className="font-semibold text-indigo-700 hover:underline"
+              className="font-semibold text-indigo-700 hover:underline dark:text-indigo-300"
             >
               Pokédex
             </Link>{" "}

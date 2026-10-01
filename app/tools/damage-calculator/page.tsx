@@ -4,8 +4,8 @@ import { useMemo, useState } from "react";
 import { TYPES, effectiveness } from "@/lib/typechart";
 
 const inputCls =
-  "w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-800 shadow-sm focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-200";
-const labelCls = "block text-sm font-medium text-slate-600";
+  "w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-800 shadow-sm focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-200 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:focus:ring-emerald-800";
+const labelCls = "block text-sm font-medium text-slate-600 dark:text-slate-400";
 const NONE = "—";
 
 const EFF_OPTIONS = ["auto", "0", "0.25", "0.5", "1", "2", "4"] as const;
@@ -133,14 +133,14 @@ export default function DamageCalculator() {
 
   return (
     <div className="mx-auto w-full max-w-4xl px-4 py-10">
-      <h1 className="text-3xl font-bold text-slate-800">Damage Calculator</h1>
-      <p className="mt-2 text-slate-500">
+      <h1 className="text-3xl font-bold text-slate-800 dark:text-slate-100">Damage Calculator</h1>
+      <p className="mt-2 text-slate-500 dark:text-slate-400">
         Gen V+ damage formula with 85–100% random rolls.
       </p>
 
       <div className="mt-6 grid gap-5 lg:grid-cols-2">
         {/* Inputs */}
-        <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+        <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className={labelCls} htmlFor="dc-level">Level</label>
@@ -169,7 +169,7 @@ export default function DamageCalculator() {
             </div>
             <div>
               <span className={labelCls}>Category</span>
-              <div className="mt-1 flex rounded-xl border border-slate-300 p-1">
+              <div className="mt-1 flex rounded-xl border border-slate-300 p-1 dark:border-slate-600">
                 {(["physical", "special"] as const).map((c) => (
                   <button
                     key={c}
@@ -177,8 +177,8 @@ export default function DamageCalculator() {
                     onClick={() => setCategory(c)}
                     className={`flex-1 rounded-lg px-2 py-1.5 text-sm font-medium capitalize transition ${
                       category === c
-                        ? "bg-emerald-300 text-slate-800"
-                        : "text-slate-500 hover:bg-slate-100"
+                        ? "bg-emerald-300 text-slate-800 dark:bg-emerald-600 dark:text-slate-100"
+                        : "text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
                     }`}
                   >
                     {c}
@@ -279,7 +279,7 @@ export default function DamageCalculator() {
             <div className="col-span-2">
               <label className={labelCls} htmlFor="dc-eff">
                 Effectiveness override{" "}
-                <span className="font-normal text-slate-400">
+                <span className="font-normal text-slate-400 dark:text-slate-500">
                   (auto: ×{calc.autoEff})
                 </span>
               </label>
@@ -307,7 +307,7 @@ export default function DamageCalculator() {
                 ["burn", "Burn (halves physical Atk)", burn, setBurn],
               ] as const
             ).map(([id, text, val, set]) => (
-              <label key={id} className="flex items-center gap-2 text-sm text-slate-700">
+              <label key={id} className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
                 <input
                   id={`dc-${id}`}
                   type="checkbox"
@@ -323,28 +323,28 @@ export default function DamageCalculator() {
           <button
             type="button"
             onClick={reset}
-            className="mt-5 rounded-xl bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-200"
+            className="mt-5 rounded-xl bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
           >
             Reset
           </button>
         </div>
 
         {/* Results */}
-        <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-          <h2 className="text-lg font-semibold text-slate-800">Result</h2>
-          <p className="mt-1 text-xs text-slate-400">{calc.echo}</p>
+        <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
+          <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100">Result</h2>
+          <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">{calc.echo}</p>
 
-          <div className="mt-4 rounded-2xl bg-emerald-300/25 p-5 text-center">
-            <div className="text-sm font-medium text-slate-600">Damage roll range</div>
-            <div className="mt-1 text-4xl font-bold text-slate-800">
+          <div className="mt-4 rounded-2xl bg-emerald-300/25 p-5 text-center dark:bg-emerald-600/25">
+            <div className="text-sm font-medium text-slate-600 dark:text-slate-400">Damage roll range</div>
+            <div className="mt-1 text-4xl font-bold text-slate-800 dark:text-slate-100">
               {calc.min} – {calc.max}
             </div>
-            <div className="mt-1 text-sm text-slate-600">
+            <div className="mt-1 text-sm text-slate-600 dark:text-slate-400">
               {calc.minPct}% – {calc.maxPct}% of defender HP
             </div>
-            <div className="mt-3 text-sm font-semibold text-slate-700">
+            <div className="mt-3 text-sm font-semibold text-slate-700 dark:text-slate-300">
               {calc.hitsToKo === null ? (
-                <span className="text-red-600">
+                <span className="text-red-600 dark:text-red-400">
                   Immune — this move can&apos;t damage the defender.
                 </span>
               ) : (
@@ -355,20 +355,20 @@ export default function DamageCalculator() {
 
           <dl className="mt-4 space-y-2 text-sm">
             <div className="flex justify-between">
-              <dt className="text-slate-500">Effectiveness</dt>
-              <dd className="font-semibold text-slate-800">
+              <dt className="text-slate-500 dark:text-slate-400">Effectiveness</dt>
+              <dd className="font-semibold text-slate-800 dark:text-slate-100">
                 ×{calc.eff} ({effLabel(calc.eff)})
               </dd>
             </div>
             <div className="flex justify-between">
-              <dt className="text-slate-500">Modifiers</dt>
-              <dd className="font-semibold text-slate-800">
+              <dt className="text-slate-500 dark:text-slate-400">Modifiers</dt>
+              <dd className="font-semibold text-slate-800 dark:text-slate-100">
                 {calc.mods.length > 0 ? calc.mods.join(" · ") : "none"}
               </dd>
             </div>
           </dl>
 
-          <p className="mt-4 text-xs leading-5 text-slate-400">
+          <p className="mt-4 text-xs leading-5 text-slate-400 dark:text-slate-500">
             Formula: base = ⌊⌊⌊2×Lv/5+2⌋ × power × Atk/Def⌋ / 50⌋ + 2, then ×
             modifiers, max roll = ⌊that⌋, min roll = ⌊max × 0.85⌋.
           </p>

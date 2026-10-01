@@ -50,11 +50,11 @@ function MatchupGroup({
 }) {
   return (
     <div>
-      <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+      <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">
         {title}
       </h3>
       {items.length === 0 ? (
-        <p className="mt-2 text-sm text-slate-400">{emptyText}</p>
+        <p className="mt-2 text-sm text-slate-400 dark:text-slate-500">{emptyText}</p>
       ) : (
         <div className="mt-2 flex flex-wrap gap-1.5">
           {items.map(({ type, mult }) => (
@@ -103,7 +103,7 @@ export function MatchupsSection({
   return (
     <section
       aria-label="Type matchups"
-      className="mt-6 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200"
+      className="mt-6 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700"
     >
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-lg font-bold">Weaknesses &amp; resistances</h2>
@@ -120,7 +120,7 @@ export function MatchupsSection({
               className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
                 selected === "__base__"
                   ? "bg-emerald-600 text-white"
-                  : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                  : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700"
               }`}
             >
               Base
@@ -134,7 +134,7 @@ export function MatchupsSection({
                 className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
                   selected === v.name
                     ? "bg-emerald-600 text-white"
-                    : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                    : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700"
                 }`}
               >
                 {v.name}

@@ -91,7 +91,7 @@ function compatibility(a: SpeciesFull, b: SpeciesFull): Verdict {
 }
 
 const inputCls =
-  "w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-800 shadow-sm focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-200";
+  "w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-800 shadow-sm focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-200 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:focus:ring-emerald-800";
 
 function SpeciesPicker({
   label,
@@ -119,12 +119,12 @@ function SpeciesPicker({
 
   return (
     <div>
-      <span className="block text-sm font-medium text-slate-600">{label}</span>
+      <span className="block text-sm font-medium text-slate-600 dark:text-slate-400">{label}</span>
       {selected ? (
-        <div className="mt-1 flex items-center justify-between rounded-xl bg-emerald-300/30 px-3 py-2 ring-1 ring-emerald-300">
-          <span className="font-semibold text-slate-800">
+        <div className="mt-1 flex items-center justify-between rounded-xl bg-emerald-300/30 px-3 py-2 ring-1 ring-emerald-300 dark:bg-emerald-600/30 dark:ring-emerald-700">
+          <span className="font-semibold text-slate-800 dark:text-slate-100">
             {cap(selected.name)}{" "}
-            <span className="font-normal text-slate-500">#{selected.id}</span>
+            <span className="font-normal text-slate-500 dark:text-slate-400">#{selected.id}</span>
           </span>
           <button
             type="button"
@@ -132,7 +132,7 @@ function SpeciesPicker({
               onSelect(null);
               setQuery("");
             }}
-            className="rounded-lg px-2 py-1 text-sm font-semibold text-slate-500 hover:bg-white hover:text-slate-800"
+            className="rounded-lg px-2 py-1 text-sm font-semibold text-slate-500 hover:bg-white hover:text-slate-800 dark:text-slate-400 dark:hover:bg-slate-900 dark:hover:text-slate-100"
           >
             ✕ Clear
           </button>
@@ -158,9 +158,9 @@ function SpeciesPicker({
                 className="fixed inset-0 z-10 cursor-default"
                 onClick={() => setOpen(false)}
               />
-              <ul className="absolute z-20 mt-1 max-h-64 w-full overflow-auto rounded-xl bg-white py-1 shadow-lg ring-1 ring-slate-200">
+              <ul className="absolute z-20 mt-1 max-h-64 w-full overflow-auto rounded-xl bg-white py-1 shadow-lg ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
                 {matches.length === 0 && (
-                  <li className="px-3 py-2 text-sm text-slate-400">
+                  <li className="px-3 py-2 text-sm text-slate-400 dark:text-slate-500">
                     No matches found.
                   </li>
                 )}
@@ -168,7 +168,7 @@ function SpeciesPicker({
                   <li key={s.id}>
                     <button
                       type="button"
-                      className="flex w-full items-center justify-between px-3 py-2 text-left text-sm text-slate-700 hover:bg-emerald-300/20"
+                      className="flex w-full items-center justify-between px-3 py-2 text-left text-sm text-slate-700 hover:bg-emerald-300/20 dark:text-slate-300 dark:hover:bg-emerald-600/20"
                       onClick={() => {
                         onSelect(s.id);
                         setOpen(false);
@@ -176,7 +176,7 @@ function SpeciesPicker({
                       }}
                     >
                       <span className="font-medium">{cap(s.name)}</span>
-                      <span className="text-slate-400">#{s.id}</span>
+                      <span className="text-slate-400 dark:text-slate-500">#{s.id}</span>
                     </button>
                   </li>
                 ))}
@@ -192,15 +192,15 @@ function SpeciesPicker({
 function EggGroups({ groups }: { groups: string[] }) {
   return (
     <div className="mt-4">
-      <div className="text-sm text-slate-500">Egg groups</div>
+      <div className="text-sm text-slate-500 dark:text-slate-400">Egg groups</div>
       {groups.length === 0 ? (
-        <p className="mt-1 text-sm text-slate-400">None listed.</p>
+        <p className="mt-1 text-sm text-slate-400 dark:text-slate-500">None listed.</p>
       ) : (
         <div className="mt-1 flex flex-wrap gap-1.5">
           {groups.map((g) => (
             <span
               key={g}
-              className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700 ring-1 ring-slate-200"
+              className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700 ring-1 ring-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:ring-slate-700"
             >
               {cap(g)}
             </span>
@@ -214,15 +214,15 @@ function EggGroups({ groups }: { groups: string[] }) {
 function MoveChips({ title, moves }: { title: string; moves: string[] }) {
   return (
     <div className="mt-4">
-      <h3 className="text-sm font-semibold text-slate-700">{title}</h3>
+      <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300">{title}</h3>
       {moves.length === 0 ? (
-        <p className="mt-1 text-sm text-slate-400">No egg moves listed.</p>
+        <p className="mt-1 text-sm text-slate-400 dark:text-slate-500">No egg moves listed.</p>
       ) : (
         <div className="mt-2 flex flex-wrap gap-1.5">
           {moves.map((m) => (
             <span
               key={m}
-              className="rounded-full bg-emerald-300/25 px-2.5 py-1 text-xs font-medium text-slate-700 ring-1 ring-emerald-200"
+              className="rounded-full bg-emerald-300/25 px-2.5 py-1 text-xs font-medium text-slate-700 ring-1 ring-emerald-200 dark:bg-emerald-600/25 dark:text-slate-300 dark:ring-emerald-800"
             >
               {cap(m)}
             </span>
@@ -249,14 +249,14 @@ export default function BreedingCompatibility() {
 
   return (
     <div className="mx-auto w-full max-w-4xl px-4 py-10">
-      <h1 className="text-3xl font-bold text-slate-800">Breeding Compatibility</h1>
-      <p className="mt-2 text-slate-500">
+      <h1 className="text-3xl font-bold text-slate-800 dark:text-slate-100">Breeding Compatibility</h1>
+      <p className="mt-2 text-slate-500 dark:text-slate-400">
         Pick two Pokémon to see if they can breed — and which egg moves their
         offspring could inherit.
       </p>
 
       <div className="mt-6 grid gap-5 sm:grid-cols-2">
-        <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+        <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
           <SpeciesPicker
             label="Parent 1"
             species={species}
@@ -274,7 +274,7 @@ export default function BreedingCompatibility() {
           )}
         </div>
 
-        <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+        <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
           <SpeciesPicker
             label="Parent 2"
             species={species}
@@ -294,9 +294,9 @@ export default function BreedingCompatibility() {
       </div>
 
       {/* Verdict */}
-      <div className="mt-5 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+      <div className="mt-5 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
         {verdict == null ? (
-          <p className="text-center text-slate-400">
+          <p className="text-center text-slate-400 dark:text-slate-500">
             {idA == null || idB == null
               ? "Select both parents above to check compatibility."
               : "Species data isn't available yet."}
@@ -306,19 +306,19 @@ export default function BreedingCompatibility() {
             <div
               className={`inline-block rounded-full px-6 py-2 text-xl font-bold ${
                 verdict.ok
-                  ? "bg-emerald-300 text-slate-800"
-                  : "bg-red-100 text-red-700"
+                  ? "bg-emerald-300 text-slate-800 dark:bg-emerald-600 dark:text-slate-100"
+                  : "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300"
               }`}
             >
               {verdict.ok ? "✓ Compatible" : "✕ Not compatible"}
             </div>
-            <p className="mt-3 text-sm text-slate-600">{verdict.reason}</p>
+            <p className="mt-3 text-sm text-slate-600 dark:text-slate-400">{verdict.reason}</p>
             {verdict.shared.length > 0 && (
               <div className="mt-3 flex flex-wrap justify-center gap-1.5">
                 {verdict.shared.map((g) => (
                   <span
                     key={g}
-                    className="rounded-full bg-emerald-300/30 px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-emerald-300"
+                    className="rounded-full bg-emerald-300/30 px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-emerald-300 dark:bg-emerald-600/30 dark:text-slate-300 dark:ring-emerald-700"
                   >
                     Shared: {cap(g)}
                   </span>
@@ -329,7 +329,7 @@ export default function BreedingCompatibility() {
         )}
       </div>
 
-      <p className="mt-4 text-xs leading-5 text-slate-400">
+      <p className="mt-4 text-xs leading-5 text-slate-400 dark:text-slate-500">
         Rules: Ditto (#132) breeds with anything except Ditto itself or
         No-eggs-group Pokémon. Otherwise both parents must share at least one
         egg group, and neither may be in the No-eggs group.

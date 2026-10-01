@@ -114,7 +114,7 @@ function PokemonPicker({
       >
         {label}
       </label>
-      <div className="mt-1 flex items-center gap-3 rounded-2xl bg-white p-3 shadow-sm ring-1 ring-slate-200">
+      <div className="mt-1 flex items-center gap-3 rounded-2xl bg-white p-3 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
         {species && (
           <img
             src={species.sprites.regular}
@@ -124,8 +124,8 @@ function PokemonPicker({
           />
         )}
         <div className="min-w-0 flex-1">
-          <p className="truncate font-bold text-slate-900">{species?.name}</p>
-          <p className="text-xs text-slate-500">
+          <p className="truncate font-bold text-slate-900 dark:text-slate-100">{species?.name}</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">
             #{String(species?.id ?? 0).padStart(4, "0")}
           </p>
         </div>
@@ -140,13 +140,13 @@ function PokemonPicker({
         onFocus={() => setOpen(true)}
         placeholder="Type a Pokémon name…"
         aria-label={`Search for ${label}`}
-        className="mt-2 w-full rounded-full border border-slate-300 bg-white px-4 py-2 text-sm shadow-sm outline-none placeholder:text-slate-400 focus:border-emerald-400"
+        className="mt-2 w-full rounded-full border border-slate-300 bg-white px-4 py-2 text-sm shadow-sm outline-none placeholder:text-slate-400 focus:border-emerald-400 dark:border-slate-600 dark:bg-slate-900 dark:placeholder:text-slate-500"
       />
       {open && results.length > 0 && (
         <ul
           role="listbox"
           aria-label={`${label} results`}
-          className="absolute z-20 mt-1 max-h-64 w-full overflow-auto rounded-xl bg-white py-1 shadow-lg ring-1 ring-slate-200"
+          className="absolute z-20 mt-1 max-h-64 w-full overflow-auto rounded-xl bg-white py-1 shadow-lg ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700"
         >
           {results.map((r) => (
             <li key={r.id}>
@@ -159,7 +159,7 @@ function PokemonPicker({
                   setQuery("");
                   setOpen(false);
                 }}
-                className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm hover:bg-emerald-50"
+                className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm hover:bg-emerald-50 dark:hover:bg-emerald-950"
               >
                 <img
                   src={r.sprites.regular}
@@ -167,8 +167,8 @@ function PokemonPicker({
                   className="h-8 w-8 shrink-0"
                   loading="lazy"
                 />
-                <span className="font-medium text-slate-800">{r.name}</span>
-                <span className="ml-auto text-xs text-slate-400">
+                <span className="font-medium text-slate-800 dark:text-slate-100">{r.name}</span>
+                <span className="ml-auto text-xs text-slate-400 dark:text-slate-500">
                   #{String(r.id).padStart(4, "0")}
                 </span>
               </button>
@@ -192,7 +192,7 @@ function OverviewCard({
   accentName: string;
 }) {
   return (
-    <article className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+    <article className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
       <div className="flex items-start gap-4">
         <img
           src={species.artwork}
@@ -207,10 +207,10 @@ function OverviewCard({
           >
             {accentName}
           </p>
-          <h2 className="truncate text-2xl font-extrabold text-slate-900">
+          <h2 className="truncate text-2xl font-extrabold text-slate-900 dark:text-slate-100">
             {species.name}
           </h2>
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-slate-500 dark:text-slate-400">
             #{String(species.id).padStart(4, "0")}
             {species.genera ? ` · ${species.genera}` : ""}
           </p>
@@ -228,18 +228,18 @@ function OverviewCard({
         </div>
       </div>
       <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
-        <div className="rounded-xl bg-slate-50 px-3 py-2">
-          <dt className="text-xs text-slate-500">Height</dt>
-          <dd className="font-bold text-slate-800">{species.heightM} m</dd>
+        <div className="rounded-xl bg-slate-50 px-3 py-2 dark:bg-slate-800">
+          <dt className="text-xs text-slate-500 dark:text-slate-400">Height</dt>
+          <dd className="font-bold text-slate-800 dark:text-slate-100">{species.heightM} m</dd>
         </div>
-        <div className="rounded-xl bg-slate-50 px-3 py-2">
-          <dt className="text-xs text-slate-500">Weight</dt>
-          <dd className="font-bold text-slate-800">{species.weightKg} kg</dd>
+        <div className="rounded-xl bg-slate-50 px-3 py-2 dark:bg-slate-800">
+          <dt className="text-xs text-slate-500 dark:text-slate-400">Weight</dt>
+          <dd className="font-bold text-slate-800 dark:text-slate-100">{species.weightKg} kg</dd>
         </div>
       </dl>
       <Link
         href={`/pokedex/${species.id}`}
-        className="mt-4 inline-block text-sm font-semibold text-emerald-700 hover:underline"
+        className="mt-4 inline-block text-sm font-semibold text-emerald-700 hover:underline dark:text-emerald-300"
       >
         View Pokédex entry →
       </Link>
@@ -265,11 +265,11 @@ function StatBattleRow({
     <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 sm:gap-3">
       <div className="flex items-center justify-end gap-2">
         <span
-          className={`text-sm font-bold ${aWins ? "text-emerald-700" : "text-slate-600"}`}
+          className={`text-sm font-bold ${aWins ? "text-emerald-700 dark:text-emerald-300" : "text-slate-600 dark:text-slate-400"}`}
         >
           {aVal}
         </span>
-        <div className="flex h-2.5 w-full max-w-36 justify-end rounded-full bg-slate-100 sm:max-w-44">
+        <div className="flex h-2.5 w-full max-w-36 justify-end rounded-full bg-slate-100 sm:max-w-44 dark:bg-slate-800">
           <div
             className="h-2.5 rounded-full"
             style={{
@@ -279,11 +279,11 @@ function StatBattleRow({
           />
         </div>
       </div>
-      <span className="w-16 text-center text-xs font-semibold text-slate-500 sm:w-20 sm:text-sm">
+      <span className="w-16 text-center text-xs font-semibold text-slate-500 sm:w-20 sm:text-sm dark:text-slate-400">
         {label}
       </span>
       <div className="flex items-center gap-2">
-        <div className="h-2.5 w-full max-w-36 rounded-full bg-slate-100 sm:max-w-44">
+        <div className="h-2.5 w-full max-w-36 rounded-full bg-slate-100 sm:max-w-44 dark:bg-slate-800">
           <div
             className="h-2.5 rounded-full"
             style={{
@@ -293,7 +293,7 @@ function StatBattleRow({
           />
         </div>
         <span
-          className={`text-sm font-bold ${bWins ? "text-sky-700" : "text-slate-600"}`}
+          className={`text-sm font-bold ${bWins ? "text-sky-700 dark:text-sky-300" : "text-slate-600 dark:text-slate-400"}`}
         >
           {bVal}
         </span>
@@ -318,11 +318,11 @@ function CompareMatchups({ species }: { species: SpeciesFull }) {
     <div className="space-y-4">
       {groups.map((g) => (
         <div key={g.title}>
-          <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+          <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">
             {g.title}
           </h3>
           {g.items.length === 0 ? (
-            <p className="mt-2 text-sm text-slate-400">{g.empty}</p>
+            <p className="mt-2 text-sm text-slate-400 dark:text-slate-500">{g.empty}</p>
           ) : (
             <div className="mt-2 flex flex-wrap gap-1.5">
               {g.items.map(({ type, mult }) => (
@@ -365,9 +365,9 @@ export function CompareUI() {
 
   if (!speciesA || !speciesB) {
     return (
-      <main className="min-h-screen bg-slate-50 text-slate-800">
+      <main className="min-h-screen bg-slate-50 text-slate-800 dark:bg-slate-800 dark:text-slate-100">
         <div className="mx-auto max-w-6xl px-4 py-8">
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-slate-500 dark:text-slate-400">
             Couldn&apos;t load those Pokémon. Try picking again below.
           </p>
         </div>
@@ -379,12 +379,12 @@ export function CompareUI() {
   const totalB = statTotal(speciesB);
 
   return (
-    <main className="min-h-screen bg-slate-50 text-slate-800">
+    <main className="min-h-screen bg-slate-50 text-slate-800 dark:bg-slate-800 dark:text-slate-100">
       <div className="mx-auto max-w-6xl px-4 py-8">
-        <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">
+        <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100">
           Compare Pokémon
         </h1>
-        <p className="mt-2 text-slate-600">
+        <p className="mt-2 text-slate-600 dark:text-slate-400">
           Pick any two Pokémon and see how they stack up — stats, types, and
           matchups, side by side. The URL updates as you pick, so you can share
           any comparison.
@@ -406,7 +406,7 @@ export function CompareUI() {
             }}
             aria-label="Swap Pokémon"
             title="Swap"
-            className="mx-auto mt-6 rounded-full bg-white p-3 shadow-sm ring-1 ring-slate-200 transition-colors hover:bg-emerald-50 sm:mt-8"
+            className="mx-auto mt-6 rounded-full bg-white p-3 shadow-sm ring-1 ring-slate-200 transition-colors hover:bg-emerald-50 sm:mt-8 dark:bg-slate-900 dark:ring-slate-700 dark:hover:bg-emerald-950"
           >
             <svg
               width="20"
@@ -415,7 +415,7 @@ export function CompareUI() {
               fill="none"
               stroke="currentColor"
               strokeWidth="2"
-              className="text-slate-600"
+              className="text-slate-600 dark:text-slate-400"
               aria-hidden="true"
             >
               <path d="M7 4 3 8l4 4M3 8h11M13 12l4 4-4 4M17 16H6" />
@@ -465,10 +465,10 @@ export function CompareUI() {
         {/* stat-by-stat battle */}
         <section
           aria-label="Stat-by-stat comparison"
-          className="mt-6 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200"
+          className="mt-6 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700"
         >
           <h2 className="text-lg font-bold">Stat battle</h2>
-          <p className="mt-1 text-sm text-slate-500">
+          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
             The higher stat in each row is highlighted.
           </p>
           <div className="mt-4 space-y-3">
@@ -480,7 +480,7 @@ export function CompareUI() {
                 bVal={statValue(speciesB, key)}
               />
             ))}
-            <div className="border-t border-slate-100 pt-3">
+            <div className="border-t border-slate-100 pt-3 dark:border-slate-800">
               <StatBattleRow
                 label="Total"
                 aVal={totalA}
@@ -494,7 +494,7 @@ export function CompareUI() {
         <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
           <section
             aria-label={`${speciesA.name} type matchups`}
-            className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200"
+            className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700"
           >
             <h2 className="text-lg font-bold">
               <span style={{ color: A_ACCENT }}>{speciesA.name}</span> matchups
@@ -505,7 +505,7 @@ export function CompareUI() {
           </section>
           <section
             aria-label={`${speciesB.name} type matchups`}
-            className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200"
+            className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700"
           >
             <h2 className="text-lg font-bold">
               <span style={{ color: B_ACCENT }}>{speciesB.name}</span> matchups

@@ -16,7 +16,7 @@ export default function AuthButtons() {
     return (
       <span
         aria-hidden="true"
-        className="inline-block h-8 w-20 animate-pulse rounded-full bg-stone-200"
+        className="inline-block h-8 w-20 animate-pulse rounded-full bg-stone-200 dark:bg-slate-700"
       />
     );
   }
@@ -25,7 +25,7 @@ export default function AuthButtons() {
     return (
       <Link
         href="/login"
-        className="rounded-full bg-mint px-4 py-1.5 text-sm font-semibold text-slate-900 shadow-sm transition hover:brightness-95"
+        className="rounded-full bg-mint px-4 py-1.5 text-sm font-semibold text-slate-900 shadow-sm transition hover:brightness-95 dark:text-slate-100"
       >
         Sign in
       </Link>
@@ -39,7 +39,7 @@ export default function AuthButtons() {
     <div className="flex items-center gap-3">
       <Link
         href="/profile"
-        className="flex items-center gap-2 text-sm font-medium text-slate-700 hover:text-slate-900"
+        className="flex items-center gap-2 text-sm font-medium text-slate-700 hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-100"
         title="Your trainer profile"
       >
         {profile?.avatar_url ? (
@@ -50,7 +50,7 @@ export default function AuthButtons() {
             className="h-8 w-8 rounded-full object-cover ring-2 ring-mint"
           />
         ) : (
-          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-mint text-sm font-bold text-slate-900">
+          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-mint text-sm font-bold text-slate-900 dark:text-slate-100">
             {initial}
           </span>
         )}
@@ -59,7 +59,7 @@ export default function AuthButtons() {
       <button
         type="button"
         onClick={() => void signOut()}
-        className="text-sm text-slate-500 underline-offset-2 hover:text-slate-800 hover:underline"
+        className="text-sm text-slate-500 underline-offset-2 hover:text-slate-800 hover:underline dark:text-slate-400 dark:hover:text-slate-100"
       >
         Sign out
       </button>

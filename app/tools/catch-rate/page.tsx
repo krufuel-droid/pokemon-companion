@@ -3,8 +3,8 @@
 import { useMemo, useState } from "react";
 
 const inputCls =
-  "w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-800 shadow-sm focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-200";
-const labelCls = "block text-sm font-medium text-slate-600";
+  "w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-800 shadow-sm focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-200 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:focus:ring-emerald-800";
+const labelCls = "block text-sm font-medium text-slate-600 dark:text-slate-400";
 
 interface Ball {
   name: string;
@@ -80,15 +80,15 @@ export default function CatchRateCalculator() {
 
   return (
     <div className="mx-auto w-full max-w-4xl px-4 py-10">
-      <h1 className="text-3xl font-bold text-slate-800">Catch Rate Calculator</h1>
-      <p className="mt-2 text-slate-500">
+      <h1 className="text-3xl font-bold text-slate-800 dark:text-slate-100">Catch Rate Calculator</h1>
+      <p className="mt-2 text-slate-500 dark:text-slate-400">
         Gen V+ capture formula. Conditional balls (Net, Dive, Repeat, Dusk,
         Quick) use their best-case multiplier.
       </p>
 
       <div className="mt-6 grid gap-5 lg:grid-cols-2">
         {/* Inputs */}
-        <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+        <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className={labelCls} htmlFor="cr-maxhp">Max HP</label>
@@ -139,9 +139,9 @@ export default function CatchRateCalculator() {
                   onChange={(e) => setCurHp(toNum(e.target.valueAsNumber, 0))}
                 />
               </div>
-              <div className="mt-2 h-2.5 overflow-hidden rounded-full bg-slate-100">
+              <div className="mt-2 h-2.5 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
                 <div
-                  className="h-full rounded-full bg-emerald-300 transition-all"
+                  className="h-full rounded-full bg-emerald-300 transition-all dark:bg-emerald-600"
                   style={{ width: `${(calc.hpCur / calc.hpMax) * 100}%` }}
                 />
               </div>
@@ -181,22 +181,22 @@ export default function CatchRateCalculator() {
         </div>
 
         {/* Results */}
-        <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-          <h2 className="text-lg font-semibold text-slate-800">Result</h2>
+        <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
+          <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100">Result</h2>
 
-          <div className="mt-4 rounded-2xl bg-emerald-300/25 p-6 text-center">
-            <div className="text-sm font-medium text-slate-600">
+          <div className="mt-4 rounded-2xl bg-emerald-300/25 p-6 text-center dark:bg-emerald-600/25">
+            <div className="text-sm font-medium text-slate-600 dark:text-slate-400">
               Overall catch chance
             </div>
-            <div className="mt-1 text-5xl font-bold text-slate-800">
+            <div className="mt-1 text-5xl font-bold text-slate-800 dark:text-slate-100">
               {calc.guaranteed ? "100%" : `${(calc.overall * 100).toFixed(1)}%`}
             </div>
             {calc.guaranteed && (
-              <div className="mt-1 text-sm font-semibold text-emerald-700">
+              <div className="mt-1 text-sm font-semibold text-emerald-700 dark:text-emerald-300">
                 Guaranteed catch!
               </div>
             )}
-            <div className="mt-3 text-sm text-slate-600">
+            <div className="mt-3 text-sm text-slate-600 dark:text-slate-400">
               Per-shake chance:{" "}
               <span className="font-semibold">
                 {(calc.perShake * 100).toFixed(1)}%
@@ -206,25 +206,25 @@ export default function CatchRateCalculator() {
 
           <dl className="mt-4 space-y-2 text-sm">
             <div className="flex justify-between">
-              <dt className="text-slate-500">Capture value (a)</dt>
-              <dd className="font-semibold text-slate-800">{calc.a.toFixed(1)}</dd>
+              <dt className="text-slate-500 dark:text-slate-400">Capture value (a)</dt>
+              <dd className="font-semibold text-slate-800 dark:text-slate-100">{calc.a.toFixed(1)}</dd>
             </div>
             <div className="flex justify-between">
-              <dt className="text-slate-500">Ball</dt>
-              <dd className="font-semibold text-slate-800">
+              <dt className="text-slate-500 dark:text-slate-400">Ball</dt>
+              <dd className="font-semibold text-slate-800 dark:text-slate-100">
                 {calc.ball.name}
                 {calc.ball.mult !== null ? ` ×${calc.ball.mult}` : " — always catches"}
               </dd>
             </div>
             <div className="flex justify-between">
-              <dt className="text-slate-500">Status</dt>
-              <dd className="font-semibold text-slate-800">
+              <dt className="text-slate-500 dark:text-slate-400">Status</dt>
+              <dd className="font-semibold text-slate-800 dark:text-slate-100">
                 {calc.status.name} ×{calc.status.mult}
               </dd>
             </div>
           </dl>
 
-          <p className="mt-4 text-xs leading-5 text-slate-400">
+          <p className="mt-4 text-xs leading-5 text-slate-400 dark:text-slate-500">
             a = ((3×maxHP − 2×currentHP) × catchRate × ball / (3×maxHP)) ×
             status. If a ≥ 255 the catch is guaranteed; otherwise shake value b =
             1048560 / √(√(16711680 / a)), and overall chance = (b/65535)⁴.

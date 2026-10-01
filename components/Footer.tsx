@@ -2,12 +2,12 @@ import Link from "next/link";
 
 export default function Footer() {
   return (
-    <footer className="border-t border-stone-200 bg-white">
-      <div className="mx-auto max-w-6xl space-y-1 px-4 py-6 text-center text-xs text-slate-500 sm:px-6">
+    <footer className="border-t border-stone-200 bg-white dark:border-slate-700 dark:bg-slate-900">
+      <div className="mx-auto max-w-6xl space-y-1 px-4 py-6 text-center text-xs text-slate-500 sm:px-6 dark:text-slate-400">
         <p>
           <Link
             href="/feedback"
-            className="font-medium text-slate-600 underline decoration-emerald-300 underline-offset-2 hover:text-emerald-700"
+            className="font-medium text-slate-600 underline decoration-emerald-300 underline-offset-2 hover:text-emerald-700 dark:text-slate-400 dark:hover:text-emerald-300"
           >
             Send feedback
           </Link>
@@ -26,7 +26,7 @@ export default function Footer() {
             href="https://www.smogon.com/forums/threads/smogon-sprite-project.3647722/"
             target="_blank"
             rel="noopener noreferrer"
-            className="underline decoration-emerald-300 underline-offset-2 hover:text-emerald-700"
+            className="underline decoration-emerald-300 underline-offset-2 hover:text-emerald-700 dark:hover:text-emerald-300"
           >
             Smogon Sprite Project
           </a>{" "}

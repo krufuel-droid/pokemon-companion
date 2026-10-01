@@ -44,11 +44,11 @@ export async function generateMetadata({
 
 function InfoItem({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200">
-      <dt className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+    <div className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
+      <dt className="text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">
         {label}
       </dt>
-      <dd className="mt-1 font-medium capitalize text-slate-800">{value}</dd>
+      <dd className="mt-1 font-medium capitalize text-slate-800 dark:text-slate-100">{value}</dd>
     </div>
   );
 }
@@ -75,17 +75,17 @@ export default async function SpeciesPage({
     .map((f) => ({ name: f.formName, types: f.types as string[] }));
 
   return (
-    <main className="min-h-screen bg-slate-50 text-slate-800">
+    <main className="min-h-screen bg-slate-50 text-slate-800 dark:bg-slate-800 dark:text-slate-100">
       <div className="mx-auto max-w-4xl px-4 py-8">
         <Link
           href="/pokedex"
-          className="inline-block text-sm font-semibold text-slate-500 hover:text-slate-800"
+          className="inline-block text-sm font-semibold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-100"
         >
           ← Pokédex
         </Link>
 
         {/* Header */}
-        <section className="mt-4 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 sm:p-8">
+        <section className="mt-4 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 sm:p-8 dark:bg-slate-900 dark:ring-slate-700">
           <div className="flex flex-col items-center gap-6 sm:flex-row sm:gap-10">
             <img
               src={species.artwork}
@@ -93,14 +93,14 @@ export default async function SpeciesPage({
               className="h-56 w-56 shrink-0 object-contain"
             />
             <div className="flex flex-col items-center gap-2 sm:items-start">
-              <span className="text-sm font-medium text-slate-400">
+              <span className="text-sm font-medium text-slate-400 dark:text-slate-500">
                 #{species.id}
               </span>
               <h1 className="text-3xl font-bold capitalize tracking-tight">
                 {species.name}
               </h1>
               {species.genera && (
-                <p className="text-sm text-slate-500">{species.genera}</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400">{species.genera}</p>
               )}
               <div className="mt-1">
                 <TypePills types={species.types} />
@@ -174,7 +174,7 @@ export default async function SpeciesPage({
           }
         >
           {species.eggMoves.length === 0 ? (
-            <p className="text-sm text-slate-500">No egg moves recorded</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400">No egg moves recorded</p>
           ) : (
             <ul className="flex flex-wrap gap-2">
               {species.eggMoves.map((move) => {
@@ -184,12 +184,12 @@ export default async function SpeciesPage({
                     {id ? (
                       <Link
                         href={`/moves/${id}`}
-                        className="block rounded-full bg-emerald-100 px-3 py-1 text-sm font-medium capitalize text-slate-700 hover:bg-emerald-200 hover:text-emerald-900"
+                        className="block rounded-full bg-emerald-100 px-3 py-1 text-sm font-medium capitalize text-slate-700 hover:bg-emerald-200 hover:text-emerald-900 dark:bg-emerald-900 dark:text-slate-300 dark:hover:bg-emerald-800 dark:hover:text-emerald-100"
                       >
                         {move}
                       </Link>
                     ) : (
-                      <span className="block rounded-full bg-emerald-100 px-3 py-1 text-sm font-medium capitalize text-slate-700">
+                      <span className="block rounded-full bg-emerald-100 px-3 py-1 text-sm font-medium capitalize text-slate-700 dark:bg-emerald-900 dark:text-slate-300">
                         {move}
                       </span>
                     )}

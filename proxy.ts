@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { supabaseAnonKey, supabaseUrl } from "./lib/supabase/config";
 
 /**
  * Refresh the Supabase auth session on every request so server-rendered
@@ -10,8 +11,12 @@ import { NextResponse, type NextRequest } from "next/server";
  * convention is deprecated as of Next 16).
  */
 export async function proxy(request: NextRequest) {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  // Use the normalized helpers (not the raw env vars): if
+  // NEXT_PUBLIC_SUPABASE_URL was pasted as the REST endpoint
+  // (…/rest/v1) the auth client would build broken API URLs and every
+  // session refresh would fail.
+  const url = supabaseUrl();
+  const key = supabaseAnonKey();
   if (!url || !key) {
     return NextResponse.next();
   }

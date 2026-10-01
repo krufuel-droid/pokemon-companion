@@ -205,10 +205,10 @@ function LocationGroupRow({ group }: { group: LocationGroup }) {
 
   const header = (
     <span className="min-w-0 flex-1">
-      <span className="block truncate font-medium text-slate-800">
+      <span className="block truncate font-medium text-slate-800 dark:text-slate-100">
         {group.location}
       </span>
-      <span className="mt-0.5 block text-sm text-slate-500">
+      <span className="mt-0.5 block text-sm text-slate-500 dark:text-slate-400">
         {group.method} · {levelRange(group.minLevel, group.maxLevel)}
       </span>
     </span>
@@ -221,7 +221,7 @@ function LocationGroupRow({ group }: { group: LocationGroup }) {
       <li className="flex flex-wrap items-baseline gap-x-3 px-4 py-2.5 text-sm">
         {header}
         {entry.chance !== null && (
-          <span className="ml-auto rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-slate-600">
+          <span className="ml-auto rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-slate-600 dark:bg-emerald-900 dark:text-slate-400">
             {entry.chance}% chance
           </span>
         )}
@@ -238,21 +238,21 @@ function LocationGroupRow({ group }: { group: LocationGroup }) {
         aria-label={`${open ? "Collapse" : "Expand"} encounters at ${
           group.location
         } (${group.method})`}
-        className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm hover:bg-slate-100/60"
+        className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm hover:bg-slate-100/60 dark:hover:bg-slate-800/60"
       >
         {header}
-        <span className="shrink-0 text-xs font-medium text-slate-400">
+        <span className="shrink-0 text-xs font-medium text-slate-400 dark:text-slate-500">
           {group.entries.length} encounters
         </span>
         <span
           aria-hidden="true"
-          className="shrink-0 text-lg font-bold leading-none text-slate-400"
+          className="shrink-0 text-lg font-bold leading-none text-slate-400 dark:text-slate-500"
         >
           {open ? "−" : "+"}
         </span>
       </button>
       {open && (
-        <ul className="border-t border-slate-100 bg-white/60">
+        <ul className="border-t border-slate-100 bg-white/60 dark:border-slate-800 dark:bg-slate-900/60">
           {group.entries
             .slice()
             .sort((a, b) => a.minLevel - b.minLevel)
@@ -261,11 +261,11 @@ function LocationGroupRow({ group }: { group: LocationGroup }) {
                 key={i}
                 className="flex flex-wrap items-baseline gap-x-3 py-2 pl-8 pr-4 text-sm"
               >
-                <span className="text-slate-500">
+                <span className="text-slate-500 dark:text-slate-400">
                   {levelRange(entry.minLevel, entry.maxLevel)}
                 </span>
                 {entry.chance !== null && (
-                  <span className="ml-auto rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-slate-600">
+                  <span className="ml-auto rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-slate-600 dark:bg-emerald-900 dark:text-slate-400">
                     {entry.chance}% chance
                   </span>
                 )}
@@ -312,7 +312,7 @@ export function EncountersSection({ speciesId }: { speciesId: number }) {
   return (
     <section
       aria-label="Where to find"
-      className="mt-6 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200"
+      className="mt-6 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700"
     >
       <button
         type="button"
@@ -324,13 +324,13 @@ export function EncountersSection({ speciesId }: { speciesId: number }) {
           <span className="text-lg font-bold">
             Where to find
             {status.state === "ready" && (
-              <span className="ml-2 text-sm font-medium text-slate-400">
+              <span className="ml-2 text-sm font-medium text-slate-400 dark:text-slate-500">
                 · {status.games.length}{" "}
                 {status.games.length === 1 ? "game" : "games"}
               </span>
             )}
           </span>
-          <span className="mt-1 block text-sm font-normal text-slate-500">
+          <span className="mt-1 block text-sm font-normal text-slate-500 dark:text-slate-400">
             Wild encounter locations by game, via PokéAPI.
           </span>
         </span>
@@ -357,20 +357,20 @@ export function EncountersSection({ speciesId }: { speciesId: number }) {
       {open && (
         <>
           {status.state === "loading" && (
-            <p className="mt-3 text-sm text-slate-500">
+            <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">
               Looking up encounter data…
             </p>
           )}
 
           {status.state === "error" && (
-            <p className="mt-3 text-sm text-slate-500">
+            <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">
               Couldn&apos;t load encounter data right now — the rest of the page
               is unaffected.
             </p>
           )}
 
           {status.state === "empty" && (
-            <p className="mt-3 text-sm text-slate-500">
+            <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">
               No wild encounter data recorded for this Pokémon.
             </p>
           )}
@@ -398,8 +398,8 @@ function GameBlock({ game }: { game: GameEncounters }) {
   const groups = useMemo(() => groupRows(game.rows), [game.rows]);
   return (
     <div>
-      <h3 className="text-sm font-bold text-slate-800">{game.game}</h3>
-      <ul className="mt-2 divide-y divide-slate-100 rounded-xl bg-slate-50 ring-1 ring-slate-200">
+      <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">{game.game}</h3>
+      <ul className="mt-2 divide-y divide-slate-100 rounded-xl bg-slate-50 ring-1 ring-slate-200 dark:divide-slate-800 dark:bg-slate-800 dark:ring-slate-700">
         {groups.map((group) => (
           <LocationGroupRow
             key={`${group.location}|${group.method}`}

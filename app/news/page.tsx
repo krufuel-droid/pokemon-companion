@@ -7,10 +7,10 @@ export const metadata: Metadata = {
 };
 
 const TAG_BADGE: Record<string, string> = {
-  Champions: "bg-violet-100 text-violet-800",
-  "Gen 10": "bg-sky-100 text-sky-800",
-  App: "bg-emerald-100 text-emerald-800",
-  Movies: "bg-amber-100 text-amber-800",
+  Champions: "bg-violet-100 text-violet-800 dark:bg-violet-900 dark:text-violet-200",
+  "Gen 10": "bg-sky-100 text-sky-800 dark:bg-sky-900 dark:text-sky-200",
+  App: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200",
+  Movies: "bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200",
 };
 
 function formatDate(iso: string): string {
@@ -24,12 +24,12 @@ function formatDate(iso: string): string {
 
 export default function NewsPage() {
   return (
-    <main className="min-h-screen bg-slate-50 text-slate-800">
+    <main className="min-h-screen bg-slate-50 text-slate-800 dark:bg-slate-800 dark:text-slate-100">
       <div className="mx-auto max-w-4xl px-4 py-8">
-        <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">
+        <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100">
           Pokémon News
         </h1>
-        <p className="mt-2 text-slate-600">
+        <p className="mt-2 text-slate-600 dark:text-slate-400">
           The latest from the world of Pokémon — Champions rotations, new
           game announcements, and app updates.
         </p>
@@ -54,34 +54,34 @@ export default function NewsPage() {
           {NEWS.map((item) => (
             <article
               key={`${item.date}-${item.title}`}
-              className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200"
+              className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700"
             >
               <div className="flex flex-wrap items-center gap-2">
                 <time
                   dateTime={item.date}
-                  className="text-xs font-semibold uppercase tracking-wide text-slate-400"
+                  className="text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500"
                 >
                   {formatDate(item.date)}
                 </time>
                 {item.tag && (
                   <span
-                    className={`rounded-full px-2 py-0.5 text-xs font-semibold ${TAG_BADGE[item.tag] ?? "bg-slate-100 text-slate-600"}`}
+                    className={`rounded-full px-2 py-0.5 text-xs font-semibold ${TAG_BADGE[item.tag] ?? "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"}`}
                   >
                     {item.tag}
                   </span>
                 )}
               </div>
-              <h2 className="mt-2 text-xl font-bold text-slate-900">
+              <h2 className="mt-2 text-xl font-bold text-slate-900 dark:text-slate-100">
                 {item.title}
               </h2>
-              <p className="mt-2 text-sm leading-relaxed text-slate-600">
+              <p className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
                 {item.body}
               </p>
               <a
                 href={item.source.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-3 inline-block text-sm font-semibold text-emerald-700 hover:text-emerald-900"
+                className="mt-3 inline-block text-sm font-semibold text-emerald-700 hover:text-emerald-900 dark:text-emerald-300 dark:hover:text-emerald-100"
               >
                 Source: {item.source.label} ↗
               </a>

@@ -15,8 +15,8 @@ export function SpriteViewer({ name, regular, shiny }: SpriteViewerProps) {
   const buttonClass = (active: boolean) =>
     `rounded-full px-3 py-1 text-xs font-semibold transition ${
       active
-        ? "bg-emerald-300 text-slate-800"
-        : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+        ? "bg-emerald-300 text-slate-800 dark:bg-emerald-600 dark:text-slate-100"
+        : "bg-slate-100 text-slate-500 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700"
     }`;
 
   return (

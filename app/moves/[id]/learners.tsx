@@ -25,7 +25,7 @@ export function Learners({
 
   if (species.length === 0) {
     return (
-      <p className="text-sm text-slate-400">No Pokémon listed as learners.</p>
+      <p className="text-sm text-slate-400 dark:text-slate-500">No Pokémon listed as learners.</p>
     );
   }
 
@@ -37,7 +37,7 @@ export function Learners({
           <Link
             key={s.id}
             href={`/pokedex/${s.id}`}
-            className="flex items-center gap-1.5 rounded-full bg-slate-100 py-1 pl-1 pr-3 text-xs font-medium text-slate-700 transition-colors hover:bg-emerald-100 hover:text-emerald-900"
+            className="flex items-center gap-1.5 rounded-full bg-slate-100 py-1 pl-1 pr-3 text-xs font-medium text-slate-700 transition-colors hover:bg-emerald-100 hover:text-emerald-900 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-emerald-900 dark:hover:text-emerald-100"
           >
             <img
               src={s.sprite}
@@ -55,7 +55,7 @@ export function Learners({
         <button
           type="button"
           onClick={() => setShowAll((v) => !v)}
-          className="mt-2 text-sm font-semibold text-emerald-700 hover:text-emerald-900"
+          className="mt-2 text-sm font-semibold text-emerald-700 hover:text-emerald-900 dark:text-emerald-300 dark:hover:text-emerald-100"
         >
           {showAll ? "Show fewer" : `Show all ${species.length} Pokémon`}
         </button>

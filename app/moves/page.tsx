@@ -25,9 +25,9 @@ const SORT_LABEL: Record<SortKey, string> = {
 };
 
 const CATEGORY_BADGE: Record<string, string> = {
-  Physical: "bg-orange-100 text-orange-800",
-  Special: "bg-indigo-100 text-indigo-800",
-  Status: "bg-slate-200 text-slate-700",
+  Physical: "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200",
+  Special: "bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200",
+  Status: "bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-300",
 };
 
 const PAGE_SIZE = 50;
@@ -48,7 +48,7 @@ function GenBadge({ gen }: { gen: number | null }) {
   const label = genLabel(gen);
   if (!label) return null;
   return (
-    <span className="inline-block rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-800">
+    <span className="inline-block rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200">
       {label}
     </span>
   );
@@ -56,9 +56,9 @@ function GenBadge({ gen }: { gen: number | null }) {
 
 function StatChip({ label, value }: { label: string; value: string }) {
   return (
-    <span className="inline-flex items-baseline gap-1 rounded-lg bg-slate-100 px-2 py-1 text-xs">
-      <span className="font-semibold uppercase tracking-wide text-slate-400">{label}</span>
-      <span className="font-bold text-slate-800">{value}</span>
+    <span className="inline-flex items-baseline gap-1 rounded-lg bg-slate-100 px-2 py-1 text-xs dark:bg-slate-800">
+      <span className="font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">{label}</span>
+      <span className="font-bold text-slate-800 dark:text-slate-100">{value}</span>
     </span>
   );
 }
@@ -70,7 +70,7 @@ function Chevron({ open }: { open: boolean }) {
       height="20"
       viewBox="0 0 20 20"
       aria-hidden="true"
-      className={`shrink-0 text-slate-400 transition-transform ${open ? "rotate-180" : ""}`}
+      className={`shrink-0 text-slate-400 transition-transform ${open ? "rotate-180" : ""} dark:text-slate-500`}
     >
       <path
         d="M5 7l5 5 5-5"
@@ -101,7 +101,7 @@ function LearnsetChips({
   );
 
   if (species.length === 0) {
-    return <p className="text-sm text-slate-400">No Pokémon listed as learners.</p>;
+    return <p className="text-sm text-slate-400 dark:text-slate-500">No Pokémon listed as learners.</p>;
   }
 
   const visible = showAll ? species : species.slice(0, LEARNSET_PREVIEW);
@@ -112,7 +112,7 @@ function LearnsetChips({
           <Link
             key={s.id}
             href={`/pokedex/${s.id}`}
-            className="flex items-center gap-1.5 rounded-full bg-slate-100 py-1 pl-1 pr-3 text-xs font-medium text-slate-700 transition-colors hover:bg-emerald-100 hover:text-emerald-900"
+            className="flex items-center gap-1.5 rounded-full bg-slate-100 py-1 pl-1 pr-3 text-xs font-medium text-slate-700 transition-colors hover:bg-emerald-100 hover:text-emerald-900 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-emerald-900 dark:hover:text-emerald-100"
           >
             <img
               src={s.sprite}
@@ -130,7 +130,7 @@ function LearnsetChips({
         <button
           type="button"
           onClick={() => setShowAll((v) => !v)}
-          className="mt-2 text-sm font-semibold text-emerald-700 hover:text-emerald-900"
+          className="mt-2 text-sm font-semibold text-emerald-700 hover:text-emerald-900 dark:text-emerald-300 dark:hover:text-emerald-100"
         >
           {showAll ? "Show fewer" : `Show all ${species.length} Pokémon`}
         </button>
@@ -149,12 +149,12 @@ function MoveRow({
   const [open, setOpen] = useState(false);
 
   return (
-    <li className="rounded-2xl bg-white shadow-sm ring-1 ring-slate-200">
+    <li className="rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
       <div className="flex w-full items-center gap-3 px-4 py-3">
         <span className="min-w-0 flex-1">
           <Link
             href={`/moves/${move.id}`}
-            className="block truncate font-semibold text-slate-900 hover:text-emerald-700 hover:underline"
+            className="block truncate font-semibold text-slate-900 hover:text-emerald-700 hover:underline dark:text-slate-100 dark:hover:text-emerald-300"
           >
             {move.name}
           </Link>
@@ -178,14 +178,14 @@ function MoveRow({
           onClick={() => setOpen((v) => !v)}
           aria-expanded={open}
           aria-label={open ? `Collapse ${move.name} details` : `Expand ${move.name} details`}
-          className="shrink-0 rounded-lg px-2 py-1 text-lg font-bold text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+          className="shrink-0 rounded-lg px-2 py-1 text-lg font-bold text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:text-slate-500 dark:hover:bg-slate-800 dark:hover:text-slate-400"
         >
           <span aria-hidden="true">{open ? "−" : "+"}</span>
         </button>
       </div>
 
       {open && (
-        <div className="border-t border-slate-100 px-4 py-4">
+        <div className="border-t border-slate-100 px-4 py-4 dark:border-slate-800">
           <div className="flex flex-wrap gap-1.5 sm:hidden">
             <StatChip label="Power" value={move.power === null ? "—" : String(move.power)} />
             <StatChip label="Accuracy" value={move.accuracy === null ? "—" : String(move.accuracy)} />
@@ -193,19 +193,19 @@ function MoveRow({
             <StatChip label="Priority" value={String(move.priority)} />
           </div>
           <div className="mt-3 hidden sm:block">
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Priority</p>
-            <p className="mt-1 text-sm font-semibold text-slate-800">
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">Priority</p>
+            <p className="mt-1 text-sm font-semibold text-slate-800 dark:text-slate-100">
               {move.priority > 0 ? `+${move.priority}` : String(move.priority)}
             </p>
           </div>
           {move.shortEffect && (
-            <p className="mt-3 text-sm text-slate-600">{move.shortEffect}</p>
+            <p className="mt-3 text-sm text-slate-600 dark:text-slate-400">{move.shortEffect}</p>
           )}
           {move.effect && move.effect !== move.shortEffect && (
-            <p className="mt-2 text-sm text-slate-500">{move.effect}</p>
+            <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">{move.effect}</p>
           )}
           <div className="mt-4">
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">
               Pokémon that learn it
               {move.learnedBy.length > 0 && ` (${move.learnedBy.length})`}
             </p>
@@ -293,22 +293,22 @@ export default function MovesPage() {
 
   return (
     <main className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
-      <h1 className="text-3xl font-bold tracking-tight text-slate-900">Move Database</h1>
-      <p className="mt-2 text-sm text-slate-500">
+      <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100">Move Database</h1>
+      <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
         {MOVES.length} standard moves. Z-Moves and Max / G-Max moves aren&apos;t listed.
       </p>
 
-      <div className="mt-6 rounded-2xl bg-white shadow-sm ring-1 ring-slate-200">
+      <div className="mt-6 rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
         <button
           type="button"
           onClick={() => setFiltersChoice((v) => !(v ?? !isNarrow))}
           aria-expanded={filtersOpen}
           className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left"
         >
-          <span className="text-sm font-bold text-slate-800">
+          <span className="text-sm font-bold text-slate-800 dark:text-slate-100">
             Search &amp; filters
             {activeFilterCount > 0 && (
-              <span className="ml-2 rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-800">
+              <span className="ml-2 rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200">
                 {activeFilterCount} active
               </span>
             )}
@@ -317,24 +317,24 @@ export default function MovesPage() {
         </button>
 
         {filtersOpen && (
-          <div className="border-t border-slate-100 p-4">
+          <div className="border-t border-slate-100 p-4 dark:border-slate-800">
             <input
               type="search"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search moves…"
               aria-label="Search moves"
-              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-mint focus:outline-none"
+              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-mint focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500"
             />
             <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
               <label className="block">
-                <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400">
+                <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">
                   Type
                 </span>
                 <select
                   value={typeFilter}
                   onChange={(e) => setTypeFilter(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 focus:border-mint focus:outline-none"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 focus:border-mint focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                 >
                   <option value="all">All types</option>
                   {MOVE_TYPES.map((t) => (
@@ -345,13 +345,13 @@ export default function MovesPage() {
                 </select>
               </label>
               <label className="block">
-                <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400">
+                <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">
                   Category
                 </span>
                 <select
                   value={categoryFilter}
                   onChange={(e) => setCategoryFilter(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 focus:border-mint focus:outline-none"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 focus:border-mint focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                 >
                   <option value="all">All categories</option>
                   {MOVE_CATEGORIES.map((c) => (
@@ -362,13 +362,13 @@ export default function MovesPage() {
                 </select>
               </label>
               <label className="block">
-                <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400">
+                <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">
                   Generation
                 </span>
                 <select
                   value={genFilter}
                   onChange={(e) => setGenFilter(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 focus:border-mint focus:outline-none"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 focus:border-mint focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                 >
                   <option value="all">All generations</option>
                   {MOVE_GENS.map((g) => (
@@ -379,13 +379,13 @@ export default function MovesPage() {
                 </select>
               </label>
               <label className="block">
-                <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400">
+                <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">
                   Sort by
                 </span>
                 <select
                   value={sort}
                   onChange={(e) => setSort(e.target.value as SortKey)}
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 focus:border-mint focus:outline-none"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 focus:border-mint focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                 >
                   {(Object.keys(SORT_LABEL) as SortKey[]).map((k) => (
                     <option key={k} value={k}>
@@ -399,14 +399,14 @@ export default function MovesPage() {
         )}
       </div>
 
-      <p className="mt-4 text-sm text-slate-500" role="status">
+      <p className="mt-4 text-sm text-slate-500 dark:text-slate-400" role="status">
         Showing {visible.length} of {results.length}{" "}
         {results.length === 1 ? "move" : "moves"}
       </p>
 
       {results.length === 0 ? (
-        <div className="mt-4 rounded-2xl bg-white p-8 text-center shadow-sm ring-1 ring-slate-200">
-          <p className="text-sm text-slate-500">No moves match your filters.</p>
+        <div className="mt-4 rounded-2xl bg-white p-8 text-center shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
+          <p className="text-sm text-slate-500 dark:text-slate-400">No moves match your filters.</p>
         </div>
       ) : (
         <>

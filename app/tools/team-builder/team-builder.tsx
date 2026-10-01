@@ -234,14 +234,14 @@ export default function TeamBuilder() {
 
   return (
     <div className="mx-auto w-full max-w-5xl px-4 py-10">
-      <h1 className="text-3xl font-bold text-slate-800">Team Builder</h1>
-      <p className="mt-2 text-slate-500">
+      <h1 className="text-3xl font-bold text-slate-800 dark:text-slate-100">Team Builder</h1>
+      <p className="mt-2 text-slate-500 dark:text-slate-400">
         Draft a team of up to 6 Pokémon, check its defensive weaknesses and offensive
         coverage, save it, or share it with a link.
       </p>
 
       {notice && (
-        <div className="mt-4 rounded-xl bg-emerald-100 px-4 py-2 text-sm font-medium text-emerald-900">
+        <div className="mt-4 rounded-xl bg-emerald-100 px-4 py-2 text-sm font-medium text-emerald-900 dark:bg-emerald-900 dark:text-emerald-100">
           {notice}
         </div>
       )}
@@ -249,8 +249,8 @@ export default function TeamBuilder() {
       {/* Team slots */}
       <section className="mt-8">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-slate-800">
-            Your team <span className="text-sm font-normal text-slate-400">{team.length}/6</span>
+          <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100">
+            Your team <span className="text-sm font-normal text-slate-400 dark:text-slate-500">{team.length}/6</span>
           </h2>
           <div className="flex gap-2">
             <button
@@ -264,7 +264,7 @@ export default function TeamBuilder() {
               <button
                 type="button"
                 onClick={() => setTeam([])}
-                className="rounded-full bg-white px-4 py-1.5 text-sm font-semibold text-slate-600 ring-1 ring-slate-300 transition hover:bg-slate-100"
+                className="rounded-full bg-white px-4 py-1.5 text-sm font-semibold text-slate-600 ring-1 ring-slate-300 transition hover:bg-slate-100 dark:bg-slate-900 dark:text-slate-400 dark:ring-slate-600 dark:hover:bg-slate-800"
               >
                 Clear
               </button>
@@ -277,7 +277,7 @@ export default function TeamBuilder() {
             return (
               <div
                 key={i}
-                className="relative flex min-h-36 flex-col items-center justify-center rounded-2xl bg-white p-3 text-center shadow-sm ring-1 ring-slate-200"
+                className="relative flex min-h-36 flex-col items-center justify-center rounded-2xl bg-white p-3 text-center shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700"
               >
                 {member ? (
                   <>
@@ -285,7 +285,7 @@ export default function TeamBuilder() {
                       type="button"
                       aria-label={`Remove ${member.name}`}
                       onClick={() => removeSpecies(member.id)}
-                      className="absolute right-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-slate-100 text-sm font-bold text-slate-500 transition hover:bg-red-100 hover:text-red-600"
+                      className="absolute right-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-slate-100 text-sm font-bold text-slate-500 transition hover:bg-red-100 hover:text-red-600 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-red-900 dark:hover:text-red-400"
                     >
                       ×
                     </button>
@@ -295,7 +295,7 @@ export default function TeamBuilder() {
                       loading="lazy"
                       className="h-16 w-16"
                     />
-                    <span className="mt-1 text-xs font-semibold text-slate-700">
+                    <span className="mt-1 text-xs font-semibold text-slate-700 dark:text-slate-300">
                       {dexLabel(member)} {member.name}
                     </span>
                     <div className="mt-1 scale-90">
@@ -313,13 +313,13 @@ export default function TeamBuilder() {
 
       {/* Search / picker */}
       <section className="mt-8">
-        <h2 className="text-lg font-semibold text-slate-800">Add Pokémon</h2>
+        <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100">Add Pokémon</h2>
         <input
           type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search 1,025 Pokémon + regional variants… (e.g. garchomp)"
-          className="mt-3 w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-slate-800 shadow-sm focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-200"
+          className="mt-3 w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-slate-800 shadow-sm focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-200 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:focus:ring-emerald-800"
         />
         {query.trim().length >= 2 && (
           <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
@@ -329,11 +329,11 @@ export default function TeamBuilder() {
                 type="button"
                 onClick={() => addSpecies(s.id)}
                 disabled={team.includes(s.id)}
-                className="flex items-center gap-3 rounded-xl bg-white p-2 text-left shadow-sm ring-1 ring-slate-200 transition hover:ring-emerald-300 disabled:opacity-50"
+                className="flex items-center gap-3 rounded-xl bg-white p-2 text-left shadow-sm ring-1 ring-slate-200 transition hover:ring-emerald-300 disabled:opacity-50 dark:bg-slate-900 dark:ring-slate-700 dark:hover:ring-emerald-700"
               >
                 <img src={s.sprites.regular} alt={s.name} loading="lazy" className="h-12 w-12 shrink-0" />
                 <span className="min-w-0">
-                  <span className="block truncate text-sm font-semibold text-slate-700">
+                  <span className="block truncate text-sm font-semibold text-slate-700 dark:text-slate-300">
                     {dexLabel(s)} {s.name}
                   </span>
                   <span className="mt-0.5 flex gap-1">
@@ -345,14 +345,14 @@ export default function TeamBuilder() {
               </button>
             ))}
             {results.length === 0 && (
-              <p className="col-span-full text-sm text-slate-400">
+              <p className="col-span-full text-sm text-slate-400 dark:text-slate-500">
                 No Pokémon match “{query.trim()}”.
               </p>
             )}
           </div>
         )}
         {query.trim().length < 2 && (
-          <p className="mt-2 text-sm text-slate-400">
+          <p className="mt-2 text-sm text-slate-400 dark:text-slate-500">
             Type at least 2 letters to search the full Pokédex.
           </p>
         )}
@@ -360,25 +360,25 @@ export default function TeamBuilder() {
 
       {/* Analysis */}
       {members.length > 0 && (
-        <section className="mt-8 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
-          <h2 className="text-lg font-semibold text-slate-800">Team analysis</h2>
+        <section className="mt-8 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
+          <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100">Team analysis</h2>
 
           {threats.length > 0 && (
-            <div className="mt-3 rounded-xl bg-red-50 p-3 ring-1 ring-red-200">
-              <p className="text-sm font-semibold text-red-800">Watch out — no answer to:</p>
+            <div className="mt-3 rounded-xl bg-red-50 p-3 ring-1 ring-red-200 dark:bg-red-950 dark:ring-red-800">
+              <p className="text-sm font-semibold text-red-800 dark:text-red-200">Watch out — no answer to:</p>
               <div className="mt-2 flex flex-wrap gap-1.5">
                 {threats.map((d) => (
                   <TypeChip key={d.type} type={d.type} />
                 ))}
               </div>
-              <p className="mt-1.5 text-xs text-red-700">
+              <p className="mt-1.5 text-xs text-red-700 dark:text-red-300">
                 Two or more members are weak to these types and nothing on the team resists them.
               </p>
             </div>
           )}
           {solid.length > 0 && (
-            <div className="mt-3 rounded-xl bg-emerald-50 p-3 ring-1 ring-emerald-200">
-              <p className="text-sm font-semibold text-emerald-800">Solid against:</p>
+            <div className="mt-3 rounded-xl bg-emerald-50 p-3 ring-1 ring-emerald-200 dark:bg-emerald-950 dark:ring-emerald-800">
+              <p className="text-sm font-semibold text-emerald-800 dark:text-emerald-200">Solid against:</p>
               <div className="mt-2 flex flex-wrap gap-1.5">
                 {solid.map((d) => (
                   <TypeChip key={d.type} type={d.type} />
@@ -387,27 +387,27 @@ export default function TeamBuilder() {
             </div>
           )}
 
-          <h3 className="mt-5 text-sm font-semibold text-slate-700">
-            Defensive profile <span className="font-normal text-slate-400">(weak / resist per attacking type)</span>
+          <h3 className="mt-5 text-sm font-semibold text-slate-700 dark:text-slate-300">
+            Defensive profile <span className="font-normal text-slate-400 dark:text-slate-500">(weak / resist per attacking type)</span>
           </h3>
           <div className="mt-2 grid grid-cols-3 gap-2 sm:grid-cols-6">
             {defense.map((d) => {
               const net = d.weak - d.resist - d.immune;
               const tone =
                 net > 0
-                  ? "bg-red-50 ring-red-200"
+                  ? "bg-red-50 ring-red-200 dark:bg-red-950 dark:ring-red-800"
                   : net < 0
-                    ? "bg-emerald-50 ring-emerald-200"
-                    : "bg-stone-50 ring-slate-200";
+                    ? "bg-emerald-50 ring-emerald-200 dark:bg-emerald-950 dark:ring-emerald-800"
+                    : "bg-stone-50 ring-slate-200 dark:bg-slate-950 dark:ring-slate-700";
               return (
                 <div key={d.type} className={`rounded-xl p-2 text-center ring-1 ${tone}`}>
                   <TypeChip type={d.type} />
-                  <p className="mt-1 text-xs text-slate-500">
-                    <span className={d.weak > 0 ? "font-semibold text-red-600" : ""}>
+                  <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                    <span className={d.weak > 0 ? "font-semibold text-red-600 dark:text-red-400" : ""}>
                       {d.weak} weak
                     </span>
                     {" · "}
-                    <span className={d.resist + d.immune > 0 ? "font-semibold text-emerald-600" : ""}>
+                    <span className={d.resist + d.immune > 0 ? "font-semibold text-emerald-600 dark:text-emerald-400" : ""}>
                       {d.resist + d.immune} resist
                     </span>
                   </p>
@@ -416,9 +416,9 @@ export default function TeamBuilder() {
             })}
           </div>
 
-          <h3 className="mt-5 text-sm font-semibold text-slate-700">
+          <h3 className="mt-5 text-sm font-semibold text-slate-700 dark:text-slate-300">
             Offensive STAB coverage{" "}
-            <span className="font-normal text-slate-400">
+            <span className="font-normal text-slate-400 dark:text-slate-500">
               (types at least one member hits super-effectively with its own type)
             </span>
           </h3>
@@ -428,18 +428,18 @@ export default function TeamBuilder() {
             ))}
           </div>
           {uncovered.length > 0 ? (
-            <p className="mt-2 text-sm text-slate-500">
+            <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
               No super-effective STAB against:{" "}
-              <span className="font-medium text-slate-700">
+              <span className="font-medium text-slate-700 dark:text-slate-300">
                 {uncovered.map((o) => o.type).join(", ")}
               </span>
             </p>
           ) : (
-            <p className="mt-2 text-sm font-medium text-emerald-700">
+            <p className="mt-2 text-sm font-medium text-emerald-700 dark:text-emerald-300">
               Full coverage — the team can hit every type super-effectively!
             </p>
           )}
-          <p className="mt-3 text-xs text-slate-400">
+          <p className="mt-3 text-xs text-slate-400 dark:text-slate-500">
             Analysis is based on type matchups only — abilities, movesets, and stats aren’t
             factored in.
           </p>
@@ -448,7 +448,7 @@ export default function TeamBuilder() {
 
       {/* Saved teams */}
       <section className="mt-8">
-        <h2 className="text-lg font-semibold text-slate-800">Saved teams</h2>
+        <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100">Saved teams</h2>
         <div className="mt-3 flex gap-2">
           <input
             type="text"
@@ -456,7 +456,7 @@ export default function TeamBuilder() {
             onChange={(e) => setTeamName(e.target.value)}
             placeholder="Name this team…"
             maxLength={40}
-            className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2 text-slate-800 shadow-sm focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-200"
+            className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2 text-slate-800 shadow-sm focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-200 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:focus:ring-emerald-800"
           />
           <button
             type="button"
@@ -471,7 +471,7 @@ export default function TeamBuilder() {
             {saved.map((s) => (
               <li
                 key={s.name}
-                className="flex items-center gap-3 rounded-xl bg-white p-3 shadow-sm ring-1 ring-slate-200"
+                className="flex items-center gap-3 rounded-xl bg-white p-3 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700"
               >
                 <div className="flex -space-x-2">
                   {s.ids.slice(0, 6).map((id) => {
@@ -483,18 +483,18 @@ export default function TeamBuilder() {
                         alt={sp.name}
                         title={sp.name}
                         loading="lazy"
-                        className="h-10 w-10 rounded-full bg-stone-100 ring-2 ring-white"
+                        className="h-10 w-10 rounded-full bg-stone-100 ring-2 ring-white dark:bg-slate-800"
                       />
                     ) : null;
                   })}
                 </div>
-                <span className="min-w-0 flex-1 truncate text-sm font-semibold text-slate-700">
+                <span className="min-w-0 flex-1 truncate text-sm font-semibold text-slate-700 dark:text-slate-300">
                   {s.name}
                 </span>
                 <button
                   type="button"
                   onClick={() => setTeam(parseTeamParam(s.ids.join(",")))}
-                  className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800 transition hover:bg-emerald-200"
+                  className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800 transition hover:bg-emerald-200 dark:bg-emerald-900 dark:text-emerald-200 dark:hover:bg-emerald-800"
                 >
                   Load
                 </button>
@@ -502,7 +502,7 @@ export default function TeamBuilder() {
                   type="button"
                   onClick={() => deleteSaved(s.name)}
                   aria-label={`Delete ${s.name}`}
-                  className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-500 transition hover:bg-red-100 hover:text-red-600"
+                  className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-500 transition hover:bg-red-100 hover:text-red-600 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-red-900 dark:hover:text-red-400"
                 >
                   Delete
                 </button>
@@ -510,7 +510,7 @@ export default function TeamBuilder() {
             ))}
           </ul>
         ) : (
-          <p className="mt-2 text-sm text-slate-400">
+          <p className="mt-2 text-sm text-slate-400 dark:text-slate-500">
             Nothing saved yet — saved teams live in this browser.
           </p>
         )}

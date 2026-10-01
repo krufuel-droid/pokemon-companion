@@ -29,7 +29,7 @@ export function SectionAccordion({
   return (
     <section
       aria-label={label}
-      className="mt-6 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200"
+      className="mt-6 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700"
     >
       <button
         type="button"
@@ -41,13 +41,13 @@ export function SectionAccordion({
           <span className="text-lg font-bold">
             {title}
             {badge && (
-              <span className="ml-2 text-sm font-medium text-slate-400">
+              <span className="ml-2 text-sm font-medium text-slate-400 dark:text-slate-500">
                 · {badge}
               </span>
             )}
           </span>
           {subtitle && (
-            <span className="mt-1 block text-sm font-normal text-slate-500">
+            <span className="mt-1 block text-sm font-normal text-slate-500 dark:text-slate-400">
               {subtitle}
             </span>
           )}

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import AuthButtons from "./AuthButtons";
+import ThemeToggle from "./theme-toggle";
 
 const LINKS = [
   { href: "/", label: "Home" },
@@ -56,11 +57,11 @@ export default function Nav() {
   }, [menuOpen]);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-stone-200 bg-white/90 backdrop-blur">
+    <header className="sticky top-0 z-50 border-b border-stone-200 bg-white/90 backdrop-blur dark:border-slate-700 dark:bg-slate-900/90">
       <nav className="relative mx-auto flex max-w-6xl flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3 sm:gap-x-8 sm:px-6">
         <Link href="/" className="flex items-center gap-2">
           <PokeballIcon />
-          <span className="text-lg font-bold tracking-tight text-slate-900">
+          <span className="text-lg font-bold tracking-tight text-slate-900 dark:text-slate-100">
             Pokémon Companion
           </span>
         </Link>
@@ -75,8 +76,8 @@ export default function Nav() {
                 aria-current={active ? "page" : undefined}
                 className={`border-b-2 px-1 pb-1 text-sm font-medium transition-colors ${
                   active
-                    ? "border-mint font-semibold text-slate-900"
-                    : "border-transparent text-slate-500 hover:border-stone-300 hover:text-slate-800"
+                    ? "border-mint font-semibold text-slate-900 dark:text-slate-100"
+                    : "border-transparent text-slate-500 hover:border-stone-300 hover:text-slate-800 dark:text-slate-400 dark:hover:border-slate-600 dark:hover:text-slate-100"
                 }`}
               >
                 {link.label}
@@ -85,6 +86,7 @@ export default function Nav() {
           })}
         </div>
         <div className="ml-auto flex items-center gap-1">
+          <ThemeToggle />
           <AuthButtons />
           {/* Mobile hamburger */}
           <button
@@ -92,7 +94,7 @@ export default function Nav() {
             onClick={() => setMenuOpen((o) => !o)}
             aria-expanded={menuOpen}
             aria-label={menuOpen ? "Close menu" : "Open menu"}
-            className="rounded-lg p-2 text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-2 focus-visible:outline-emerald-500 sm:hidden"
+            className="rounded-lg p-2 text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-2 focus-visible:outline-emerald-500 sm:hidden dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100"
           >
             <svg
               width="24"
@@ -120,7 +122,7 @@ export default function Nav() {
         </div>
         {/* Mobile dropdown menu */}
         {menuOpen && (
-          <div className="absolute inset-x-0 top-full border-b border-stone-200 bg-white shadow-lg sm:hidden">
+          <div className="absolute inset-x-0 top-full border-b border-stone-200 bg-white shadow-lg sm:hidden dark:border-slate-700 dark:bg-slate-900">
             <div className="flex flex-col px-4 py-2">
               {LINKS.map((link) => {
                 const active = isActive(pathname, link.href);
@@ -132,14 +134,20 @@ export default function Nav() {
                     onClick={() => setMenuOpen(false)}
                     className={`rounded-lg px-3 py-2.5 text-base font-medium transition-colors ${
                       active
-                        ? "bg-emerald-50 font-semibold text-slate-900"
-                        : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                        ? "bg-emerald-50 font-semibold text-slate-900 dark:bg-emerald-950 dark:text-slate-100"
+                        : "text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100"
                     }`}
                   >
                     {link.label}
                   </Link>
                 );
               })}
+            </div>
+            <div className="flex items-center justify-between border-t border-stone-200 px-4 py-2 dark:border-slate-700">
+              <span className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                Appearance
+              </span>
+              <ThemeToggle />
             </div>
           </div>
         )}

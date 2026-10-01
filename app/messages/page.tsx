@@ -23,9 +23,9 @@ import {
 } from "@/lib/community";
 
 const cardClass =
-  "rounded-2xl border border-stone-200 bg-white p-6 shadow-sm sm:p-8";
+  "rounded-2xl border border-stone-200 bg-white p-6 shadow-sm sm:p-8 dark:border-slate-700 dark:bg-slate-900";
 const inputClass =
-  "w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-mint focus:outline-none focus:ring-2 focus:ring-mint/40";
+  "w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-mint focus:outline-none focus:ring-2 focus:ring-mint/40 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500";
 
 const POLL_MS = 15000;
 
@@ -248,7 +248,7 @@ export default function MessagesPage() {
   if (!isSupabaseConfigured() || !configured) return <SupabaseNeeded />;
   if (loading) {
     return (
-      <div className="mx-auto max-w-2xl px-4 py-16 text-center text-sm text-slate-500">
+      <div className="mx-auto max-w-2xl px-4 py-16 text-center text-sm text-slate-500 dark:text-slate-400">
         Loading…
       </div>
     );
@@ -257,13 +257,13 @@ export default function MessagesPage() {
     return (
       <div className="mx-auto max-w-xl px-4 py-16 sm:px-6">
         <div className={`${cardClass} text-center`}>
-          <h1 className="text-xl font-bold text-slate-900">Messages need a sign-in</h1>
-          <p className="mt-2 text-sm text-slate-600">
+          <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100">Messages need a sign-in</h1>
+          <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
             Sign in to chat with your friends.
           </p>
           <Link
             href="/login"
-            className="mt-6 inline-block rounded-lg bg-mint px-6 py-2.5 text-sm font-bold text-slate-900 shadow-sm transition hover:brightness-95"
+            className="mt-6 inline-block rounded-lg bg-mint px-6 py-2.5 text-sm font-bold text-slate-900 shadow-sm transition hover:brightness-95 dark:text-slate-100"
           >
             Sign in
           </Link>
@@ -274,17 +274,17 @@ export default function MessagesPage() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
-      <h1 className="mb-1 text-2xl font-bold text-slate-900">Messages</h1>
-      <p className="mb-6 text-sm text-slate-600">
+      <h1 className="mb-1 text-2xl font-bold text-slate-900 dark:text-slate-100">Messages</h1>
+      <p className="mb-6 text-sm text-slate-600 dark:text-slate-400">
         Private chats with your mutual friends. New messages arrive automatically.
       </p>
       <CommunityTabs />
 
       {loadingList ? (
-        <p className="py-8 text-center text-sm text-slate-500">Loading conversations…</p>
+        <p className="py-8 text-center text-sm text-slate-500 dark:text-slate-400">Loading conversations…</p>
       ) : friends.length === 0 ? (
         <div className={`${cardClass} text-center`}>
-          <p className="text-sm text-slate-600">
+          <p className="text-sm text-slate-600 dark:text-slate-400">
             No friends yet —{" "}
             <Link href="/friends" className="font-semibold underline underline-offset-2">
               add some friends
@@ -310,15 +310,15 @@ export default function MessagesPage() {
                 className={`flex w-full items-center gap-3 rounded-xl border p-3 text-left transition ${
                   selectedId === c.friend.id
                     ? "border-mint bg-mint/10"
-                    : "border-stone-200 bg-white hover:border-stone-300"
+                    : "border-stone-200 bg-white hover:border-stone-300 dark:border-slate-700 dark:bg-slate-900 dark:hover:border-slate-600"
                 }`}
               >
                 <Avatar username={c.friend.username} avatarUrl={c.friend.avatar_url} size={36} />
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate text-sm font-bold text-slate-900">
+                  <span className="block truncate text-sm font-bold text-slate-900 dark:text-slate-100">
                     {c.friend.username}
                   </span>
-                  <span className="block truncate text-xs text-slate-500">
+                  <span className="block truncate text-xs text-slate-500 dark:text-slate-400">
                     {c.lastMessage
                       ? `${c.lastMessage.sender_id === user.id ? "You: " : ""}${c.lastMessage.body}`
                       : "No messages yet"}
@@ -332,17 +332,17 @@ export default function MessagesPage() {
           <div className={selectedId ? "" : "hidden md:block"}>
             {!selectedFriend ? (
               <div className={`${cardClass} text-center`}>
-                <p className="text-sm text-slate-500">
+                <p className="text-sm text-slate-500 dark:text-slate-400">
                   Pick a conversation to start chatting.
                 </p>
               </div>
             ) : (
-              <div className="flex flex-col rounded-2xl border border-stone-200 bg-white shadow-sm">
-                <div className="flex items-center gap-3 border-b border-stone-100 p-4">
+              <div className="flex flex-col rounded-2xl border border-stone-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900">
+                <div className="flex items-center gap-3 border-b border-stone-100 p-4 dark:border-slate-800">
                   <button
                     type="button"
                     onClick={() => setSelectedId(null)}
-                    className="rounded-lg px-2 py-1 text-sm font-medium text-slate-500 hover:bg-stone-100 md:hidden"
+                    className="rounded-lg px-2 py-1 text-sm font-medium text-slate-500 hover:bg-stone-100 md:hidden dark:text-slate-400 dark:hover:bg-slate-800"
                   >
                     ← Back
                   </button>
@@ -353,7 +353,7 @@ export default function MessagesPage() {
                   />
                   <Link
                     href={`/trainers/${encodeURIComponent(selectedFriend.username)}`}
-                    className="text-sm font-bold text-slate-900 hover:underline"
+                    className="text-sm font-bold text-slate-900 hover:underline dark:text-slate-100"
                   >
                     {selectedFriend.username}
                   </Link>
@@ -365,11 +365,11 @@ export default function MessagesPage() {
                   aria-label={`Messages with ${selectedFriend.username}`}
                 >
                   {loadingThread && messages.length === 0 ? (
-                    <p className="py-8 text-center text-sm text-slate-500">
+                    <p className="py-8 text-center text-sm text-slate-500 dark:text-slate-400">
                       Loading messages…
                     </p>
                   ) : messages.length === 0 ? (
-                    <p className="py-8 text-center text-sm text-slate-500">
+                    <p className="py-8 text-center text-sm text-slate-500 dark:text-slate-400">
                       Say hello to {selectedFriend.username}! 👋
                     </p>
                   ) : (
@@ -380,14 +380,14 @@ export default function MessagesPage() {
                           <div
                             className={`max-w-[80%] rounded-2xl px-4 py-2 ${
                               mine
-                                ? "rounded-br-md bg-mint text-slate-900"
-                                : "rounded-bl-md bg-stone-100 text-slate-800"
+                                ? "rounded-br-md bg-mint text-slate-900 dark:text-slate-100"
+                                : "rounded-bl-md bg-stone-100 text-slate-800 dark:bg-slate-800 dark:text-slate-100"
                             }`}
                           >
                             <p className="whitespace-pre-wrap break-words text-sm">{m.body}</p>
                             <p
                               className={`mt-1 text-right text-[11px] ${
-                                mine ? "text-slate-700/70" : "text-slate-400"
+                                mine ? "text-slate-700/70 dark:text-slate-300/70" : "text-slate-400 dark:text-slate-500"
                               }`}
                             >
                               {timeAgo(m.created_at)}
@@ -400,7 +400,7 @@ export default function MessagesPage() {
                   <div ref={threadEndRef} />
                 </div>
 
-                <form onSubmit={(e) => void send(e)} className="border-t border-stone-100 p-4">
+                <form onSubmit={(e) => void send(e)} className="border-t border-stone-100 p-4 dark:border-slate-800">
                   <div className="flex gap-2">
                     <input
                       value={draft}
@@ -414,13 +414,13 @@ export default function MessagesPage() {
                     <button
                       type="submit"
                       disabled={busy || draft.trim() === ""}
-                      className="shrink-0 rounded-lg bg-mint px-5 py-2 text-sm font-bold text-slate-900 shadow-sm transition hover:brightness-95 disabled:opacity-60"
+                      className="shrink-0 rounded-lg bg-mint px-5 py-2 text-sm font-bold text-slate-900 shadow-sm transition hover:brightness-95 disabled:opacity-60 dark:text-slate-100"
                     >
                       {busy ? "…" : "Send"}
                     </button>
                   </div>
                   {error && (
-                    <p role="alert" className="mt-2 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
+                    <p role="alert" className="mt-2 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950 dark:text-red-300">
                       {error}
                     </p>
                   )}

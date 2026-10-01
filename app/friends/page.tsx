@@ -11,9 +11,9 @@ import CommunityTabs from "@/components/CommunityTabs";
 import { timeAgo, type FriendProfile, type Friendship } from "@/lib/community";
 
 const cardClass =
-  "rounded-2xl border border-stone-200 bg-white p-6 shadow-sm sm:p-8";
+  "rounded-2xl border border-stone-200 bg-white p-6 shadow-sm sm:p-8 dark:border-slate-700 dark:bg-slate-900";
 const inputClass =
-  "w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-mint focus:outline-none focus:ring-2 focus:ring-mint/40";
+  "w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-mint focus:outline-none focus:ring-2 focus:ring-mint/40 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500";
 
 const USERNAME_RE = /^[a-zA-Z0-9_]{3,24}$/;
 
@@ -21,7 +21,7 @@ type FriendRow = Friendship & { other: FriendProfile | null };
 
 function SectionTitle({ children }: { children: string }) {
   return (
-    <h2 className="mb-3 text-lg font-bold text-slate-900">{children}</h2>
+    <h2 className="mb-3 text-lg font-bold text-slate-900 dark:text-slate-100">{children}</h2>
   );
 }
 
@@ -241,7 +241,7 @@ export default function FriendsPage() {
   if (!isSupabaseConfigured() || !configured) return <SupabaseNeeded />;
   if (loading) {
     return (
-      <div className="mx-auto max-w-2xl px-4 py-16 text-center text-sm text-slate-500">
+      <div className="mx-auto max-w-2xl px-4 py-16 text-center text-sm text-slate-500 dark:text-slate-400">
         Loading…
       </div>
     );
@@ -250,13 +250,13 @@ export default function FriendsPage() {
     return (
       <div className="mx-auto max-w-xl px-4 py-16 sm:px-6">
         <div className={`${cardClass} text-center`}>
-          <h1 className="text-xl font-bold text-slate-900">Friends need a sign-in</h1>
-          <p className="mt-2 text-sm text-slate-600">
+          <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100">Friends need a sign-in</h1>
+          <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
             Sign in to find trainers and build your friends list.
           </p>
           <Link
             href="/login"
-            className="mt-6 inline-block rounded-lg bg-mint px-6 py-2.5 text-sm font-bold text-slate-900 shadow-sm transition hover:brightness-95"
+            className="mt-6 inline-block rounded-lg bg-mint px-6 py-2.5 text-sm font-bold text-slate-900 shadow-sm transition hover:brightness-95 dark:text-slate-100"
           >
             Sign in
           </Link>
@@ -267,15 +267,15 @@ export default function FriendsPage() {
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6">
-      <h1 className="mb-1 text-2xl font-bold text-slate-900">Friends</h1>
-      <p className="mb-6 text-sm text-slate-600">
+      <h1 className="mb-1 text-2xl font-bold text-slate-900 dark:text-slate-100">Friends</h1>
+      <p className="mb-6 text-sm text-slate-600 dark:text-slate-400">
         Add trainers by name. Only mutual friends can message each other.
       </p>
       <CommunityTabs />
 
       {/* Add friend */}
       <form onSubmit={(e) => void sendRequest(e)} className={`${cardClass} mb-6`}>
-        <label htmlFor="friend-search" className="mb-2 block text-sm font-semibold text-slate-900">
+        <label htmlFor="friend-search" className="mb-2 block text-sm font-semibold text-slate-900 dark:text-slate-100">
           Add a friend by trainer name
         </label>
         <div className="flex gap-2">
@@ -291,25 +291,25 @@ export default function FriendsPage() {
           <button
             type="submit"
             disabled={searching || searchInput.trim() === ""}
-            className="shrink-0 rounded-lg bg-mint px-5 py-2 text-sm font-bold text-slate-900 shadow-sm transition hover:brightness-95 disabled:opacity-60"
+            className="shrink-0 rounded-lg bg-mint px-5 py-2 text-sm font-bold text-slate-900 shadow-sm transition hover:brightness-95 disabled:opacity-60 dark:text-slate-100"
           >
             {searching ? "…" : "Send request"}
           </button>
         </div>
         {searchError && (
-          <p role="alert" className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
+          <p role="alert" className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950 dark:text-red-300">
             {searchError}
           </p>
         )}
         {searchInfo && (
-          <p role="status" className="mt-3 rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+          <p role="status" className="mt-3 rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
             {searchInfo}
           </p>
         )}
       </form>
 
       {loadingFriends ? (
-        <p className="py-8 text-center text-sm text-slate-500">Loading friends…</p>
+        <p className="py-8 text-center text-sm text-slate-500 dark:text-slate-400">Loading friends…</p>
       ) : (
         <div className="space-y-8">
           {/* Incoming requests */}
@@ -318,7 +318,7 @@ export default function FriendsPage() {
               {`Friend requests (${incoming.length})`}
             </SectionTitle>
             {incoming.length === 0 ? (
-              <p className="text-sm text-slate-500">No pending requests.</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400">No pending requests.</p>
             ) : (
               <ul className="space-y-3">
                 {incoming.map((r) => (
@@ -328,11 +328,11 @@ export default function FriendsPage() {
                       <div className="min-w-0 flex-1">
                         <Link
                           href={r.other ? `/trainers/${encodeURIComponent(r.other.username)}` : "#"}
-                          className="truncate text-sm font-bold text-slate-900 hover:underline"
+                          className="truncate text-sm font-bold text-slate-900 hover:underline dark:text-slate-100"
                         >
                           {r.other?.username ?? "Unknown trainer"}
                         </Link>
-                        <p className="text-xs text-slate-400">
+                        <p className="text-xs text-slate-400 dark:text-slate-500">
                           sent {timeAgo(r.created_at)}
                         </p>
                       </div>
@@ -340,7 +340,7 @@ export default function FriendsPage() {
                         type="button"
                         onClick={() => void accept(r.id)}
                         disabled={actionBusy === r.id}
-                        className="rounded-lg bg-mint px-4 py-1.5 text-sm font-bold text-slate-900 disabled:opacity-60"
+                        className="rounded-lg bg-mint px-4 py-1.5 text-sm font-bold text-slate-900 disabled:opacity-60 dark:text-slate-100"
                       >
                         Accept
                       </button>
@@ -348,7 +348,7 @@ export default function FriendsPage() {
                         type="button"
                         onClick={() => void blockRow(r.id)}
                         disabled={actionBusy === r.id}
-                        className="rounded-lg border border-stone-300 px-4 py-1.5 text-sm font-medium text-slate-600 hover:bg-stone-50 disabled:opacity-60"
+                        className="rounded-lg border border-stone-300 px-4 py-1.5 text-sm font-medium text-slate-600 hover:bg-stone-50 disabled:opacity-60 dark:border-slate-600 dark:text-slate-400 dark:hover:bg-slate-950"
                       >
                         Decline
                       </button>
@@ -369,10 +369,10 @@ export default function FriendsPage() {
                     <div className="flex items-center gap-3">
                       <Avatar username={r.other?.username ?? "?"} avatarUrl={r.other?.avatar_url} />
                       <div className="min-w-0 flex-1">
-                        <span className="block truncate text-sm font-bold text-slate-900">
+                        <span className="block truncate text-sm font-bold text-slate-900 dark:text-slate-100">
                           {r.other?.username ?? "Unknown trainer"}
                         </span>
-                        <p className="text-xs text-slate-400">
+                        <p className="text-xs text-slate-400 dark:text-slate-500">
                           waiting since {timeAgo(r.created_at)}
                         </p>
                       </div>
@@ -380,7 +380,7 @@ export default function FriendsPage() {
                         type="button"
                         onClick={() => void blockRow(r.id)}
                         disabled={actionBusy === r.id}
-                        className="rounded-lg border border-stone-300 px-4 py-1.5 text-sm font-medium text-slate-600 hover:bg-stone-50 disabled:opacity-60"
+                        className="rounded-lg border border-stone-300 px-4 py-1.5 text-sm font-medium text-slate-600 hover:bg-stone-50 disabled:opacity-60 dark:border-slate-600 dark:text-slate-400 dark:hover:bg-slate-950"
                       >
                         Cancel
                       </button>
@@ -395,7 +395,7 @@ export default function FriendsPage() {
           <section>
             <SectionTitle>{`Friends (${friends.length})`}</SectionTitle>
             {friends.length === 0 ? (
-              <p className="text-sm text-slate-500">
+              <p className="text-sm text-slate-500 dark:text-slate-400">
                 No friends yet — send a request above to get started!
               </p>
             ) : (
@@ -408,14 +408,14 @@ export default function FriendsPage() {
                         <div className="min-w-0 flex-1">
                           <Link
                             href={r.other ? `/trainers/${encodeURIComponent(r.other.username)}` : "#"}
-                            className="block truncate text-sm font-bold text-slate-900 hover:underline"
+                            className="block truncate text-sm font-bold text-slate-900 hover:underline dark:text-slate-100"
                           >
                             {r.other?.username ?? "Unknown trainer"}
                           </Link>
                           <div className="mt-1 flex gap-3">
                             <Link
                               href="/messages"
-                              className="text-xs font-semibold text-slate-600 underline-offset-2 hover:underline"
+                              className="text-xs font-semibold text-slate-600 underline-offset-2 hover:underline dark:text-slate-400"
                             >
                               Message
                             </Link>
@@ -434,7 +434,7 @@ export default function FriendsPage() {
                             <button
                               type="button"
                               onClick={() => setConfirmUnfriend(null)}
-                              className="rounded-lg border border-stone-300 px-3 py-1.5 text-xs font-medium text-slate-600"
+                              className="rounded-lg border border-stone-300 px-3 py-1.5 text-xs font-medium text-slate-600 dark:border-slate-600 dark:text-slate-400"
                             >
                               Keep
                             </button>
@@ -443,7 +443,7 @@ export default function FriendsPage() {
                           <button
                             type="button"
                             onClick={() => setConfirmUnfriend(r.id)}
-                            className="shrink-0 rounded-lg px-2 py-1 text-xs font-medium text-slate-400 hover:bg-red-50 hover:text-red-600"
+                            className="shrink-0 rounded-lg px-2 py-1 text-xs font-medium text-slate-400 hover:bg-red-50 hover:text-red-600 dark:text-slate-500 dark:hover:bg-red-950 dark:hover:text-red-400"
                             aria-label={`Unfriend ${r.other?.username ?? "trainer"}`}
                           >
                             Unfriend

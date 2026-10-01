@@ -26,11 +26,11 @@ function isMissingTable(error: unknown): boolean {
 
 function FallbackCard() {
   return (
-    <div className="rounded-2xl bg-white p-8 text-center shadow-sm ring-1 ring-slate-200">
-      <h2 className="text-lg font-bold text-slate-900">
+    <div className="rounded-2xl bg-white p-8 text-center shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
+      <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">
         Send feedback on GitHub
       </h2>
-      <p className="mx-auto mt-2 max-w-sm text-sm text-slate-600">
+      <p className="mx-auto mt-2 max-w-sm text-sm text-slate-600 dark:text-slate-400">
         The in-app feedback form isn&apos;t switched on yet, but we still want
         to hear from you — open an issue on GitHub and it&apos;ll land right
         in our inbox.
@@ -125,8 +125,8 @@ export function FeedbackForm() {
 
   if (phase === "checking") {
     return (
-      <div className="rounded-2xl bg-white p-8 text-center shadow-sm ring-1 ring-slate-200">
-        <p className="text-sm text-slate-500">Loading the feedback form…</p>
+      <div className="rounded-2xl bg-white p-8 text-center shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
+        <p className="text-sm text-slate-500 dark:text-slate-400">Loading the feedback form…</p>
       </div>
     );
   }
@@ -135,14 +135,14 @@ export function FeedbackForm() {
 
   if (phase === "thanks") {
     return (
-      <div className="rounded-2xl bg-white p-8 text-center shadow-sm ring-1 ring-slate-200">
+      <div className="rounded-2xl bg-white p-8 text-center shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
         <p className="text-4xl" aria-hidden="true">
           💚
         </p>
-        <h2 className="mt-3 text-lg font-bold text-slate-900">
+        <h2 className="mt-3 text-lg font-bold text-slate-900 dark:text-slate-100">
           Thank you, trainer!
         </h2>
-        <p className="mx-auto mt-2 max-w-sm text-sm text-slate-600">
+        <p className="mx-auto mt-2 max-w-sm text-sm text-slate-600 dark:text-slate-400">
           Your feedback is on its way. Every note gets read — seriously, we
           love hearing from you.
         </p>
@@ -164,10 +164,10 @@ export function FeedbackForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 sm:p-8"
+      className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 sm:p-8 dark:bg-slate-900 dark:ring-slate-700"
     >
       <fieldset>
-        <legend className="text-sm font-semibold text-slate-800">
+        <legend className="text-sm font-semibold text-slate-800 dark:text-slate-100">
           What kind of feedback is this?
         </legend>
         <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-3">
@@ -176,8 +176,8 @@ export function FeedbackForm() {
               key={t.value}
               className={`cursor-pointer rounded-xl border px-4 py-3 text-left transition-colors ${
                 type === t.value
-                  ? "border-emerald-500 bg-emerald-50 ring-1 ring-emerald-500"
-                  : "border-slate-200 bg-white hover:border-slate-300"
+                  ? "border-emerald-500 bg-emerald-50 ring-1 ring-emerald-500 dark:bg-emerald-950"
+                  : "border-slate-200 bg-white hover:border-slate-300 dark:border-slate-700 dark:bg-slate-900 dark:hover:border-slate-600"
               }`}
             >
               <input
@@ -188,10 +188,10 @@ export function FeedbackForm() {
                 onChange={() => setType(t.value)}
                 className="sr-only"
               />
-              <span className="block text-sm font-semibold text-slate-900">
+              <span className="block text-sm font-semibold text-slate-900 dark:text-slate-100">
                 {t.label}
               </span>
-              <span className="block text-xs text-slate-500">{t.blurb}</span>
+              <span className="block text-xs text-slate-500 dark:text-slate-400">{t.blurb}</span>
             </label>
           ))}
         </div>
@@ -200,7 +200,7 @@ export function FeedbackForm() {
       <div className="mt-5">
         <label
           htmlFor="feedback-message"
-          className="text-sm font-semibold text-slate-800"
+          className="text-sm font-semibold text-slate-800 dark:text-slate-100"
         >
           Your message
         </label>
@@ -211,9 +211,9 @@ export function FeedbackForm() {
           rows={6}
           maxLength={MAX_MESSAGE + 100}
           placeholder="Tell us what's on your mind…"
-          className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 shadow-sm outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-200"
+          className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 shadow-sm outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-200 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:ring-emerald-800"
         />
-        <p className="mt-1 text-right text-xs text-slate-400">
+        <p className="mt-1 text-right text-xs text-slate-400 dark:text-slate-500">
           {message.length} / {MAX_MESSAGE}
         </p>
       </div>
@@ -221,9 +221,9 @@ export function FeedbackForm() {
       <div className="mt-4">
         <label
           htmlFor="feedback-name"
-          className="text-sm font-semibold text-slate-800"
+          className="text-sm font-semibold text-slate-800 dark:text-slate-100"
         >
-          Trainer name <span className="font-normal text-slate-400">(optional)</span>
+          Trainer name <span className="font-normal text-slate-400 dark:text-slate-500">(optional)</span>
         </label>
         <input
           id="feedback-name"
@@ -232,12 +232,12 @@ export function FeedbackForm() {
           onChange={(e) => setName(e.target.value)}
           maxLength={50}
           placeholder="So we know who to thank"
-          className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 shadow-sm outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-200"
+          className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 shadow-sm outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-200 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:ring-emerald-800"
         />
       </div>
 
       {error && (
-        <p role="alert" className="mt-4 text-sm font-medium text-red-600">
+        <p role="alert" className="mt-4 text-sm font-medium text-red-600 dark:text-red-400">
           {error}
         </p>
       )}
@@ -249,7 +249,7 @@ export function FeedbackForm() {
       >
         {phase === "sending" ? "Sending…" : "Send feedback"}
       </button>
-      <p className="mt-3 text-center text-xs text-slate-400">
+      <p className="mt-3 text-center text-xs text-slate-400 dark:text-slate-500">
         Feedback is private — only the site owner reads it.
       </p>
     </form>

@@ -17,24 +17,24 @@ import {
 } from "@/lib/community";
 
 const cardClass =
-  "rounded-2xl border border-stone-200 bg-white p-6 shadow-sm sm:p-8";
+  "rounded-2xl border border-stone-200 bg-white p-6 shadow-sm sm:p-8 dark:border-slate-700 dark:bg-slate-900";
 const inputClass =
-  "w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-mint focus:outline-none focus:ring-2 focus:ring-mint/40";
+  "w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-mint focus:outline-none focus:ring-2 focus:ring-mint/40 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500";
 
 /** A signed-out visitor sees an invitation to join instead of the feed. */
 function SignInPrompt() {
   return (
     <div className="mx-auto max-w-xl px-4 py-16 sm:px-6">
       <div className={`${cardClass} text-center`}>
-        <h1 className="text-xl font-bold text-slate-900">
+        <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100">
           Join the trainer community
         </h1>
-        <p className="mt-2 text-sm text-slate-600">
+        <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
           Sign in to share posts, react, and chat with fellow trainers.
         </p>
         <Link
           href="/login"
-          className="mt-6 inline-block rounded-lg bg-mint px-6 py-2.5 text-sm font-bold text-slate-900 shadow-sm transition hover:brightness-95"
+          className="mt-6 inline-block rounded-lg bg-mint px-6 py-2.5 text-sm font-bold text-slate-900 shadow-sm transition hover:brightness-95 dark:text-slate-100"
         >
           Sign in
         </Link>
@@ -79,7 +79,7 @@ function Composer({ onPosted }: { onPosted: () => void }) {
     <form onSubmit={onSubmit} className={`${cardClass} mb-6`}>
       <label
         htmlFor="post-body"
-        className="mb-2 block text-sm font-semibold text-slate-900"
+        className="mb-2 block text-sm font-semibold text-slate-900 dark:text-slate-100"
       >
         Share with the community
       </label>
@@ -93,19 +93,19 @@ function Composer({ onPosted }: { onPosted: () => void }) {
         placeholder="Hatched a shiny? Survived a Nuzlocke? Tell the community…"
       />
       <div className="mt-3 flex items-center justify-between">
-        <span className="text-xs text-slate-400">
+        <span className="text-xs text-slate-400 dark:text-slate-500">
           {body.length}/{MAX_POST_LENGTH}
         </span>
         <button
           type="submit"
           disabled={busy || body.trim() === ""}
-          className="rounded-lg bg-mint px-6 py-2 text-sm font-bold text-slate-900 shadow-sm transition hover:brightness-95 disabled:opacity-60"
+          className="rounded-lg bg-mint px-6 py-2 text-sm font-bold text-slate-900 shadow-sm transition hover:brightness-95 disabled:opacity-60 dark:text-slate-100"
         >
           {busy ? "Posting…" : "Post"}
         </button>
       </div>
       {error && (
-        <p role="alert" className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
+        <p role="alert" className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950 dark:text-red-300">
           {error}
         </p>
       )}
@@ -175,8 +175,8 @@ function ReactionBar({
             aria-label={`React with ${emoji}`}
             className={`rounded-full border px-3 py-1 text-sm transition ${
               mine
-                ? "border-mint bg-mint/20 font-semibold text-slate-900"
-                : "border-stone-200 bg-stone-50 text-slate-600 hover:border-stone-300 hover:bg-stone-100"
+                ? "border-mint bg-mint/20 font-semibold text-slate-900 dark:text-slate-100"
+                : "border-stone-200 bg-stone-50 text-slate-600 hover:border-stone-300 hover:bg-stone-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-400 dark:hover:border-slate-600 dark:hover:bg-slate-800"
             }`}
           >
             {emoji}
@@ -230,18 +230,18 @@ function PostCard({
             {post.author ? (
               <Link
                 href={`/trainers/${encodeURIComponent(post.author.username)}`}
-                className="truncate text-sm font-bold text-slate-900 hover:underline"
+                className="truncate text-sm font-bold text-slate-900 hover:underline dark:text-slate-100"
               >
                 {post.author.username}
               </Link>
             ) : (
-              <span className="text-sm font-bold text-slate-400">
+              <span className="text-sm font-bold text-slate-400 dark:text-slate-500">
                 Unknown trainer
               </span>
             )}
-            <span className="text-xs text-slate-400">{timeAgo(post.created_at)}</span>
+            <span className="text-xs text-slate-400 dark:text-slate-500">{timeAgo(post.created_at)}</span>
           </div>
-          <p className="mt-2 whitespace-pre-wrap break-words text-sm text-slate-800">
+          <p className="mt-2 whitespace-pre-wrap break-words text-sm text-slate-800 dark:text-slate-100">
             {post.body}
           </p>
           <ReactionBar
@@ -266,7 +266,7 @@ function PostCard({
                 <button
                   type="button"
                   onClick={() => setConfirming(false)}
-                  className="rounded-lg border border-stone-300 px-3 py-1 text-xs font-medium text-slate-600"
+                  className="rounded-lg border border-stone-300 px-3 py-1 text-xs font-medium text-slate-600 dark:border-slate-600 dark:text-slate-400"
                 >
                   Cancel
                 </button>
@@ -275,7 +275,7 @@ function PostCard({
               <button
                 type="button"
                 onClick={() => setConfirming(true)}
-                className="rounded-lg px-2 py-1 text-xs font-medium text-slate-400 hover:bg-red-50 hover:text-red-600"
+                className="rounded-lg px-2 py-1 text-xs font-medium text-slate-400 hover:bg-red-50 hover:text-red-600 dark:text-slate-500 dark:hover:bg-red-950 dark:hover:text-red-400"
               >
                 Delete
               </button>
@@ -400,7 +400,7 @@ export default function CommunityPage() {
   if (!isSupabaseConfigured() || !configured) return <SupabaseNeeded />;
   if (loading) {
     return (
-      <div className="mx-auto max-w-2xl px-4 py-16 text-center text-sm text-slate-500">
+      <div className="mx-auto max-w-2xl px-4 py-16 text-center text-sm text-slate-500 dark:text-slate-400">
         Loading…
       </div>
     );
@@ -409,18 +409,18 @@ export default function CommunityPage() {
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6">
-      <h1 className="mb-1 text-2xl font-bold text-slate-900">Community</h1>
-      <p className="mb-6 text-sm text-slate-600">
+      <h1 className="mb-1 text-2xl font-bold text-slate-900 dark:text-slate-100">Community</h1>
+      <p className="mb-6 text-sm text-slate-600 dark:text-slate-400">
         The latest from trainers across the site. Be kind — everyone&apos;s
         journey started with a level 5 starter.
       </p>
       <CommunityTabs />
       <Composer onPosted={reload} />
       {loadingFeed ? (
-        <p className="py-8 text-center text-sm text-slate-500">Loading posts…</p>
+        <p className="py-8 text-center text-sm text-slate-500 dark:text-slate-400">Loading posts…</p>
       ) : posts.length === 0 ? (
         <div className={`${cardClass} text-center`}>
-          <p className="text-sm text-slate-600">
+          <p className="text-sm text-slate-600 dark:text-slate-400">
             No posts yet — be the first to say hello! 👋
           </p>
         </div>
