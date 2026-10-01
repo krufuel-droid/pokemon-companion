@@ -44,6 +44,55 @@ const VERSION_TITLES: Record<string, string> = {
   violet: "Pokémon Violet",
 };
 
+/**
+ * Version keys in chronological order, oldest → newest.
+ * Encounter lists are shown newest-first so the games Amanda actually
+ * plays sit at the top instead of buried at the bottom.
+ */
+const VERSION_ORDER = [
+  "green-japan",
+  "red",
+  "blue",
+  "yellow",
+  "gold",
+  "silver",
+  "crystal",
+  "ruby",
+  "sapphire",
+  "emerald",
+  "firered",
+  "leafgreen",
+  "diamond",
+  "pearl",
+  "platinum",
+  "heartgold",
+  "soulsilver",
+  "black",
+  "white",
+  "black-2",
+  "white-2",
+  "x",
+  "y",
+  "omega-ruby",
+  "alpha-sapphire",
+  "sun",
+  "moon",
+  "ultra-sun",
+  "ultra-moon",
+  "lets-go-pikachu",
+  "lets-go-eevee",
+  "sword",
+  "shield",
+  "brilliant-diamond",
+  "shining-pearl",
+  "legends-arceus",
+  "scarlet",
+  "violet",
+];
+const VERSION_ORDER_INDEX = new Map(
+  VERSION_ORDER.map((version, i) => [version, i])
+);
+
 const METHOD_LABELS: Record<string, string> = {
   walk: "Walking",
   surf: "Surfing",
@@ -75,6 +124,7 @@ interface EncounterRow {
 }
 
 interface GameEncounters {
+  version: string;
   game: string;
   rows: EncounterRow[];
 }
@@ -149,10 +199,17 @@ async function loadEncounters(
 
   return [...byVersion.entries()]
     .map(([version, rows]) => ({
+      version,
       game: VERSION_TITLES[version] ?? version,
       rows,
     }))
-    .sort((a, b) => a.game.localeCompare(b.game));
+    .sort((a, b) => {
+      const orderA = VERSION_ORDER_INDEX.get(a.version) ?? Number.MAX_SAFE_INTEGER;
+      const orderB = VERSION_ORDER_INDEX.get(b.version) ?? Number.MAX_SAFE_INTEGER;
+      // Newest games first; unknown versions sink to the bottom, A–Z.
+      if (orderA !== orderB) return orderB - orderA;
+      return a.game.localeCompare(b.game);
+    });
 }
 
 type Status =
@@ -386,27 +443,71 @@ export function EncountersSection({ speciesId }: { speciesId: number }) {
 
 function GameList({ games }: { games: GameEncounters[] }) {
   return (
-    <div className="mt-4 space-y-5">
+    <div className="mt-4 space-y-2">
       {games.map((g) => (
-        <GameBlock key={g.game} game={g} />
+        <GameBlock key={g.version} game={g} />
       ))}
     </div>
   );
 }
 
+/**
+ * One game as its own collapsed dropdown, e.g. "Pokémon Scarlet · 8 locations".
+ * Collapsed by default so a 21-game encounter list stays a tidy stack of rows
+ * instead of a ten-minute scroll — tapping a game reveals its locations.
+ */
 function GameBlock({ game }: { game: GameEncounters }) {
+  const [open, setOpen] = useState(false);
   const groups = useMemo(() => groupRows(game.rows), [game.rows]);
   return (
-    <div>
-      <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">{game.game}</h3>
-      <ul className="mt-2 divide-y divide-slate-100 rounded-xl bg-slate-50 ring-1 ring-slate-200 dark:divide-slate-800 dark:bg-slate-800 dark:ring-slate-700">
-        {groups.map((group) => (
-          <LocationGroupRow
-            key={`${group.location}|${group.method}`}
-            group={group}
+    <div className="rounded-xl bg-slate-50 ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        aria-label={`${open ? "Collapse" : "Expand"} encounter locations for ${
+          game.game
+        }`}
+        className="flex w-full items-center gap-3 px-4 py-3 text-left"
+      >
+        <span className="min-w-0 flex-1">
+          <span className="block truncate text-sm font-bold text-slate-800 dark:text-slate-100">
+            {game.game}
+          </span>
+          <span className="mt-0.5 block text-xs text-slate-500 dark:text-slate-400">
+            {groups.length}{" "}
+            {groups.length === 1 ? "location" : "locations"}
+          </span>
+        </span>
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 20 20"
+          aria-hidden="true"
+          className={`shrink-0 text-slate-400 transition-transform ${
+            open ? "rotate-180" : ""
+          }`}
+        >
+          <path
+            d="M5 7l5 5 5-5"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
           />
-        ))}
-      </ul>
+        </svg>
+      </button>
+      {open && (
+        <ul className="divide-y divide-slate-100 border-t border-slate-200 dark:divide-slate-700/60 dark:border-slate-700">
+          {groups.map((group) => (
+            <LocationGroupRow
+              key={`${group.location}|${group.method}`}
+              group={group}
+            />
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
