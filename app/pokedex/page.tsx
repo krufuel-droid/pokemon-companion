@@ -7,13 +7,13 @@ import type { SpeciesIndex } from "@/lib/pokedex";
 import { TypePills } from "./type-pills";
 
 const TOTAL_COUNT = 1025;
-const INITIAL_COUNT = 60;
 
 function SpeciesCard({ species }: { species: SpeciesIndex }) {
   return (
     <Link
       href={`/pokedex/${species.id}`}
       className="flex flex-col items-center gap-1.5 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:shadow-md"
+      style={{ contentVisibility: "auto", containIntrinsicSize: "auto 220px" }}
     >
       <img
         src={species.sprites.regular}
@@ -40,7 +40,7 @@ export default function PokedexPage() {
     () =>
       searching
         ? searchSpecies(trimmed)
-        : getAllSpecies().slice(0, INITIAL_COUNT),
+        : getAllSpecies(),
     [searching, trimmed]
   );
 
@@ -70,10 +70,7 @@ export default function PokedexPage() {
               <span className="font-semibold text-slate-700">“{trimmed}”</span>
             </>
           ) : (
-            <>
-              Showing {INITIAL_COUNT} of {TOTAL_COUNT.toLocaleString()} — search
-              to find more
-            </>
+            <>All {TOTAL_COUNT.toLocaleString()} Pokémon</>
           )}
         </p>
 
