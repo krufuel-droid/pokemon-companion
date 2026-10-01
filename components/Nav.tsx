@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import AuthButtons from "./AuthButtons";
 
 const LINKS = [
   { href: "/", label: "Home" },
@@ -56,6 +57,9 @@ export default function Nav() {
               </Link>
             );
           })}
+        </div>
+        <div className="ml-auto flex items-center">
+          <AuthButtons />
         </div>
       </nav>
     </header>

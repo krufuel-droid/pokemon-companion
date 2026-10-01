@@ -24,6 +24,11 @@ create table if not exists profiles (
 );
 comment on table profiles is 'Trainer profiles; one row per auth user.';
 
+-- Phase 2 additions: editable profile fields. Safe to re-run.
+alter table profiles add column if not exists avatar_url text;
+alter table profiles add column if not exists bio text check (char_length(bio) <= 500);
+alter table profiles add column if not exists favorite_pokemon text;
+
 -- ----------------------------------------------------------------------------
 -- posts
 -- Community feed posts. Body is limited to 1–2000 characters.
@@ -286,7 +291,33 @@ create policy memorials_owner_all on memorials
   with check (auth.uid() = owner_id);
 
 -- ----------------------------------------------------------------------------
--- NOTE: Phase 2 will add a trigger that automatically creates a profiles row
--- when a new user signs up (on auth.users insert). It is intentionally left
--- out of this file so Phase 1 stays data-only and auth-free.
+-- OPTIONAL: auto-create a profiles row when a new user signs up
+-- ----------------------------------------------------------------------------
+-- The app creates a profile row the first time a signed-in user visits
+-- /profile, so this trigger is NOT required for accounts to work. Enable
+-- it only if you want a profiles row to exist immediately at signup,
+-- before the user ever opens /profile.
+--
+-- To enable: copy the block below into the Supabase SQL editor and run it
+-- once. (The app keeps working exactly the same either way.)
+-- ----------------------------------------------------------------------------
+-- create or replace function public.handle_new_user()
+-- returns trigger
+-- language plpgsql
+-- security definer
+-- set search_path = public
+-- as $$
+-- begin
+--   insert into public.profiles (id, username)
+--   values (new.id, 'trainer_' || substr(replace(new.id::text, '-', ''), 1, 8))
+--   on conflict (id) do nothing;
+--   return new;
+-- end;
+-- $$;
+--
+-- drop trigger if exists on_auth_user_created on auth.users;
+--
+-- create trigger on_auth_user_created
+--   after insert on auth.users
+--   for each row execute function public.handle_new_user();
 -- ----------------------------------------------------------------------------

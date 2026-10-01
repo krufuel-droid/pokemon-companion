@@ -37,6 +37,26 @@ node scripts/fetch-pokedex.mjs   # re-fetches species data into data/
 4. Deploy
 5. In the Supabase Dashboard, open **SQL Editor**, paste in `supabase/schema.sql`, and run it to create the database tables
 
+## Accounts setup (Phase 2)
+
+Beyond running `supabase/schema.sql`, two Supabase dashboard steps matter:
+
+1. **API keys → Vercel.** In Supabase go to **Project Settings → API** and copy the
+   project URL plus the `anon` `public` key into Vercel as the environment variables
+   `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`, then redeploy.
+2. **Site URL for emails.** In Supabase go to **Authentication → URL Configuration** and set
+   **Site URL** to the live Vercel URL (e.g. `https://pokemon-companion.vercel.app`), so
+   signup confirmation links point at the real site instead of localhost.
+
+Optional, both safe to skip:
+
+- **Confirm email** (Authentication → Providers → Email) is on by default: new users must
+  click the email link before signing in, and the app shows a "check your inbox" screen.
+  Turn it off for instant signup; leaving it on is safer against spam with open signup.
+- The bottom of `supabase/schema.sql` has a commented snippet that auto-creates a profile
+  row at signup. The app creates the row on the user's first profile visit anyway, so this
+  is only needed if you want the row to exist immediately.
+
 ## Phase plan
 
 - **Phase 1** — Pokédex UI + battle tools (current)
