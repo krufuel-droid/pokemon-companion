@@ -5,6 +5,8 @@ import { getSpeciesById } from "@/lib/pokedex";
 import { TypePills } from "../type-pills";
 import { SpriteViewer } from "./sprite-viewer";
 import { DexEntries } from "./dex-entries";
+import { FormsSection } from "./forms-section";
+import { EncountersSection } from "./encounters-section";
 
 const MAX_DEX_ID = 1025;
 
@@ -117,6 +119,12 @@ export default async function SpeciesPage({
             <DexEntries entries={species.dexEntries} />
           </div>
         </section>
+
+        {/* Alternate forms */}
+        <FormsSection speciesId={species.id} />
+
+        {/* Wild encounters */}
+        <EncountersSection speciesId={species.id} />
 
         {/* Egg moves */}
         <section className="mt-6 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200">

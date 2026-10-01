@@ -9,6 +9,8 @@ const LINKS = [
   { href: "/pokedex", label: "Pokédex" },
   { href: "/tools", label: "Tools" },
   { href: "/community", label: "Community" },
+  { href: "/items", label: "Items" },
+  { href: "/news", label: "News" },
 ] as const;
 
 function PokeballIcon() {

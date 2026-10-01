@@ -36,13 +36,25 @@ const FEATURES = [
     href: "/tools",
     emoji: "🥚",
   },
+  {
+    title: "Items",
+    description:
+      "Mega Stones, evolution stones, and the Pokémon they work on.",
+    href: "/items",
+    emoji: "💎",
+  },
+  {
+    title: "News",
+    description:
+      "Champions rotations, new game announcements, and app updates.",
+    href: "/news",
+    emoji: "📰",
+  },
 ] as const;
 
 const COMING_SOON = [
   "Nuzlocke & shiny-hunt trackers",
   "Collections & favorites",
-  "Items database",
-  "Pokémon news",
 ] as const;
 
 export default function HomePage() {
