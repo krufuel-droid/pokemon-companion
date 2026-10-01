@@ -1,11 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 const VERSION_TITLES: Record<string, string> = {
   red: "Pokémon Red",
   blue: "Pokémon Blue",
   yellow: "Pokémon Yellow",
+  green: "Pokémon Green",
+  "green-japan": "Pokémon Green (Japan)",
   gold: "Pokémon Gold",
   silver: "Pokémon Silver",
   crystal: "Pokémon Crystal",
@@ -67,7 +69,8 @@ const METHOD_LABELS: Record<string, string> = {
 interface EncounterRow {
   location: string;
   method: string;
-  levels: string;
+  minLevel: number;
+  maxLevel: number;
   chance: number | null;
 }
 
@@ -92,6 +95,10 @@ function methodLabel(name: string): string {
       .map((w) => (w.length > 0 ? w[0].toUpperCase() + w.slice(1) : w))
       .join(" ")
   );
+}
+
+function levelRange(min: number, max: number): string {
+  return min === max ? `Lv. ${min}` : `Lv. ${min}–${max}`;
 }
 
 interface ApiEncounterDetail {
@@ -128,14 +135,11 @@ async function loadEncounters(
     for (const vd of area.version_details) {
       const rows = byVersion.get(vd.version.name) ?? [];
       for (const d of vd.encounter_details) {
-        const levels =
-          d.min_level === d.max_level
-            ? `Lv. ${d.min_level}`
-            : `Lv. ${d.min_level}–${d.max_level}`;
         rows.push({
           location,
           method: methodLabel(d.method.name),
-          levels,
+          minLevel: d.min_level,
+          maxLevel: d.max_level,
           chance: typeof d.chance === "number" ? d.chance : null,
         });
       }
@@ -157,6 +161,122 @@ type Status =
   | { state: "empty" }
   | { state: "ready"; games: GameEncounters[] };
 
+interface LocationGroup {
+  location: string;
+  method: string;
+  entries: EncounterRow[];
+  minLevel: number;
+  maxLevel: number;
+}
+
+function groupRows(rows: EncounterRow[]): LocationGroup[] {
+  const byKey = new Map<string, LocationGroup>();
+  for (const row of rows) {
+    const key = `${row.location}|${row.method}`;
+    let group = byKey.get(key);
+    if (!group) {
+      group = {
+        location: row.location,
+        method: row.method,
+        entries: [],
+        minLevel: row.minLevel,
+        maxLevel: row.maxLevel,
+      };
+      byKey.set(key, group);
+    }
+    group.entries.push(row);
+    group.minLevel = Math.min(group.minLevel, row.minLevel);
+    group.maxLevel = Math.max(group.maxLevel, row.maxLevel);
+  }
+  return [...byKey.values()].sort(
+    (a, b) =>
+      a.location.localeCompare(b.location) || a.method.localeCompare(b.method)
+  );
+}
+
+/**
+ * One collapsible location group, e.g. "Mt Moon 1f · Walking · Lv. 6–11".
+ * Collapsed by default so long encounter lists don't overwhelm the page —
+ * the + expander reveals the per-level/chance breakdown.
+ */
+function LocationGroupRow({ group }: { group: LocationGroup }) {
+  const [open, setOpen] = useState(false);
+  const single = group.entries.length === 1;
+
+  const header = (
+    <span className="min-w-0 flex-1">
+      <span className="block truncate font-medium text-slate-800">
+        {group.location}
+      </span>
+      <span className="mt-0.5 block text-sm text-slate-500">
+        {group.method} · {levelRange(group.minLevel, group.maxLevel)}
+      </span>
+    </span>
+  );
+
+  // A single encounter entry needs no expander — render it directly.
+  if (single) {
+    const entry = group.entries[0];
+    return (
+      <li className="flex flex-wrap items-baseline gap-x-3 px-4 py-2.5 text-sm">
+        {header}
+        {entry.chance !== null && (
+          <span className="ml-auto rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-slate-600">
+            {entry.chance}% chance
+          </span>
+        )}
+      </li>
+    );
+  }
+
+  return (
+    <li className="rounded-xl">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        aria-label={`${open ? "Collapse" : "Expand"} encounters at ${
+          group.location
+        } (${group.method})`}
+        className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm hover:bg-slate-100/60"
+      >
+        {header}
+        <span className="shrink-0 text-xs font-medium text-slate-400">
+          {group.entries.length} encounters
+        </span>
+        <span
+          aria-hidden="true"
+          className="shrink-0 text-lg font-bold leading-none text-slate-400"
+        >
+          {open ? "−" : "+"}
+        </span>
+      </button>
+      {open && (
+        <ul className="border-t border-slate-100 bg-white/60">
+          {group.entries
+            .slice()
+            .sort((a, b) => a.minLevel - b.minLevel)
+            .map((entry, i) => (
+              <li
+                key={i}
+                className="flex flex-wrap items-baseline gap-x-3 py-2 pl-8 pr-4 text-sm"
+              >
+                <span className="text-slate-500">
+                  {levelRange(entry.minLevel, entry.maxLevel)}
+                </span>
+                {entry.chance !== null && (
+                  <span className="ml-auto rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-slate-600">
+                    {entry.chance}% chance
+                  </span>
+                )}
+              </li>
+            ))}
+        </ul>
+      )}
+    </li>
+  );
+}
+
 export function EncountersSection({ speciesId }: { speciesId: number }) {
   const [open, setOpen] = useState(false);
   const [status, setStatus] = useState<Status>({ state: "loading" });
@@ -172,9 +292,7 @@ export function EncountersSection({ speciesId }: { speciesId: number }) {
         if (cancelled) return;
         clearTimeout(timeout);
         setStatus(
-          games.length === 0
-            ? { state: "empty" }
-            : { state: "ready", games }
+          games.length === 0 ? { state: "empty" } : { state: "ready", games }
         );
       },
       () => {
@@ -238,56 +356,57 @@ export function EncountersSection({ speciesId }: { speciesId: number }) {
 
       {open && (
         <>
+          {status.state === "loading" && (
+            <p className="mt-3 text-sm text-slate-500">
+              Looking up encounter data…
+            </p>
+          )}
 
-      {status.state === "loading" && (
-        <p className="mt-3 text-sm text-slate-500">
-          Looking up encounter data…
-        </p>
-      )}
+          {status.state === "error" && (
+            <p className="mt-3 text-sm text-slate-500">
+              Couldn&apos;t load encounter data right now — the rest of the page
+              is unaffected.
+            </p>
+          )}
 
-      {status.state === "error" && (
-        <p className="mt-3 text-sm text-slate-500">
-          Couldn&apos;t load encounter data right now — the rest of the page
-          is unaffected.
-        </p>
-      )}
+          {status.state === "empty" && (
+            <p className="mt-3 text-sm text-slate-500">
+              No wild encounter data recorded for this Pokémon.
+            </p>
+          )}
 
-      {status.state === "empty" && (
-        <p className="mt-3 text-sm text-slate-500">
-          No wild encounter data recorded for this Pokémon.
-        </p>
-      )}
-
-      {status.state === "ready" && (
-        <div className="mt-4 space-y-5">
-          {status.games.map((g) => (
-            <div key={g.game}>
-              <h3 className="text-sm font-bold text-slate-800">{g.game}</h3>
-              <ul className="mt-2 divide-y divide-slate-100 rounded-xl bg-slate-50 ring-1 ring-slate-200">
-                {g.rows.map((row, i) => (
-                  <li
-                    key={`${row.location}-${row.method}-${row.levels}-${i}`}
-                    className="flex flex-wrap items-baseline gap-x-3 px-4 py-2 text-sm"
-                  >
-                    <span className="font-medium text-slate-800">
-                      {row.location}
-                    </span>
-                    <span className="text-slate-500">{row.method}</span>
-                    <span className="text-slate-500">{row.levels}</span>
-                    {row.chance !== null && (
-                      <span className="ml-auto rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-slate-600">
-                        {row.chance}% chance
-                      </span>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-      )}
+          {status.state === "ready" && (
+            <GameList games={status.games} />
+          )}
         </>
       )}
     </section>
+  );
+}
+
+function GameList({ games }: { games: GameEncounters[] }) {
+  return (
+    <div className="mt-4 space-y-5">
+      {games.map((g) => (
+        <GameBlock key={g.game} game={g} />
+      ))}
+    </div>
+  );
+}
+
+function GameBlock({ game }: { game: GameEncounters }) {
+  const groups = useMemo(() => groupRows(game.rows), [game.rows]);
+  return (
+    <div>
+      <h3 className="text-sm font-bold text-slate-800">{game.game}</h3>
+      <ul className="mt-2 divide-y divide-slate-100 rounded-xl bg-slate-50 ring-1 ring-slate-200">
+        {groups.map((group) => (
+          <LocationGroupRow
+            key={`${group.location}|${group.method}`}
+            group={group}
+          />
+        ))}
+      </ul>
+    </div>
   );
 }

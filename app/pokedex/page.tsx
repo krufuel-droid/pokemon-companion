@@ -4,9 +4,21 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { getAllSpecies, searchSpecies } from "@/lib/pokedex";
 import type { SpeciesIndex } from "@/lib/pokedex";
+import {
+  getRegionalForms,
+  REGIONAL_REGIONS,
+  type RegionalForm,
+} from "@/lib/data/forms";
 import { TypePills } from "./type-pills";
 
 const TOTAL_COUNT = 1025;
+
+const REGION_ADJECTIVE: Record<string, string> = {
+  Alola: "Alolan",
+  Galar: "Galarian",
+  Hisui: "Hisuian",
+  Paldea: "Paldean",
+};
 
 function SpeciesCard({ species }: { species: SpeciesIndex }) {
   return (
@@ -30,19 +42,64 @@ function SpeciesCard({ species }: { species: SpeciesIndex }) {
   );
 }
 
+function RegionalFormCard({ form }: { form: RegionalForm }) {
+  return (
+    <Link
+      href={`/pokedex/${form.speciesId}`}
+      className="flex flex-col items-center gap-1.5 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:shadow-md"
+      style={{ contentVisibility: "auto", containIntrinsicSize: "auto 220px" }}
+    >
+      <img
+        src={form.sprite}
+        alt={form.formName}
+        className="h-24 w-24 object-contain"
+        loading="lazy"
+      />
+      <span className="rounded-full bg-sky-100 px-2 py-0.5 text-xs font-semibold text-sky-800">
+        {REGION_ADJECTIVE[form.region] ?? form.region}
+      </span>
+      <span className="text-center text-sm font-semibold capitalize text-slate-800">
+        {form.formName}
+      </span>
+      <TypePills types={form.types} />
+    </Link>
+  );
+}
+
 export default function PokedexPage() {
   const [query, setQuery] = useState("");
+  const [region, setRegion] = useState<string>("all");
 
   const trimmed = query.trim();
   const searching = trimmed.length >= 2;
+  const browsingRegion = region !== "all";
+
+  const regionalForms = useMemo(() => getRegionalForms(), []);
 
   const results = useMemo<SpeciesIndex[]>(
     () =>
-      searching
-        ? searchSpecies(trimmed)
-        : getAllSpecies(),
-    [searching, trimmed]
+      browsingRegion
+        ? []
+        : searching
+          ? searchSpecies(trimmed)
+          : getAllSpecies(),
+    [searching, trimmed, browsingRegion]
   );
+
+  const regionResults = useMemo<RegionalForm[]>(
+    () =>
+      browsingRegion
+        ? regionalForms.filter(
+            (f) =>
+              f.region === region &&
+              (!searching ||
+                f.formName.toLowerCase().includes(trimmed.toLowerCase()))
+          )
+        : [],
+    [browsingRegion, regionalForms, region, searching, trimmed]
+  );
+
+  const shownCount = browsingRegion ? regionResults.length : results.length;
 
   return (
     <main className="min-h-screen bg-slate-50 text-slate-800">
@@ -62,8 +119,57 @@ export default function PokedexPage() {
           />
         </div>
 
+        <div
+          className="mt-4 flex flex-wrap gap-2"
+          role="group"
+          aria-label="Filter by region"
+        >
+          <button
+            type="button"
+            onClick={() => setRegion("all")}
+            aria-pressed={region === "all"}
+            className={`rounded-full px-4 py-1.5 text-sm font-semibold transition-colors ${
+              region === "all"
+                ? "bg-emerald-600 text-white"
+                : "bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-100"
+            }`}
+          >
+            All Pokémon
+          </button>
+          {REGIONAL_REGIONS.map((r) => (
+            <button
+              key={r}
+              type="button"
+              onClick={() => setRegion(r)}
+              aria-pressed={region === r}
+              className={`rounded-full px-4 py-1.5 text-sm font-semibold transition-colors ${
+                region === r
+                  ? "bg-emerald-600 text-white"
+                  : "bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-100"
+              }`}
+            >
+              {REGION_ADJECTIVE[r] ?? r}
+            </button>
+          ))}
+        </div>
+
         <p className="mt-4 text-sm text-slate-500" aria-live="polite">
-          {searching ? (
+          {browsingRegion ? (
+            <>
+              {regionResults.length}{" "}
+              {REGION_ADJECTIVE[region] ?? region}{" "}
+              {regionResults.length === 1 ? "form" : "forms"}
+              {searching && (
+                <>
+                  {" "}
+                  for{" "}
+                  <span className="font-semibold text-slate-700">
+                    “{trimmed}”
+                  </span>
+                </>
+              )}
+            </>
+          ) : searching ? (
             <>
               {results.length}{" "}
               {results.length === 1 ? "result" : "results"} for{" "}
@@ -74,15 +180,23 @@ export default function PokedexPage() {
           )}
         </p>
 
-        {results.length === 0 ? (
+        {shownCount === 0 ? (
           <div className="mt-8 rounded-2xl bg-white p-10 text-center shadow-sm ring-1 ring-slate-200">
             <p className="text-lg font-semibold text-slate-700">
-              No Pokémon found for “{trimmed}” 🕵️
+              {browsingRegion
+                ? `No ${REGION_ADJECTIVE[region] ?? region} forms found 🕵️`
+                : `No Pokémon found for “${trimmed}” 🕵️`}
             </p>
             <p className="mt-2 text-sm text-slate-500">
               Try a different name — even two letters is enough to start
               searching.
             </p>
+          </div>
+        ) : browsingRegion ? (
+          <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+            {regionResults.map((form) => (
+              <RegionalFormCard key={form.formName} form={form} />
+            ))}
           </div>
         ) : (
           <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">

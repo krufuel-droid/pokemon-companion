@@ -150,14 +150,14 @@ function MoveRow({
 
   return (
     <li className="rounded-2xl bg-white shadow-sm ring-1 ring-slate-200">
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        aria-expanded={open}
-        className="flex w-full items-center gap-3 px-4 py-3 text-left"
-      >
+      <div className="flex w-full items-center gap-3 px-4 py-3">
         <span className="min-w-0 flex-1">
-          <span className="block truncate font-semibold text-slate-900">{move.name}</span>
+          <Link
+            href={`/moves/${move.id}`}
+            className="block truncate font-semibold text-slate-900 hover:text-emerald-700 hover:underline"
+          >
+            {move.name}
+          </Link>
           <span className="mt-1.5 flex flex-wrap items-center gap-1.5">
             <TypeBadge type={move.type} />
             <span
@@ -173,10 +173,16 @@ function MoveRow({
           <StatChip label="Acc" value={move.accuracy === null ? "—" : String(move.accuracy)} />
           <StatChip label="PP" value={String(move.pp)} />
         </span>
-        <span aria-hidden="true" className="text-lg font-bold text-slate-400">
-          {open ? "−" : "+"}
-        </span>
-      </button>
+        <button
+          type="button"
+          onClick={() => setOpen((v) => !v)}
+          aria-expanded={open}
+          aria-label={open ? `Collapse ${move.name} details` : `Expand ${move.name} details`}
+          className="shrink-0 rounded-lg px-2 py-1 text-lg font-bold text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+        >
+          <span aria-hidden="true">{open ? "−" : "+"}</span>
+        </button>
+      </div>
 
       {open && (
         <div className="border-t border-slate-100 px-4 py-4">

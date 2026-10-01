@@ -9,6 +9,14 @@ export interface FormVariant {
   types: string[];
 }
 
+/**
+ * Capitalize a type name ("ice" → "Ice") so form-variant types from
+ * lib/data/forms.ts match the capitalized keys in the type chart.
+ */
+function normalizeType(t: string): string {
+  return t.length > 0 ? t[0].toUpperCase() + t.slice(1).toLowerCase() : t;
+}
+
 function multLabel(mult: number): string {
   if (mult === 4) return "×4";
   if (mult === 2) return "×2";
@@ -69,8 +77,10 @@ export function MatchupsSection({
 
   const activeTypes =
     selected === "__base__"
-      ? types
-      : (variants.find((v) => v.name === selected)?.types ?? types);
+      ? types.map(normalizeType)
+      : ((variants.find((v) => v.name === selected)?.types ?? types).map(
+          normalizeType
+        ));
 
   const { weak, resist, immune } = useMemo(() => {
     const rows = TYPES.map((atk) => ({

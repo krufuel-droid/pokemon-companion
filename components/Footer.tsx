@@ -17,8 +17,20 @@ export default function Footer() {
           Nintendo / Creatures Inc. / GAME FREAK inc.
         </p>
         <p>
-          Data and sprites via PokéAPI. Pokémon © Nintendo / Creatures Inc. /
-          GAME FREAK inc.
+          Data via PokéAPI. Pokémon © Nintendo / Creatures Inc. / GAME FREAK
+          inc.
+        </p>
+        <p>
+          Pokémon sprites:{" "}
+          <a
+            href="https://www.smogon.com/forums/threads/smogon-sprite-project.3647722/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline decoration-emerald-300 underline-offset-2 hover:text-emerald-700"
+          >
+            Smogon Sprite Project
+          </a>{" "}
+          community.
         </p>
         <p>Free forever, no ads, non-commercial fan project.</p>
       </div>

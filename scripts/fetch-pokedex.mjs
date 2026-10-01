@@ -187,7 +187,11 @@ function buildRecord(species, pokemon) {
     value: typeof statByName[key] === "number" ? statByName[key] : 0,
   }));
 
-  const spriteBase = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon";
+  // Smogon Sprite Project community sprites (IP hygiene: no game-rip URLs).
+  // {showdown} is the species slug lowercased with non-alphanumerics stripped.
+  const showdown = slug.toLowerCase().replace(/[^a-z0-9]/g, "");
+  const spriteBase = "https://play.pokemonshowdown.com/sprites/gen5";
+  const shinyBase = "https://play.pokemonshowdown.com/sprites/gen5-shiny";
   const artworkBase = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork";
 
   return {
@@ -197,8 +201,8 @@ function buildRecord(species, pokemon) {
     types,
     eggGroups,
     sprites: {
-      regular: `${spriteBase}/${id}.png`,
-      shiny: `${spriteBase}/shiny/${id}.png`,
+      regular: `${spriteBase}/${showdown}.png`,
+      shiny: `${shinyBase}/${showdown}.png`,
     },
     artwork: `${artworkBase}/${id}.png`,
     heightM: pokemon.height / 10,

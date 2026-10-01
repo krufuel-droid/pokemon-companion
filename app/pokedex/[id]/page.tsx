@@ -3,16 +3,21 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getSpeciesById } from "@/lib/pokedex";
 import { getFormsForSpecies } from "@/lib/data/forms";
+import { MOVES } from "@/lib/data/moves";
 import { TypePills } from "../type-pills";
 import { SpriteViewer } from "./sprite-viewer";
 import { DexEntries } from "./dex-entries";
 import { FormsSection } from "./forms-section";
 import { EncountersSection } from "./encounters-section";
 import { MatchupsSection } from "./matchups-section";
+import { LearnsetSection } from "./learnset-section";
 import { StatsRadar } from "./stats-radar";
 import { SectionAccordion } from "./section-accordion";
 
 const MAX_DEX_ID = 1025;
+
+/** PokéAPI move id by pretty move name — for linking egg moves to move pages. */
+const MOVE_ID_BY_NAME = new Map(MOVES.map((m) => [m.name, m.id]));
 
 type PageParams = { id: string };
 
@@ -155,6 +160,9 @@ export default async function SpeciesPage({
         {/* Wild encounters */}
         <EncountersSection speciesId={species.id} />
 
+        {/* Level-up moves by game */}
+        <LearnsetSection speciesId={species.id} />
+
         {/* Egg moves */}
         <SectionAccordion
           label="Egg moves"
@@ -169,14 +177,25 @@ export default async function SpeciesPage({
             <p className="text-sm text-slate-500">No egg moves recorded</p>
           ) : (
             <ul className="flex flex-wrap gap-2">
-              {species.eggMoves.map((move) => (
-                <li
-                  key={move}
-                  className="rounded-full bg-emerald-100 px-3 py-1 text-sm font-medium capitalize text-slate-700"
-                >
-                  {move}
-                </li>
-              ))}
+              {species.eggMoves.map((move) => {
+                const id = MOVE_ID_BY_NAME.get(move);
+                return (
+                  <li key={move}>
+                    {id ? (
+                      <Link
+                        href={`/moves/${id}`}
+                        className="block rounded-full bg-emerald-100 px-3 py-1 text-sm font-medium capitalize text-slate-700 hover:bg-emerald-200 hover:text-emerald-900"
+                      >
+                        {move}
+                      </Link>
+                    ) : (
+                      <span className="block rounded-full bg-emerald-100 px-3 py-1 text-sm font-medium capitalize text-slate-700">
+                        {move}
+                      </span>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           )}
         </SectionAccordion>

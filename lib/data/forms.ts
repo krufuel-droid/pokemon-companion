@@ -1,10 +1,12 @@
 /**
  * Curated alternate-form data for the Pokédex detail pages.
  *
- * Sprite IDs were verified against the PokéAPI pokemon-form endpoint on
- * 2026-10-01; sprites use the standard raw.githubusercontent.com pattern.
- * Pokémon Champions-original Megas have no official artwork, so they reuse
- * the base species sprite and carry a note saying so.
+ * Sprites use the Smogon Sprite Project community sprites hosted on
+ * Pokémon Showdown (play.pokemonshowdown.com), replacing the PokéAPI
+ * game-rip URLs on 2026-10-01 for IP hygiene. All 135 form sprite URLs
+ * were verified live (HTTP 200) on 2026-10-01.
+ * Pokémon Champions-original Megas have no community artwork yet, so they
+ * reuse the base species sprite and carry a note saying so.
  *
  * To add a form: append a tuple to the right list below. `types` is only
  * needed when the form's typing differs from the base species.
@@ -29,157 +31,157 @@ export const KIND_LABEL: Record<FormKind, string> = {
   champions: "Champions Mega",
 };
 
-const sprite = (pokemonId: number) =>
-  `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemonId}.png`;
+const sprite = (showdownName: string) =>
+  `https://play.pokemonshowdown.com/sprites/gen5/${showdownName}.png`;
 
-// [speciesId, formName, spriteId, megaStone, types?]
+// [speciesId, formName, showdownSpriteName, megaStone, types?]
 const MEGAS: Array<
-  [number, string, number, string, string[]?]
+  [number, string, string, string, string[]?]
 > = [
-  [3, "Mega Venusaur", 10033, "Venusaurite"],
-  [6, "Mega Charizard X", 10034, "Charizardite X", ["fire", "dragon"]],
-  [6, "Mega Charizard Y", 10035, "Charizardite Y"],
-  [9, "Mega Blastoise", 10036, "Blastoisinite"],
-  [15, "Mega Beedrill", 10090, "Beedrillite"],
-  [18, "Mega Pidgeot", 10073, "Pidgeotite"],
-  [65, "Mega Alakazam", 10037, "Alakazite"],
-  [80, "Mega Slowbro", 10071, "Slowbronite"],
-  [94, "Mega Gengar", 10038, "Gengarite"],
-  [115, "Mega Kangaskhan", 10039, "Kangaskhanite"],
-  [127, "Mega Pinsir", 10040, "Pinsirite", ["bug", "flying"]],
-  [130, "Mega Gyarados", 10041, "Gyaradosite", ["water", "dark"]],
-  [142, "Mega Aerodactyl", 10042, "Aerodactylite"],
-  [150, "Mega Mewtwo X", 10043, "Mewtwonite X", ["psychic", "fighting"]],
-  [150, "Mega Mewtwo Y", 10044, "Mewtwonite Y"],
-  [181, "Mega Ampharos", 10045, "Ampharosite", ["electric", "dragon"]],
-  [208, "Mega Steelix", 10072, "Steelixite"],
-  [212, "Mega Scizor", 10046, "Scizorite"],
-  [214, "Mega Heracross", 10047, "Heracronite"],
-  [229, "Mega Houndoom", 10048, "Houndoominite"],
-  [248, "Mega Tyranitar", 10049, "Tyranitarite"],
-  [254, "Mega Sceptile", 10065, "Sceptilite", ["grass", "dragon"]],
-  [257, "Mega Blaziken", 10050, "Blazikenite"],
-  [260, "Mega Swampert", 10064, "Swampertite"],
-  [282, "Mega Gardevoir", 10051, "Gardevoirite", ["psychic", "fairy"]],
-  [302, "Mega Sableye", 10066, "Sablenite"],
-  [303, "Mega Mawile", 10052, "Mawilite", ["steel", "fairy"]],
-  [306, "Mega Aggron", 10053, "Aggronite", ["steel"]],
-  [308, "Mega Medicham", 10054, "Medichamite"],
-  [310, "Mega Manectric", 10055, "Manectite"],
-  [319, "Mega Sharpedo", 10070, "Sharpedonite"],
-  [323, "Mega Camerupt", 10087, "Cameruptite"],
-  [334, "Mega Altaria", 10067, "Altarianite", ["dragon", "fairy"]],
-  [354, "Mega Banette", 10056, "Banettite"],
-  [359, "Mega Absol", 10057, "Absolite"],
-  [362, "Mega Glalie", 10074, "Glalitite"],
-  [373, "Mega Salamence", 10089, "Salamencite"],
-  [376, "Mega Metagross", 10076, "Metagrossite"],
-  [380, "Mega Latias", 10062, "Latiasite"],
-  [381, "Mega Latios", 10063, "Latiosite"],
-  [428, "Mega Lopunny", 10088, "Lopunnite", ["normal", "fighting"]],
-  [445, "Mega Garchomp", 10058, "Garchompite"],
-  [448, "Mega Lucario", 10059, "Lucarionite"],
-  [460, "Mega Abomasnow", 10060, "Abomasite"],
-  [475, "Mega Gallade", 10068, "Galladite"],
-  [531, "Mega Audino", 10069, "Audinite", ["normal", "fairy"]],
-  [719, "Mega Diancie", 10075, "Diancite"],
+  [3, "Mega Venusaur", "venusaur-mega", "Venusaurite"],
+  [6, "Mega Charizard X", "charizard-megax", "Charizardite X", ["fire", "dragon"]],
+  [6, "Mega Charizard Y", "charizard-megay", "Charizardite Y"],
+  [9, "Mega Blastoise", "blastoise-mega", "Blastoisinite"],
+  [15, "Mega Beedrill", "beedrill-mega", "Beedrillite"],
+  [18, "Mega Pidgeot", "pidgeot-mega", "Pidgeotite"],
+  [65, "Mega Alakazam", "alakazam-mega", "Alakazite"],
+  [80, "Mega Slowbro", "slowbro-mega", "Slowbronite"],
+  [94, "Mega Gengar", "gengar-mega", "Gengarite"],
+  [115, "Mega Kangaskhan", "kangaskhan-mega", "Kangaskhanite"],
+  [127, "Mega Pinsir", "pinsir-mega", "Pinsirite", ["bug", "flying"]],
+  [130, "Mega Gyarados", "gyarados-mega", "Gyaradosite", ["water", "dark"]],
+  [142, "Mega Aerodactyl", "aerodactyl-mega", "Aerodactylite"],
+  [150, "Mega Mewtwo X", "mewtwo-megax", "Mewtwonite X", ["psychic", "fighting"]],
+  [150, "Mega Mewtwo Y", "mewtwo-megay", "Mewtwonite Y"],
+  [181, "Mega Ampharos", "ampharos-mega", "Ampharosite", ["electric", "dragon"]],
+  [208, "Mega Steelix", "steelix-mega", "Steelixite"],
+  [212, "Mega Scizor", "scizor-mega", "Scizorite"],
+  [214, "Mega Heracross", "heracross-mega", "Heracronite"],
+  [229, "Mega Houndoom", "houndoom-mega", "Houndoominite"],
+  [248, "Mega Tyranitar", "tyranitar-mega", "Tyranitarite"],
+  [254, "Mega Sceptile", "sceptile-mega", "Sceptilite", ["grass", "dragon"]],
+  [257, "Mega Blaziken", "blaziken-mega", "Blazikenite"],
+  [260, "Mega Swampert", "swampert-mega", "Swampertite"],
+  [282, "Mega Gardevoir", "gardevoir-mega", "Gardevoirite", ["psychic", "fairy"]],
+  [302, "Mega Sableye", "sableye-mega", "Sablenite"],
+  [303, "Mega Mawile", "mawile-mega", "Mawilite", ["steel", "fairy"]],
+  [306, "Mega Aggron", "aggron-mega", "Aggronite", ["steel"]],
+  [308, "Mega Medicham", "medicham-mega", "Medichamite"],
+  [310, "Mega Manectric", "manectric-mega", "Manectite"],
+  [319, "Mega Sharpedo", "sharpedo-mega", "Sharpedonite"],
+  [323, "Mega Camerupt", "camerupt-mega", "Cameruptite"],
+  [334, "Mega Altaria", "altaria-mega", "Altarianite", ["dragon", "fairy"]],
+  [354, "Mega Banette", "banette-mega", "Banettite"],
+  [359, "Mega Absol", "absol-mega", "Absolite"],
+  [362, "Mega Glalie", "glalie-mega", "Glalitite"],
+  [373, "Mega Salamence", "salamence-mega", "Salamencite"],
+  [376, "Mega Metagross", "metagross-mega", "Metagrossite"],
+  [380, "Mega Latias", "latias-mega", "Latiasite"],
+  [381, "Mega Latios", "latios-mega", "Latiosite"],
+  [428, "Mega Lopunny", "lopunny-mega", "Lopunnite", ["normal", "fighting"]],
+  [445, "Mega Garchomp", "garchomp-mega", "Garchompite"],
+  [448, "Mega Lucario", "lucario-mega", "Lucarionite"],
+  [460, "Mega Abomasnow", "abomasnow-mega", "Abomasite"],
+  [475, "Mega Gallade", "gallade-mega", "Galladite"],
+  [531, "Mega Audino", "audino-mega", "Audinite", ["normal", "fairy"]],
+  [719, "Mega Diancie", "diancie-mega", "Diancite"],
 ];
 
-// [speciesId, formName, spriteId, obtainOverride?]
+// [speciesId, formName, showdownSpriteName, obtainOverride?]
 const GMAX_DEFAULT_OBTAIN = "Max Raid Battles in Pokémon Sword/Shield";
-const GIGANTAMAX: Array<[number, string, number, string?]> = [
-  [3, "Gigantamax Venusaur", 10195],
-  [6, "Gigantamax Charizard", 10196],
-  [9, "Gigantamax Blastoise", 10197],
-  [12, "Gigantamax Butterfree", 10198],
-  [25, "Gigantamax Pikachu", 10199, "Requires a Let's Go, Pikachu! save on your Switch (Sword/Shield)"],
-  [52, "Gigantamax Meowth", 10200, "Mystery Gift event in Pokémon Sword/Shield"],
-  [68, "Gigantamax Machamp", 10201],
-  [94, "Gigantamax Gengar", 10202],
-  [99, "Gigantamax Kingler", 10203],
-  [131, "Gigantamax Lapras", 10204],
-  [133, "Gigantamax Eevee", 10205, "Requires a Let's Go, Eevee! save on your Switch (Sword/Shield)"],
-  [143, "Gigantamax Snorlax", 10206],
-  [569, "Gigantamax Garbodor", 10207],
-  [809, "Gigantamax Melmetal", 10208, "Transfer a Melmetal from Pokémon GO"],
-  [812, "Gigantamax Rillaboom", 10209],
-  [815, "Gigantamax Cinderace", 10210],
-  [818, "Gigantamax Inteleon", 10211],
-  [823, "Gigantamax Corviknight", 10212],
-  [826, "Gigantamax Orbeetle", 10213],
-  [839, "Gigantamax Coalossal", 10215],
-  [841, "Gigantamax Flapple", 10216],
-  [842, "Gigantamax Appletun", 10217],
-  [843, "Gigantamax Sandaconda", 10218],
-  [849, "Gigantamax Toxtricity", 10219],
-  [851, "Gigantamax Centiskorch", 10220],
-  [858, "Gigantamax Hatterene", 10221],
-  [861, "Gigantamax Grimmsnarl", 10222],
-  [869, "Gigantamax Alcremie", 10223],
-  [878, "Gigantamax Copperajah", 10224],
-  [884, "Gigantamax Duraludon", 10225],
-  [892, "Gigantamax Urshifu (Single Strike)", 10226],
-  [892, "Gigantamax Urshifu (Rapid Strike)", 10227],
+const GIGANTAMAX: Array<[number, string, string, string?]> = [
+  [3, "Gigantamax Venusaur", "venusaur-gmax"],
+  [6, "Gigantamax Charizard", "charizard-gmax"],
+  [9, "Gigantamax Blastoise", "blastoise-gmax"],
+  [12, "Gigantamax Butterfree", "butterfree-gmax"],
+  [25, "Gigantamax Pikachu", "pikachu-gmax", "Requires a Let's Go, Pikachu! save on your Switch (Sword/Shield)"],
+  [52, "Gigantamax Meowth", "meowth-gmax", "Mystery Gift event in Pokémon Sword/Shield"],
+  [68, "Gigantamax Machamp", "machamp-gmax"],
+  [94, "Gigantamax Gengar", "gengar-gmax"],
+  [99, "Gigantamax Kingler", "kingler-gmax"],
+  [131, "Gigantamax Lapras", "lapras-gmax"],
+  [133, "Gigantamax Eevee", "eevee-gmax", "Requires a Let's Go, Eevee! save on your Switch (Sword/Shield)"],
+  [143, "Gigantamax Snorlax", "snorlax-gmax"],
+  [569, "Gigantamax Garbodor", "garbodor-gmax"],
+  [809, "Gigantamax Melmetal", "melmetal-gmax", "Transfer a Melmetal from Pokémon GO"],
+  [812, "Gigantamax Rillaboom", "rillaboom-gmax"],
+  [815, "Gigantamax Cinderace", "cinderace-gmax"],
+  [818, "Gigantamax Inteleon", "inteleon-gmax"],
+  [823, "Gigantamax Corviknight", "corviknight-gmax"],
+  [826, "Gigantamax Orbeetle", "orbeetle-gmax"],
+  [839, "Gigantamax Coalossal", "coalossal-gmax"],
+  [841, "Gigantamax Flapple", "flapple-gmax"],
+  [842, "Gigantamax Appletun", "appletun-gmax"],
+  [844, "Gigantamax Sandaconda", "sandaconda-gmax"],
+  [849, "Gigantamax Toxtricity", "toxtricity-gmax"],
+  [851, "Gigantamax Centiskorch", "centiskorch-gmax"],
+  [858, "Gigantamax Hatterene", "hatterene-gmax"],
+  [861, "Gigantamax Grimmsnarl", "grimmsnarl-gmax"],
+  [869, "Gigantamax Alcremie", "alcremie-gmax"],
+  [879, "Gigantamax Copperajah", "copperajah-gmax"],
+  [884, "Gigantamax Duraludon", "duraludon-gmax"],
+  [892, "Gigantamax Urshifu (Single Strike)", "urshifu-gmax"],
+  [892, "Gigantamax Urshifu (Rapid Strike)", "urshifu-gmax"],
 ];
 
-// [speciesId, formName, spriteId, types, region]
-const REGIONALS: Array<[number, string, number, string[], string]> = [
-  [19, "Alolan Rattata", 10091, ["dark", "normal"], "Alola"],
-  [20, "Alolan Raticate", 10092, ["dark", "normal"], "Alola"],
-  [26, "Alolan Raichu", 10100, ["electric", "psychic"], "Alola"],
-  [27, "Alolan Sandshrew", 10101, ["ice", "steel"], "Alola"],
-  [28, "Alolan Sandslash", 10102, ["ice", "steel"], "Alola"],
-  [37, "Alolan Vulpix", 10103, ["ice"], "Alola"],
-  [38, "Alolan Ninetales", 10104, ["ice", "fairy"], "Alola"],
-  [50, "Alolan Diglett", 10105, ["ground", "steel"], "Alola"],
-  [51, "Alolan Dugtrio", 10106, ["ground", "steel"], "Alola"],
-  [52, "Alolan Meowth", 10107, ["dark"], "Alola"],
-  [53, "Alolan Persian", 10108, ["dark"], "Alola"],
-  [74, "Alolan Geodude", 10109, ["rock", "electric"], "Alola"],
-  [75, "Alolan Graveler", 10110, ["rock", "electric"], "Alola"],
-  [76, "Alolan Golem", 10111, ["rock", "electric"], "Alola"],
-  [88, "Alolan Grimer", 10112, ["poison", "dark"], "Alola"],
-  [89, "Alolan Muk", 10113, ["poison", "dark"], "Alola"],
-  [103, "Alolan Exeggutor", 10114, ["grass", "dragon"], "Alola"],
-  [105, "Alolan Marowak", 10115, ["fire", "ghost"], "Alola"],
-  [52, "Galarian Meowth", 10161, ["steel"], "Galar"],
-  [77, "Galarian Ponyta", 10162, ["psychic"], "Galar"],
-  [78, "Galarian Rapidash", 10163, ["psychic", "fairy"], "Galar"],
-  [79, "Galarian Slowpoke", 10164, ["psychic"], "Galar"],
-  [80, "Galarian Slowbro", 10165, ["poison", "psychic"], "Galar"],
-  [83, "Galarian Farfetch'd", 10166, ["fighting"], "Galar"],
-  [110, "Galarian Weezing", 10167, ["poison", "fairy"], "Galar"],
-  [122, "Galarian Mr. Mime", 10168, ["ice", "psychic"], "Galar"],
-  [144, "Galarian Articuno", 10169, ["psychic", "flying"], "Galar"],
-  [145, "Galarian Zapdos", 10170, ["fighting", "flying"], "Galar"],
-  [146, "Galarian Moltres", 10171, ["dark", "flying"], "Galar"],
-  [199, "Galarian Slowking", 10172, ["poison", "psychic"], "Galar"],
-  [222, "Galarian Corsola", 10173, ["ghost"], "Galar"],
-  [263, "Galarian Zigzagoon", 10174, ["dark", "normal"], "Galar"],
-  [264, "Galarian Linoone", 10175, ["dark", "normal"], "Galar"],
-  [554, "Galarian Darumaka", 10176, ["ice"], "Galar"],
-  [562, "Galarian Yamask", 10179, ["ground", "ghost"], "Galar"],
-  [618, "Galarian Stunfisk", 10180, ["ground", "steel"], "Galar"],
-  [58, "Hisuian Growlithe", 10229, ["fire", "rock"], "Hisui"],
-  [59, "Hisuian Arcanine", 10230, ["fire", "rock"], "Hisui"],
-  [100, "Hisuian Voltorb", 10231, ["electric", "grass"], "Hisui"],
-  [101, "Hisuian Electrode", 10232, ["electric", "grass"], "Hisui"],
-  [157, "Hisuian Typhlosion", 10233, ["fire", "ghost"], "Hisui"],
-  [211, "Hisuian Qwilfish", 10234, ["dark", "poison"], "Hisui"],
-  [215, "Hisuian Sneasel", 10235, ["fighting", "poison"], "Hisui"],
-  [503, "Hisuian Samurott", 10236, ["water", "dark"], "Hisui"],
-  [549, "Hisuian Lilligant", 10237, ["grass", "fighting"], "Hisui"],
-  [570, "Hisuian Zorua", 10238, ["normal", "ghost"], "Hisui"],
-  [571, "Hisuian Zoroark", 10239, ["normal", "ghost"], "Hisui"],
-  [628, "Hisuian Braviary", 10240, ["psychic", "flying"], "Hisui"],
-  [705, "Hisuian Sliggoo", 10241, ["steel", "dragon"], "Hisui"],
-  [706, "Hisuian Goodra", 10242, ["steel", "dragon"], "Hisui"],
-  [713, "Hisuian Avalugg", 10243, ["ice", "rock"], "Hisui"],
-  [724, "Hisuian Decidueye", 10244, ["grass", "fighting"], "Hisui"],
-  [128, "Paldean Tauros (Combat Breed)", 10250, ["fighting"], "Paldea"],
-  [128, "Paldean Tauros (Blaze Breed)", 10251, ["fighting", "fire"], "Paldea"],
-  [128, "Paldean Tauros (Aqua Breed)", 10252, ["fighting", "water"], "Paldea"],
-  [194, "Paldean Wooper", 10253, ["poison", "ground"], "Paldea"],
+// [speciesId, formName, showdownSpriteName, types, region]
+const REGIONALS: Array<[number, string, string, string[], string]> = [
+  [19, "Alolan Rattata", "rattata-alola", ["dark", "normal"], "Alola"],
+  [20, "Alolan Raticate", "raticate-alola", ["dark", "normal"], "Alola"],
+  [26, "Alolan Raichu", "raichu-alola", ["electric", "psychic"], "Alola"],
+  [27, "Alolan Sandshrew", "sandshrew-alola", ["ice", "steel"], "Alola"],
+  [28, "Alolan Sandslash", "sandslash-alola", ["ice", "steel"], "Alola"],
+  [37, "Alolan Vulpix", "vulpix-alola", ["ice"], "Alola"],
+  [38, "Alolan Ninetales", "ninetales-alola", ["ice", "fairy"], "Alola"],
+  [50, "Alolan Diglett", "diglett-alola", ["ground", "steel"], "Alola"],
+  [51, "Alolan Dugtrio", "dugtrio-alola", ["ground", "steel"], "Alola"],
+  [52, "Alolan Meowth", "meowth-alola", ["dark"], "Alola"],
+  [53, "Alolan Persian", "persian-alola", ["dark"], "Alola"],
+  [74, "Alolan Geodude", "geodude-alola", ["rock", "electric"], "Alola"],
+  [75, "Alolan Graveler", "graveler-alola", ["rock", "electric"], "Alola"],
+  [76, "Alolan Golem", "golem-alola", ["rock", "electric"], "Alola"],
+  [88, "Alolan Grimer", "grimer-alola", ["poison", "dark"], "Alola"],
+  [89, "Alolan Muk", "muk-alola", ["poison", "dark"], "Alola"],
+  [103, "Alolan Exeggutor", "exeggutor-alola", ["grass", "dragon"], "Alola"],
+  [105, "Alolan Marowak", "marowak-alola", ["fire", "ghost"], "Alola"],
+  [52, "Galarian Meowth", "meowth-galar", ["steel"], "Galar"],
+  [77, "Galarian Ponyta", "ponyta-galar", ["psychic"], "Galar"],
+  [78, "Galarian Rapidash", "rapidash-galar", ["psychic", "fairy"], "Galar"],
+  [79, "Galarian Slowpoke", "slowpoke-galar", ["psychic"], "Galar"],
+  [80, "Galarian Slowbro", "slowbro-galar", ["poison", "psychic"], "Galar"],
+  [83, "Galarian Farfetch'd", "farfetchd-galar", ["fighting"], "Galar"],
+  [110, "Galarian Weezing", "weezing-galar", ["poison", "fairy"], "Galar"],
+  [122, "Galarian Mr. Mime", "mrmime-galar", ["ice", "psychic"], "Galar"],
+  [144, "Galarian Articuno", "articuno-galar", ["psychic", "flying"], "Galar"],
+  [145, "Galarian Zapdos", "zapdos-galar", ["fighting", "flying"], "Galar"],
+  [146, "Galarian Moltres", "moltres-galar", ["dark", "flying"], "Galar"],
+  [199, "Galarian Slowking", "slowking-galar", ["poison", "psychic"], "Galar"],
+  [222, "Galarian Corsola", "corsola-galar", ["ghost"], "Galar"],
+  [263, "Galarian Zigzagoon", "zigzagoon-galar", ["dark", "normal"], "Galar"],
+  [264, "Galarian Linoone", "linoone-galar", ["dark", "normal"], "Galar"],
+  [554, "Galarian Darumaka", "darumaka-galar", ["ice"], "Galar"],
+  [562, "Galarian Yamask", "yamask-galar", ["ground", "ghost"], "Galar"],
+  [618, "Galarian Stunfisk", "stunfisk-galar", ["ground", "steel"], "Galar"],
+  [58, "Hisuian Growlithe", "growlithe-hisui", ["fire", "rock"], "Hisui"],
+  [59, "Hisuian Arcanine", "arcanine-hisui", ["fire", "rock"], "Hisui"],
+  [100, "Hisuian Voltorb", "voltorb-hisui", ["electric", "grass"], "Hisui"],
+  [101, "Hisuian Electrode", "electrode-hisui", ["electric", "grass"], "Hisui"],
+  [157, "Hisuian Typhlosion", "typhlosion-hisui", ["fire", "ghost"], "Hisui"],
+  [211, "Hisuian Qwilfish", "qwilfish-hisui", ["dark", "poison"], "Hisui"],
+  [215, "Hisuian Sneasel", "sneasel-hisui", ["fighting", "poison"], "Hisui"],
+  [503, "Hisuian Samurott", "samurott-hisui", ["water", "dark"], "Hisui"],
+  [549, "Hisuian Lilligant", "lilligant-hisui", ["grass", "fighting"], "Hisui"],
+  [570, "Hisuian Zorua", "zorua-hisui", ["normal", "ghost"], "Hisui"],
+  [571, "Hisuian Zoroark", "zoroark-hisui", ["normal", "ghost"], "Hisui"],
+  [628, "Hisuian Braviary", "braviary-hisui", ["psychic", "flying"], "Hisui"],
+  [705, "Hisuian Sliggoo", "sliggoo-hisui", ["steel", "dragon"], "Hisui"],
+  [706, "Hisuian Goodra", "goodra-hisui", ["steel", "dragon"], "Hisui"],
+  [713, "Hisuian Avalugg", "avalugg-hisui", ["ice", "rock"], "Hisui"],
+  [724, "Hisuian Decidueye", "decidueye-hisui", ["grass", "fighting"], "Hisui"],
+  [128, "Paldean Tauros (Combat Breed)", "tauros-paldeacombat", ["fighting"], "Paldea"],
+  [128, "Paldean Tauros (Blaze Breed)", "tauros-paldeablaze", ["fighting", "fire"], "Paldea"],
+  [128, "Paldean Tauros (Aqua Breed)", "tauros-paldeaaqua", ["fighting", "water"], "Paldea"],
+  [194, "Paldean Wooper", "wooper-paldea", ["poison", "ground"], "Paldea"],
 ];
 
 const REGION_GAMES: Record<string, string> = {
@@ -189,7 +191,7 @@ const REGION_GAMES: Record<string, string> = {
   Paldea: "Pokémon Scarlet/Violet",
 };
 
-// Champions-original Megas: no official artwork exists, so the base species
+// Champions-original Megas: no community artwork exists, so the base species
 // sprite is reused with an explanatory note. Stone names are not official;
 // [speciesId, formName, abilityNote]
 const CHAMPIONS_MEGAS: Array<[number, string, string?]> = [
@@ -218,6 +220,16 @@ const CHAMPIONS_MEGAS: Array<[number, string, string?]> = [
   [448, "Mega Lucario Z", "Z-Mega Evolution"],
 ];
 
+// Base-species Showdown sprite names for the Champions-original Megas above.
+const CHAMPIONS_BASE_SPRITES: Record<number, string> = {
+  26: "raichu", 254: "sceptile", 257: "blaziken", 260: "swampert",
+  303: "mawile", 359: "absol", 373: "salamence", 376: "metagross",
+  398: "staraptor", 445: "garchomp", 448: "lucario", 545: "scolipede",
+  560: "scrafty", 604: "eelektross", 668: "pyroar", 687: "malamar",
+  689: "barbaracle", 690: "dragalge", 768: "golisopod", 870: "falinks",
+  969: "glimmora", 998: "baxcalibur",
+};
+
 const CHAMPIONS_NOTE =
   "Champions-original Mega — no official artwork yet, shown with the base sprite.";
 
@@ -229,30 +241,30 @@ function add(speciesId: number, form: PokemonForm) {
   bySpecies.set(speciesId, list);
 }
 
-for (const [speciesId, formName, spriteId, stone, types] of MEGAS) {
+for (const [speciesId, formName, showdownName, stone, types] of MEGAS) {
   add(speciesId, {
     formName,
     kind: "mega",
-    sprite: sprite(spriteId),
+    sprite: sprite(showdownName),
     obtain: `Mega Stone: ${stone}`,
     ...(types ? { types } : {}),
   });
 }
 
-for (const [speciesId, formName, spriteId, obtain] of GIGANTAMAX) {
+for (const [speciesId, formName, showdownName, obtain] of GIGANTAMAX) {
   add(speciesId, {
     formName,
     kind: "gigantamax",
-    sprite: sprite(spriteId),
+    sprite: sprite(showdownName),
     obtain: obtain ?? GMAX_DEFAULT_OBTAIN,
   });
 }
 
-for (const [speciesId, formName, spriteId, types, region] of REGIONALS) {
+for (const [speciesId, formName, showdownName, types, region] of REGIONALS) {
   add(speciesId, {
     formName,
     kind: "regional",
-    sprite: sprite(spriteId),
+    sprite: sprite(showdownName),
     types,
     obtain: `Wild encounters in ${region} (${REGION_GAMES[region]})`,
   });
@@ -262,7 +274,7 @@ for (const [speciesId, formName, ability] of CHAMPIONS_MEGAS) {
   add(speciesId, {
     formName,
     kind: "champions",
-    sprite: sprite(speciesId),
+    sprite: sprite(CHAMPIONS_BASE_SPRITES[speciesId]),
     obtain: "Mega Evolution in Pokémon Champions",
     note: [CHAMPIONS_NOTE, ability].filter(Boolean).join(" "),
   });
@@ -272,3 +284,25 @@ for (const [speciesId, formName, ability] of CHAMPIONS_MEGAS) {
 export function getFormsForSpecies(speciesId: number): PokemonForm[] {
   return bySpecies.get(speciesId) ?? [];
 }
+
+export interface RegionalForm {
+  speciesId: number;
+  formName: string;
+  sprite: string;
+  types: string[];
+  region: string;
+}
+
+/** Every curated regional variant (Alola/Galar/Hisui/Paldea), in Pokédex order. */
+export function getRegionalForms(): RegionalForm[] {
+  return REGIONALS.map(([speciesId, formName, showdownName, types, region]) => ({
+    speciesId,
+    formName,
+    sprite: sprite(showdownName),
+    types,
+    region,
+  }));
+}
+
+/** Region names present in the regional-form data, in display order. */
+export const REGIONAL_REGIONS = ["Alola", "Galar", "Hisui", "Paldea"] as const;
