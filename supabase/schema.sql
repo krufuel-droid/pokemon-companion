@@ -321,3 +321,28 @@ create policy memorials_owner_all on memorials
 --   after insert on auth.users
 --   for each row execute function public.handle_new_user();
 -- ----------------------------------------------------------------------------
+
+-- ----------------------------------------------------------------------------
+-- feedback
+-- User-submitted feedback: bug reports, feature ideas, and hellos.
+-- trainer_name and user_id are optional so logged-out visitors can write in.
+-- (Also available as the standalone file supabase/feedback.sql.)
+-- ----------------------------------------------------------------------------
+create table if not exists feedback (
+  id uuid primary key default gen_random_uuid(),
+  type text not null check (type in ('bug', 'idea', 'hello')),
+  message text not null check (char_length(message) between 1 and 2000),
+  trainer_name text,
+  user_id uuid references auth.users(id) on delete set null,
+  created_at timestamptz not null default now()
+);
+comment on table feedback is 'User feedback: bug reports, feature ideas, and hellos.';
+
+alter table feedback enable row level security;
+
+-- Anyone (signed in or not) may SUBMIT feedback. There is deliberately no
+-- public SELECT policy: submissions are private and are read by the owner
+-- in the Supabase dashboard's Table Editor.
+drop policy if exists feedback_insert_anyone on feedback;
+create policy feedback_insert_anyone on feedback
+  for insert with check (true);

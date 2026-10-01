@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import AuthButtons from "./AuthButtons";
@@ -34,17 +35,37 @@ function isActive(pathname: string, href: string): boolean {
 
 export default function Nav() {
   const pathname = usePathname();
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  // Close the mobile menu whenever the route changes (render-time
+  // adjustment, not an effect, so no cascading renders).
+  const [lastPath, setLastPath] = useState(pathname);
+  if (lastPath !== pathname) {
+    setLastPath(pathname);
+    setMenuOpen(false);
+  }
+
+  // Let Escape close the mobile menu.
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMenuOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [menuOpen]);
 
   return (
     <header className="sticky top-0 z-50 border-b border-stone-200 bg-white/90 backdrop-blur">
-      <nav className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-8 gap-y-2 px-4 py-3 sm:px-6">
+      <nav className="relative mx-auto flex max-w-6xl flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3 sm:gap-x-8 sm:px-6">
         <Link href="/" className="flex items-center gap-2">
           <PokeballIcon />
           <span className="text-lg font-bold tracking-tight text-slate-900">
             Pokémon Companion
           </span>
         </Link>
-        <div className="flex items-center gap-2 sm:gap-4">
+        {/* Desktop tabs */}
+        <div className="hidden items-center gap-2 sm:flex lg:gap-4">
           {LINKS.map((link) => {
             const active = isActive(pathname, link.href);
             return (
@@ -63,9 +84,65 @@ export default function Nav() {
             );
           })}
         </div>
-        <div className="ml-auto flex items-center">
+        <div className="ml-auto flex items-center gap-1">
           <AuthButtons />
+          {/* Mobile hamburger */}
+          <button
+            type="button"
+            onClick={() => setMenuOpen((o) => !o)}
+            aria-expanded={menuOpen}
+            aria-label={menuOpen ? "Close menu" : "Open menu"}
+            className="rounded-lg p-2 text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-2 focus-visible:outline-emerald-500 sm:hidden"
+          >
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              {menuOpen ? (
+                <path
+                  d="M6 6l12 12M18 6L6 18"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
+              ) : (
+                <path
+                  d="M4 7h16M4 12h16M4 17h16"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
+              )}
+            </svg>
+          </button>
         </div>
+        {/* Mobile dropdown menu */}
+        {menuOpen && (
+          <div className="absolute inset-x-0 top-full border-b border-stone-200 bg-white shadow-lg sm:hidden">
+            <div className="flex flex-col px-4 py-2">
+              {LINKS.map((link) => {
+                const active = isActive(pathname, link.href);
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    aria-current={active ? "page" : undefined}
+                    onClick={() => setMenuOpen(false)}
+                    className={`rounded-lg px-3 py-2.5 text-base font-medium transition-colors ${
+                      active
+                        ? "bg-emerald-50 font-semibold text-slate-900"
+                        : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                    }`}
+                  >
+                    {link.label}
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </nav>
     </header>
   );

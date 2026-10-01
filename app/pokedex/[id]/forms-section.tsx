@@ -1,5 +1,6 @@
 import { getFormsForSpecies, KIND_LABEL } from "@/lib/data/forms";
 import { TypePills } from "../type-pills";
+import { SectionAccordion } from "./section-accordion";
 
 const KIND_BADGE: Record<string, string> = {
   mega: "bg-amber-100 text-amber-800",
@@ -13,16 +14,13 @@ export function FormsSection({ speciesId }: { speciesId: number }) {
   if (forms.length === 0) return null;
 
   return (
-    <section
-      aria-label="Alternate forms"
-      className="mt-6 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200"
+    <SectionAccordion
+      label="Alternate forms"
+      title="Forms"
+      subtitle="Alternate forms of this Pokémon — Megas, Gigantamax, regional variants, and Pokémon Champions originals."
+      badge={`${forms.length} ${forms.length === 1 ? "form" : "forms"}`}
     >
-      <h2 className="text-lg font-bold">Forms</h2>
-      <p className="mt-1 text-sm text-slate-500">
-        Alternate forms of this Pokémon — Megas, Gigantamax, regional variants,
-        and Pokémon Champions originals.
-      </p>
-      <ul className="mt-4 grid gap-4 sm:grid-cols-2">
+      <ul className="grid gap-4 sm:grid-cols-2">
         {forms.map((form) => (
           <li
             key={form.formName}
@@ -58,6 +56,6 @@ export function FormsSection({ speciesId }: { speciesId: number }) {
           </li>
         ))}
       </ul>
-    </section>
+    </SectionAccordion>
   );
 }

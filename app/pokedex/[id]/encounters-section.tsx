@@ -158,9 +158,11 @@ type Status =
   | { state: "ready"; games: GameEncounters[] };
 
 export function EncountersSection({ speciesId }: { speciesId: number }) {
+  const [open, setOpen] = useState(false);
   const [status, setStatus] = useState<Status>({ state: "loading" });
 
   useEffect(() => {
+    if (!open || status.state !== "loading") return;
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 10000);
     let cancelled = false;
@@ -187,17 +189,55 @@ export function EncountersSection({ speciesId }: { speciesId: number }) {
       clearTimeout(timeout);
       controller.abort();
     };
-  }, [speciesId]);
+  }, [speciesId, open, status]);
 
   return (
     <section
       aria-label="Where to find"
       className="mt-6 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200"
     >
-      <h2 className="text-lg font-bold">Where to find</h2>
-      <p className="mt-1 text-sm text-slate-500">
-        Wild encounter locations by game, via PokéAPI.
-      </p>
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
+        className="flex w-full items-center justify-between gap-4 rounded-lg text-left focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-emerald-500"
+      >
+        <span>
+          <span className="text-lg font-bold">
+            Where to find
+            {status.state === "ready" && (
+              <span className="ml-2 text-sm font-medium text-slate-400">
+                · {status.games.length}{" "}
+                {status.games.length === 1 ? "game" : "games"}
+              </span>
+            )}
+          </span>
+          <span className="mt-1 block text-sm font-normal text-slate-500">
+            Wild encounter locations by game, via PokéAPI.
+          </span>
+        </span>
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 20 20"
+          aria-hidden="true"
+          className={`shrink-0 text-slate-400 transition-transform ${
+            open ? "rotate-180" : ""
+          }`}
+        >
+          <path
+            d="M5 7l5 5 5-5"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </button>
+
+      {open && (
+        <>
 
       {status.state === "loading" && (
         <p className="mt-3 text-sm text-slate-500">
@@ -245,6 +285,8 @@ export function EncountersSection({ speciesId }: { speciesId: number }) {
             </div>
           ))}
         </div>
+      )}
+        </>
       )}
     </section>
   );

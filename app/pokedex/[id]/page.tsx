@@ -10,6 +10,7 @@ import { FormsSection } from "./forms-section";
 import { EncountersSection } from "./encounters-section";
 import { MatchupsSection } from "./matchups-section";
 import { StatsRadar } from "./stats-radar";
+import { SectionAccordion } from "./section-accordion";
 
 const MAX_DEX_ID = 1025;
 
@@ -135,12 +136,18 @@ export default async function SpeciesPage({
         </section>
 
         {/* Pokédex entries */}
-        <section className="mt-6 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-          <h2 className="text-lg font-bold">Pokédex entries</h2>
-          <div className="mt-3">
-            <DexEntries entries={species.dexEntries} />
-          </div>
-        </section>
+        <SectionAccordion
+          label="Pokédex entries"
+          title="Pokédex entries"
+          subtitle="Flavor text by game."
+          badge={
+            species.dexEntries.length > 0
+              ? `${species.dexEntries.length} games`
+              : undefined
+          }
+        >
+          <DexEntries entries={species.dexEntries} />
+        </SectionAccordion>
 
         {/* Alternate forms */}
         <FormsSection speciesId={species.id} />
@@ -149,14 +156,19 @@ export default async function SpeciesPage({
         <EncountersSection speciesId={species.id} />
 
         {/* Egg moves */}
-        <section className="mt-6 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-          <h2 className="text-lg font-bold">Egg moves</h2>
+        <SectionAccordion
+          label="Egg moves"
+          title="Egg moves"
+          badge={
+            species.eggMoves.length > 0
+              ? `${species.eggMoves.length} moves`
+              : undefined
+          }
+        >
           {species.eggMoves.length === 0 ? (
-            <p className="mt-3 text-sm text-slate-500">
-              No egg moves recorded
-            </p>
+            <p className="text-sm text-slate-500">No egg moves recorded</p>
           ) : (
-            <ul className="mt-3 flex flex-wrap gap-2">
+            <ul className="flex flex-wrap gap-2">
               {species.eggMoves.map((move) => (
                 <li
                   key={move}
@@ -167,7 +179,7 @@ export default async function SpeciesPage({
               ))}
             </ul>
           )}
-        </section>
+        </SectionAccordion>
       </div>
     </main>
   );
