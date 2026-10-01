@@ -9,6 +9,13 @@ const FEATURES = [
     emoji: "📖",
   },
   {
+    title: "Community",
+    description:
+      "Post, react, add friends, and trade DMs with fellow trainers.",
+    href: "/community",
+    emoji: "💬",
+  },
+  {
     title: "Damage Calculator",
     description:
       "Crunch the numbers before your next big battle.",
@@ -32,10 +39,10 @@ const FEATURES = [
 ] as const;
 
 const COMING_SOON = [
-  "Trainer accounts",
-  "Community posts",
-  "Friend battles & DMs",
   "Nuzlocke & shiny-hunt trackers",
+  "Collections & favorites",
+  "Items database",
+  "Pokémon news",
 ] as const;
 
 export default function HomePage() {
@@ -96,7 +103,7 @@ export default function HomePage() {
           <div className="flex flex-wrap items-center gap-3">
             <h2 className="text-2xl font-bold text-slate-900">Coming soon</h2>
             <span className="rounded-full bg-stone-200 px-3 py-1 text-xs font-semibold text-slate-600">
-              Phase 2–4
+              Up next
             </span>
           </div>
           <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
