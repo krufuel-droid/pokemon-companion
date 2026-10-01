@@ -4,11 +4,15 @@ import {
   SNAPSHOT_DATE,
   REGULATION,
   META_PICKS,
+  META_SOURCE,
   SINGLES_PICKS,
   HONORABLE_MENTIONS,
   TOP_ITEMS,
   FEATURED_TEAMS,
   PLAYERS_TO_WATCH,
+  PLAYER_RANKINGS_SOURCE,
+  UPCOMING_TOURNAMENTS,
+  EVENT_FINDER_URL,
   FOLLOW_THE_SCENE,
   getSpeciesCard,
   type SocialLinks,
@@ -109,12 +113,21 @@ export default function ChampionsPage() {
             The current meta
           </h2>
           <p className="mt-1 text-sm text-slate-600">
-            Doubles is Champions&apos; main competitive format. Tap any
-            Pokémon to open its Pokédex page.
+            Doubles is Champions&apos; main competitive format. Usage
+            percentages come from{" "}
+            <a
+              href={META_SOURCE.url}
+              target="_blank"
+              rel="noreferrer"
+              className="font-semibold text-indigo-700 hover:underline"
+            >
+              {META_SOURCE.label} ↗
+            </a>
+            . Tap any Pokémon to open its Pokédex page.
           </p>
           <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {META_PICKS.map((pick) => {
-              const card = getSpeciesCard(pick.name);
+              const card = getSpeciesCard(pick.speciesName ?? pick.name);
               return (
                 <div
                   key={pick.name}
@@ -304,8 +317,17 @@ export default function ChampionsPage() {
             Players to watch
           </h2>
           <p className="mt-1 text-sm text-slate-600">
-            The gamers behind the teams — follow and support them. Only
-            publicly listed accounts are linked; no private profiles.
+            The gamers behind the teams — follow and support them. Rankings
+            from{" "}
+            <a
+              href={PLAYER_RANKINGS_SOURCE.url}
+              target="_blank"
+              rel="noreferrer"
+              className="font-semibold text-indigo-700 hover:underline"
+            >
+              {PLAYER_RANKINGS_SOURCE.label} ↗
+            </a>
+            ; only publicly listed accounts are linked, no private profiles.
           </p>
           <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
             {PLAYERS_TO_WATCH.map((player) => (
@@ -326,6 +348,44 @@ export default function ChampionsPage() {
               </div>
             ))}
           </div>
+        </section>
+
+        {/* Upcoming tournaments */}
+        <section className="mt-10">
+          <h2 className="text-2xl font-extrabold tracking-tight text-slate-900">
+            Upcoming tournaments
+          </h2>
+          <p className="mt-1 text-sm text-slate-600">
+            The next stops on the Championship Series — a static snapshot, so
+            check the{" "}
+            <a
+              href={EVENT_FINDER_URL}
+              target="_blank"
+              rel="noreferrer"
+              className="font-semibold text-indigo-700 hover:underline"
+            >
+              full schedule at the official event finder ↗
+            </a>
+            .
+          </p>
+          <ul className="mt-4 divide-y divide-emerald-100 overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-emerald-200">
+            {UPCOMING_TOURNAMENTS.map((tourney) => (
+              <li
+                key={tourney.name}
+                className="flex items-center gap-3 px-4 py-3"
+              >
+                <span className="w-28 shrink-0 rounded-full bg-mint px-2.5 py-1 text-center text-xs font-bold text-slate-900">
+                  {tourney.dates}
+                </span>
+                <span className="min-w-0 flex-1 truncate text-sm font-semibold text-slate-900">
+                  2027 {tourney.name}
+                </span>
+                <span className="hidden shrink-0 rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-900 ring-1 ring-emerald-200 sm:inline">
+                  {tourney.kind}
+                </span>
+              </li>
+            ))}
+          </ul>
         </section>
 
         {/* Follow the scene */}
