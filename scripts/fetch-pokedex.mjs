@@ -177,6 +177,16 @@ function buildRecord(species, pokemon) {
   const genusEntry = (species.genera ?? []).find((g) => g.language?.name === "en");
   const dexEntries = buildDexEntries(species);
 
+  // Base stats keyed by short label, in display order.
+  const STAT_ORDER = ["hp", "attack", "defense", "special-attack", "special-defense", "speed"];
+  const statByName = Object.fromEntries(
+    (pokemon.stats ?? []).map((s) => [s.stat?.name, s.base_stat])
+  );
+  const baseStats = STAT_ORDER.map((key) => ({
+    key,
+    value: typeof statByName[key] === "number" ? statByName[key] : 0,
+  }));
+
   const spriteBase = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon";
   const artworkBase = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork";
 
@@ -194,6 +204,7 @@ function buildRecord(species, pokemon) {
     heightM: pokemon.height / 10,
     weightKg: pokemon.weight / 10,
     genera: genusEntry ? genusEntry.genus : null,
+    baseStats,
     dexEntries,
     eggMoves: buildEggMoves(pokemon),
   };

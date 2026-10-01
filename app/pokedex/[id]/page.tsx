@@ -2,11 +2,14 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getSpeciesById } from "@/lib/pokedex";
+import { getFormsForSpecies } from "@/lib/data/forms";
 import { TypePills } from "../type-pills";
 import { SpriteViewer } from "./sprite-viewer";
 import { DexEntries } from "./dex-entries";
 import { FormsSection } from "./forms-section";
 import { EncountersSection } from "./encounters-section";
+import { MatchupsSection } from "./matchups-section";
+import { StatsRadar } from "./stats-radar";
 
 const MAX_DEX_ID = 1025;
 
@@ -54,6 +57,17 @@ export default async function SpeciesPage({
   const species = id === null ? undefined : getSpeciesById(id);
   if (!species) notFound();
 
+  // Alternate forms whose typing differs from the base species —
+  // lets the matchups section switch between typings.
+  const formVariants = getFormsForSpecies(species.id)
+    .filter(
+      (f) =>
+        f.types &&
+        f.types.length > 0 &&
+        f.types.join("/") !== species.types.join("/"),
+    )
+    .map((f) => ({ name: f.formName, types: f.types as string[] }));
+
   return (
     <main className="min-h-screen bg-slate-50 text-slate-800">
       <div className="mx-auto max-w-4xl px-4 py-8">
@@ -95,6 +109,14 @@ export default async function SpeciesPage({
             </div>
           </div>
         </section>
+
+        {/* Type matchups */}
+        <MatchupsSection types={species.types} variants={formVariants} />
+
+        {/* Base stats radar */}
+        {species.baseStats && species.baseStats.length === 6 && (
+          <StatsRadar stats={species.baseStats} />
+        )}
 
         {/* Info grid */}
         <section aria-label="Pokémon details" className="mt-6">

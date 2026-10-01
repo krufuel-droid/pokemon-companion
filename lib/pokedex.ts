@@ -31,11 +31,18 @@ export interface SpeciesIndex {
   sprites: Sprites;
 }
 
+export interface BaseStat {
+  key: string;
+  value: number;
+}
+
 export interface SpeciesFull extends SpeciesIndex {
   artwork: string;
   heightM: number;
   weightKg: number;
   genera: string | null;
+  /** Base stats in display order: hp, attack, defense, special-attack, special-defense, speed. */
+  baseStats: BaseStat[];
   dexEntries: DexEntry[];
   eggMoves: string[];
 }
