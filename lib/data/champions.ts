@@ -3,21 +3,30 @@
  *
  * This is a manually curated snapshot of the Champions competitive scene as
  * of SNAPSHOT_DATE — the current regulation, the meta staples, featured
- * winning teams, and players to watch. Team data comes from tournament
- * coverage and creator showcases (sources linked on each team); only use
- * details those sources actually publish, never fill in moves/items/natures
- * from memory.
+ * winning teams, players to watch, and upcoming events.
+ *
+ * Sources:
+ * - Meta usage percentages and player rankings: Limitless VGC
+ *   (https://limitlessvgc.com) Regulation M-C rankings — numbers are copied
+ *   from their published data, never estimated.
+ * - Featured winning teams: only use details the linked sources actually
+ *   publish (Limitless VGC team lists, tournament coverage, creator
+ *   showcases) — never fill in moves/items/natures from memory.
+ * - Upcoming tournaments: the official Pokémon event finder
+ *   (https://championships.pokemon.com/en-us/events), snapshotted by hand.
  *
  * To update the snapshot:
  *  1. Update SNAPSHOT_DATE and REGULATION if the regulation set changed.
- *  2. Add new featured winning teams to FEATURED_TEAMS (event, date,
+ *  2. Refresh META_PICKS from the Limitless VGC Regulation M-C usage
+ *     ranking (top ~12, with usage % in each note).
+ *  3. Add new featured winning teams to FEATURED_TEAMS (event, date,
  *     player, placement, team with moves/items/natures, source link).
- *  3. Refresh META_PICKS / SINGLES_PICKS notes.
- *  4. Add/remove entries in PLAYERS_TO_WATCH. Only include social handles
- *     that are publicly listed by the player (their own bios, tournament
- *     profiles, official Pokémon sources) — never dig up or guess at
- *     private accounts. If a handle can't be verified, omit socials for
- *     that player rather than guessing.
+ *  4. Refresh PLAYERS_TO_WATCH from the Limitless VGC player rankings.
+ *     Only include social handles that are publicly listed by the player
+ *     (their own bios, tournament profiles, official Pokémon sources) —
+ *     never dig up or guess at private accounts. If a handle can't be
+ *     verified, omit socials for that player rather than guessing.
+ *  5. Refresh UPCOMING_TOURNAMENTS from the official event finder.
  *
  * Pokémon are referenced by base species NAME (as in data/pokedex-full.json)
  * and resolved to Pokédex numbers at module load, so links stay correct.
@@ -68,7 +77,13 @@ export interface PlayerToWatch {
 }
 
 export interface MetaPick {
+  /** Display name (may be a form, e.g. "Hisuian Arcanine"). */
   name: string;
+  /**
+   * Base species name used for the Pokédex link/sprite when `name` is a
+   * form (e.g. "Arcanine" for "Hisuian Arcanine"). Omit when identical.
+   */
+  speciesName?: string;
   note: string;
 }
 
@@ -80,7 +95,7 @@ export interface FollowLink {
 }
 
 /** Honest "as of" label shown on the page — this file is updated by hand. */
-export const SNAPSHOT_DATE = "October 2026";
+export const SNAPSHOT_DATE = "October 1, 2026";
 
 export const REGULATION = {
   name: "Regulation M-C",
@@ -89,57 +104,66 @@ export const REGULATION = {
   note: "The second Champions regulation set. Megas define the format — knowing when to Mega Evolve, and which one to choose, is the format's defining skill.",
 };
 
-/** Doubles meta staples (Champions' main competitive format). */
+/** Doubles meta staples (Champions' main competitive format), ordered by
+ *  Limitless VGC's Regulation M-C usage ranking with the usage % in each note. */
 export const META_PICKS: MetaPick[] = [
   {
-    name: "Incineroar",
-    note: "The format's most-used support: 53.76% usage in Champions' first tournament. Fake Out + Intimidate + Parting Shot is still the glue of doubles.",
+    name: "Rillaboom",
+    note: "The #1 most-used Pokémon in Regulation M-C at 53.6% usage — Grassy Surge, Fake Out, and priority Grassy Glide.",
   },
   {
     name: "Sneasler",
-    note: "36.84% usage with a 51.38% win rate out of the gate — Dire Claw and Fake Out pressure every team preview.",
+    note: "41.0% usage — Dire Claw and Fake Out pressure every team preview.",
   },
   {
-    name: "Rillaboom",
-    note: "Topped the early Regulation M-C doubles tier list: Grassy Terrain, Fake Out, and priority Grassy Glide.",
-  },
-  {
-    name: "Sinistcha",
-    note: "Rage Powder + Matcha Gotcha support piece on winning teams, including the first-ever Champions Regional.",
-  },
-  {
-    name: "Garchomp",
-    note: "Choice Scarf cleaner and Earthquake/Rock Slide spread threat — a staple across doubles and singles.",
-  },
-  {
-    name: "Basculegion",
-    note: "Adaptability Wave Crash + Last Respects; widely tipped as a long-term format dominator.",
+    name: "Incineroar",
+    note: "38.1% usage — Fake Out + Intimidate + Parting Shot is still the glue of doubles.",
   },
   {
     name: "Kingambit",
-    note: "Sucker Punch + Kowtow Cleave win condition; the recommended starting point for singles builders too.",
+    note: "32.3% usage — Sucker Punch + Kowtow Cleave win condition.",
   },
   {
-    name: "Charizard",
-    note: "Mega Charizard Y's Drought sun is one of the format's defining archetypes — it carried Hiroshi Onishi to the Worlds final.",
+    name: "Gholdengo",
+    note: "27.8% usage — Make It Rain spread damage with Good as Gold status immunity.",
   },
   {
-    name: "Tyranitar",
-    note: "Sand Stream enabler; Joseph Ugarte won Baltimore's 1,081-trainer field with sand + Psychic Terrain.",
+    name: "Raichu",
+    note: "27.1% usage — Mega Raichu Y is one of M-C's defining new Megas; Fake Out + Lightning Rod support.",
   },
   {
-    name: "Pelipper",
-    note: "Rain setter for Pelipper + Basculegion cores.",
+    name: "Garchomp",
+    note: "23.6% usage — Mega Garchomp Z headlined back-to-back Regional wins (Frankfurt and Brisbane).",
   },
   {
-    name: "Whimsicott",
-    note: "Tailwind and Fake Tears speed control.",
+    name: "Salamence",
+    note: "22.7% usage — Mega Salamence's Intimidate + Aerilate-boosted attacks.",
+  },
+  {
+    name: "Hisuian Arcanine",
+    speciesName: "Arcanine",
+    note: "21.7% usage in its Hisuian form — an Intimidate physical attacker with strong Fire/Rock coverage.",
+  },
+  {
+    name: "Eternal Flower Floette",
+    speciesName: "Floette",
+    note: "17.7% usage in its Eternal Flower form — a fast Fairy-type special attacker.",
   },
   {
     name: "Archaludon",
-    note: "Electro Shot setup tank — a doubles and singles staple.",
+    note: "16.9% usage — Electro Shot setup tank, a doubles and singles staple.",
+  },
+  {
+    name: "Charizard",
+    note: "16.5% usage — Mega Charizard Y's Drought sun remains one of the format's defining archetypes.",
   },
 ];
+
+/** Where the usage percentages above come from. */
+export const META_SOURCE = {
+  label: "Limitless VGC — Regulation M-C rankings",
+  url: "https://limitlessvgc.com",
+};
 
 /** Singles ladder staples (in-game ranked). */
 export const SINGLES_PICKS: MetaPick[] = [
@@ -169,6 +193,66 @@ export const TOP_ITEMS = [
 ];
 
 export const FEATURED_TEAMS: FeaturedTeam[] = [
+  {
+    event: "2026 Frankfurt Regional Championships — Masters",
+    date: "September 26–27, 2026 · Frankfurt",
+    player: "Eric Rios",
+    placement: "Regional Champion",
+    headline:
+      "A perfect 17-0 through 1,129 trainers — the first Regulation M-C European Regional — built around Mega Garchomp Z and Mega Raichu Y. Rios is also Limitless VGC's #2 all-time points leader.",
+    team: [
+      {
+        name: "Gholdengo",
+        ability: "Good as Gold",
+        item: "Life Orb",
+        nature: "Modest",
+        moves: ["Protect", "Shadow Ball", "Nasty Plot", "Make It Rain"],
+      },
+      {
+        name: "Volcarona",
+        ability: "Flame Body",
+        item: "Rocky Helmet",
+        nature: "Timid",
+        moves: ["Overheat", "Struggle Bug", "Rage Powder", "Tailwind"],
+      },
+      {
+        name: "Garchomp",
+        form: "Mega Garchomp Z",
+        ability: "Rough Skin",
+        item: "Garchompite Z",
+        nature: "Modest",
+        moves: ["Dragon Pulse", "Earth Power", "Power Gem", "Protect"],
+      },
+      {
+        name: "Incineroar",
+        ability: "Intimidate",
+        item: "Sitrus Berry",
+        nature: "Impish",
+        moves: ["Parting Shot", "Fake Out", "Flare Blitz", "Darkest Lariat"],
+      },
+      {
+        name: "Rillaboom",
+        ability: "Grassy Surge",
+        item: "Miracle Seed",
+        nature: "Adamant",
+        moves: ["Grassy Glide", "Wood Hammer", "Fake Out", "U-turn"],
+      },
+      {
+        name: "Raichu",
+        form: "Mega Raichu Y",
+        ability: "Lightning Rod",
+        item: "Raichunite Y",
+        nature: "Timid",
+        moves: ["Zap Cannon", "Focus Blast", "Fake Out", "Protect"],
+      },
+    ],
+    footnote:
+      "Mega Garchomp Z went back-to-back: it also won the Brisbane Regional the same weekend — three Mega Garchomp Z made Brisbane's top cut.",
+    source: {
+      label: "Limitless VGC: Eric Rios — Frankfurt Regional team list",
+      url: "https://standings.limitlessvgc.com/0039/player/1025/teamlist",
+    },
+  },
   {
     event: "2026 Pokémon World Championships — Masters",
     date: "August 28–30, 2026 · San Francisco",
@@ -343,13 +427,32 @@ export const FEATURED_TEAMS: FeaturedTeam[] = [
 
 export const PLAYERS_TO_WATCH: PlayerToWatch[] = [
   {
-    name: "Takuma Yamazaki",
-    tagline: "2026 VGC Masters World Champion",
-    bio: "Competed for over 15 years without ever qualifying for Worlds — then won the entire tournament on his first appearance in San Francisco, piloting Mega Dragonite + Mega Floette. The defining underdog story of the Champions era.",
+    name: "Wolfe Glick",
+    tagline: "All-time #1 · 913 pts · $91,500 earned",
+    bio: "Limitless VGC's all-time points leader and top earner — the 2016 World Champion whose teams and meta reads still shape every format. 15th at Baltimore (Sept 2026) with Incineroar / Sneasler / Gholdengo / Gardevoir / Salamence / Indeedee-F.",
+    socials: {
+      x: "https://x.com/WolfeyGlick",
+      youtube: "https://www.youtube.com/@WolfeyVGC",
+    },
+  },
+  {
+    name: "Eric Rios",
+    tagline: "All-time #2 · 719 pts · Frankfurt Regional Champion",
+    bio: "Went a perfect 17-0 to win Frankfurt (Sept 2026, 1,129 players) — the first Regulation M-C European Regional — with Mega Garchomp Z and Mega Raichu Y.",
+  },
+  {
+    name: "Paul Chua",
+    tagline: "All-time #3 · 635 pts · $64,250 earned",
+    bio: "One of the most consistent competitors in VGC history — top-3 all-time in both points and career earnings.",
+  },
+  {
+    name: "Alex Gómez Berna",
+    tagline: "All-time #4 · 629 pts",
+    bio: "Spain's top-ranked VGC competitor and a fixture of European top cuts.",
   },
   {
     name: "Joseph Ugarte",
-    tagline: "3× Regional Champion · Baltimore winner",
+    tagline: "All-time #5 · 616 pts · Baltimore Regional Champion",
     bio: "Won the first Regulation M-C official event over 1,081 trainers with sand + Psychic Terrain, and regularly breaks down his own tournament runs on his channel.",
     socials: {
       x: "https://x.com/JoeUX9",
@@ -357,34 +460,38 @@ export const PLAYERS_TO_WATCH: PlayerToWatch[] = [
     },
   },
   {
-    name: "Wolfe Glick",
-    tagline: "2016 World Champion · 10× Regional Champion",
-    bio: "VGC legend and one of the biggest competitive Pokémon creators — finalist at the first Champions Regional with an inventive Mega Steelix team, and a constant source of deep meta analysis.",
-    socials: {
-      x: "https://x.com/WolfeyGlick",
-      youtube: "https://www.youtube.com/@WolfeyVGC",
-    },
+    name: "Marco Hemantha Kaludura Silva",
+    tagline: "#2 all-time earnings · $80,750",
+    bio: "The second-highest earner in VGC history (497 all-time points) — a threat at every International he enters.",
   },
-  {
-    name: 'Aaron "Cybertron" Zheng',
-    tagline: "Caster & creator · 2× National, 5× Regional Champion",
-    bio: "Worlds semifinalist turned premier VGC caster and YouTuber. His team showcases and regulation breakdowns are the fastest way to understand a new format.",
-    socials: {
-      x: "https://x.com/CybertronVGC",
-      youtube: "https://www.youtube.com/@CybertronVGC",
-      twitch: "https://www.twitch.tv/cybertronvgc",
-    },
-  },
-  {
-    name: "Arsal Puri",
-    tagline: "First Champions Regional winner",
-    bio: "Won the very first Pokémon Champions Regional (Indianapolis, May 2026), sweeping Wolfe Glick 2-0 in the finals with a Mega Charizard / Mega Floette core.",
-  },
-  {
-    name: "Aditya Subramanian",
-    tagline: "Baltimore finalist",
-    bio: "Took 2nd at Baltimore with a creative Mega Golisopod rain Trick Room team backed by a Charizard sun mode — one of M-C's most interesting builders.",
-  },
+];
+
+/** Hand-verified ranking snapshot behind PLAYERS_TO_WATCH (Limitless VGC). */
+export const PLAYER_RANKINGS_SOURCE = {
+  label: "Limitless VGC — player rankings",
+  url: "https://limitlessvgc.com",
+};
+
+/** Upcoming Championship Series events, snapshotted from the official
+ *  Pokémon event finder (static list — see EVENT_FINDER_URL for the live schedule). */
+export interface UpcomingTournament {
+  name: string;
+  dates: string;
+  kind: "Regional" | "Special" | "International";
+}
+
+export const EVENT_FINDER_URL = "https://championships.pokemon.com/en-us/events";
+
+export const UPCOMING_TOURNAMENTS: UpcomingTournament[] = [
+  { name: "Recife Regional Championships", dates: "Oct 3–4", kind: "Regional" },
+  { name: "Louisville Regional Championships", dates: "Oct 9–11", kind: "Regional" },
+  { name: "Nice Regional Championships", dates: "Oct 17–18", kind: "Regional" },
+  { name: "Puebla Regional Championships", dates: "Oct 24–25", kind: "Regional" },
+  { name: "Gdańsk Regional Championships", dates: "Oct 31 – Nov 1", kind: "Regional" },
+  { name: "Buenos Aires Special Championships", dates: "Nov 14–15", kind: "Special" },
+  { name: "Latin America International Championships", dates: "Nov 20–22", kind: "International" },
+  { name: "Stuttgart Regional Championships", dates: "Nov 28–29", kind: "Regional" },
+  { name: "Las Vegas Regional Championships", dates: "Dec 4–6", kind: "Regional" },
 ];
 
 export const FOLLOW_THE_SCENE: FollowLink[] = [
