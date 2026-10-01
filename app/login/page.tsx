@@ -2,7 +2,6 @@
 
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import SupabaseNeeded from "@/components/SupabaseNeeded";
@@ -11,7 +10,6 @@ const inputClass =
   "w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-mint focus:outline-none focus:ring-2 focus:ring-mint/40";
 
 function LoginForm() {
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -31,8 +29,11 @@ function LoginForm() {
         setError(error.message);
         return;
       }
-      router.push("/");
-      router.refresh();
+      // Full page load (not client-side navigation) so AuthProvider remounts
+      // and picks up the new session from cookies. router.push() alone
+      // leaves the header showing "Sign in" because the provider never
+      // re-reads the session.
+      window.location.href = "/";
     } finally {
       setBusy(false);
     }

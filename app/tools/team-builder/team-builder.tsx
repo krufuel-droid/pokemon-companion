@@ -1,13 +1,62 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { getAllSpecies, searchSpecies, type SpeciesIndex } from "@/lib/pokedex";
+import { getAllSpecies, type SpeciesIndex } from "@/lib/pokedex";
+import { getRegionalForms } from "@/lib/data/forms";
 import { TYPES, effectiveness } from "@/lib/typechart";
 import { typeColor } from "@/lib/theme";
 import { TypePills } from "@/app/pokedex/type-pills";
 
 const ALL = getAllSpecies();
-const BY_ID = new Map<number, SpeciesIndex>(ALL.map((s) => [s.id, s]));
+
+/**
+ * Regional variants as searchable team-builder entries. They have different
+ * typing (and stats) from their base species, so they matter for team
+ * analysis — e.g. Alolan Ninetales is Ice/Fairy, not Fire.
+ *
+ * Synthetic numeric IDs encode the variant: speciesId * 100000 + position
+ * in the regional-forms list. Base species max out at id 1025, so any
+ * id >= 100000 is a variant and the base dex number is recoverable with
+ * Math.floor(id / 100000). Share links and saved teams keep working
+ * because everything stays numeric.
+ *
+ * NOTE: lib/data/forms.ts REGIONALS is append-only — reordering it would
+ * renumber variants and break existing share links / saved teams.
+ */
+const VARIANTS: SpeciesIndex[] = getRegionalForms().map((f, i) => ({
+  id: f.speciesId * 100000 + i,
+  slug: `${f.speciesId}-${f.region.toLowerCase()}`,
+  name: f.formName,
+  // forms.ts stores lowercase types; the typechart uses capitalized keys.
+  types: f.types.map((t) => t.charAt(0).toUpperCase() + t.slice(1)),
+  eggGroups: [],
+  sprites: { regular: f.sprite, shiny: f.sprite },
+}));
+
+const SEARCHABLE: SpeciesIndex[] = [...ALL, ...VARIANTS];
+const BY_ID = new Map<number, SpeciesIndex>(SEARCHABLE.map((s) => [s.id, s]));
+
+/** Display label: base dex number for variants (e.g. "#38"), own id otherwise. */
+function dexLabel(s: SpeciesIndex): string {
+  return s.id >= 100000 ? `#${Math.floor(s.id / 100000)}` : `#${s.id}`;
+}
+
+/**
+ * Name search over base species + regional variants. Prefix matches first,
+ * then substring matches (so "alola" lists every Alolan form). Max 50.
+ */
+function searchTeamBuilder(query: string): SpeciesIndex[] {
+  const q = query.trim().toLowerCase();
+  if (q.length < 2) return [];
+  const prefix: SpeciesIndex[] = [];
+  const substring: SpeciesIndex[] = [];
+  for (const s of SEARCHABLE) {
+    const name = s.name.toLowerCase();
+    if (name.startsWith(q)) prefix.push(s);
+    else if (name.includes(q)) substring.push(s);
+  }
+  return [...prefix, ...substring].slice(0, 50);
+}
 const STORAGE_KEY = "pc-team-builder-teams";
 const MAX_TEAM = 6;
 
@@ -73,7 +122,7 @@ export default function TeamBuilder() {
     return () => clearTimeout(t);
   }, [notice]);
 
-  const results = useMemo(() => searchSpecies(query), [query]);
+  const results = useMemo(() => searchTeamBuilder(query), [query]);
 
   const members = useMemo(
     () => team.map((id) => BY_ID.get(id)).filter((s): s is SpeciesIndex => Boolean(s)),
@@ -247,7 +296,7 @@ export default function TeamBuilder() {
                       className="h-16 w-16"
                     />
                     <span className="mt-1 text-xs font-semibold text-slate-700">
-                      #{member.id} {member.name}
+                      {dexLabel(member)} {member.name}
                     </span>
                     <div className="mt-1 scale-90">
                       <TypePills types={member.types} />
@@ -269,7 +318,7 @@ export default function TeamBuilder() {
           type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search all 1,025 Pokémon… (e.g. garchomp)"
+          placeholder="Search 1,025 Pokémon + regional variants… (e.g. garchomp)"
           className="mt-3 w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-slate-800 shadow-sm focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-200"
         />
         {query.trim().length >= 2 && (
@@ -285,7 +334,7 @@ export default function TeamBuilder() {
                 <img src={s.sprites.regular} alt={s.name} loading="lazy" className="h-12 w-12 shrink-0" />
                 <span className="min-w-0">
                   <span className="block truncate text-sm font-semibold text-slate-700">
-                    #{s.id} {s.name}
+                    {dexLabel(s)} {s.name}
                   </span>
                   <span className="mt-0.5 flex gap-1">
                     {s.types.map((t) => (

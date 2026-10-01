@@ -2,7 +2,6 @@
 
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import SupabaseNeeded from "@/components/SupabaseNeeded";
@@ -11,7 +10,6 @@ const inputClass =
   "w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-mint focus:outline-none focus:ring-2 focus:ring-mint/40";
 
 function SignupForm() {
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -34,8 +32,9 @@ function SignupForm() {
       }
       if (data.session) {
         // Email confirmation is off — signed in immediately.
-        router.push("/profile");
-        router.refresh();
+        // Full page load so AuthProvider remounts and picks up the new
+        // session; client-side navigation leaves the header stale.
+        window.location.href = "/profile";
       } else {
         // Email confirmation is on — user must click the link first.
         setCheckInbox(true);
