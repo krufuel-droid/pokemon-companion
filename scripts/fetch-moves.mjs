@@ -174,6 +174,24 @@ async function mapPool(items, size, fn) {
 
 const list = await fetchJson("https://pokeapi.co/api/v2/move?limit=2000");
 const entries = list.results.filter((m) => !isExcluded(m.name));
+
+// PokéAPI's learned_by_pokemon is empty for a few signature moves whose
+// learnsets are form-locked or otherwise missing upstream. Hand-verified
+// overrides (National Pokédex species ids), keyed by move slug:
+// - Torque moves: Ogerpon's signature moves, one per mask form (1017)
+// - Behemoth Blade / Behemoth Bash: Zacian (888) / Zamazenta (889)
+// - Pika Papow / Veevee Volley: Let's Go partner moves, Pikachu (25) / Eevee (133)
+const LEARNSET_OVERRIDES = {
+  "blazing-torque": [1017],
+  "wicked-torque": [1017],
+  "noxious-torque": [1017],
+  "combat-torque": [1017],
+  "magical-torque": [1017],
+  "behemoth-blade": [888],
+  "behemoth-bash": [889],
+  "pika-papow": [25],
+  "veevee-volley": [133],
+};
 console.log(
   `Found ${list.results.length} moves; keeping ${entries.length} after exclusions.`
 );
@@ -193,6 +211,8 @@ const { results, failures } = await mapPool(
       if (id === null) unresolved.push(p.name);
       else learnedBy.add(id);
     }
+    // Apply hand-verified overrides for signature moves PokéAPI leaves empty.
+    for (const id of LEARNSET_OVERRIDES[entry.name] || []) learnedBy.add(id);
     return {
       id: m.id,
       name: prettyName(m.name),

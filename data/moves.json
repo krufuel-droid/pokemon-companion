@@ -86490,7 +86490,9 @@
   "gen": 7,
   "shortEffect": "Inflicts regular damage with no additional effect.",
   "effect": "Inflicts regular damage.",
-  "learnedBy": []
+  "learnedBy": [
+   25
+  ]
  },
  {
   "id": 733,
@@ -86632,7 +86634,9 @@
   "gen": 7,
   "shortEffect": "Inflicts regular damage with no additional effect.",
   "effect": "Inflicts regular damage.",
-  "learnedBy": []
+  "learnedBy": [
+   133
+  ]
  },
  {
   "id": 742,
@@ -87134,7 +87138,9 @@
   "gen": 8,
   "shortEffect": "Deals twice the damage if the target is Dynamaxed.",
   "effect": "This move deals twice the damage if the target is Dynamaxed.",
-  "learnedBy": []
+  "learnedBy": [
+   888
+  ]
  },
  {
   "id": 782,
@@ -87148,7 +87154,9 @@
   "gen": 8,
   "shortEffect": "Deals twice the damage if the target is Dynamaxed.",
   "effect": "This move deals twice the damage if the target is Dynamaxed.",
-  "learnedBy": []
+  "learnedBy": [
+   889
+  ]
  },
  {
   "id": 783,
@@ -91994,7 +92002,9 @@
   "gen": 9,
   "shortEffect": "",
   "effect": "",
-  "learnedBy": []
+  "learnedBy": [
+   1017
+  ]
  },
  {
   "id": 897,
@@ -92008,7 +92018,9 @@
   "gen": 9,
   "shortEffect": "",
   "effect": "",
-  "learnedBy": []
+  "learnedBy": [
+   1017
+  ]
  },
  {
   "id": 898,
@@ -92022,7 +92034,9 @@
   "gen": 9,
   "shortEffect": "",
   "effect": "",
-  "learnedBy": []
+  "learnedBy": [
+   1017
+  ]
  },
  {
   "id": 899,
@@ -92036,7 +92050,9 @@
   "gen": 9,
   "shortEffect": "",
   "effect": "",
-  "learnedBy": []
+  "learnedBy": [
+   1017
+  ]
  },
  {
   "id": 900,
@@ -92050,7 +92066,9 @@
   "gen": 9,
   "shortEffect": "",
   "effect": "",
-  "learnedBy": []
+  "learnedBy": [
+   1017
+  ]
  },
  {
   "id": 901,
