@@ -1,0 +1,292 @@
+-- ============================================================================
+-- Pokémon Companion — Supabase database schema
+-- ----------------------------------------------------------------------------
+-- HOW TO RUN THIS (for the app owner, no coding needed):
+--   1. Open your Supabase project at https://supabase.com/dashboard
+--   2. Go to "SQL Editor" in the left sidebar
+--   3. Click "New query", paste this whole file, and click "Run"
+--   4. Done. It's safe to run this file more than once — every statement is
+--      guarded so re-running won't create duplicates or throw errors.
+-- Requires: pgcrypto extension (standard on Supabase) for gen_random_uuid().
+-- ============================================================================
+
+create extension if not exists pgcrypto;
+
+-- ----------------------------------------------------------------------------
+-- profiles
+-- Public trainer profile. One row per signed-up user; the id matches the id
+-- of the matching row in Supabase's built-in auth.users table.
+-- ----------------------------------------------------------------------------
+create table if not exists profiles (
+  id uuid primary key references auth.users(id) on delete cascade,
+  username text unique not null,
+  created_at timestamptz not null default now()
+);
+comment on table profiles is 'Trainer profiles; one row per auth user.';
+
+-- ----------------------------------------------------------------------------
+-- posts
+-- Community feed posts. Body is limited to 1–2000 characters.
+-- ----------------------------------------------------------------------------
+create table if not exists posts (
+  id uuid primary key default gen_random_uuid(),
+  author_id uuid not null references profiles(id) on delete cascade,
+  body text not null check (char_length(body) between 1 and 2000),
+  created_at timestamptz not null default now()
+);
+comment on table posts is 'Community feed posts (1–2000 characters).';
+
+-- ----------------------------------------------------------------------------
+-- reactions
+-- Emoji reactions on posts. A user can react to the same post with the same
+-- emoji only once (the unique constraint enforces that).
+-- ----------------------------------------------------------------------------
+create table if not exists reactions (
+  id uuid primary key default gen_random_uuid(),
+  post_id uuid not null references posts(id) on delete cascade,
+  user_id uuid not null references profiles(id) on delete cascade,
+  emoji text not null,
+  created_at timestamptz not null default now(),
+  unique (post_id, user_id, emoji)
+);
+comment on table reactions is 'Emoji reactions on posts.';
+
+-- ----------------------------------------------------------------------------
+-- friendships
+-- Friend requests between two users. requester_id sent the request,
+-- addressee_id receives it. status: pending → accepted, or blocked.
+-- ----------------------------------------------------------------------------
+create table if not exists friendships (
+  id uuid primary key default gen_random_uuid(),
+  requester_id uuid not null references profiles(id) on delete cascade,
+  addressee_id uuid not null references profiles(id) on delete cascade,
+  status text not null default 'pending' check (status in ('pending', 'accepted', 'blocked')),
+  created_at timestamptz not null default now(),
+  unique (requester_id, addressee_id),
+  check (requester_id <> addressee_id)
+);
+comment on table friendships is 'Friend requests; status is pending, accepted, or blocked.';
+
+-- ----------------------------------------------------------------------------
+-- messages
+-- Direct messages between two users. No update/delete for the receiver;
+-- the sender can delete their own sent messages.
+-- ----------------------------------------------------------------------------
+create table if not exists messages (
+  id uuid primary key default gen_random_uuid(),
+  sender_id uuid not null references profiles(id) on delete cascade,
+  receiver_id uuid not null references profiles(id) on delete cascade,
+  body text not null check (char_length(body) between 1 and 2000),
+  created_at timestamptz not null default now()
+);
+comment on table messages is 'Direct messages between two users.';
+
+-- ----------------------------------------------------------------------------
+-- nuzlockes
+-- Nuzlocke challenge runs: title, optional house rules text, and a status
+-- (e.g. active, completed, wiped).
+-- ----------------------------------------------------------------------------
+create table if not exists nuzlockes (
+  id uuid primary key default gen_random_uuid(),
+  owner_id uuid not null references profiles(id) on delete cascade,
+  title text not null,
+  rules text,
+  status text not null default 'active',
+  created_at timestamptz not null default now()
+);
+comment on table nuzlockes is 'Nuzlocke challenge runs with optional house rules.';
+
+-- ----------------------------------------------------------------------------
+-- shiny_hunts
+-- Shiny hunt trackers: which species is being hunted, the encounter count,
+-- and whether the hunt is done.
+-- ----------------------------------------------------------------------------
+create table if not exists shiny_hunts (
+  id uuid primary key default gen_random_uuid(),
+  owner_id uuid not null references profiles(id) on delete cascade,
+  species_id int not null,
+  species_name text not null,
+  encounters int not null default 0,
+  completed boolean not null default false,
+  created_at timestamptz not null default now()
+);
+comment on table shiny_hunts is 'Shiny hunt trackers with encounter counts.';
+
+-- ----------------------------------------------------------------------------
+-- collections
+-- Named collections (e.g. "Gen 1 starters", "shiny box"). Individual species
+-- entries inside a collection are a Phase 2 addition.
+-- ----------------------------------------------------------------------------
+create table if not exists collections (
+  id uuid primary key default gen_random_uuid(),
+  owner_id uuid not null references profiles(id) on delete cascade,
+  name text not null,
+  created_at timestamptz not null default now()
+);
+comment on table collections is 'Named Pokémon collections.';
+
+-- ----------------------------------------------------------------------------
+-- favorites
+-- Favorite species per user; each user can favorite a species only once.
+-- ----------------------------------------------------------------------------
+create table if not exists favorites (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references profiles(id) on delete cascade,
+  species_id int not null,
+  created_at timestamptz not null default now(),
+  unique (user_id, species_id)
+);
+comment on table favorites is 'Favorite Pokémon species per user.';
+
+-- ----------------------------------------------------------------------------
+-- memorials
+-- Memorials for fallen Nuzlocke Pokémon: species name, nickname, and an
+-- optional note of remembrance.
+-- ----------------------------------------------------------------------------
+create table if not exists memorials (
+  id uuid primary key default gen_random_uuid(),
+  owner_id uuid not null references profiles(id) on delete cascade,
+  species_name text not null,
+  nickname text,
+  note text,
+  created_at timestamptz not null default now()
+);
+comment on table memorials is 'Memorials for fallen Pokémon (Nuzlocke deaths).';
+
+-- ----------------------------------------------------------------------------
+-- Indexes
+-- ----------------------------------------------------------------------------
+create index if not exists idx_posts_author_created on posts (author_id, created_at desc);
+create index if not exists idx_reactions_post on reactions (post_id);
+create index if not exists idx_friendships_requester on friendships (requester_id);
+create index if not exists idx_friendships_addressee on friendships (addressee_id);
+create index if not exists idx_messages_participants_created on messages (sender_id, receiver_id, created_at);
+create index if not exists idx_shiny_hunts_owner on shiny_hunts (owner_id);
+create index if not exists idx_nuzlockes_owner on nuzlockes (owner_id);
+
+-- ----------------------------------------------------------------------------
+-- Row Level Security
+-- ----------------------------------------------------------------------------
+alter table profiles     enable row level security;
+alter table posts        enable row level security;
+alter table reactions    enable row level security;
+alter table friendships  enable row level security;
+alter table messages     enable row level security;
+alter table nuzlockes    enable row level security;
+alter table shiny_hunts  enable row level security;
+alter table collections  enable row level security;
+alter table favorites    enable row level security;
+alter table memorials    enable row level security;
+
+-- ----------------------------------------------------------------------------
+-- Policies
+-- ----------------------------------------------------------------------------
+
+-- profiles: everyone can read; a user can only insert/update their own row.
+drop policy if exists profiles_select_all on profiles;
+create policy profiles_select_all on profiles
+  for select using (true);
+
+drop policy if exists profiles_insert_own on profiles;
+create policy profiles_insert_own on profiles
+  for insert with check (auth.uid() = id);
+
+drop policy if exists profiles_update_own on profiles;
+create policy profiles_update_own on profiles
+  for update using (auth.uid() = id);
+
+-- posts: everyone can read; authors can write/delete their own posts.
+drop policy if exists posts_select_all on posts;
+create policy posts_select_all on posts
+  for select using (true);
+
+drop policy if exists posts_insert_own on posts;
+create policy posts_insert_own on posts
+  for insert with check (auth.uid() = author_id);
+
+drop policy if exists posts_update_own on posts;
+create policy posts_update_own on posts
+  for update using (auth.uid() = author_id);
+
+drop policy if exists posts_delete_own on posts;
+create policy posts_delete_own on posts
+  for delete using (auth.uid() = author_id);
+
+-- reactions: everyone can read; users can add/remove only their own reactions.
+drop policy if exists reactions_select_all on reactions;
+create policy reactions_select_all on reactions
+  for select using (true);
+
+drop policy if exists reactions_insert_own on reactions;
+create policy reactions_insert_own on reactions
+  for insert with check (auth.uid() = user_id);
+
+drop policy if exists reactions_delete_own on reactions;
+create policy reactions_delete_own on reactions
+  for delete using (auth.uid() = user_id);
+
+-- friendships: only the two people involved can see or touch the row.
+drop policy if exists friendships_select_participants on friendships;
+create policy friendships_select_participants on friendships
+  for select using (auth.uid() = requester_id or auth.uid() = addressee_id);
+
+drop policy if exists friendships_insert_participants on friendships;
+create policy friendships_insert_participants on friendships
+  for insert with check (auth.uid() = requester_id or auth.uid() = addressee_id);
+
+drop policy if exists friendships_update_participants on friendships;
+create policy friendships_update_participants on friendships
+  for update using (auth.uid() = requester_id or auth.uid() = addressee_id);
+
+-- messages: only sender/receiver can read or send; sender can delete own.
+drop policy if exists messages_select_participants on messages;
+create policy messages_select_participants on messages
+  for select using (auth.uid() = sender_id or auth.uid() = receiver_id);
+
+drop policy if exists messages_insert_participants on messages;
+create policy messages_insert_participants on messages
+  for insert with check (auth.uid() = sender_id or auth.uid() = receiver_id);
+
+drop policy if exists messages_delete_sender on messages;
+create policy messages_delete_sender on messages
+  for delete using (auth.uid() = sender_id);
+
+-- nuzlockes: everyone can read; only the owner can write.
+drop policy if exists nuzlockes_select_all on nuzlockes;
+create policy nuzlockes_select_all on nuzlockes
+  for select using (true);
+
+drop policy if exists nuzlockes_write_owner on nuzlockes;
+create policy nuzlockes_write_owner on nuzlockes
+  for all using (auth.uid() = owner_id)
+  with check (auth.uid() = owner_id);
+
+-- shiny_hunts: owner-only (all operations).
+drop policy if exists shiny_hunts_owner_all on shiny_hunts;
+create policy shiny_hunts_owner_all on shiny_hunts
+  for all using (auth.uid() = owner_id)
+  with check (auth.uid() = owner_id);
+
+-- collections: owner-only (all operations).
+drop policy if exists collections_owner_all on collections;
+create policy collections_owner_all on collections
+  for all using (auth.uid() = owner_id)
+  with check (auth.uid() = owner_id);
+
+-- favorites: owner-only (all operations).
+drop policy if exists favorites_owner_all on favorites;
+create policy favorites_owner_all on favorites
+  for all using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+-- memorials: owner-only (all operations).
+drop policy if exists memorials_owner_all on memorials;
+create policy memorials_owner_all on memorials
+  for all using (auth.uid() = owner_id)
+  with check (auth.uid() = owner_id);
+
+-- ----------------------------------------------------------------------------
+-- NOTE: Phase 2 will add a trigger that automatically creates a profiles row
+-- when a new user signs up (on auth.users insert). It is intentionally left
+-- out of this file so Phase 1 stays data-only and auth-free.
+-- ----------------------------------------------------------------------------
