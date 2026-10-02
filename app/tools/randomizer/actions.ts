@@ -262,6 +262,12 @@ export async function randomizeTeam(version: string): Promise<RandomTeamResult> 
 export interface RerollSlot {
   isStarter: boolean;
   currentId: number;
+  /**
+   * For starter slots: "starter" rerolls to a different starter from the
+   * same game, "random" swaps the slot for a non-starter from the early
+   * pool (the slot stops being a starter). Defaults to "starter".
+   */
+  starterMode?: "starter" | "random";
 }
 
 /**
@@ -275,7 +281,7 @@ export async function rerollMember(
   slot: RerollSlot,
   otherMembers: { id: number; types: string[] }[]
 ): Promise<{ member?: RandomTeamMember; error?: string }> {
-  if (slot.isStarter) {
+  if (slot.isStarter && (slot.starterMode ?? "starter") === "starter") {
     const starterIds = GAME_STARTERS[version] ?? [];
     const options = starterIds.filter((id) => id !== slot.currentId);
     if (options.length === 0) {
@@ -294,6 +300,9 @@ export async function rerollMember(
       },
     };
   }
+
+  // Non-starter reroll — also used when a starter slot is swapped for a
+  // random Pokémon (the returned member carries no starter flag).
 
   const { data, error } = await loadPoolData(version);
   if (error || !data) {

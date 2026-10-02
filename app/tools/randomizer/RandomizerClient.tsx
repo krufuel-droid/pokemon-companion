@@ -33,13 +33,20 @@ const TYPE_COLORS: Record<string, string> = {
 function MemberCard({
   mon,
   rerolling,
-  canReroll,
-  onReroll,
+  showStarterOption,
+  menuOpen,
+  onDiceClick,
+  onChooseReroll,
+  onCloseMenu,
 }: {
   mon: RandomTeamMember;
   rerolling: boolean;
-  canReroll: boolean;
-  onReroll: () => void;
+  /** Show the "Another starter" choice (false for single-starter games). */
+  showStarterOption: boolean;
+  menuOpen: boolean;
+  onDiceClick: () => void;
+  onChooseReroll: (mode: "starter" | "random") => void;
+  onCloseMenu: () => void;
 }) {
   return (
     <div className="relative">
@@ -75,21 +82,42 @@ function MemberCard({
           ))}
         </span>
       </Link>
-      {canReroll && (
-        <button
-          type="button"
-          onClick={onReroll}
-          disabled={rerolling}
-          aria-label={`Reroll ${mon.name}`}
-          title="Reroll this Pokémon"
-          className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-white/95 text-base shadow ring-1 ring-slate-200 transition hover:rotate-12 hover:ring-emerald-300 disabled:opacity-60 dark:bg-slate-800/95 dark:ring-slate-700 dark:hover:ring-emerald-700"
-        >
-          {rerolling ? (
-            <span className="h-4 w-4 animate-spin rounded-full border-2 border-emerald-500 border-t-transparent" />
-          ) : (
-            "🎲"
-          )}
-        </button>
+      <button
+        type="button"
+        onClick={onDiceClick}
+        disabled={rerolling}
+        aria-label={`Reroll ${mon.name}`}
+        title="Reroll this Pokémon"
+        className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-white/95 text-base shadow ring-1 ring-slate-200 transition hover:rotate-12 hover:ring-emerald-300 disabled:opacity-60 dark:bg-slate-800/95 dark:ring-slate-700 dark:hover:ring-emerald-700"
+      >
+        {rerolling ? (
+          <span className="h-4 w-4 animate-spin rounded-full border-2 border-emerald-500 border-t-transparent" />
+        ) : (
+          "🎲"
+        )}
+      </button>
+      {menuOpen && (
+        <>
+          <div className="fixed inset-0 z-10" onClick={onCloseMenu} />
+          <div className="absolute right-2 top-11 z-20 w-44 overflow-hidden rounded-xl bg-white shadow-lg ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
+            {showStarterOption && (
+              <button
+                type="button"
+                onClick={() => onChooseReroll("starter")}
+                className="block w-full px-4 py-2.5 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-700"
+              >
+                🔄 Another starter
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => onChooseReroll("random")}
+              className="block w-full px-4 py-2.5 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-700"
+            >
+              🎲 Random Pokémon
+            </button>
+          </div>
+        </>
       )}
     </div>
   );
@@ -103,10 +131,12 @@ export default function RandomizerClient() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [rerollingId, setRerollingId] = useState<number | null>(null);
+  const [menuForId, setMenuForId] = useState<number | null>(null);
 
   const roll = async (v: string) => {
     setLoading(true);
     setError(null);
+    setMenuForId(null);
     try {
       const result = await randomizeTeam(v);
       if (result.error) {
@@ -127,11 +157,12 @@ export default function RandomizerClient() {
 
   const distinctTypes = team ? new Set(team.flatMap((m) => m.types)).size : 0;
 
-  // Reroll a single slot, keeping the other five. Games with only one
-  // starter (Yellow, Let's Go) can't reroll the starter slot.
+  // Reroll a single slot, keeping the other five. Tapping the dice on a
+  // starter card opens a choice menu (another starter, or a random
+  // Pokémon instead); other cards reroll directly.
   const canRerollStarter = (GAME_STARTERS[version] ?? []).length > 1;
 
-  const rerollOne = async (index: number) => {
+  const rerollOne = async (index: number, starterMode?: "starter" | "random") => {
     const current = team?.[index];
     if (!current || !team || rerollingId !== null) return;
     setRerollingId(current.id);
@@ -142,7 +173,11 @@ export default function RandomizerClient() {
         .map((m) => ({ id: m.id, types: m.types }));
       const result = await rerollMember(
         version,
-        { isStarter: !!current.isStarter, currentId: current.id },
+        {
+          isStarter: !!current.isStarter,
+          currentId: current.id,
+          ...(current.isStarter && starterMode ? { starterMode } : {}),
+        },
         others
       );
       if (result.error || !result.member) {
@@ -159,6 +194,8 @@ export default function RandomizerClient() {
     }
   };
 
+  const starterCount = team ? team.filter((m) => m.isStarter).length : 0;
+
   return (
     <div>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
@@ -172,6 +209,7 @@ export default function RandomizerClient() {
               setVersion(e.target.value);
               setTeam(null);
               setError(null);
+              setMenuForId(null);
             }}
             className="w-full rounded-xl bg-white px-4 py-2.5 text-slate-800 shadow-sm ring-1 ring-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-400 dark:bg-slate-900 dark:text-slate-100 dark:ring-slate-700"
           >
@@ -204,8 +242,10 @@ export default function RandomizerClient() {
               Your {gameLabel} team
             </h2>
             <p className="text-sm text-slate-500 dark:text-slate-400">
-              {team.length} Pokémon · {distinctTypes} distinct types · 1 starter
-              + 5 from {poolSize} early-game candidates
+              {team.length} Pokémon · {distinctTypes} distinct types
+              {starterCount > 0
+                ? ` · ${starterCount} starter${starterCount === 1 ? "" : "s"} + ${team.length - starterCount} from ${poolSize} early-game candidates`
+                : ` · all ${team.length} from ${poolSize} early-game candidates`}
             </p>
           </div>
           <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3">
@@ -214,15 +254,34 @@ export default function RandomizerClient() {
                 key={mon.id}
                 mon={mon}
                 rerolling={rerollingId === mon.id}
-                canReroll={!mon.isStarter || canRerollStarter}
-                onReroll={() => rerollOne(i)}
+                showStarterOption={canRerollStarter}
+                menuOpen={menuForId === mon.id}
+                onDiceClick={() =>
+                  mon.isStarter ? setMenuForId(mon.id) : rerollOne(i)
+                }
+                onChooseReroll={(mode) => {
+                  setMenuForId(null);
+                  rerollOne(i, mode);
+                }}
+                onCloseMenu={() => setMenuForId(null)}
               />
             ))}
           </div>
           <p className="mt-6 text-sm leading-6 text-slate-500 dark:text-slate-400">
-            Your starter plus five Pokémon you can catch early in {gameLabel},
-            each one able to grow into a capable battler — and the team is
-            spread across types so you won&apos;t get walled by the first gym.
+            {starterCount > 0 ? (
+              <>
+                Your starter plus five Pokémon you can catch early in{" "}
+                {gameLabel}, each one able to grow into a capable battler — and
+                the team is spread across types so you won&apos;t get walled by
+                the first gym.
+              </>
+            ) : (
+              <>
+                Six Pokémon you can catch early in {gameLabel}, each one able
+                to grow into a capable battler — and the team is spread across
+                types so you won&apos;t get walled by the first gym.
+              </>
+            )}{" "}
             Tap a Pokémon to open its page, or hit the 🎲 on any card to
             reroll just that one.
           </p>
