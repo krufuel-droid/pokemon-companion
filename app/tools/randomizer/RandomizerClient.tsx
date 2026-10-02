@@ -33,8 +33,13 @@ function MemberCard({ mon }: { mon: RandomTeamMember }) {
   return (
     <Link
       href={`/pokedex/${mon.id}`}
-      className="group flex flex-col items-center rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:shadow-md hover:ring-emerald-300 dark:bg-slate-900 dark:ring-slate-700 dark:hover:ring-emerald-700"
+      className="group relative flex flex-col items-center rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:shadow-md hover:ring-emerald-300 dark:bg-slate-900 dark:ring-slate-700 dark:hover:ring-emerald-700"
     >
+      {mon.isStarter && (
+        <span className="absolute left-3 top-3 rounded-full bg-emerald-500 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-white dark:bg-emerald-600">
+          Starter
+        </span>
+      )}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={mon.sprite}
@@ -137,8 +142,8 @@ export default function RandomizerClient() {
               Your {gameLabel} team
             </h2>
             <p className="text-sm text-slate-500 dark:text-slate-400">
-              {team.length} Pokémon · {distinctTypes} distinct types · drawn from{" "}
-              {poolSize} early-game candidates
+              {team.length} Pokémon · {distinctTypes} distinct types · 1 starter
+              + 5 from {poolSize} early-game candidates
             </p>
           </div>
           <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3">
@@ -147,10 +152,10 @@ export default function RandomizerClient() {
             ))}
           </div>
           <p className="mt-6 text-sm leading-6 text-slate-500 dark:text-slate-400">
-            Picks come from Pokémon you can catch early in {gameLabel}, each one
-            able to grow into a capable battler — and the team is spread across
-            types so you won&apos;t get walled by the first gym. Tap a Pokémon
-            to open its page.
+            Your starter plus five Pokémon you can catch early in {gameLabel},
+            each one able to grow into a capable battler — and the team is
+            spread across types so you won&apos;t get walled by the first gym.
+            Tap a Pokémon to open its page.
           </p>
         </div>
       )}
@@ -158,8 +163,8 @@ export default function RandomizerClient() {
       {!team && !error && !loading && (
         <p className="mt-8 text-sm leading-6 text-slate-500 dark:text-slate-400">
           Pick a game and hit <strong>Randomize team</strong>. You&apos;ll get
-          six early-route Pokémon with balanced types — a fresh party for your
-          next playthrough.
+          one starter plus five early-route Pokémon with balanced types — a
+          fresh party for your next playthrough.
         </p>
       )}
     </div>

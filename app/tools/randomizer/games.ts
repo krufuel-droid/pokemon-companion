@@ -2,8 +2,7 @@
  * Games supported by the Team Randomizer, mapped to their PokéAPI regional
  * Pokédex. Shared between the server action and the client UI.
  */
-export const RANDOMIZER_GAMES: { version: string; label: string; pokedexId: number }[] = [
-  { version: "scarlet", label: "Pokémon Scarlet", pokedexId: 25 },
+export const RANDOMIZER_GAMES: { version: string; label: string; pokedexId: number }[] = [  { version: "scarlet", label: "Pokémon Scarlet", pokedexId: 25 },
   { version: "violet", label: "Pokémon Violet", pokedexId: 25 },
   { version: "legends-arceus", label: "Pokémon Legends: Arceus", pokedexId: 24 },
   { version: "sword", label: "Pokémon Sword", pokedexId: 20 },
@@ -41,3 +40,48 @@ export const RANDOMIZER_GAMES: { version: string; label: string; pokedexId: numb
   { version: "red", label: "Pokémon Red", pokedexId: 2 },
   { version: "blue", label: "Pokémon Blue", pokedexId: 2 },
 ];
+
+/**
+ * Starter Pokémon for each game version, as national Pokédex species IDs.
+ * The randomizer deals exactly one of these (your starter) plus five
+ * non-starters. Single-entry lists are games with a fixed starter.
+ */
+export const GAME_STARTERS: Record<string, number[]> = {
+  scarlet: [906, 909, 912],
+  violet: [906, 909, 912],
+  "legends-arceus": [722, 155, 501],
+  sword: [810, 813, 816],
+  shield: [810, 813, 816],
+  "brilliant-diamond": [387, 390, 393],
+  "shining-pearl": [387, 390, 393],
+  diamond: [387, 390, 393],
+  pearl: [387, 390, 393],
+  platinum: [387, 390, 393],
+  "lets-go-pikachu": [25],
+  "lets-go-eevee": [133],
+  "ultra-sun": [722, 725, 728],
+  "ultra-moon": [722, 725, 728],
+  sun: [722, 725, 728],
+  moon: [722, 725, 728],
+  "omega-ruby": [252, 255, 258],
+  "alpha-sapphire": [252, 255, 258],
+  ruby: [252, 255, 258],
+  sapphire: [252, 255, 258],
+  emerald: [252, 255, 258],
+  x: [650, 653, 656],
+  y: [650, 653, 656],
+  "black-2": [495, 498, 501],
+  "white-2": [495, 498, 501],
+  black: [495, 498, 501],
+  white: [495, 498, 501],
+  heartgold: [152, 155, 158],
+  soulsilver: [152, 155, 158],
+  gold: [152, 155, 158],
+  silver: [152, 155, 158],
+  crystal: [152, 155, 158],
+  firered: [1, 4, 7],
+  leafgreen: [1, 4, 7],
+  red: [1, 4, 7],
+  blue: [1, 4, 7],
+  yellow: [25],
+};

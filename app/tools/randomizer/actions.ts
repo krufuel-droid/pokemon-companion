@@ -3,16 +3,19 @@
 import { getSpeciesById } from "@/lib/pokedex";
 import evolutions from "@/data/evolutions.json";
 import type { EvoNode } from "@/app/pokedex/[id]/evolution-section";
-import { RANDOMIZER_GAMES } from "./games";
+import { RANDOMIZER_GAMES, GAME_STARTERS } from "./games";
 
 /**
  * Server action for the Team Randomizer tool.
  *
  * Picks a balanced 6-Pokémon team for a playthrough of the selected game:
- * - Candidates come from the first 40 entries of the game's regional
- *   Pokédex (PokéAPI lists them in encounter order, so these are the
- *   Pokémon a player actually meets early on).
- * - Viability filter: the species' evolution line must be able to reach
+ * - Exactly ONE starter: randomly dealt from that game's starter options
+ *   (e.g. Chikorita/Cyndaquil/Totodile for HeartGold).
+ * - Five non-starters: candidates come from the first 40 entries of the
+ *   game's regional Pokédex (PokéAPI lists them in encounter order, so
+ *   these are the Pokémon a player actually meets early on), excluding
+ *   every starter evolution line so you can't roll two starters.
+ * - Viability filter: a non-starter's evolution line must be able to reach
  *   350+ base stat total, so the randomizer never saddles the player with
  *   a team that can't keep up.
  * - Type diversity: greedy pick that avoids stacking the same type, so
@@ -24,6 +27,7 @@ export interface RandomTeamMember {
   name: string;
   sprite: string;
   types: string[];
+  isStarter?: boolean;
 }
 
 export interface RandomTeamResult {
@@ -60,6 +64,20 @@ function chainMaxBst(speciesId: number): number {
   return Math.max(max, own);
 }
 
+/** All species IDs in the evolution chain containing the given species. */
+function chainSpeciesIds(speciesId: number): number[] {
+  const ids: number[] = [];
+  const idx =
+    evolutions.speciesToChain[String(speciesId) as keyof typeof evolutions.speciesToChain];
+  if (idx === undefined) return [speciesId];
+  const walk = (node: EvoNode) => {
+    if (node.id != null) ids.push(node.id);
+    for (const child of node.evolvesTo) walk(child);
+  };
+  walk(evolutions.chains[idx] as EvoNode);
+  return ids.length > 0 ? ids : [speciesId];
+}
+
 function speciesIdFromUrl(url: string): number | null {
   const m = /\/pokemon-species\/(\d+)\/?$/.exec(url);
   return m ? Number(m[1]) : null;
@@ -77,14 +95,17 @@ function shuffle<T>(arr: T[]): T[] {
 /**
  * Greedy team pick for type diversity: first pass allows at most one
  * Pokémon per type, second pass at most two, then fill whatever remains.
+ * `seedTypes` pre-populates the type counts (e.g. the starter's types).
  */
 function pickDiverseTeam(
   pool: RandomTeamMember[],
-  size: number
+  size: number,
+  seedTypes: string[] = []
 ): RandomTeamMember[] {
   const shuffled = shuffle(pool);
   const team: RandomTeamMember[] = [];
   const typeCount: Record<string, number> = {};
+  for (const t of seedTypes) typeCount[t] = (typeCount[t] ?? 0) + 1;
   const add = (mon: RandomTeamMember) => {
     team.push(mon);
     for (const t of mon.types) typeCount[t] = (typeCount[t] ?? 0) + 1;
@@ -176,9 +197,46 @@ export async function randomizeTeam(version: string): Promise<RandomTeamResult> 
     };
   }
 
+  // Deal exactly one starter from this game's starter options, then build
+  // the other five from the pool excluding every starter evolution line
+  // (so e.g. a Johto team can't roll both Cyndaquil and a Meganium).
+  const starterIds = GAME_STARTERS[version] ?? [];
+  const starterLineIds = new Set<number>();
+  for (const sid of starterIds) {
+    for (const id of chainSpeciesIds(sid)) starterLineIds.add(id);
+  }
+  const nonStarterPool = pool.filter((m) => !starterLineIds.has(m.id));
+
+  let starter: RandomTeamMember | null = null;
+  if (starterIds.length > 0) {
+    const pickId = starterIds[Math.floor(Math.random() * starterIds.length)];
+    const species = getSpeciesById(pickId);
+    if (species) {
+      starter = {
+        id: pickId,
+        name: species.name,
+        sprite: species.sprites.regular,
+        types: species.types,
+        isStarter: true,
+      };
+    }
+  }
+
+  const restPool =
+    nonStarterPool.length >= 5
+      ? nonStarterPool
+      : pool.filter((m) => m.id !== starter?.id);
+  const rest = pickDiverseTeam(
+    restPool,
+    Math.min(5, restPool.length),
+    starter?.types ?? []
+  );
+
+  const team = starter ? [starter, ...rest] : pickDiverseTeam(pool, Math.min(TEAM_SIZE, pool.length));
+
   return {
-    team: pickDiverseTeam(pool, Math.min(TEAM_SIZE, pool.length)),
+    team,
     gameLabel: game.label,
-    poolSize: pool.length,
+    poolSize: nonStarterPool.length,
   };
 }
