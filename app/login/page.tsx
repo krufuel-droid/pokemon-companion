@@ -24,8 +24,15 @@ function LoginForm() {
       // Clear any stale local session first (cookies left over from earlier
       // attempts). A stale/expired session here can make the client try a
       // doomed token refresh right after login, which signs the user straight
-      // back out. Scope "local" only clears this browser's cookies — it never
-      // touches sessions on Amanda's other devices.
+      // back out. We wipe the cookies directly AND via the library, belt and
+      // suspenders. Scope "local" only clears this browser's cookies — it
+      // never touches sessions on Amanda's other devices.
+      for (const c of document.cookie.split(";")) {
+        const name = c.split("=")[0].trim();
+        if (name.startsWith("sb-") && name.includes("-auth-token")) {
+          document.cookie = `${name}=; Max-Age=0; path=/;`;
+        }
+      }
       await supabase.auth.signOut({ scope: "local" }).catch(() => {});
       const { error } = await supabase.auth.signInWithPassword({
         email: email.trim(),

@@ -13,6 +13,8 @@ import { MatchupsSection } from "./matchups-section";
 import { LearnsetSection } from "./learnset-section";
 import { StatsRadar } from "./stats-radar";
 import { SectionAccordion } from "./section-accordion";
+import { EvolutionSection, type EvoNode } from "./evolution-section";
+import evolutions from "@/data/evolutions.json";
 
 const MAX_DEX_ID = 1025;
 
@@ -62,6 +64,14 @@ export default async function SpeciesPage({
   const id = parseId(raw);
   const species = id === null ? undefined : getSpeciesById(id);
   if (!species) notFound();
+
+  // Evolution chain for this species (hidden for single-stage Pokémon).
+  const evoChainIndex =
+    evolutions.speciesToChain[String(species.id) as keyof typeof evolutions.speciesToChain];
+  const evoChain =
+    evoChainIndex !== undefined
+      ? (evolutions.chains[evoChainIndex] as EvoNode)
+      : null;
 
   // Alternate forms whose typing differs from the base species —
   // lets the matchups section switch between typings.
@@ -115,6 +125,11 @@ export default async function SpeciesPage({
             </div>
           </div>
         </section>
+
+        {/* Evolution chain */}
+        {evoChain && evoChain.evolvesTo.length > 0 && (
+          <EvolutionSection chain={evoChain} currentId={species.id} />
+        )}
 
         {/* Type matchups */}
         <MatchupsSection types={species.types} variants={formVariants} />
