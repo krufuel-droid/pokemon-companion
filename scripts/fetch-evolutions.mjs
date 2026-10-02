@@ -74,7 +74,11 @@ function methodLabel(det) {
   if (det.min_happiness) qualifiers.push("high friendship");
   if (det.min_affection) qualifiers.push("high affection");
   if (det.min_beauty) qualifiers.push("high beauty");
+  if (det.known_move?.name) qualifiers.push(`knowing ${cleanName(det.known_move.name)}`);
   if (det.known_move_type?.name) qualifiers.push(`${cleanName(det.known_move_type.name)} move`);
+  if (det.party_species?.name) qualifiers.push(`with ${cleanName(det.party_species.name)} in party`);
+  if (det.min_steps) qualifiers.push(`after ${det.min_steps} steps on foot`);
+  if (det.needs_multiplayer) qualifiers.push("in a Union Circle group");
   if (det.time_of_day) qualifiers.push(det.time_of_day);
   return qualifiers.length > 0 ? `${base} · ${qualifiers.join(" · ")}` : base;
 }
@@ -93,9 +97,12 @@ function buildNode(apiNode, pokedexById) {
     name: info?.name ?? cleanName(apiNode.species?.name ?? `species-${id}`),
     sprite: info?.sprites?.regular ?? null,
     method: methodLabel(det),
-    evolvesTo: (apiNode.evolves_to ?? []).map((child) =>
-      buildNode(child, pokedexById)
-    ),
+    evolvesTo: (apiNode.evolves_to ?? [])
+      // Skip phantom "evolutions" with no method at all (e.g. PokéAPI
+      // lists Phione -> Manaphy with zero evolution details, but Phione
+      // does not evolve in the games).
+      .filter((child) => (child.evolution_details ?? []).length > 0)
+      .map((child) => buildNode(child, pokedexById)),
   };
 }
 
@@ -138,6 +145,23 @@ async function main() {
     }
   }
   await Promise.all(Array.from({ length: CONCURRENCY }, () => worker()));
+
+  // Safety net: any species not covered by a chain (e.g. Manaphy, which
+  // PokéAPI only lists as a detail-less child of Phione) gets its own
+  // single-stage chain so every species has an Evolutions section lookup.
+  for (const s of pokedex) {
+    if (speciesToChain[String(s.id)] === undefined) {
+      const index = chains.length;
+      chains.push({
+        id: s.id,
+        name: s.name,
+        sprite: s.sprites?.regular ?? null,
+        method: null,
+        evolvesTo: [],
+      });
+      speciesToChain[String(s.id)] = index;
+    }
+  }
 
   const outPath = join(ROOT, "data", "evolutions.json");
   writeFileSync(outPath, JSON.stringify({ chains, speciesToChain }));
