@@ -4,6 +4,7 @@ import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
+import { AuthDebugPanel } from "@/components/AuthDebugPanel";
 import SupabaseNeeded from "@/components/SupabaseNeeded";
 
 const inputClass =
@@ -45,8 +46,10 @@ function LoginForm() {
       // Full page load (not client-side navigation) so AuthProvider remounts
       // and picks up the new session from cookies. router.push() alone
       // leaves the header showing "Sign in" because the provider never
-      // re-reads the session.
-      window.location.href = "/";
+      // re-reads the session. Preserve ?debug=auth so diagnostics continue
+      // on the homepage.
+      const debug = new URLSearchParams(window.location.search).get("debug");
+      window.location.href = debug ? `/?debug=${debug}` : "/";
     } finally {
       setBusy(false);
     }
@@ -109,6 +112,7 @@ function LoginForm() {
             Create an account
           </Link>
         </p>
+        <AuthDebugPanel />
       </div>
     </div>
   );

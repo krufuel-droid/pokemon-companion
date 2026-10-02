@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AuthDebugPanel } from "@/components/AuthDebugPanel";
 
 const FEATURES = [
   {
@@ -60,6 +61,7 @@ const COMING_SOON = [
 export default function HomePage() {
   return (
     <div>
+      <AuthDebugPanel />
       {/* Hero */}
       <section className="bg-gradient-to-b from-emerald-100 to-white dark:from-emerald-950 dark:to-slate-950">
         <div className="mx-auto max-w-6xl px-4 py-16 text-center sm:px-6 sm:py-24">

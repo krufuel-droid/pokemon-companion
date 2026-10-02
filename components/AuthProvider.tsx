@@ -31,6 +31,8 @@ interface AuthContextValue {
   profile: Profile | null;
   refreshProfile: () => Promise<void>;
   signOut: () => Promise<void>;
+  /** Recent auth events for diagnostics (only populated when ?debug=auth). */
+  authEvents: string[];
 }
 
 const AuthContext = createContext<AuthContextValue>({
@@ -40,6 +42,7 @@ const AuthContext = createContext<AuthContextValue>({
   profile: null,
   refreshProfile: async () => {},
   signOut: async () => {},
+  authEvents: [],
 });
 
 export function useAuth(): AuthContextValue {
@@ -51,6 +54,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(configured);
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [authEvents, setAuthEvents] = useState<string[]>([]);
+  // Only record diagnostics when explicitly requested via ?debug=auth.
+  const debugAuth = useMemo(
+    () =>
+      typeof window !== "undefined" &&
+      new URLSearchParams(window.location.search).get("debug") === "auth",
+    []
+  );
+  const logEvent = useCallback(
+    (msg: string) => {
+      if (!debugAuth) return;
+      const t = new Date().toISOString().slice(11, 23);
+      setAuthEvents((prev) => [...prev.slice(-19), `${t} ${msg}`]);
+    },
+    [debugAuth]
+  );
 
   const fetchProfile = useCallback(async (userId: string) => {
     try {
@@ -76,6 +95,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     supabase.auth.getSession().then(({ data }) => {
       if (cancelled) return;
       const sessionUser = data.session?.user ?? null;
+      logEvent(
+        `getSession -> ${sessionUser ? `user ${sessionUser.id.slice(0, 8)}` : "null"}`
+      );
       setUser(sessionUser);
       if (sessionUser) {
         fetchProfile(sessionUser.id).finally(() => {
@@ -89,9 +111,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
       if (cancelled) return;
       const sessionUser = session?.user ?? null;
+      logEvent(
+        `onAuthStateChange ${event} -> ${sessionUser ? `user ${sessionUser.id.slice(0, 8)}` : "null"}`
+      );
       setUser(sessionUser);
       if (sessionUser) {
         void fetchProfile(sessionUser.id);
@@ -104,7 +129,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       cancelled = true;
       subscription.unsubscribe();
     };
-  }, [configured, fetchProfile]);
+  }, [configured, fetchProfile, logEvent]);
 
   const refreshProfile = useCallback(async () => {
     if (user) await fetchProfile(user.id);
@@ -119,8 +144,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [configured]);
 
   const value = useMemo<AuthContextValue>(
-    () => ({ configured, loading, user, profile, refreshProfile, signOut }),
-    [configured, loading, user, profile, refreshProfile, signOut],
+    () => ({ configured, loading, user, profile, refreshProfile, signOut, authEvents }),
+    [configured, loading, user, profile, refreshProfile, signOut, authEvents],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
