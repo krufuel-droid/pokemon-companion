@@ -155,6 +155,8 @@ export const VERSION_REGION: Record<string, string> = {
   moon: "alola",
   ultrasun: "alola",
   ultramoon: "alola",
+  legendsarceus: "hisui",
+  "legends-arceus": "hisui",
 };
 
 export const REGION_LABEL: Record<string, string> = {
@@ -167,6 +169,7 @@ export const REGION_LABEL: Record<string, string> = {
   unova: "Unova",
   kalos: "Kalos",
   alola: "Alola",
+  hisui: "Hisui",
 };
 
 /**
@@ -1141,4 +1144,108 @@ export const ALOLA_LOCATIONS: Record<string, MapLocation> = {
   "alola-berry-fields": { coords: [90, 118] },
   "poke-pelago": { coords: [150, 180], label: "Poké Pelago" },
   "roaming-alola": { coords: [100, 110] },
+};
+
+/**
+ * Hisui region map data (Legends: Arceus) — ancient Sinnoh.
+ * Five wild areas plus Jubilife Village. Coordinates on the 0–200 grid.
+ */
+export const HISUI_LOCATIONS: Record<string, MapLocation> = {
+  // --- Jubilife Village (center-south) ---
+  "jubilife-village": { coords: [100, 140], label: "Jubilife Village" },
+  "ginkgo-landing": { coords: [85, 175] },
+  "sandgem-flats": { coords: [90, 150] },
+  // --- Obsidian Fieldlands (southwest) ---
+  "aspiration-hill": { coords: [70, 150], label: "Aspiration Hill" },
+  "floaro-gardens": { coords: [65, 155], label: "Floaro Gardens" },
+  "horseshoe-plains": { coords: [60, 160], label: "Horseshoe Plains" },
+  "natures-pantry": { coords: [75, 158] },
+  "deertrack-heights": { coords: [80, 155] },
+  "deertrack-path": { coords: [82, 153] },
+  "oreburrow-tunnel": { coords: [72, 152] },
+  "windswept-run": { coords: [85, 160] },
+  "windbreak-stand": { coords: [68, 158] },
+  "worn-bridge": { coords: [88, 158] },
+  "the-heartwood": { coords: [75, 165] },
+  "grueling-grove": { coords: [78, 168] },
+  "grandtree-arena": { coords: [80, 170], label: "Grandtree Arena" },
+  "tidewater-dam": { coords: [85, 172] },
+  "obsidian-falls": { coords: [90, 168] },
+  // --- Crimson Mirelands (south) ---
+  "gapejaw-bog": { coords: [110, 165], label: "Gapejaw Bog" },
+  "cottonsedge-prairie": { coords: [105, 162] },
+  "golden-lowlands": { coords: [115, 170], label: "Golden Lowlands" },
+  "brava-arena": { coords: [120, 172], label: "Brava Arena" },
+  "scarlet-bog": { coords: [125, 168], label: "Scarlet Bog" },
+  "shrouded-ruins": { coords: [130, 165] },
+  "droning-meadow": { coords: [115, 160] },
+  "ursas-ring": { coords: [120, 158] },
+  "cloudpool-ridge": { coords: [125, 155] },
+  "diamond-heath": { coords: [110, 155] },
+  "diamond-settlement": { coords: [108, 153], label: "Diamond Settlement" },
+  "pearl-settlement": { coords: [125, 152], label: "Pearl Settlement" },
+  "hisui-solaceon-ruins": { coords: [130, 160] },
+  "sludge-mound": { coords: [135, 162] },
+  // --- Cobalt Coastlands (east) ---
+  "coastlands-camp": { coords: [160, 120], label: "Coastlands Camp" },
+  "aipom-hill": { coords: [162, 122] },
+  "crossing-slope": { coords: [158, 125] },
+  "bathers-lagoon": { coords: [165, 125], label: "Bathers Lagoon" },
+  "seagrass-haven": { coords: [170, 130] },
+  "lunkers-lair": { coords: [158, 135] },
+  "hideaway-bay": { coords: [168, 135], label: "Hideaway Bay" },
+  "islespy-shore": { coords: [165, 140], label: "Islespy Shore" },
+  "deadwood-haunt": { coords: [160, 145] },
+  "veilstone-cape": { coords: [170, 145] },
+  "seaside-hollow": { coords: [165, 148] },
+  "castaway-shore": { coords: [155, 150], label: "Castaway Shore" },
+  "firespit-island": { coords: [175, 150], label: "Firespit Island" },
+  "molten-arena": { coords: [173, 148], label: "Molten Arena" },
+  "sands-reach": { coords: [160, 155] },
+  "tombolo-walk": { coords: [155, 158] },
+  "tranquility-cove": { coords: [150, 160] },
+  "ramanas-island": { coords: [130, 140], label: "Ramanas Island" },
+  "fabled-spring": { coords: [135, 142] },
+  // --- Coronet Highlands (center-north) ---
+  "heights-camp": { coords: [100, 105], label: "Heights Camp" },
+  "heavenward-lookout": { coords: [100, 100], label: "Heavenward Lookout" },
+  "sonorous-path": { coords: [95, 105] },
+  "bolderoll-ravine": { coords: [90, 110] },
+  "bolderoll-slope": { coords: [92, 112] },
+  "clamberclaw-cliffs": { coords: [105, 108], label: "Clamberclaw Cliffs" },
+  "celestica-trail": { coords: [110, 105] },
+  "celestica-ruins": { coords: [115, 102] },
+  "sacred-plaza": { coords: [100, 95], label: "Sacred Plaza" },
+  "ancient-quarry": { coords: [95, 90] },
+  "primeval-grotto": { coords: [105, 92] },
+  "wayward-wood": { coords: [90, 95] },
+  "hisui-wayward-cave": { coords: [88, 93] },
+  "lonely-spring": { coords: [110, 95] },
+  "moonview-arena": { coords: [115, 98], label: "Moonview Arena" },
+  "arenas-approach": { coords: [112, 100] },
+  "cloudcap-pass": { coords: [100, 85] },
+  "stonetooth-rows": { coords: [95, 82] },
+  "holm-of-trials": { coords: [100, 80] },
+  "temple-of-sinnoh": { coords: [100, 75], label: "Temple of Sinnoh" },
+  "hisui-turnback-cave": { coords: [100, 70] },
+  "hisui-spring-path": { coords: [105, 72] },
+  // --- Alabaster Icelands (far north) ---
+  "hisui-snowpoint-temple": { coords: [100, 52], label: "Snowpoint Temple" },
+  "bonechill-wastes": { coords: [100, 50], label: "Bonechill Wastes" },
+  "snowfall-hot-spring": { coords: [95, 55] },
+  "whiteout-valley": { coords: [105, 55], label: "Whiteout Valley" },
+  "ice-column-chamber": { coords: [100, 58] },
+  "hearts-crag": { coords: [110, 55] },
+  "hisui-lake-acuity": { coords: [110, 40] },
+  "glacier-terrace": { coords: [100, 60], label: "Glacier Terrace" },
+  "avaluggs-legacy": { coords: [95, 62], label: "Avalugg's Legacy" },
+  "avalanche-slopes": { coords: [105, 62] },
+  "icebound-falls": { coords: [110, 60] },
+  "icepeak-arena": { coords: [100, 65], label: "Icepeak Arena" },
+  "icepeak-cavern": { coords: [102, 67] },
+  // --- Hisui's great lakes ---
+  "hisui-lake-verity": { coords: [35, 135] },
+  "hisui-lake-valor": { coords: [150, 140] },
+  // --- Misc ---
+  "space-time-distortion": { coords: [100, 120] },
 };

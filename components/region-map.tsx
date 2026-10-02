@@ -1,4 +1,4 @@
-import { GALAR_LOCATIONS, PALDEA_LOCATIONS, KANTO_LOCATIONS, JOHTO_LOCATIONS, HOENN_LOCATIONS, SINNOH_LOCATIONS, UNOVA_LOCATIONS, KALOS_LOCATIONS, ALOLA_LOCATIONS } from "@/lib/data/region-maps";
+import { GALAR_LOCATIONS, PALDEA_LOCATIONS, KANTO_LOCATIONS, JOHTO_LOCATIONS, HOENN_LOCATIONS, SINNOH_LOCATIONS, UNOVA_LOCATIONS, KALOS_LOCATIONS, ALOLA_LOCATIONS, HISUI_LOCATIONS } from "@/lib/data/region-maps";
 
 interface RegionMapProps {
   region: string;
@@ -18,6 +18,7 @@ const REGION_LABELS: Record<string, string> = {
   unova: "Unova",
   kalos: "Kalos",
   alola: "Alola",
+  hisui: "Hisui",
 };
 
 function GalarTerrain() {
@@ -495,9 +496,47 @@ function AlolaTerrain() {
   );
 }
 
+function HisuiTerrain() {
+  return (
+    <>
+      {/* ocean */}
+      <rect x="0" y="0" width="200" height="205" rx="12" fill="#1e3a5f" />
+      <rect x="0" y="0" width="200" height="205" rx="12" fill="#274b73" opacity="0.6" />
+
+      {/* ancient Sinnoh — rugged wild land */}
+      <path
+        d="M 100,35
+           C 115,40 128,52 136,66
+           C 144,80 150,94 156,108
+           C 162,122 168,136 164,150
+           C 160,164 148,174 134,176
+           C 120,178 106,176 94,172
+           C 82,168 70,162 62,152
+           C 54,142 52,128 56,114
+           C 60,100 68,86 78,74
+           C 86,64 94,52 100,35
+           Z"
+        fill="#4a7c3f"
+        stroke="#356030"
+        strokeWidth="1.5"
+      />
+      {/* snowy Alabaster Icelands tint */}
+      <ellipse cx="100" cy="55" rx="20" ry="14" fill="#e8e8e8" opacity="0.5" />
+      {/* Coronet Highlands tint */}
+      <ellipse cx="100" cy="95" rx="16" ry="12" fill="#8a8a8a" opacity="0.4" />
+      {/* Crimson Mirelands tint */}
+      <ellipse cx="120" cy="165" rx="16" ry="10" fill="#6a5a4a" opacity="0.5" />
+      {/* Obsidian Fieldlands tint */}
+      <ellipse cx="75" cy="160" rx="14" ry="10" fill="#2d5c33" opacity="0.5" />
+      {/* Cobalt Coastlands tint */}
+      <ellipse cx="162" cy="135" rx="10" ry="14" fill="#3d6b7a" opacity="0.4" />
+    </>
+  );
+}
+
 /**
  * Stylized hand-drawn region maps with encounter pins.
- * Regions are added one by one — Galar, Paldea, Kanto, Johto, Hoenn, Sinnoh, Unova, Kalos, and Alola so far.
+ * All ten regions are mapped: Galar, Paldea, Kanto, Johto, Hoenn, Sinnoh, Unova, Kalos, Alola, and Hisui.
  */
 export function RegionMap({ region, highlight, showAll }: RegionMapProps) {
   const locations =
@@ -518,7 +557,9 @@ export function RegionMap({ region, highlight, showAll }: RegionMapProps) {
           : region === "kalos"
           ? KALOS_LOCATIONS
           : region === "alola"
-            ? ALOLA_LOCATIONS
+          ? ALOLA_LOCATIONS
+          : region === "hisui"
+            ? HISUI_LOCATIONS
             : null;
 
   if (!locations) {
