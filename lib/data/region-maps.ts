@@ -132,12 +132,18 @@ export const VERSION_REGION: Record<string, string> = {
   leafgreen: "kanto",
   "lets-go-pikachu": "kanto",
   "lets-go-eevee": "kanto",
+  gold: "johto",
+  silver: "johto",
+  crystal: "johto",
+  heartgold: "johto",
+  soulsilver: "johto",
 };
 
 export const REGION_LABEL: Record<string, string> = {
   galar: "Galar",
   paldea: "Paldea",
   kanto: "Kanto",
+  johto: "Johto",
 };
 
 /**
@@ -365,4 +371,89 @@ export const KANTO_LOCATIONS: Record<string, MapLocation> = {
   "roaming-kanto": { coords: [100, 130] },
   "kanto-pokecenter": { coords: [112, 128] },
   "kanto-pokemart": { coords: [112, 129] },
+};
+
+/**
+ * Johto region map data (Gold/Silver/Crystal, HeartGold/SoulSilver).
+ * Coordinates on the same 0–200 grid.
+ */
+export const JOHTO_LOCATIONS: Record<string, MapLocation> = {
+  // --- Far northeast ---
+  "blackthorn-city": { coords: [150, 40], label: "Blackthorn City" },
+  "dragons-den": { coords: [152, 44] },
+  "ice-path": { coords: [140, 50], label: "Ice Path" },
+  "johto-route-44": { coords: [135, 55] },
+  "johto-route-45": { coords: [130, 65] },
+  "johto-route-46": { coords: [125, 55] },
+  // --- Northeast ---
+  "mahogany-town": { coords: [120, 70], label: "Mahogany Town" },
+  "lake-of-rage": { coords: [120, 60], label: "Lake of Rage" },
+  "johto-route-43": { coords: [120, 76] },
+  "team-rocket-hq": { coords: [120, 72] },
+  "mt-mortar": { coords: [110, 80], label: "Mt. Mortar" },
+  "johto-route-42": { coords: [105, 83] },
+  // --- North-central ---
+  "ecruteak-city": { coords: [95, 86], label: "Ecruteak City" },
+  "bell-tower": { coords: [95, 83] },
+  "burned-tower": { coords: [93, 88] },
+  "bellchime-trail": { coords: [97, 84] },
+  "embedded-tower": { coords: [98, 80] },
+  // --- East-central ---
+  "violet-city": { coords: [80, 96], label: "Violet City" },
+  "sprout-tower": { coords: [80, 94] },
+  "johto-route-36": { coords: [87, 90] },
+  "johto-route-37": { coords: [90, 92] },
+  "ruins-of-alph": { coords: [82, 103], label: "Ruins of Alph" },
+  "johto-route-32": { coords: [82, 109] },
+  "union-cave": { coords: [82, 115] },
+  "johto-route-33": { coords: [76, 118] },
+  // --- South-central ---
+  "azalea-town": { coords: [70, 121], label: "Azalea Town" },
+  "slowpoke-well": { coords: [70, 123] },
+  "ilex-forest": { coords: [75, 126], label: "Ilex Forest" },
+  // --- Central ---
+  "goldenrod-city": { coords: [86, 119], label: "Goldenrod City" },
+  "radio-tower": { coords: [86, 117] },
+  "goldenrod-tunnel": { coords: [86, 121] },
+  "johto-route-34": { coords: [76, 116] },
+  "johto-route-35": { coords: [89, 111] },
+  "national-park": { coords: [90, 106], label: "National Park" },
+  "pokeathlon-dome": { coords: [88, 113] },
+  // --- West-central ---
+  "johto-route-38": { coords: [76, 101] },
+  "johto-route-39": { coords: [66, 101] },
+  "olivine-city": { coords: [56, 101], label: "Olivine City" },
+  "johto-lighthouse": { coords: [56, 99] },
+  "ss-aqua": { coords: [54, 103] },
+  "frontier-access": { coords: [50, 92] },
+  // --- Far west ---
+  "cianwood-city": { coords: [36, 111], label: "Cianwood City" },
+  "johto-sea-route-40": { coords: [46, 106] },
+  "johto-sea-route-41": { coords: [41, 116] },
+  "whirl-islands": { coords: [51, 126], label: "Whirl Islands" },
+  "cliff-cave": { coords: [39, 113] },
+  "cliff-edge-gate": { coords: [41, 109] },
+  "johto-route-47": { coords: [31, 116] },
+  "johto-route-48": { coords: [29, 121] },
+  "johto-safari-zone": { coords: [33, 126], label: "Safari Zone" },
+  "safari-zone-gate": { coords: [35, 124] },
+  // --- Southeast ---
+  "new-bark-town": { coords: [110, 141], label: "New Bark Town" },
+  "cherrygrove-city": { coords: [96, 143], label: "Cherrygrove City" },
+  "johto-route-29": { coords: [103, 142] },
+  "johto-route-30": { coords: [96, 136] },
+  "johto-route-31": { coords: [89, 131] },
+  "dark-cave": { coords: [91, 133] },
+  // --- Northwest (Mt. Silver) ---
+  "mt-silver": { coords: [60, 60], label: "Mt. Silver" },
+  "mt-silver-cave": { coords: [60, 58] },
+  "tohjo-falls": { coords: [70, 70], label: "Tohjo Falls" },
+  "sinjoh-ruins": { coords: [65, 64] },
+  // --- Misc ---
+  "roaming-johto": { coords: [90, 110] },
+  "johto-pokemart": { coords: [86, 119] },
+  "pokewalker": { coords: [90, 110] },
+  "unknown-all-bugs": { coords: [82, 103] },
+  "unknown-all-poliwag": { coords: [82, 103] },
+  "unknown-all-rattata": { coords: [82, 103] },
 };

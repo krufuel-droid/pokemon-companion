@@ -1,4 +1,4 @@
-import { GALAR_LOCATIONS, PALDEA_LOCATIONS, KANTO_LOCATIONS } from "@/lib/data/region-maps";
+import { GALAR_LOCATIONS, PALDEA_LOCATIONS, KANTO_LOCATIONS, JOHTO_LOCATIONS } from "@/lib/data/region-maps";
 
 interface RegionMapProps {
   region: string;
@@ -12,6 +12,7 @@ const REGION_LABELS: Record<string, string> = {
   galar: "Galar",
   paldea: "Paldea",
   kanto: "Kanto",
+  johto: "Johto",
 };
 
 function GalarTerrain() {
@@ -192,9 +193,53 @@ function KantoTerrain() {
   );
 }
 
+function JohtoTerrain() {
+  return (
+    <>
+      {/* ocean */}
+      <rect x="0" y="0" width="200" height="205" rx="12" fill="#1e3a5f" />
+      <rect x="0" y="0" width="200" height="205" rx="12" fill="#274b73" opacity="0.6" />
+
+      {/* mainland Johto — stylized western region */}
+      <path
+        d="M 110,142
+           C 100,144 92,142 86,138
+           C 80,134 76,128 74,120
+           C 72,112 68,106 60,102
+           C 52,98 48,92 52,84
+           C 56,76 64,70 74,66
+           C 84,62 94,60 104,58
+           C 114,56 124,52 132,48
+           C 140,44 148,40 152,36
+           C 156,32 158,38 156,46
+           C 154,54 148,62 142,70
+           C 136,78 130,86 124,94
+           C 118,102 114,112 114,122
+           C 114,132 112,138 110,142
+           Z"
+        fill="#4a7c3f"
+        stroke="#356030"
+        strokeWidth="1.5"
+      />
+      {/* Ilex Forest tint */}
+      <ellipse cx="73" cy="124" rx="8" ry="6" fill="#2d5c33" opacity="0.6" />
+      {/* Mt. Silver tint */}
+      <ellipse cx="60" cy="60" rx="10" ry="8" fill="#8a8a8a" opacity="0.5" />
+
+      {/* Cianwood island */}
+      <ellipse cx="36" cy="111" rx="6" ry="5" fill="#4a7c3f" stroke="#356030" strokeWidth="1" />
+      {/* Whirl Islands */}
+      <g fill="#4a7c3f" stroke="#356030" strokeWidth="0.8">
+        <ellipse cx="49" cy="124" rx="3" ry="2.5" />
+        <ellipse cx="53" cy="128" rx="3" ry="2.5" />
+      </g>
+    </>
+  );
+}
+
 /**
  * Stylized hand-drawn region maps with encounter pins.
- * Regions are added one by one — Galar, Paldea, and Kanto so far.
+ * Regions are added one by one — Galar, Paldea, Kanto, and Johto so far.
  */
 export function RegionMap({ region, highlight, showAll }: RegionMapProps) {
   const locations =
@@ -204,7 +249,9 @@ export function RegionMap({ region, highlight, showAll }: RegionMapProps) {
         ? PALDEA_LOCATIONS
         : region === "kanto"
           ? KANTO_LOCATIONS
-          : null;
+          : region === "johto"
+            ? JOHTO_LOCATIONS
+            : null;
 
   if (!locations) {
     return (
