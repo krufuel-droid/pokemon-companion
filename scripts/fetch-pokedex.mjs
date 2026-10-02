@@ -194,6 +194,14 @@ function buildRecord(species, pokemon) {
   const shinyBase = "https://play.pokemonshowdown.com/sprites/gen5-shiny";
   const artworkBase = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork";
 
+  // Local palette-corrected shiny sprites (the Showdown gen5-shiny customs for
+  // the Poltchageist line have the wrong cup color — white instead of dark
+  // green; see public/sprites/). These survive regeneration via this map.
+  const SHINY_OVERRIDES = {
+    1012: "/sprites/poltchageist-shiny.png",
+    1013: "/sprites/sinistcha-shiny.png",
+  };
+
   return {
     id,
     slug,
@@ -202,7 +210,7 @@ function buildRecord(species, pokemon) {
     eggGroups,
     sprites: {
       regular: `${spriteBase}/${showdown}.png`,
-      shiny: `${shinyBase}/${showdown}.png`,
+      shiny: SHINY_OVERRIDES[id] ?? `${shinyBase}/${showdown}.png`,
     },
     artwork: `${artworkBase}/${id}.png`,
     heightM: pokemon.height / 10,
