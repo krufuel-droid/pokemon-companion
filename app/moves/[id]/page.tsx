@@ -33,9 +33,8 @@ function StatCard({ label, value }: { label: string; value: string }) {
   );
 }
 
-export function generateStaticParams() {
-  return MOVES.map((m) => ({ id: String(m.id) }));
-}
+/** Move pages are server-rendered on demand (not pre-built) to keep deployments lean. */
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,
