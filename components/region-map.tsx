@@ -534,9 +534,20 @@ function HisuiTerrain() {
   );
 }
 
+/** Turn a location key like "kanto-route-1" into "Kanto Route 1". */
+function prettyName(key: string): string {
+  return key
+    .split("-")
+    .map((w) => (w ? w.charAt(0).toUpperCase() + w.slice(1) : w))
+    .join(" ");
+}
+
 /**
  * Stylized hand-drawn region maps with encounter pins.
  * All ten regions are mapped: Galar, Paldea, Kanto, Johto, Hoenn, Sinnoh, Unova, Kalos, Alola, and Hisui.
+ *
+ * When a location is highlighted, the map zooms into its neighborhood so the
+ * pin is easy to spot, with nearby locations shown for context.
  */
 export function RegionMap({ region, highlight, showAll }: RegionMapProps) {
   const locations =
@@ -572,9 +583,26 @@ export function RegionMap({ region, highlight, showAll }: RegionMapProps) {
   const keys = Object.keys(locations);
   const highlightLoc = highlight ? locations[highlight] : undefined;
 
+  // Zoom into the highlighted location's neighborhood so the pin is easy to
+  // find. Without a highlight, show the whole region as before.
+  const ZOOM_SIZE = 90;
+  let viewBox = "0 0 200 205";
+  if (highlightLoc) {
+    const [hx, hy] = highlightLoc.coords;
+    const half = ZOOM_SIZE / 2;
+    const minX = Math.max(0, Math.min(200 - ZOOM_SIZE, hx - half));
+    const minY = Math.max(0, Math.min(205 - ZOOM_SIZE, hy - half));
+    viewBox = `${minX} ${minY} ${ZOOM_SIZE} ${ZOOM_SIZE}`;
+  }
+  // When zoomed in, show every nearby dot for context, not just major labels.
+  const showDots = highlightLoc ? true : showAll;
+  const highlightName = highlight
+    ? (highlightLoc?.label ?? prettyName(highlight))
+    : "";
+
   return (
     <svg
-      viewBox="0 0 200 205"
+      viewBox={viewBox}
       role="img"
       aria-label={`Stylized map of the ${REGION_LABELS[region] ?? region} region`}
       className="h-auto w-full"
@@ -583,8 +611,22 @@ export function RegionMap({ region, highlight, showAll }: RegionMapProps) {
         <GalarTerrain />
       ) : region === "paldea" ? (
         <PaldeaTerrain />
-      ) : (
+      ) : region === "kanto" ? (
         <KantoTerrain />
+      ) : region === "johto" ? (
+        <JohtoTerrain />
+      ) : region === "hoenn" ? (
+        <HoennTerrain />
+      ) : region === "sinnoh" ? (
+        <SinnohTerrain />
+      ) : region === "unova" ? (
+        <UnovaTerrain />
+      ) : region === "kalos" ? (
+        <KalosTerrain />
+      ) : region === "alola" ? (
+        <AlolaTerrain />
+      ) : (
+        <HisuiTerrain />
       )}
 
       {/* location dots */}
@@ -592,7 +634,7 @@ export function RegionMap({ region, highlight, showAll }: RegionMapProps) {
         const loc = locations[key];
         const isHighlight = key === highlight;
         if (isHighlight) return null;
-        if (!showAll && !loc.label) return null;
+        if (!showDots && !loc.label) return null;
         const [x, y] = loc.coords;
         return (
           <g key={key}>
@@ -627,14 +669,36 @@ export function RegionMap({ region, highlight, showAll }: RegionMapProps) {
             <animate attributeName="r" values="5;8;5" dur="2s" repeatCount="indefinite" />
           </circle>
           <path
-            d={`M ${highlightLoc.coords[0]},${highlightLoc.coords[1] - 9}
-                C ${highlightLoc.coords[0] - 4},${highlightLoc.coords[1] - 9} ${highlightLoc.coords[0] - 5},${highlightLoc.coords[1] - 3} ${highlightLoc.coords[0]},${highlightLoc.coords[1]}
-                C ${highlightLoc.coords[0] + 5},${highlightLoc.coords[1] - 3} ${highlightLoc.coords[0] + 4},${highlightLoc.coords[1] - 9} ${highlightLoc.coords[0]},${highlightLoc.coords[1] - 9} Z`}
+            d={`M ${highlightLoc.coords[0]},${highlightLoc.coords[1] - 13.5}
+                C ${highlightLoc.coords[0] - 6},${highlightLoc.coords[1] - 13.5} ${highlightLoc.coords[0] - 7.5},${highlightLoc.coords[1] - 4.5} ${highlightLoc.coords[0]},${highlightLoc.coords[1]}
+                C ${highlightLoc.coords[0] + 7.5},${highlightLoc.coords[1] - 4.5} ${highlightLoc.coords[0] + 6},${highlightLoc.coords[1] - 13.5} ${highlightLoc.coords[0]},${highlightLoc.coords[1] - 13.5} Z`}
             fill="#ef4444"
             stroke="#b91c1c"
             strokeWidth="0.8"
           />
-          <circle cx={highlightLoc.coords[0]} cy={highlightLoc.coords[1] - 6} r="1.8" fill="#fff" />
+          <circle cx={highlightLoc.coords[0]} cy={highlightLoc.coords[1] - 9} r="2.7" fill="#fff" />
+          {/* location name callout above the pin */}
+          <g>
+            <rect
+              x={highlightLoc.coords[0] - highlightName.length * 2.1 - 4}
+              y={highlightLoc.coords[1] - 28}
+              width={highlightName.length * 4.2 + 8}
+              height="10"
+              rx="3"
+              fill="#111827"
+              opacity="0.85"
+            />
+            <text
+              x={highlightLoc.coords[0]}
+              y={highlightLoc.coords[1] - 20.5}
+              textAnchor="middle"
+              fontSize="6"
+              fill="#fff"
+              fontWeight="700"
+            >
+              {highlightName}
+            </text>
+          </g>
         </g>
       )}
     </svg>
