@@ -1,4 +1,4 @@
-import { GALAR_LOCATIONS, PALDEA_LOCATIONS, KANTO_LOCATIONS, JOHTO_LOCATIONS, HOENN_LOCATIONS, SINNOH_LOCATIONS } from "@/lib/data/region-maps";
+import { GALAR_LOCATIONS, PALDEA_LOCATIONS, KANTO_LOCATIONS, JOHTO_LOCATIONS, HOENN_LOCATIONS, SINNOH_LOCATIONS, UNOVA_LOCATIONS } from "@/lib/data/region-maps";
 
 interface RegionMapProps {
   region: string;
@@ -15,6 +15,7 @@ const REGION_LABELS: Record<string, string> = {
   johto: "Johto",
   hoenn: "Hoenn",
   sinnoh: "Sinnoh",
+  unova: "Unova",
 };
 
 function GalarTerrain() {
@@ -349,9 +350,49 @@ function SinnohTerrain() {
   );
 }
 
+function UnovaTerrain() {
+  return (
+    <>
+      {/* ocean */}
+      <rect x="0" y="0" width="200" height="205" rx="12" fill="#1e3a5f" />
+      <rect x="0" y="0" width="200" height="205" rx="12" fill="#274b73" opacity="0.6" />
+
+      {/* mainland Unova — circular region */}
+      <path
+        d="M 100,52
+           C 120,52 140,60 152,74
+           C 164,88 170,104 168,120
+           C 166,136 158,150 146,160
+           C 134,170 120,176 106,176
+           C 92,176 78,170 68,160
+           C 58,150 52,136 52,120
+           C 52,104 58,88 70,74
+           C 80,62 90,52 100,52
+           Z"
+        fill="#4a7c3f"
+        stroke="#356030"
+        strokeWidth="1.5"
+      />
+      {/* desert tint (Route 4) */}
+      <ellipse cx="100" cy="135" rx="12" ry="7" fill="#d4a24e" opacity="0.5" />
+      {/* Pinwheel Forest tint */}
+      <ellipse cx="85" cy="135" rx="8" ry="6" fill="#2d5c33" opacity="0.6" />
+      {/* Twist Mountain tint */}
+      <ellipse cx="50" cy="100" rx="8" ry="10" fill="#8a8a8a" opacity="0.5" />
+      {/* Giant Chasm tint */}
+      <ellipse cx="150" cy="80" rx="8" ry="6" fill="#5a6a7a" opacity="0.5" />
+
+      {/* Liberty Garden island */}
+      <ellipse cx="60" cy="180" rx="5" ry="4" fill="#4a7c3f" stroke="#356030" strokeWidth="1" />
+      {/* Humilau peninsula */}
+      <ellipse cx="175" cy="135" rx="6" ry="5" fill="#4a7c3f" stroke="#356030" strokeWidth="1" />
+    </>
+  );
+}
+
 /**
  * Stylized hand-drawn region maps with encounter pins.
- * Regions are added one by one — Galar, Paldea, Kanto, Johto, Hoenn, and Sinnoh so far.
+ * Regions are added one by one — Galar, Paldea, Kanto, Johto, Hoenn, Sinnoh, and Unova so far.
  */
 export function RegionMap({ region, highlight, showAll }: RegionMapProps) {
   const locations =
@@ -366,7 +407,9 @@ export function RegionMap({ region, highlight, showAll }: RegionMapProps) {
           : region === "hoenn"
           ? HOENN_LOCATIONS
           : region === "sinnoh"
-            ? SINNOH_LOCATIONS
+          ? SINNOH_LOCATIONS
+          : region === "unova"
+            ? UNOVA_LOCATIONS
             : null;
 
   if (!locations) {
