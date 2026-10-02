@@ -48,6 +48,14 @@ function cleanName(slug) {
     .join(" ");
 }
 
+/** Pick the most useful evolution_details: prefer an item-based method
+ *  (e.g. Leaf Stone) over a legacy location-based level-up, since stones
+ *  are the definitive method in modern games. */
+function pickDetail(details) {
+  if (!details || details.length === 0) return null;
+  return details.find((d) => d.trigger?.name === "use-item") ?? details[0];
+}
+
 /** Short human label for evolution_details, e.g. "Lv. 16", "Thunder Stone". */
 function methodLabel(det) {
   if (!det || !det.trigger?.name) return null;
@@ -64,6 +72,9 @@ function methodLabel(det) {
   }
   const qualifiers = [];
   if (det.min_happiness) qualifiers.push("high friendship");
+  if (det.min_affection) qualifiers.push("high affection");
+  if (det.min_beauty) qualifiers.push("high beauty");
+  if (det.known_move_type?.name) qualifiers.push(`${cleanName(det.known_move_type.name)} move`);
   if (det.time_of_day) qualifiers.push(det.time_of_day);
   return qualifiers.length > 0 ? `${base} · ${qualifiers.join(" · ")}` : base;
 }
@@ -76,7 +87,7 @@ function speciesIdFromUrl(url) {
 function buildNode(apiNode, pokedexById) {
   const id = speciesIdFromUrl(apiNode.species?.url);
   const info = id != null ? pokedexById.get(id) : undefined;
-  const det = apiNode.evolution_details?.[0];
+  const det = pickDetail(apiNode.evolution_details);
   return {
     id,
     name: info?.name ?? cleanName(apiNode.species?.name ?? `species-${id}`),
