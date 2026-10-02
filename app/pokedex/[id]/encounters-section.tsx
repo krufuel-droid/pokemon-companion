@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { RegionMap } from "@/components/region-map";
+import { VERSION_REGION } from "@/lib/data/region-maps";
 
 const VERSION_TITLES: Record<string, string> = {
   red: "Pokémon Red",
@@ -117,6 +119,8 @@ const METHOD_LABELS: Record<string, string> = {
 
 interface EncounterRow {
   location: string;
+  /** PokéAPI location-area URL — used to look up the parent location for wiki links. */
+  areaUrl: string;
   method: string;
   minLevel: number;
   maxLevel: number;
@@ -164,7 +168,7 @@ interface ApiVersionDetail {
 }
 
 interface ApiLocationArea {
-  location_area: { name: string };
+  location_area: { name: string; url: string };
   version_details: ApiVersionDetail[];
 }
 
@@ -182,11 +186,13 @@ async function loadEncounters(
   const byVersion = new Map<string, EncounterRow[]>();
   for (const area of areas) {
     const location = cleanLocationArea(area.location_area.name);
+    const areaUrl = area.location_area.url;
     for (const vd of area.version_details) {
       const rows = byVersion.get(vd.version.name) ?? [];
       for (const d of vd.encounter_details) {
         rows.push({
           location,
+          areaUrl,
           method: methodLabel(d.method.name),
           minLevel: d.min_level,
           maxLevel: d.max_level,
@@ -220,6 +226,7 @@ type Status =
 
 interface LocationGroup {
   location: string;
+  areaUrl: string;
   method: string;
   entries: EncounterRow[];
   minLevel: number;
@@ -234,6 +241,7 @@ function groupRows(rows: EncounterRow[]): LocationGroup[] {
     if (!group) {
       group = {
         location: row.location,
+        areaUrl: row.areaUrl,
         method: row.method,
         entries: [],
         minLevel: row.minLevel,
@@ -252,18 +260,145 @@ function groupRows(rows: EncounterRow[]): LocationGroup[] {
 }
 
 /**
+ * Detail card for a single encounter location. Pops up when the user taps
+ * the 📍 pin next to a location — shows the custom region map with a pin
+ * on the spot, plus the encounter details for that location.
+ */
+function LocationCard({
+  location,
+  game,
+  version,
+  entries,
+  areaUrl,
+  onClose,
+}: {
+  location: string;
+  game: string;
+  version: string;
+  entries: EncounterRow[];
+  areaUrl: string;
+  onClose: () => void;
+}) {
+  const [locationKey, setLocationKey] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch(areaUrl)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (cancelled || !data?.location?.name) return;
+        setLocationKey(data.location.name);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [areaUrl]);
+
+  const region = VERSION_REGION[version] ?? null;
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-4 sm:items-center"
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-label={`Map for ${location}`}
+    >
+      <div
+        className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl bg-white p-6 shadow-xl dark:bg-slate-900"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wide text-emerald-600 dark:text-emerald-400">
+              {game}
+            </p>
+            <h3 className="mt-1 text-xl font-bold text-slate-800 dark:text-slate-100">
+              📍 {location}
+            </h3>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close location map"
+            className="rounded-lg px-2 py-1 text-xl font-bold text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-200"
+          >
+            ✕
+          </button>
+        </div>
+
+        <div className="mt-4 overflow-hidden rounded-xl ring-1 ring-slate-200 dark:ring-slate-700">
+          {region ? (
+            <RegionMap region={region} highlight={locationKey} showAll={false} />
+          ) : (
+            <p className="py-8 text-center text-sm text-slate-500 dark:text-slate-400">
+              This region&apos;s map is still being drawn — check back soon.
+            </p>
+          )}
+        </div>
+
+        <ul className="mt-4 space-y-2">
+          {entries
+            .slice()
+            .sort((a, b) => a.minLevel - b.minLevel)
+            .map((entry, i) => (
+              <li
+                key={i}
+                className="flex items-baseline justify-between gap-3 rounded-xl bg-slate-50 px-3 py-2 text-sm dark:bg-slate-800"
+              >
+                <span className="text-slate-600 dark:text-slate-300">
+                  {entry.method} · {levelRange(entry.minLevel, entry.maxLevel)}
+                </span>
+                {entry.chance !== null && (
+                  <span className="shrink-0 rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-slate-600 dark:bg-emerald-900 dark:text-slate-300">
+                    {entry.chance}%
+                  </span>
+                )}
+              </li>
+            ))}
+        </ul>
+      </div>
+    </div>
+  );
+}
+
+/**
  * One collapsible location group, e.g. "Mt Moon 1f · Walking · Lv. 6–11".
  * Collapsed by default so long encounter lists don't overwhelm the page —
  * the + expander reveals the per-level/chance breakdown.
  */
-function LocationGroupRow({ group }: { group: LocationGroup }) {
+function LocationGroupRow({
+  group,
+  game,
+  version,
+}: {
+  group: LocationGroup;
+  game: string;
+  version: string;
+}) {
   const [open, setOpen] = useState(false);
+  const [cardOpen, setCardOpen] = useState(false);
   const single = group.entries.length === 1;
 
   const header = (
     <span className="min-w-0 flex-1">
-      <span className="block truncate font-medium text-slate-800 dark:text-slate-100">
-        {group.location}
+      <span className="flex items-center gap-1.5">
+        <span className="block truncate font-medium text-slate-800 dark:text-slate-100">
+          {group.location}
+        </span>
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            setCardOpen(true);
+          }}
+          aria-label={`Show details and map for ${group.location}`}
+          title="Location details & map"
+          className="shrink-0 rounded-md px-1 text-base leading-none text-slate-400 hover:bg-slate-200 hover:text-emerald-600 dark:text-slate-500 dark:hover:bg-slate-700 dark:hover:text-emerald-400"
+        >
+          📍
+        </button>
       </span>
       <span className="mt-0.5 block text-sm text-slate-500 dark:text-slate-400">
         {group.method} · {levelRange(group.minLevel, group.maxLevel)}
@@ -281,6 +416,16 @@ function LocationGroupRow({ group }: { group: LocationGroup }) {
           <span className="ml-auto rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-slate-600 dark:bg-emerald-900 dark:text-slate-400">
             {entry.chance}% chance
           </span>
+        )}
+        {cardOpen && (
+          <LocationCard
+            location={group.location}
+            game={game}
+            version={version}
+            entries={group.entries}
+            areaUrl={group.areaUrl}
+            onClose={() => setCardOpen(false)}
+          />
         )}
       </li>
     );
@@ -308,6 +453,16 @@ function LocationGroupRow({ group }: { group: LocationGroup }) {
           {open ? "−" : "+"}
         </span>
       </button>
+      {cardOpen && (
+        <LocationCard
+          location={group.location}
+          game={game}
+          version={version}
+          entries={group.entries}
+          areaUrl={group.areaUrl}
+          onClose={() => setCardOpen(false)}
+        />
+      )}
       {open && (
         <ul className="border-t border-slate-100 bg-white/60 dark:border-slate-800 dark:bg-slate-900/60">
           {group.entries
@@ -504,6 +659,8 @@ function GameBlock({ game }: { game: GameEncounters }) {
             <LocationGroupRow
               key={`${group.location}|${group.method}`}
               group={group}
+              game={game.game}
+              version={game.version}
             />
           ))}
         </ul>
