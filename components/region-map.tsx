@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import { GALAR_LOCATIONS, PALDEA_LOCATIONS, KANTO_LOCATIONS, JOHTO_LOCATIONS, HOENN_LOCATIONS, SINNOH_LOCATIONS, UNOVA_LOCATIONS, KALOS_LOCATIONS, ALOLA_LOCATIONS, HISUI_LOCATIONS, REGION_PATHS } from "@/lib/data/region-maps";
 
 interface RegionMapProps {
@@ -575,6 +578,10 @@ function TownIcon({ x, y }: { x: number; y: number }) {
  * pin is easy to spot, with nearby locations shown for context.
  */
 export function RegionMap({ region, highlight, showAll }: RegionMapProps) {
+  // Manual zoom: 0 = auto (zoomed to highlight, or full region if none).
+  // Positive zooms in, negative zooms out.
+  const [zoomLevel, setZoomLevel] = useState(0);
+
   const locations =
     region === "galar"
       ? GALAR_LOCATIONS
@@ -608,31 +615,44 @@ export function RegionMap({ region, highlight, showAll }: RegionMapProps) {
   const keys = Object.keys(locations);
   const highlightLoc = highlight ? locations[highlight] : undefined;
 
-  // Zoom into the highlighted location's neighborhood so the pin is easy to
-  // find. Without a highlight, show the whole region as before.
-  const ZOOM_SIZE = 90;
-  let viewBox = "0 0 200 205";
+  // ViewBox: auto-zoom to the highlight's neighborhood (90x90), or full
+  // region when nothing is highlighted. Manual zoom adjusts from there.
+  const AUTO_ZOOM = 90;
+  const FULL_SIZE = 205;
+  let viewBoxSize: number;
+  let centerX: number;
+  let centerY: number;
   if (highlightLoc) {
-    const [hx, hy] = highlightLoc.coords;
-    const half = ZOOM_SIZE / 2;
-    const minX = Math.max(0, Math.min(200 - ZOOM_SIZE, hx - half));
-    const minY = Math.max(0, Math.min(205 - ZOOM_SIZE, hy - half));
-    viewBox = `${minX} ${minY} ${ZOOM_SIZE} ${ZOOM_SIZE}`;
+    [centerX, centerY] = highlightLoc.coords;
+    viewBoxSize = AUTO_ZOOM * Math.pow(0.72, zoomLevel);
+    viewBoxSize = Math.max(35, Math.min(FULL_SIZE, viewBoxSize));
+  } else {
+    centerX = 100;
+    centerY = 102.5;
+    viewBoxSize = FULL_SIZE;
   }
+  const half = viewBoxSize / 2;
+  const minX = Math.max(0, Math.min(200 - viewBoxSize, centerX - half));
+  const minY = Math.max(0, Math.min(205 - viewBoxSize, centerY - half));
+  const viewBox = `${minX} ${minY} ${viewBoxSize} ${viewBoxSize}`;
+
   // When zoomed in, show every nearby dot for context, not just major labels.
   const showDots = highlightLoc ? true : showAll;
   const highlightName = highlight
     ? (highlightLoc?.label ?? prettyName(highlight))
     : "";
   const paths = REGION_PATHS[region] ?? [];
+  const canZoomIn = highlightLoc && viewBoxSize > 36;
+  const canZoomOut = highlightLoc && viewBoxSize < FULL_SIZE - 1;
 
   return (
-    <svg
-      viewBox={viewBox}
-      role="img"
-      aria-label={`Stylized map of the ${REGION_LABELS[region] ?? region} region`}
-      className="h-auto w-full"
-    >
+    <div className="relative">
+      <svg
+        viewBox={viewBox}
+        role="img"
+        aria-label={`Stylized map of the ${REGION_LABELS[region] ?? region} region`}
+        className="h-auto w-full"
+      >
       {region === "galar" ? (
         <GalarTerrain />
       ) : region === "paldea" ? (
@@ -756,6 +776,41 @@ export function RegionMap({ region, highlight, showAll }: RegionMapProps) {
           </g>
         </g>
       )}
-    </svg>
+      </svg>
+
+      {/* zoom controls */}
+      {highlightLoc && (
+        <div className="absolute bottom-2 right-2 flex flex-col gap-1">
+          <button
+            type="button"
+            onClick={() => setZoomLevel((z) => z + 1)}
+            disabled={!canZoomIn}
+            aria-label="Zoom in"
+            className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-900/80 text-lg font-bold text-white shadow hover:bg-slate-900 disabled:opacity-40"
+          >
+            +
+          </button>
+          <button
+            type="button"
+            onClick={() => setZoomLevel((z) => z - 1)}
+            disabled={!canZoomOut}
+            aria-label="Zoom out"
+            className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-900/80 text-lg font-bold text-white shadow hover:bg-slate-900 disabled:opacity-40"
+          >
+            −
+          </button>
+          {zoomLevel !== 0 && (
+            <button
+              type="button"
+              onClick={() => setZoomLevel(0)}
+              aria-label="Reset zoom"
+              className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-900/80 text-sm font-bold text-white shadow hover:bg-slate-900"
+            >
+              ⟲
+            </button>
+          )}
+        </div>
+      )}
+    </div>
   );
 }

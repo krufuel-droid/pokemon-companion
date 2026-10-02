@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { RegionMap } from "@/components/region-map";
-import { VERSION_REGION } from "@/lib/data/region-maps";
+import { VERSION_REGION, findRegionForLocation } from "@/lib/data/region-maps";
 
 const VERSION_TITLES: Record<string, string> = {
   red: "Pokémon Red",
@@ -295,7 +295,10 @@ function LocationCard({
     };
   }, [areaUrl]);
 
-  const region = VERSION_REGION[version] ?? null;
+  const region =
+    (locationKey ? findRegionForLocation(locationKey) : null) ??
+    VERSION_REGION[version] ??
+    null;
 
   return (
     <div

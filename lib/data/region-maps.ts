@@ -1464,3 +1464,23 @@ export const REGION_PATHS: Record<string, string[][]> = {
     ["cerulean-city", "cerulean-cave"],
   ],
 };
+
+/**
+ * Find which region contains a given location key.
+ * Used by the encounter map modal: the location's region is more accurate
+ * than the game version's region (e.g. Pallet Town in HeartGold is Kanto,
+ * not Johto).
+ */
+export function findRegionForLocation(locationKey: string): string | null {
+  if (locationKey in GALAR_LOCATIONS) return "galar";
+  if (locationKey in PALDEA_LOCATIONS) return "paldea";
+  if (locationKey in KANTO_LOCATIONS) return "kanto";
+  if (locationKey in JOHTO_LOCATIONS) return "johto";
+  if (locationKey in HOENN_LOCATIONS) return "hoenn";
+  if (locationKey in SINNOH_LOCATIONS) return "sinnoh";
+  if (locationKey in UNOVA_LOCATIONS) return "unova";
+  if (locationKey in KALOS_LOCATIONS) return "kalos";
+  if (locationKey in ALOLA_LOCATIONS) return "alola";
+  if (locationKey in HISUI_LOCATIONS) return "hisui";
+  return null;
+}
