@@ -123,7 +123,7 @@ export function EvolutionSection({
       <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">
         Evolutions
       </h2>
-      <div className="mt-3 overflow-x-auto pb-1">
+      <div className="mt-3 overflow-x-auto px-1 py-1.5">
         <EvoNodeView node={chain} currentId={currentId} />
       </div>
     </section>
