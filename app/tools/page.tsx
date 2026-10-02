@@ -17,6 +17,11 @@ const TOOLS = [
     desc: "Check whether two Pokémon can breed by egg group — and see the egg moves their offspring could inherit.",
   },
   {
+    href: "/tools/randomizer",
+    title: "Team Randomizer",
+    desc: "Pick a game and get a balanced team of early-route Pokémon for your next playthrough — viable picks spread across types.",
+  },
+  {
     href: "/tools/team-builder",
     title: "Team Builder",
     desc: "Draft a 6-Pokémon team, check defensive weaknesses and offensive coverage, save teams, and share them with a link.",
