@@ -1,4 +1,4 @@
-import { GALAR_LOCATIONS, PALDEA_LOCATIONS, KANTO_LOCATIONS, JOHTO_LOCATIONS, HOENN_LOCATIONS, SINNOH_LOCATIONS, UNOVA_LOCATIONS, KALOS_LOCATIONS } from "@/lib/data/region-maps";
+import { GALAR_LOCATIONS, PALDEA_LOCATIONS, KANTO_LOCATIONS, JOHTO_LOCATIONS, HOENN_LOCATIONS, SINNOH_LOCATIONS, UNOVA_LOCATIONS, KALOS_LOCATIONS, ALOLA_LOCATIONS } from "@/lib/data/region-maps";
 
 interface RegionMapProps {
   region: string;
@@ -17,6 +17,7 @@ const REGION_LABELS: Record<string, string> = {
   sinnoh: "Sinnoh",
   unova: "Unova",
   kalos: "Kalos",
+  alola: "Alola",
 };
 
 function GalarTerrain() {
@@ -430,9 +431,73 @@ function KalosTerrain() {
   );
 }
 
+function AlolaTerrain() {
+  return (
+    <>
+      {/* ocean */}
+      <rect x="0" y="0" width="200" height="205" rx="12" fill="#1e3a5f" />
+      <rect x="0" y="0" width="200" height="205" rx="12" fill="#274b73" opacity="0.6" />
+
+      {/* four islands of Alola */}
+      <g fill="#4a7c3f" stroke="#356030" strokeWidth="1.2">
+        {/* Melemele (northwest) */}
+        <path
+          d="M 50,50
+             C 60,48 70,52 74,60
+             C 78,68 74,76 66,78
+             C 58,80 48,76 44,68
+             C 40,60 44,52 50,50 Z"
+        />
+        {/* Akala (northeast) */}
+        <path
+          d="M 120,52
+             C 130,50 140,54 144,62
+             C 148,70 144,80 136,86
+             C 128,92 118,90 112,82
+             C 106,74 110,62 116,56
+             C 117,54 118,53 120,52 Z"
+        />
+        {/* Ula'ula (southeast) */}
+        <path
+          d="M 120,125
+             C 130,123 140,127 144,135
+             C 148,143 144,153 136,159
+             C 128,165 118,163 112,155
+             C 106,147 110,135 116,129
+             C 117,127 118,126 120,125 Z"
+        />
+        {/* Poni (southwest) */}
+        <path
+          d="M 50,145
+             C 60,143 70,147 74,155
+             C 78,163 74,173 66,175
+             C 58,177 48,173 44,165
+             C 40,157 44,147 50,145 Z"
+        />
+      </g>
+      {/* Lush Jungle tint */}
+      <ellipse cx="140" cy="92" rx="7" ry="5" fill="#2d5c33" opacity="0.6" />
+      {/* Wela Volcano tint */}
+      <ellipse cx="130" cy="88" rx="6" ry="5" fill="#8a4a3a" opacity="0.5" />
+      {/* Haina Desert tint */}
+      <ellipse cx="140" cy="148" rx="7" ry="5" fill="#d4a24e" opacity="0.5" />
+
+      {/* Aether Paradise (center) */}
+      <ellipse cx="100" cy="110" rx="6" ry="5" fill="#7ab8c4" stroke="#4a8a96" strokeWidth="1" />
+      <text x="100" y="121" textAnchor="middle" fontSize="4" fill="#cfe3d0" fontStyle="italic">
+        Aether
+      </text>
+      {/* Mount Lanakila (north) */}
+      <ellipse cx="100" cy="40" rx="8" ry="6" fill="#e8e8e8" stroke="#b8b8b8" strokeWidth="1" />
+      {/* Exeggutor Island */}
+      <ellipse cx="50" cy="165" rx="4" ry="3" fill="#4a7c3f" stroke="#356030" strokeWidth="0.8" />
+    </>
+  );
+}
+
 /**
  * Stylized hand-drawn region maps with encounter pins.
- * Regions are added one by one — Galar, Paldea, Kanto, Johto, Hoenn, Sinnoh, Unova, and Kalos so far.
+ * Regions are added one by one — Galar, Paldea, Kanto, Johto, Hoenn, Sinnoh, Unova, Kalos, and Alola so far.
  */
 export function RegionMap({ region, highlight, showAll }: RegionMapProps) {
   const locations =
@@ -451,7 +516,9 @@ export function RegionMap({ region, highlight, showAll }: RegionMapProps) {
           : region === "unova"
           ? UNOVA_LOCATIONS
           : region === "kalos"
-            ? KALOS_LOCATIONS
+          ? KALOS_LOCATIONS
+          : region === "alola"
+            ? ALOLA_LOCATIONS
             : null;
 
   if (!locations) {
