@@ -12,7 +12,7 @@
  * needed when the form's typing differs from the base species.
  */
 
-export type FormKind = "mega" | "gigantamax" | "regional" | "champions";
+export type FormKind = "mega" | "gigantamax" | "regional" | "champions" | "mask";
 
 export interface PokemonForm {
   formName: string;
@@ -29,6 +29,7 @@ export const KIND_LABEL: Record<FormKind, string> = {
   gigantamax: "Gigantamax",
   regional: "Regional form",
   champions: "Champions Mega",
+  mask: "Mask form",
 };
 
 const sprite = (showdownName: string) =>
@@ -277,6 +278,41 @@ for (const [speciesId, formName, ability] of CHAMPIONS_MEGAS) {
     sprite: sprite(CHAMPIONS_BASE_SPRITES[speciesId]),
     obtain: "Mega Evolution in Pokémon Champions",
     note: [CHAMPIONS_NOTE, ability].filter(Boolean).join(" "),
+  });
+}
+
+// [speciesId, formName, showdownSpriteName, types, obtain]
+const MASKS: Array<[number, string, string, string[], string]> = [
+  [
+    1017,
+    "Wellspring Mask",
+    "ogerpon-wellspring",
+    ["grass", "water"],
+    "Ogerpon wears the Wellspring Mask — earned in The Teal Mask story (Kitakami)",
+  ],
+  [
+    1017,
+    "Hearthflame Mask",
+    "ogerpon-hearthflame",
+    ["grass", "fire"],
+    "Ogerpon wears the Hearthflame Mask — earned in The Teal Mask story (Kitakami)",
+  ],
+  [
+    1017,
+    "Cornerstone Mask",
+    "ogerpon-cornerstone",
+    ["grass", "rock"],
+    "Ogerpon wears the Cornerstone Mask — earned in The Teal Mask story (Kitakami)",
+  ],
+];
+
+for (const [speciesId, formName, showdownName, types, obtain] of MASKS) {
+  add(speciesId, {
+    formName,
+    kind: "mask",
+    sprite: sprite(showdownName),
+    types,
+    obtain,
   });
 }
 

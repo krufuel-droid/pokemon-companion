@@ -41,6 +41,7 @@ const KIND_BADGE: Record<string, string> = {
   gigantamax: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
   regional: "bg-sky-100 text-sky-800 dark:bg-sky-900 dark:text-sky-200",
   champions: "bg-violet-100 text-violet-800 dark:bg-violet-900 dark:text-violet-200",
+  mask: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200",
 };
 
 export function FormsSection({ speciesId }: { speciesId: number }) {
@@ -51,7 +52,7 @@ export function FormsSection({ speciesId }: { speciesId: number }) {
     <SectionAccordion
       label="Alternate forms"
       title="Forms"
-      subtitle="Alternate forms of this Pokémon — Megas, Gigantamax, regional variants, and Pokémon Champions originals."
+      subtitle="Alternate forms of this Pokémon — Megas, Gigantamax, regional variants, mask forms, and Pokémon Champions originals."
       badge={`${forms.length} ${forms.length === 1 ? "form" : "forms"}`}
     >
       <ul className="grid gap-4 sm:grid-cols-2">
