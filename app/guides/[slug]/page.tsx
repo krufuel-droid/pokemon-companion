@@ -6,8 +6,9 @@ export function generateStaticParams() {
   return GUIDES.map((g) => ({ slug: g.slug }));
 }
 
-export function generateMetadata({ params }: { params: { slug: string } }) {
-  const guide = GUIDES.find((g) => g.slug === params.slug);
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const guide = GUIDES.find((g) => g.slug === slug);
   return {
     title: guide ? `${guide.title} Playthrough Guide | Pokémon Companion` : "Guide | Pokémon Companion",
     description: guide?.tagline ?? "Playthrough guide.",
@@ -36,8 +37,9 @@ const KIND_LABELS: Record<GuideMilestone["kind"], string> = {
   other: "Milestone",
 };
 
-export default function GuidePage({ params }: { params: { slug: string } }) {
-  const guide = GUIDES.find((g) => g.slug === params.slug);
+export default async function GuidePage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const guide = GUIDES.find((g) => g.slug === slug);
   if (!guide) notFound();
 
   return (
