@@ -124,11 +124,20 @@ export const VERSION_REGION: Record<string, string> = {
   shield: "galar",
   scarlet: "paldea",
   violet: "paldea",
+  red: "kanto",
+  blue: "kanto",
+  yellow: "kanto",
+  green: "kanto",
+  firered: "kanto",
+  leafgreen: "kanto",
+  "lets-go-pikachu": "kanto",
+  "lets-go-eevee": "kanto",
 };
 
 export const REGION_LABEL: Record<string, string> = {
   galar: "Galar",
   paldea: "Paldea",
+  kanto: "Kanto",
 };
 
 /**
@@ -240,4 +249,120 @@ export const PALDEA_LOCATIONS: Record<string, MapLocation> = {
   "canyon-plaza": { coords: [168, 171] },
   "polar-plaza": { coords: [182, 171] },
   "league-club-room": { coords: [175, 166] },
+};
+
+/**
+ * Kanto region map data (Red/Blue/Yellow, FireRed/LeafGreen, Let's Go),
+ * including the Sevii Islands archipelago to the far south.
+ * Coordinates on the same 0–200 grid.
+ */
+export const KANTO_LOCATIONS: Record<string, MapLocation> = {
+  // --- Southwest: home ---
+  "pallet-town": { coords: [60, 160], label: "Pallet Town" },
+  "kanto-route-1": { coords: [60, 150] },
+  "viridian-city": { coords: [60, 140], label: "Viridian City" },
+  "kanto-route-22": { coords: [45, 140] },
+  "kanto-route-23": { coords: [32, 122] },
+  "kanto-route-26": { coords: [25, 136] },
+  "kanto-route-27": { coords: [18, 138] },
+  "kanto-route-28": { coords: [14, 130], label: "Mt. Silver" },
+  "kanto-victory-road-1": { coords: [35, 132] },
+  "kanto-victory-road-2": { coords: [32, 128] },
+  "indigo-plateau": { coords: [28, 124], label: "Indigo Plateau" },
+  // --- West ---
+  "kanto-route-2": { coords: [60, 130] },
+  "viridian-forest": { coords: [60, 122], label: "Viridian Forest" },
+  "pewter-city": { coords: [60, 112], label: "Pewter City" },
+  "kanto-route-3": { coords: [75, 112] },
+  "mt-moon": { coords: [88, 112], label: "Mt. Moon" },
+  "kanto-route-4": { coords: [100, 112] },
+  // --- Northeast ---
+  "cerulean-city": { coords: [112, 112], label: "Cerulean City" },
+  "kanto-route-24": { coords: [118, 102] },
+  "kanto-route-25": { coords: [122, 94] },
+  "cerulean-cave": { coords: [106, 100], label: "Cerulean Cave" },
+  // --- East-central ---
+  "kanto-route-9": { coords: [125, 130] },
+  "kanto-route-10": { coords: [130, 120] },
+  "rock-tunnel": { coords: [132, 112], label: "Rock Tunnel" },
+  "kanto-power-plant": { coords: [136, 118] },
+  "lavender-town": { coords: [136, 128], label: "Lavender Town" },
+  "pokemon-tower": { coords: [136, 126] },
+  // --- Center ---
+  "saffron-city": { coords: [112, 128], label: "Saffron City" },
+  "kanto-route-5": { coords: [112, 120] },
+  "kanto-underground-path": { coords: [112, 130] },
+  "kanto-route-6": { coords: [112, 138] },
+  "kanto-route-7": { coords: [100, 128] },
+  "kanto-route-8": { coords: [124, 128] },
+  // --- West-central ---
+  "celadon-city": { coords: [88, 128], label: "Celadon City" },
+  "kanto-route-16": { coords: [78, 128] },
+  "kanto-route-17": { coords: [70, 136] },
+  "kanto-route-18": { coords: [70, 146] },
+  // --- South-central ---
+  "fuchsia-city": { coords: [70, 156], label: "Fuchsia City" },
+  "kanto-safari-zone": { coords: [70, 159] },
+  "kanto-route-15": { coords: [85, 159] },
+  "kanto-route-14": { coords: [96, 159] },
+  "kanto-route-13": { coords: [106, 159] },
+  "kanto-route-12": { coords: [115, 156] },
+  // --- South coast & sea ---
+  "vermilion-city": { coords: [112, 148], label: "Vermilion City" },
+  "ss-anne": { coords: [114, 152] },
+  "digletts-cave": { coords: [125, 148] },
+  "kanto-route-11": { coords: [128, 148] },
+  "kanto-sea-route-19": { coords: [90, 168] },
+  "kanto-sea-route-20": { coords: [104, 170] },
+  "seafoam-islands": { coords: [114, 172], label: "Seafoam Islands" },
+  "kanto-sea-route-21": { coords: [124, 170] },
+  "cinnabar-island": { coords: [70, 178], label: "Cinnabar Island" },
+  "pokemon-mansion": { coords: [70, 181] },
+  // --- Sevii Islands (far south) ---
+  "one-island": { coords: [40, 192], label: "One Island" },
+  "kindle-road": { coords: [45, 194] },
+  "mt-ember": { coords: [48, 196], label: "Mt. Ember" },
+  "berry-forest": { coords: [43, 193] },
+  "two-island": { coords: [68, 192], label: "Two Island" },
+  "cape-brink": { coords: [66, 194] },
+  "bond-bridge": { coords: [72, 194] },
+  "treasure-beach": { coords: [68, 196] },
+  "three-island": { coords: [98, 192], label: "Three Island" },
+  "three-isle-path": { coords: [96, 194] },
+  "three-isle-port": { coords: [100, 194] },
+  "green-path": { coords: [98, 196] },
+  "four-island": { coords: [122, 192], label: "Four Island" },
+  "icefall-cave": { coords: [124, 194] },
+  "five-island": { coords: [144, 192], label: "Five Island" },
+  "five-isle-meadow": { coords: [146, 194] },
+  "memorial-pillar": { coords: [142, 194] },
+  "lost-cave": { coords: [146, 196] },
+  "six-island": { coords: [162, 192], label: "Six Island" },
+  "pattern-bush": { coords: [160, 194] },
+  "ruin-valley": { coords: [164, 194] },
+  "kanto-altering-cave": { coords: [162, 196] },
+  "seven-island": { coords: [178, 192], label: "Seven Island" },
+  "sevault-canyon": { coords: [180, 194] },
+  "tanoby-ruins": { coords: [184, 197], label: "Tanoby Ruins" },
+  "water-labyrinth": { coords: [168, 196] },
+  "water-path": { coords: [172, 196] },
+  "resort-gorgeous": { coords: [174, 194] },
+  "trainer-tower": { coords: [176, 192] },
+  "outcast-island": { coords: [76, 196] },
+  "canyon-entrance": { coords: [100, 198] },
+  // Tanoby Ruins Unown chambers (clustered at the ruins)
+  "monean-chamber": { coords: [184, 197] },
+  "liptoo-chamber": { coords: [185, 197] },
+  "weepth-chamber": { coords: [183, 198] },
+  "dilford-chamber": { coords: [185, 198] },
+  "scufib-chamber": { coords: [184, 196] },
+  "rixy-chamber": { coords: [186, 197] },
+  "viapos-chamber": { coords: [183, 197] },
+  // Event islands
+  "navel-rock": { coords: [110, 200] },
+  "birth-island": { coords: [90, 200] },
+  // Misc
+  "roaming-kanto": { coords: [100, 130] },
+  "kanto-pokecenter": { coords: [112, 128] },
+  "kanto-pokemart": { coords: [112, 129] },
 };

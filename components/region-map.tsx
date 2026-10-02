@@ -1,4 +1,4 @@
-import { GALAR_LOCATIONS, PALDEA_LOCATIONS } from "@/lib/data/region-maps";
+import { GALAR_LOCATIONS, PALDEA_LOCATIONS, KANTO_LOCATIONS } from "@/lib/data/region-maps";
 
 interface RegionMapProps {
   region: string;
@@ -11,6 +11,7 @@ interface RegionMapProps {
 const REGION_LABELS: Record<string, string> = {
   galar: "Galar",
   paldea: "Paldea",
+  kanto: "Kanto",
 };
 
 function GalarTerrain() {
@@ -141,9 +142,59 @@ function PaldeaTerrain() {
   );
 }
 
+function KantoTerrain() {
+  return (
+    <>
+      {/* ocean */}
+      <rect x="0" y="0" width="200" height="205" rx="12" fill="#1e3a5f" />
+      <rect x="0" y="0" width="200" height="205" rx="12" fill="#274b73" opacity="0.6" />
+
+      {/* mainland Kanto — stylized rounded region */}
+      <path
+        d="M 60,162
+           C 48,158 40,148 38,136
+           C 36,124 40,114 48,106
+           C 56,98 68,94 82,94
+           C 96,94 108,98 120,102
+           C 132,106 142,114 144,126
+           C 146,138 140,148 130,154
+           C 120,160 108,162 96,162
+           C 84,162 70,164 60,162
+           Z"
+        fill="#4a7c3f"
+        stroke="#356030"
+        strokeWidth="1.5"
+      />
+      {/* Viridian Forest tint */}
+      <ellipse cx="60" cy="122" rx="10" ry="8" fill="#2d5c33" opacity="0.6" />
+      {/* Mt. Moon tint */}
+      <ellipse cx="88" cy="112" rx="8" ry="6" fill="#8a8a8a" opacity="0.5" />
+
+      {/* Cinnabar Island */}
+      <ellipse cx="70" cy="179" rx="7" ry="5" fill="#4a7c3f" stroke="#356030" strokeWidth="1" />
+      {/* Seafoam Islands */}
+      <ellipse cx="114" cy="172" rx="6" ry="4" fill="#4a7c3f" stroke="#356030" strokeWidth="1" />
+
+      {/* Sevii Islands archipelago */}
+      <g fill="#4a7c3f" stroke="#356030" strokeWidth="0.8">
+        <ellipse cx="44" cy="194" rx="6" ry="4" />
+        <ellipse cx="70" cy="194" rx="6" ry="4" />
+        <ellipse cx="99" cy="194" rx="6" ry="4" />
+        <ellipse cx="123" cy="194" rx="6" ry="4" />
+        <ellipse cx="145" cy="194" rx="6" ry="4" />
+        <ellipse cx="163" cy="194" rx="6" ry="4" />
+        <ellipse cx="180" cy="194" rx="7" ry="5" />
+      </g>
+      <text x="110" y="203" textAnchor="middle" fontSize="4.5" fill="#cfe3d0" fontStyle="italic">
+        Sevii Islands
+      </text>
+    </>
+  );
+}
+
 /**
  * Stylized hand-drawn region maps with encounter pins.
- * Regions are added one by one — Galar and Paldea so far.
+ * Regions are added one by one — Galar, Paldea, and Kanto so far.
  */
 export function RegionMap({ region, highlight, showAll }: RegionMapProps) {
   const locations =
@@ -151,7 +202,9 @@ export function RegionMap({ region, highlight, showAll }: RegionMapProps) {
       ? GALAR_LOCATIONS
       : region === "paldea"
         ? PALDEA_LOCATIONS
-        : null;
+        : region === "kanto"
+          ? KANTO_LOCATIONS
+          : null;
 
   if (!locations) {
     return (
@@ -172,8 +225,10 @@ export function RegionMap({ region, highlight, showAll }: RegionMapProps) {
     >
       {region === "galar" ? (
         <GalarTerrain />
-      ) : (
+      ) : region === "paldea" ? (
         <PaldeaTerrain />
+      ) : (
+        <KantoTerrain />
       )}
 
       {/* location dots */}
