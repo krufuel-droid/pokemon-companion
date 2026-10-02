@@ -1,4 +1,4 @@
-import { GALAR_LOCATIONS, PALDEA_LOCATIONS, KANTO_LOCATIONS, JOHTO_LOCATIONS } from "@/lib/data/region-maps";
+import { GALAR_LOCATIONS, PALDEA_LOCATIONS, KANTO_LOCATIONS, JOHTO_LOCATIONS, HOENN_LOCATIONS } from "@/lib/data/region-maps";
 
 interface RegionMapProps {
   region: string;
@@ -13,6 +13,7 @@ const REGION_LABELS: Record<string, string> = {
   paldea: "Paldea",
   kanto: "Kanto",
   johto: "Johto",
+  hoenn: "Hoenn",
 };
 
 function GalarTerrain() {
@@ -237,9 +238,59 @@ function JohtoTerrain() {
   );
 }
 
+function HoennTerrain() {
+  return (
+    <>
+      {/* ocean */}
+      <rect x="0" y="0" width="200" height="205" rx="12" fill="#1e3a5f" />
+      <rect x="0" y="0" width="200" height="205" rx="12" fill="#274b73" opacity="0.6" />
+
+      {/* mainland Hoenn — wide island ringed by sea */}
+      <path
+        d="M 100,172
+           C 88,170 76,166 66,160
+           C 56,154 50,144 52,134
+           C 54,124 60,116 68,110
+           C 76,104 84,100 92,96
+           C 100,92 108,92 116,96
+           C 124,100 132,104 140,110
+           C 148,116 154,124 154,134
+           C 154,144 148,152 140,158
+           C 132,164 122,168 112,170
+           C 108,171 104,172 100,172
+           Z"
+        fill="#4a7c3f"
+        stroke="#356030"
+        strokeWidth="1.5"
+      />
+      {/* desert tint (Route 111) */}
+      <ellipse cx="100" cy="122" rx="12" ry="8" fill="#d4a24e" opacity="0.5" />
+      {/* Mt. Chimney tint */}
+      <ellipse cx="100" cy="110" rx="8" ry="6" fill="#8a4a3a" opacity="0.5" />
+      {/* Petalburg Woods tint */}
+      <ellipse cx="64" cy="150" rx="8" ry="6" fill="#2d5c33" opacity="0.6" />
+      {/* Fortree tint */}
+      <ellipse cx="130" cy="125" rx="10" ry="8" fill="#2d5c33" opacity="0.6" />
+
+      {/* Dewford island */}
+      <ellipse cx="50" cy="165" rx="6" ry="5" fill="#4a7c3f" stroke="#356030" strokeWidth="1" />
+      {/* Mossdeep island */}
+      <ellipse cx="170" cy="135" rx="7" ry="6" fill="#4a7c3f" stroke="#356030" strokeWidth="1" />
+      {/* Sootopolis crater */}
+      <ellipse cx="130" cy="170" rx="7" ry="6" fill="#4a7c3f" stroke="#356030" strokeWidth="1" />
+      {/* Ever Grande island */}
+      <ellipse cx="180" cy="150" rx="6" ry="8" fill="#4a7c3f" stroke="#356030" strokeWidth="1" />
+      {/* Pacifidlog */}
+      <ellipse cx="85" cy="178" rx="5" ry="4" fill="#4a7c3f" stroke="#356030" strokeWidth="1" />
+      {/* Battle Frontier island */}
+      <ellipse cx="190" cy="180" rx="7" ry="6" fill="#4a7c3f" stroke="#356030" strokeWidth="1" />
+    </>
+  );
+}
+
 /**
  * Stylized hand-drawn region maps with encounter pins.
- * Regions are added one by one — Galar, Paldea, Kanto, and Johto so far.
+ * Regions are added one by one — Galar, Paldea, Kanto, Johto, and Hoenn so far.
  */
 export function RegionMap({ region, highlight, showAll }: RegionMapProps) {
   const locations =
@@ -250,7 +301,9 @@ export function RegionMap({ region, highlight, showAll }: RegionMapProps) {
         : region === "kanto"
           ? KANTO_LOCATIONS
           : region === "johto"
-            ? JOHTO_LOCATIONS
+          ? JOHTO_LOCATIONS
+          : region === "hoenn"
+            ? HOENN_LOCATIONS
             : null;
 
   if (!locations) {
