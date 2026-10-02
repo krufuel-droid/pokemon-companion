@@ -1,4 +1,4 @@
-import { GALAR_LOCATIONS, PALDEA_LOCATIONS, KANTO_LOCATIONS, JOHTO_LOCATIONS, HOENN_LOCATIONS, SINNOH_LOCATIONS, UNOVA_LOCATIONS, KALOS_LOCATIONS, ALOLA_LOCATIONS, HISUI_LOCATIONS } from "@/lib/data/region-maps";
+import { GALAR_LOCATIONS, PALDEA_LOCATIONS, KANTO_LOCATIONS, JOHTO_LOCATIONS, HOENN_LOCATIONS, SINNOH_LOCATIONS, UNOVA_LOCATIONS, KALOS_LOCATIONS, ALOLA_LOCATIONS, HISUI_LOCATIONS, REGION_PATHS } from "@/lib/data/region-maps";
 
 interface RegionMapProps {
   region: string;
@@ -542,6 +542,31 @@ function prettyName(key: string): string {
     .join(" ");
 }
 
+/** Tiny house icon for cities/towns (drawn at the given x, y center). */
+function TownIcon({ x, y }: { x: number; y: number }) {
+  // House body + roof, ~5 units wide, centered on (x, y)
+  return (
+    <g>
+      <rect
+        x={x - 2}
+        y={y - 0.5}
+        width="4"
+        height="3"
+        fill="#fff"
+        stroke="#2d5c33"
+        strokeWidth="0.7"
+      />
+      <path
+        d={`M ${x - 2.6},${y - 0.5} L ${x},${y - 3.2} L ${x + 2.6},${y - 0.5} Z`}
+        fill="#e8b4b8"
+        stroke="#2d5c33"
+        strokeWidth="0.7"
+        strokeLinejoin="round"
+      />
+    </g>
+  );
+}
+
 /**
  * Stylized hand-drawn region maps with encounter pins.
  * All ten regions are mapped: Galar, Paldea, Kanto, Johto, Hoenn, Sinnoh, Unova, Kalos, Alola, and Hisui.
@@ -599,6 +624,7 @@ export function RegionMap({ region, highlight, showAll }: RegionMapProps) {
   const highlightName = highlight
     ? (highlightLoc?.label ?? prettyName(highlight))
     : "";
+  const paths = REGION_PATHS[region] ?? [];
 
   return (
     <svg
@@ -629,6 +655,29 @@ export function RegionMap({ region, highlight, showAll }: RegionMapProps) {
         <HisuiTerrain />
       )}
 
+      {/* route paths */}
+      {paths.map((path, i) => {
+        const pts = path
+          .map((key) => locations[key])
+          .filter(Boolean)
+          .map((loc) => loc.coords.join(","))
+          .join(" ");
+        if (!pts) return null;
+        return (
+          <polyline
+            key={`path-${i}`}
+            points={pts}
+            fill="none"
+            stroke="#fcd34d"
+            strokeWidth="1.2"
+            strokeDasharray="4 2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            opacity="0.75"
+          />
+        );
+      })}
+
       {/* location dots */}
       {keys.map((key) => {
         const loc = locations[key];
@@ -636,20 +685,13 @@ export function RegionMap({ region, highlight, showAll }: RegionMapProps) {
         if (isHighlight) return null;
         if (!showDots && !loc.label) return null;
         const [x, y] = loc.coords;
-        return (
-          <g key={key}>
-            <circle
-              cx={x}
-              cy={y}
-              r={loc.label ? 2.2 : 1.2}
-              fill={loc.label ? "#fff" : "#cfe3d0"}
-              stroke="#2d5c33"
-              strokeWidth="0.8"
-              opacity={loc.label ? 1 : 0.7}
-            />
-            {loc.label && (
+        // Cities/towns get a house icon; routes and landmarks get dots.
+        if (loc.label) {
+          return (
+            <g key={key}>
+              <TownIcon x={x} y={y} />
               <text
-                x={x + 3.5}
+                x={x + 4}
                 y={y + 1.5}
                 fontSize="4.5"
                 fill="#fff"
@@ -657,7 +699,20 @@ export function RegionMap({ region, highlight, showAll }: RegionMapProps) {
               >
                 {loc.label}
               </text>
-            )}
+            </g>
+          );
+        }
+        return (
+          <g key={key}>
+            <circle
+              cx={x}
+              cy={y}
+              r={1.2}
+              fill="#cfe3d0"
+              stroke="#2d5c33"
+              strokeWidth="0.8"
+              opacity={0.7}
+            />
           </g>
         );
       })}
