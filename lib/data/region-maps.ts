@@ -149,6 +149,8 @@ export const VERSION_REGION: Record<string, string> = {
   white: "unova",
   black2: "unova",
   white2: "unova",
+  x: "kalos",
+  y: "kalos",
 };
 
 export const REGION_LABEL: Record<string, string> = {
@@ -159,6 +161,7 @@ export const REGION_LABEL: Record<string, string> = {
   hoenn: "Hoenn",
   sinnoh: "Sinnoh",
   unova: "Unova",
+  kalos: "Kalos",
 };
 
 /**
@@ -892,4 +895,130 @@ export const UNOVA_LOCATIONS: Record<string, MapLocation> = {
   "unova-faraway-place": { coords: [190, 190] },
   "unova-mystery-zone": { coords: [190, 192] },
   "anville-town": { coords: [100, 150] },
+};
+
+/**
+ * Kalos region map data (X/Y).
+ * A star-shaped region with Lumiose City at its center. Coordinates on the 0–200 grid.
+ */
+export const KALOS_LOCATIONS: Record<string, MapLocation> = {
+  // --- Far north (snow) ---
+  "snowbelle-city": { coords: [100, 35], label: "Snowbelle City" },
+  "snowbelle-gate": { coords: [100, 37] },
+  "kalos-route-17": { coords: [100, 45], label: "Route 17" },
+  "mamoswine-road": { coords: [100, 50] },
+  "dendemille-town": { coords: [100, 55], label: "Dendemille Town" },
+  "dendemille-gate": { coords: [100, 53] },
+  "frost-cavern": { coords: [105, 60], label: "Frost Cavern" },
+  "avance-trail": { coords: [105, 60] },
+  "derniere-way": { coords: [108, 62] },
+  "detourner-way": { coords: [110, 64] },
+  "kalos-route-18": { coords: [110, 65] },
+  "brun-way": { coords: [112, 66] },
+  // --- North-central ---
+  "anistar-city": { coords: [115, 70], label: "Anistar City" },
+  "anistar-gate": { coords: [115, 68] },
+  "miroir-way": { coords: [115, 70] },
+  "ouvert-way": { coords: [118, 72] },
+  "vallee-etroite-way": { coords: [120, 74] },
+  "grande-vallee-way": { coords: [122, 76] },
+  "kalos-route-19": { coords: [120, 75] },
+  "fourrage-road": { coords: [105, 75] },
+  "menhir-trail": { coords: [108, 78] },
+  "spikes-passage": { coords: [110, 65] },
+  // Sundial chambers (clustered at Anistar)
+  "blazing-chamber": { coords: [115, 70] },
+  "flood-chamber": { coords: [116, 70] },
+  "ironworks-chamber": { coords: [114, 71] },
+  "dragonmark-chamber": { coords: [116, 71] },
+  "radiant-chamber": { coords: [115, 69] },
+  "chamber-of-emptiness": { coords: [75, 100] },
+  // --- Northeast ---
+  "couriway-town": { coords: [135, 80], label: "Couriway Town" },
+  "couriway-gate": { coords: [135, 78] },
+  "riviere-walk": { coords: [125, 85] },
+  "kalos-route-20": { coords: [125, 85] },
+  "pokemon-village": { coords: [130, 90], label: "Pokémon Village" },
+  "winding-woods": { coords: [125, 95] },
+  "kalos-route-21": { coords: [140, 95] },
+  "kalos-route-22": { coords: [150, 100] },
+  "pokemon-league-gate": { coords: [158, 103] },
+  "kalos-pokemon-league": { coords: [160, 105], label: "Pokémon League" },
+  "kalos-victory-road": { coords: [155, 102] },
+  // --- East ---
+  "kalos-route-15": { coords: [125, 110] },
+  "lost-hotel": { coords: [122, 112] },
+  "melancolie-path": { coords: [118, 108] },
+  "kalos-route-16": { coords: [120, 115] },
+  "laverre-city": { coords: [130, 100], label: "Laverre City" },
+  "laverre-gate": { coords: [130, 98] },
+  "laverre-nature-trail": { coords: [132, 102] },
+  "kalos-route-14": { coords: [120, 105] },
+  // --- Southeast ---
+  "kiloude-city": { coords: [140, 120], label: "Kiloude City" },
+  "kiloude-station": { coords: [140, 122] },
+  "battle-maison": { coords: [140, 122] },
+  "friend-safari": { coords: [142, 120] },
+  // --- South ---
+  "coumarine-city": { coords: [90, 150], label: "Coumarine City" },
+  "coumarine-gate": { coords: [90, 148] },
+  "kalos-route-8": { coords: [85, 140] },
+  "muraille-coast": { coords: [70, 155] },
+  "azure-bay": { coords: [75, 155], label: "Azure Bay" },
+  "sea-spirits-den": { coords: [70, 158] },
+  "unknown-dungeon": { coords: [70, 158] },
+  "terminus-cave": { coords: [72, 155] },
+  // --- West coast ---
+  "kalos-route-12": { coords: [80, 130] },
+  "shalour-city": { coords: [70, 125], label: "Shalour City" },
+  "shalour-gate": { coords: [70, 123] },
+  "tower-of-mastery": { coords: [70, 123] },
+  "kalos-route-11": { coords: [75, 120] },
+  "reflection-cave": { coords: [65, 108] },
+  "cyllage-city": { coords: [60, 115], label: "Cyllage City" },
+  "kalos-route-10": { coords: [65, 110] },
+  "connecting-cave": { coords: [68, 110] },
+  "zubat-roost": { coords: [65, 106] },
+  "ambrette-town": { coords: [55, 125], label: "Ambrette Town" },
+  "ambrette-gate": { coords: [55, 123] },
+  "ambrette-aquarium": { coords: [55, 125] },
+  "glittering-cave": { coords: [57, 123] },
+  "kalos-route-9": { coords: [65, 105] },
+  // --- Northwest ---
+  "geosenge-town": { coords: [75, 100], label: "Geosenge Town" },
+  "team-flare-secret-hq": { coords: [75, 102] },
+  // --- Central-west ---
+  "camphrier-town": { coords: [85, 120], label: "Camphrier Town" },
+  "parfum-palace": { coords: [88, 118] },
+  "parterre-way": { coords: [88, 118] },
+  "kalos-berry-fields": { coords: [90, 118] },
+  "shabboneau-castle": { coords: [88, 116] },
+  "kalos-route-7": { coords: [110, 115] },
+  "battle-chateau": { coords: [95, 115] },
+  "kalos-route-6": { coords: [90, 115] },
+  "palais-lane": { coords: [92, 113] },
+  // --- Center (Lumiose) ---
+  "lumiose-city": { coords: [100, 110], label: "Lumiose City" },
+  "prism-tower": { coords: [100, 110] },
+  "lumiose-station": { coords: [100, 112] },
+  "lumiose-gate": { coords: [100, 112] },
+  "lysandre-labs": { coords: [100, 100] },
+  "kalos-route-5": { coords: [95, 110] },
+  "versant-road": { coords: [97, 108] },
+  "kalos-route-13": { coords: [90, 105] },
+  "lumiose-badlands": { coords: [95, 108], label: "Lumiose Badlands" },
+  "kalos-power-plant": { coords: [105, 100], label: "Power Plant" },
+  "poke-ball-factory": { coords: [110, 105] },
+  // --- Southwest (start) ---
+  "kalos-route-4": { coords: [90, 105] },
+  "santalune-city": { coords: [80, 95], label: "Santalune City" },
+  "santalune-forest": { coords: [82, 97] },
+  "kalos-route-3": { coords: [85, 100] },
+  "kalos-route-2": { coords: [90, 95] },
+  "aquacorde-town": { coords: [95, 90], label: "Aquacorde Town" },
+  "kalos-route-1": { coords: [95, 85] },
+  "vaniville-town": { coords: [95, 80], label: "Vaniville Town" },
+  "vaniville-pathway": { coords: [95, 82] },
+  // --- Misc ---
+  "roaming-kalos": { coords: [100, 110] },
 };
