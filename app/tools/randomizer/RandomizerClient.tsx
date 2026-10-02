@@ -4,9 +4,10 @@ import { useState } from "react";
 import Link from "next/link";
 import {
   randomizeTeam,
+  rerollMember,
   type RandomTeamMember,
 } from "./actions";
-import { RANDOMIZER_GAMES } from "./games";
+import { RANDOMIZER_GAMES, GAME_STARTERS } from "./games";
 
 const TYPE_COLORS: Record<string, string> = {
   Normal: "bg-stone-200 text-stone-700 dark:bg-stone-700 dark:text-stone-200",
@@ -29,40 +30,68 @@ const TYPE_COLORS: Record<string, string> = {
   Fairy: "bg-rose-200 text-rose-800 dark:bg-rose-900 dark:text-rose-200",
 };
 
-function MemberCard({ mon }: { mon: RandomTeamMember }) {
+function MemberCard({
+  mon,
+  rerolling,
+  canReroll,
+  onReroll,
+}: {
+  mon: RandomTeamMember;
+  rerolling: boolean;
+  canReroll: boolean;
+  onReroll: () => void;
+}) {
   return (
-    <Link
-      href={`/pokedex/${mon.id}`}
-      className="group relative flex flex-col items-center rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:shadow-md hover:ring-emerald-300 dark:bg-slate-900 dark:ring-slate-700 dark:hover:ring-emerald-700"
-    >
-      {mon.isStarter && (
-        <span className="absolute left-3 top-3 rounded-full bg-emerald-500 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-white dark:bg-emerald-600">
-          Starter
-        </span>
-      )}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={mon.sprite}
-        alt={mon.name}
-        width={96}
-        height={96}
-        loading="lazy"
-        className="h-24 w-24 object-contain"
-      />
-      <span className="mt-2 text-center text-sm font-semibold text-slate-800 group-hover:text-emerald-700 dark:text-slate-100 dark:group-hover:text-emerald-300">
-        {mon.name}
-      </span>
-      <span className="mt-2 flex flex-wrap justify-center gap-1">
-        {mon.types.map((t) => (
-          <span
-            key={t}
-            className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${TYPE_COLORS[t] ?? "bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-200"}`}
-          >
-            {t}
+    <div className="relative">
+      <Link
+        href={`/pokedex/${mon.id}`}
+        className="group relative flex flex-col items-center rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:shadow-md hover:ring-emerald-300 dark:bg-slate-900 dark:ring-slate-700 dark:hover:ring-emerald-700"
+      >
+        {mon.isStarter && (
+          <span className="absolute left-3 top-3 rounded-full bg-emerald-500 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-white dark:bg-emerald-600">
+            Starter
           </span>
-        ))}
-      </span>
-    </Link>
+        )}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={mon.sprite}
+          alt={mon.name}
+          width={96}
+          height={96}
+          loading="lazy"
+          className="h-24 w-24 object-contain"
+        />
+        <span className="mt-2 text-center text-sm font-semibold text-slate-800 group-hover:text-emerald-700 dark:text-slate-100 dark:group-hover:text-emerald-300">
+          {mon.name}
+        </span>
+        <span className="mt-2 flex flex-wrap justify-center gap-1">
+          {mon.types.map((t) => (
+            <span
+              key={t}
+              className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${TYPE_COLORS[t] ?? "bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-200"}`}
+            >
+              {t}
+            </span>
+          ))}
+        </span>
+      </Link>
+      {canReroll && (
+        <button
+          type="button"
+          onClick={onReroll}
+          disabled={rerolling}
+          aria-label={`Reroll ${mon.name}`}
+          title="Reroll this Pokémon"
+          className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-white/95 text-base shadow ring-1 ring-slate-200 transition hover:rotate-12 hover:ring-emerald-300 disabled:opacity-60 dark:bg-slate-800/95 dark:ring-slate-700 dark:hover:ring-emerald-700"
+        >
+          {rerolling ? (
+            <span className="h-4 w-4 animate-spin rounded-full border-2 border-emerald-500 border-t-transparent" />
+          ) : (
+            "🎲"
+          )}
+        </button>
+      )}
+    </div>
   );
 }
 
@@ -73,6 +102,7 @@ export default function RandomizerClient() {
   const [poolSize, setPoolSize] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [rerollingId, setRerollingId] = useState<number | null>(null);
 
   const roll = async (v: string) => {
     setLoading(true);
@@ -96,6 +126,38 @@ export default function RandomizerClient() {
   };
 
   const distinctTypes = team ? new Set(team.flatMap((m) => m.types)).size : 0;
+
+  // Reroll a single slot, keeping the other five. Games with only one
+  // starter (Yellow, Let's Go) can't reroll the starter slot.
+  const canRerollStarter = (GAME_STARTERS[version] ?? []).length > 1;
+
+  const rerollOne = async (index: number) => {
+    const current = team?.[index];
+    if (!current || !team || rerollingId !== null) return;
+    setRerollingId(current.id);
+    setError(null);
+    try {
+      const others = team
+        .filter((_, i) => i !== index)
+        .map((m) => ({ id: m.id, types: m.types }));
+      const result = await rerollMember(
+        version,
+        { isStarter: !!current.isStarter, currentId: current.id },
+        others
+      );
+      if (result.error || !result.member) {
+        setError(result.error ?? "Couldn't reroll that one. Try again.");
+      } else {
+        const next = [...team];
+        next[index] = result.member;
+        setTeam(next);
+      }
+    } catch {
+      setError("Something went wrong. Try again in a moment.");
+    } finally {
+      setRerollingId(null);
+    }
+  };
 
   return (
     <div>
@@ -147,15 +209,22 @@ export default function RandomizerClient() {
             </p>
           </div>
           <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3">
-            {team.map((mon) => (
-              <MemberCard key={mon.id} mon={mon} />
+            {team.map((mon, i) => (
+              <MemberCard
+                key={mon.id}
+                mon={mon}
+                rerolling={rerollingId === mon.id}
+                canReroll={!mon.isStarter || canRerollStarter}
+                onReroll={() => rerollOne(i)}
+              />
             ))}
           </div>
           <p className="mt-6 text-sm leading-6 text-slate-500 dark:text-slate-400">
             Your starter plus five Pokémon you can catch early in {gameLabel},
             each one able to grow into a capable battler — and the team is
             spread across types so you won&apos;t get walled by the first gym.
-            Tap a Pokémon to open its page.
+            Tap a Pokémon to open its page, or hit the 🎲 on any card to
+            reroll just that one.
           </p>
         </div>
       )}

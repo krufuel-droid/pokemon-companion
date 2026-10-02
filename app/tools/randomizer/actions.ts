@@ -126,10 +126,20 @@ function pickDiverseTeam(
   return team;
 }
 
-export async function randomizeTeam(version: string): Promise<RandomTeamResult> {
+interface PoolData {
+  pool: RandomTeamMember[];
+  nonStarterPool: RandomTeamMember[];
+  starterIds: number[];
+  gameLabel: string;
+}
+
+/** Load and filter the early-game candidate pool for a version. Shared by full rolls and single-slot rerolls. */
+async function loadPoolData(
+  version: string
+): Promise<{ data?: PoolData; error?: string }> {
   const game = RANDOMIZER_GAMES.find((g) => g.version === version);
   if (!game) {
-    return { team: [], gameLabel: "", poolSize: 0, error: "Unknown game." };
+    return { error: "Unknown game." };
   }
   let entries: { pokemon_species: { url: string } }[];
   try {
@@ -140,12 +150,7 @@ export async function randomizeTeam(version: string): Promise<RandomTeamResult> 
     const data = await res.json();
     entries = data.pokemon_entries ?? [];
   } catch {
-    return {
-      team: [],
-      gameLabel: game.label,
-      poolSize: 0,
-      error: "Couldn't load that game's Pokédex right now. Try again in a moment.",
-    };
+    return { error: "Couldn't load that game's Pokédex right now. Try again in a moment." };
   }
 
   const seen = new Set<number>();
@@ -189,17 +194,9 @@ export async function randomizeTeam(version: string): Promise<RandomTeamResult> 
   }
 
   if (pool.length === 0) {
-    return {
-      team: [],
-      gameLabel: game.label,
-      poolSize: 0,
-      error: "No Pokémon found for that game.",
-    };
+    return { error: "No Pokémon found for that game." };
   }
 
-  // Deal exactly one starter from this game's starter options, then build
-  // the other five from the pool excluding every starter evolution line
-  // (so e.g. a Johto team can't roll both Cyndaquil and a Meganium).
   const starterIds = GAME_STARTERS[version] ?? [];
   const starterLineIds = new Set<number>();
   for (const sid of starterIds) {
@@ -207,6 +204,27 @@ export async function randomizeTeam(version: string): Promise<RandomTeamResult> 
   }
   const nonStarterPool = pool.filter((m) => !starterLineIds.has(m.id));
 
+  return {
+    data: { pool, nonStarterPool, starterIds, gameLabel: game.label },
+  };
+}
+
+export async function randomizeTeam(version: string): Promise<RandomTeamResult> {
+  const { data, error } = await loadPoolData(version);
+  if (error || !data) {
+    const game = RANDOMIZER_GAMES.find((g) => g.version === version);
+    return {
+      team: [],
+      gameLabel: game?.label ?? "",
+      poolSize: 0,
+      error: error ?? "Couldn't load that game's Pokédex right now. Try again in a moment.",
+    };
+  }
+  const { pool, nonStarterPool, starterIds, gameLabel } = data;
+
+  // Deal exactly one starter from this game's starter options. The other
+  // five come from the non-starter pool (no starter evolution lines, so
+  // e.g. a Johto team can't roll both Cyndaquil and a Meganium).
   let starter: RandomTeamMember | null = null;
   if (starterIds.length > 0) {
     const pickId = starterIds[Math.floor(Math.random() * starterIds.length)];
@@ -236,7 +254,65 @@ export async function randomizeTeam(version: string): Promise<RandomTeamResult> 
 
   return {
     team,
-    gameLabel: game.label,
+    gameLabel,
     poolSize: nonStarterPool.length,
   };
+}
+
+export interface RerollSlot {
+  isStarter: boolean;
+  currentId: number;
+}
+
+/**
+ * Reroll a single team slot, keeping every other member. Starters reroll
+ * to a different starter from the same game; non-starters reroll from the
+ * early pool (no starter lines, no duplicates) with type diversity seeded
+ * from the rest of the team.
+ */
+export async function rerollMember(
+  version: string,
+  slot: RerollSlot,
+  otherMembers: { id: number; types: string[] }[]
+): Promise<{ member?: RandomTeamMember; error?: string }> {
+  if (slot.isStarter) {
+    const starterIds = GAME_STARTERS[version] ?? [];
+    const options = starterIds.filter((id) => id !== slot.currentId);
+    if (options.length === 0) {
+      return { error: "This game only has one starter — nothing to reroll to." };
+    }
+    const pickId = options[Math.floor(Math.random() * options.length)];
+    const species = getSpeciesById(pickId);
+    if (!species) return { error: "Couldn't load that starter. Try again." };
+    return {
+      member: {
+        id: pickId,
+        name: species.name,
+        sprite: species.sprites.regular,
+        types: species.types,
+        isStarter: true,
+      },
+    };
+  }
+
+  const { data, error } = await loadPoolData(version);
+  if (error || !data) {
+    return { error: error ?? "Couldn't load that game's Pokédex right now. Try again in a moment." };
+  }
+
+  const starterLineIds = new Set<number>();
+  for (const sid of data.starterIds) {
+    for (const id of chainSpeciesIds(sid)) starterLineIds.add(id);
+  }
+  const exclude = new Set([slot.currentId, ...otherMembers.map((m) => m.id)]);
+  let restPool = data.nonStarterPool.filter((m) => !exclude.has(m.id));
+  if (restPool.length === 0) {
+    restPool = data.pool.filter((m) => !exclude.has(m.id) && !starterLineIds.has(m.id));
+  }
+  const seedTypes = otherMembers.flatMap((m) => m.types);
+  const [pick] = pickDiverseTeam(restPool, 1, seedTypes);
+  if (!pick) {
+    return { error: "No other Pokémon left to reroll — the pool is exhausted." };
+  }
+  return { member: pick };
 }
