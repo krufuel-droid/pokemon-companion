@@ -1,8 +1,40 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { getAllSpecies, getSpeciesById } from "@/lib/pokedex";
 import type { SpeciesIndex, SpeciesFull } from "@/lib/pokedex";
+import evolutions from "@/data/evolutions.json";
+import type { EvoNode } from "@/app/pokedex/[id]/evolution-section";
+
+type Gender = "male" | "female";
+
+/** Base form of a species' evolution line (what hatches from its eggs). */
+function baseFormId(speciesId: number): number {
+  const idx =
+    evolutions.speciesToChain[String(speciesId) as keyof typeof evolutions.speciesToChain];
+  if (idx === undefined) return speciesId;
+  const root = evolutions.chains[idx] as EvoNode;
+  return root.id ?? speciesId;
+}
+
+/** Possible genders from PokéAPI's gender_rate (-1 = genderless, 0 = all male, 8 = all female). */
+function gendersFromRate(rate: number): Gender[] {
+  if (rate < 0) return [];
+  if (rate === 0) return ["male"];
+  if (rate === 8) return ["female"];
+  return ["male", "female"];
+}
+
+async function fetchGenders(speciesId: number): Promise<Gender[]> {
+  try {
+    const res = await fetch(`https://pokeapi.co/api/v2/pokemon-species/${speciesId}/`);
+    if (!res.ok) return ["male", "female"];
+    const data = await res.json();
+    return gendersFromRate(data.gender_rate ?? 4);
+  } catch {
+    return ["male", "female"];
+  }
+}
 
 function cap(name: string): string {
   return name
@@ -27,9 +59,18 @@ interface Verdict {
   ok: boolean;
   reason: string;
   shared: string[];
+  /** Species ID of the baby that would hatch, when known. */
+  babyId?: number;
 }
 
-function compatibility(a: SpeciesFull, b: SpeciesFull): Verdict {
+function compatibility(
+  a: SpeciesFull,
+  b: SpeciesFull,
+  genderA: Gender | null,
+  genderB: Gender | null,
+  gendersA: Gender[],
+  gendersB: Gender[]
+): Verdict {
   const aDitto = isDitto(a);
   const bDitto = isDitto(b);
 
@@ -47,9 +88,9 @@ function compatibility(a: SpeciesFull, b: SpeciesFull): Verdict {
     }
     return {
       ok: true,
-      reason:
-        "Ditto can breed with almost anything outside the No-eggs group.",
+      reason: "Ditto can breed with almost anything outside the No-eggs group.",
       shared: [],
+      babyId: baseFormId(other.id),
     };
   }
 
@@ -58,6 +99,25 @@ function compatibility(a: SpeciesFull, b: SpeciesFull): Verdict {
       ok: false,
       reason:
         "One or both species are in the No-eggs group (legendaries, mythicals, and babies can't breed).",
+      shared: [],
+    };
+  }
+
+  // Genderless (non-Ditto) Pokémon can't breed at all.
+  if (gendersA.length === 0 || gendersB.length === 0) {
+    const genderless = gendersA.length === 0 ? a : b;
+    return {
+      ok: false,
+      reason: `${cap(genderless.name)} is genderless — it can only breed with Ditto.`,
+      shared: [],
+    };
+  }
+
+  // Same explicitly-chosen gender = incompatible.
+  if (genderA && genderB && genderA === genderB) {
+    return {
+      ok: false,
+      reason: `They're both ${genderA === "male" ? "male" : "female"} — breeding needs one male and one female.`,
       shared: [],
     };
   }
@@ -83,11 +143,19 @@ function compatibility(a: SpeciesFull, b: SpeciesFull): Verdict {
       shared: [],
     };
   }
-  return {
-    ok: true,
-    reason: `They share ${shared.length} egg group${shared.length > 1 ? "s" : ""}.`,
-    shared,
-  };
+
+  // The mother determines the offspring: explicit female parent wins,
+  // otherwise we can't know which one is the mom.
+  let babyId: number | undefined;
+  let reason = `They share ${shared.length} egg group${shared.length > 1 ? "s" : ""}.`;
+  if (genderA === "female" && genderB === "male") {
+    babyId = baseFormId(a.id);
+  } else if (genderB === "female" && genderA === "male") {
+    babyId = baseFormId(b.id);
+  } else {
+    reason += " Pick which parent is female to see what hatches.";
+  }
+  return { ok: true, reason, shared, babyId };
 }
 
 const inputCls =
@@ -189,6 +257,60 @@ function SpeciesPicker({
   );
 }
 
+function GenderSelector({
+  possible,
+  value,
+  onChange,
+  loading,
+}: {
+  possible: Gender[];
+  value: Gender | null;
+  onChange: (g: Gender | null) => void;
+  loading: boolean;
+}) {
+  if (loading) {
+    return (
+      <p className="mt-2 text-xs text-slate-400 dark:text-slate-500">Checking genders…</p>
+    );
+  }
+  if (possible.length === 0) {
+    return (
+      <p className="mt-2 text-xs font-medium text-slate-500 dark:text-slate-400">
+        Genderless
+      </p>
+    );
+  }
+  return (
+    <div className="mt-2 flex items-center gap-2">
+      <span className="text-xs text-slate-500 dark:text-slate-400">Gender:</span>
+      {(["male", "female"] as Gender[]).map((g) => {
+        const allowed = possible.includes(g);
+        const active = value === g;
+        return (
+          <button
+            key={g}
+            type="button"
+            disabled={!allowed}
+            onClick={() => onChange(active ? null : g)}
+            aria-pressed={active}
+            className={`rounded-full px-3 py-1 text-sm font-bold ring-1 transition ${
+              active
+                ? g === "male"
+                  ? "bg-sky-500 text-white ring-sky-500"
+                  : "bg-pink-500 text-white ring-pink-500"
+                : allowed
+                  ? "bg-white text-slate-600 ring-slate-300 hover:ring-slate-400 dark:bg-slate-900 dark:text-slate-300 dark:ring-slate-600"
+                  : "cursor-not-allowed bg-slate-100 text-slate-300 ring-slate-200 dark:bg-slate-800 dark:text-slate-600 dark:ring-slate-700"
+            }`}
+          >
+            {g === "male" ? "♂" : "♀"}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 function EggGroups({ groups }: { groups: string[] }) {
   return (
     <div className="mt-4">
@@ -238,6 +360,40 @@ export default function BreedingCompatibility() {
 
   const [idA, setIdA] = useState<number | null>(null);
   const [idB, setIdB] = useState<number | null>(null);
+  const [genderA, setGenderA] = useState<Gender | null>(null);
+  const [genderB, setGenderB] = useState<Gender | null>(null);
+  const [gendersA, setGendersA] = useState<Gender[]>([]);
+  const [gendersB, setGendersB] = useState<Gender[]>([]);
+  const [loadingA, setLoadingA] = useState(false);
+  const [loadingB, setLoadingB] = useState(false);
+
+  useEffect(() => {
+    if (idA == null) {
+      setGendersA([]);
+      setGenderA(null);
+      return;
+    }
+    setLoadingA(true);
+    fetchGenders(idA).then((g) => {
+      setGendersA(g);
+      setGenderA((prev) => (prev && g.includes(prev) ? prev : null));
+      setLoadingA(false);
+    });
+  }, [idA]);
+
+  useEffect(() => {
+    if (idB == null) {
+      setGendersB([]);
+      setGenderB(null);
+      return;
+    }
+    setLoadingB(true);
+    fetchGenders(idB).then((g) => {
+      setGendersB(g);
+      setGenderB((prev) => (prev && g.includes(prev) ? prev : null));
+      setLoadingB(false);
+    });
+  }, [idB]);
 
   const detailA: SpeciesFull | undefined =
     idA == null ? undefined : getSpeciesById(idA);
@@ -245,7 +401,12 @@ export default function BreedingCompatibility() {
     idB == null ? undefined : getSpeciesById(idB);
 
   const verdict: Verdict | null =
-    detailA && detailB ? compatibility(detailA, detailB) : null;
+    detailA && detailB
+      ? compatibility(detailA, detailB, genderA, genderB, gendersA, gendersB)
+      : null;
+
+  const baby: SpeciesFull | undefined =
+    verdict?.babyId != null ? getSpeciesById(verdict.babyId) : undefined;
 
   return (
     <div className="mx-auto w-full max-w-4xl px-4 py-10">
@@ -265,6 +426,12 @@ export default function BreedingCompatibility() {
           />
           {detailA && (
             <>
+              <GenderSelector
+                possible={gendersA}
+                value={genderA}
+                onChange={setGenderA}
+                loading={loadingA}
+              />
               <EggGroups groups={detailA.eggGroups ?? []} />
               <MoveChips
                 title={`Egg moves — moves ${cap(detailA.name)}'s offspring could inherit`}
@@ -283,6 +450,12 @@ export default function BreedingCompatibility() {
           />
           {detailB && (
             <>
+              <GenderSelector
+                possible={gendersB}
+                value={genderB}
+                onChange={setGenderB}
+                loading={loadingB}
+              />
               <EggGroups groups={detailB.eggGroups ?? []} />
               <MoveChips
                 title={`Egg moves — moves ${cap(detailB.name)}'s offspring could inherit`}
@@ -325,6 +498,26 @@ export default function BreedingCompatibility() {
                 ))}
               </div>
             )}
+            {verdict.ok && baby && (
+              <div className="mx-auto mt-5 flex max-w-xs items-center justify-center gap-3 rounded-2xl bg-amber-50 p-4 ring-1 ring-amber-200 dark:bg-amber-950 dark:ring-amber-800">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={baby.sprites.regular}
+                  alt={baby.name}
+                  width={64}
+                  height={64}
+                  loading="lazy"
+                  className="h-16 w-16 object-contain"
+                />
+                <p className="text-left text-sm text-slate-600 dark:text-slate-300">
+                  <span className="font-semibold text-slate-800 dark:text-slate-100">
+                    Their egg hatches into {cap(baby.name)}!
+                  </span>
+                  <br />
+                  The mother&apos;s species decides what hatches.
+                </p>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -332,7 +525,8 @@ export default function BreedingCompatibility() {
       <p className="mt-4 text-xs leading-5 text-slate-400 dark:text-slate-500">
         Rules: Ditto (#132) breeds with anything except Ditto itself or
         No-eggs-group Pokémon. Otherwise both parents must share at least one
-        egg group, and neither may be in the No-eggs group.
+        egg group, be opposite genders, and neither may be in the No-eggs
+        group. The mother&apos;s species decides what hatches from the egg.
       </p>
     </div>
   );
