@@ -1,4 +1,4 @@
-import { GALAR_LOCATIONS } from "@/lib/data/region-maps";
+import { GALAR_LOCATIONS, PALDEA_LOCATIONS } from "@/lib/data/region-maps";
 
 interface RegionMapProps {
   region: string;
@@ -8,30 +8,14 @@ interface RegionMapProps {
   showAll?: boolean;
 }
 
-/**
- * Stylized hand-drawn region map with encounter pins.
- * Currently Galar only — more regions are added one by one.
- */
-export function RegionMap({ region, highlight, showAll }: RegionMapProps) {
-  if (region !== "galar") {
-    return (
-      <p className="py-8 text-center text-sm text-slate-500 dark:text-slate-400">
-        This region&apos;s map is still being drawn — check back soon.
-      </p>
-    );
-  }
+const REGION_LABELS: Record<string, string> = {
+  galar: "Galar",
+  paldea: "Paldea",
+};
 
-  const locations = GALAR_LOCATIONS;
-  const keys = Object.keys(locations);
-  const highlightLoc = highlight ? locations[highlight] : undefined;
-
+function GalarTerrain() {
   return (
-    <svg
-      viewBox="0 0 200 205"
-      role="img"
-      aria-label="Stylized map of the Galar region"
-      className="h-auto w-full"
-    >
+    <>
       {/* ocean */}
       <rect x="0" y="0" width="200" height="205" rx="12" fill="#1e3a5f" />
       <rect x="0" y="0" width="200" height="205" rx="12" fill="#274b73" opacity="0.6" />
@@ -93,6 +77,104 @@ export function RegionMap({ region, highlight, showAll }: RegionMapProps) {
       <text x="108" y="200" textAnchor="middle" fontSize="5" fill="#dfe9f0" fontStyle="italic">
         Crown Tundra
       </text>
+    </>
+  );
+}
+
+function PaldeaTerrain() {
+  return (
+    <>
+      {/* ocean */}
+      <rect x="0" y="0" width="200" height="205" rx="12" fill="#1e3a5f" />
+      <rect x="0" y="0" width="200" height="205" rx="12" fill="#274b73" opacity="0.6" />
+
+      {/* mainland Paldea — stylized Iberian-peninsula shape */}
+      <path
+        d="M 60,172
+           C 48,164 40,152 38,138
+           C 36,124 32,112 36,100
+           C 40,88 48,78 56,68
+           C 64,58 76,50 90,44
+           C 104,38 118,32 130,28
+           C 142,24 154,30 162,40
+           C 170,50 172,62 168,74
+           C 164,86 168,98 164,110
+           C 160,122 150,132 140,142
+           C 130,152 118,160 106,166
+           C 94,172 76,178 60,172
+           Z"
+        fill="#4a7c3f"
+        stroke="#356030"
+        strokeWidth="1.5"
+      />
+      {/* Area Zero crater */}
+      <ellipse cx="100" cy="131" rx="13" ry="11" fill="#5c4a3a" opacity="0.85" />
+      <ellipse cx="100" cy="131" rx="8" ry="6.5" fill="#3a2f26" opacity="0.9" />
+      {/* Asado Desert tint */}
+      <ellipse cx="60" cy="115" rx="14" ry="10" fill="#c2a25e" opacity="0.55" />
+      {/* Glaseado Mountain snowcap */}
+      <ellipse cx="125" cy="28" rx="16" ry="10" fill="#dfe9f0" opacity="0.75" />
+      {/* Casseroya Lake */}
+      <ellipse cx="60" cy="70" rx="9" ry="7" fill="#3b6ea5" opacity="0.9" />
+
+      {/* Kitakami highlands (northeast) */}
+      <path
+        d="M 170,22
+           C 176,20 184,22 188,28
+           C 192,34 190,42 186,48
+           C 182,54 174,54 170,48
+           C 166,42 166,28 170,22 Z"
+        fill="#4a7c3f"
+        stroke="#356030"
+        strokeWidth="1.2"
+      />
+      <text x="179" y="18" textAnchor="middle" fontSize="4.5" fill="#cfe3d0" fontStyle="italic">
+        Kitakami
+      </text>
+
+      {/* Blueberry Academy Terarium (southeast inset) */}
+      <rect x="160" y="156" width="32" height="28" rx="4" fill="#2c4a63" stroke="#1e3a5f" strokeWidth="1" />
+      <text x="176" y="162" textAnchor="middle" fontSize="4" fill="#cfe3d0" fontStyle="italic">
+        Terarium
+      </text>
+    </>
+  );
+}
+
+/**
+ * Stylized hand-drawn region maps with encounter pins.
+ * Regions are added one by one — Galar and Paldea so far.
+ */
+export function RegionMap({ region, highlight, showAll }: RegionMapProps) {
+  const locations =
+    region === "galar"
+      ? GALAR_LOCATIONS
+      : region === "paldea"
+        ? PALDEA_LOCATIONS
+        : null;
+
+  if (!locations) {
+    return (
+      <p className="py-8 text-center text-sm text-slate-500 dark:text-slate-400">
+        This region&apos;s map is still being drawn — check back soon.
+      </p>
+    );
+  }
+  const keys = Object.keys(locations);
+  const highlightLoc = highlight ? locations[highlight] : undefined;
+
+  return (
+    <svg
+      viewBox="0 0 200 205"
+      role="img"
+      aria-label={`Stylized map of the ${REGION_LABELS[region] ?? region} region`}
+      className="h-auto w-full"
+    >
+      {region === "galar" ? (
+        <GalarTerrain />
+      ) : (
+        <PaldeaTerrain />
+      )}
 
       {/* location dots */}
       {keys.map((key) => {

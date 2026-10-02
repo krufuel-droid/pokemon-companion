@@ -122,8 +122,122 @@ export const GALAR_LOCATIONS: Record<string, MapLocation> = {
 export const VERSION_REGION: Record<string, string> = {
   sword: "galar",
   shield: "galar",
+  scarlet: "paldea",
+  violet: "paldea",
 };
 
 export const REGION_LABEL: Record<string, string> = {
   galar: "Galar",
+  paldea: "Paldea",
+};
+
+/**
+ * Paldea region map data (Scarlet/Violet), including the Kitakami highlands
+ * (Teal Mask DLC) and the Blueberry Academy Terarium (Indigo Disk DLC).
+ * Coordinates on the same 0–200 grid as Galar.
+ */
+export const PALDEA_LOCATIONS: Record<string, MapLocation> = {
+  // --- South Paldea ---
+  "cabo-poco": { coords: [60, 170], label: "Cabo Poco" },
+  "los-platos": { coords: [85, 165], label: "Los Platos" },
+  "poco-path": { coords: [75, 160] },
+  "south-paldean-sea": { coords: [100, 185] },
+  // --- Southwest ---
+  cortondo: { coords: [55, 145], label: "Cortondo" },
+  alfornada: { coords: [40, 140], label: "Alfornada" },
+  "alfornada-cavern": { coords: [42, 142] },
+  // --- West ---
+  cascarrafa: { coords: [45, 110], label: "Cascarrafa" },
+  "porto-marinada": { coords: [35, 115], label: "Porto Marinada" },
+  "west-paldean-sea": { coords: [22, 120] },
+  "inlet-grotto": { coords: [40, 125] },
+  // --- Center ---
+  mesagoza: { coords: [100, 130], label: "Mesagoza" },
+  "area-zero": { coords: [100, 132], label: "Area Zero" },
+  "zero-lab": { coords: [100, 134] },
+  "naranja-academy": { coords: [100, 128] },
+  "uva-academy": { coords: [100, 128] },
+  // --- West-central ---
+  "asado-desert": { coords: [60, 115], label: "Asado Desert" },
+  medali: { coords: [75, 95], label: "Medali" },
+  // --- Northwest ---
+  "casseroya-lake": { coords: [60, 70], label: "Casseroya Lake" },
+  "crystal-pool": { coords: [65, 75] },
+  // --- East-central ---
+  "tagtree-thicket": { coords: [130, 110], label: "Tagtree Thicket" },
+  artazon: { coords: [145, 135], label: "Artazon" },
+  // --- East ---
+  levincia: { coords: [165, 110], label: "Levincia" },
+  "east-paldean-sea": { coords: [180, 120] },
+  // --- Northeast ---
+  zapapico: { coords: [150, 75], label: "Zapapico" },
+  "dalizapa-passage": { coords: [140, 60] },
+  "pokemon-league": { coords: [155, 55], label: "Pokémon League" },
+  // --- North ---
+  montenevera: { coords: [120, 45], label: "Montenevera" },
+  "glaseado-mountain": { coords: [125, 25], label: "Glaseado Mt." },
+  "socarrat-trail": { coords: [135, 40] },
+  "north-paldean-sea": { coords: [100, 12] },
+  // --- Provinces: south ---
+  "paldea-south-province-area-one": { coords: [85, 155] },
+  "paldea-south-province-area-two": { coords: [70, 150] },
+  "paldea-south-province-area-three": { coords: [110, 150] },
+  "paldea-south-province-area-four": { coords: [95, 145] },
+  "paldea-south-province-area-five": { coords: [120, 145] },
+  "paldea-south-province-area-six": { coords: [60, 135] },
+  // --- Provinces: west ---
+  "paldea-west-province-area-one": { coords: [50, 125] },
+  "paldea-west-province-area-two": { coords: [55, 100] },
+  "paldea-west-province-area-three": { coords: [70, 85] },
+  // --- Provinces: east ---
+  "paldea-east-province-area-one": { coords: [135, 125] },
+  "paldea-east-province-area-two": { coords: [150, 115] },
+  "paldea-east-province-area-three": { coords: [140, 95] },
+  // --- Provinces: north ---
+  "paldea-north-province-area-one": { coords: [110, 70] },
+  "paldea-north-province-area-two": { coords: [125, 60] },
+  "paldea-north-province-area-three": { coords: [115, 50] },
+  // --- Team Star bases ---
+  "segin-squads-base": { coords: [75, 140] },
+  "schedar-squads-base": { coords: [120, 130] },
+  "navi-squads-base": { coords: [135, 100] },
+  "ruchbah-squads-base": { coords: [90, 60] },
+  "caph-squads-base": { coords: [110, 35] },
+  // --- Ruinous shrines ---
+  "grasswither-shrine": { coords: [55, 120] },
+  "icerend-shrine": { coords: [125, 30] },
+  "groundblight-shrine": { coords: [145, 120] },
+  "firescourge-shrine": { coords: [70, 80] },
+  // --- Misc Paldea ---
+  "apple-hills": { coords: [90, 140] },
+  "dreaded-den": { coords: [100, 135] },
+  "mossfell-confluence": { coords: [70, 90] },
+  "wistful-fields": { coords: [120, 90] },
+  "chargestone-cavern": { coords: [105, 75] },
+  "chilling-waterhead": { coords: [130, 85] },
+  "infernal-pass": { coords: [145, 90] },
+  "fellhorn-gorge": { coords: [150, 65] },
+  "paradise-barrens": { coords: [115, 105] },
+  "torchlit-labyrinth": { coords: [125, 115] },
+  // --- Kitakami (Teal Mask DLC, northeast highlands) ---
+  "mossui-town": { coords: [178, 42], label: "Mossui Town" },
+  "kitakami-wilds": { coords: [174, 36] },
+  "oni-mountain": { coords: [180, 28], label: "Oni Mountain" },
+  "onis-maw": { coords: [183, 32] },
+  "loyalty-plaza": { coords: [178, 44] },
+  "kitakami-hall": { coords: [178, 40] },
+  "kitakami-road": { coords: [174, 46] },
+  "revelers-road": { coords: [172, 42] },
+  "timeless-woods": { coords: [186, 36] },
+  // --- Blueberry Academy Terarium (Indigo Disk DLC) ---
+  "savanna-biome": { coords: [168, 162], label: "Savanna Biome" },
+  "coastal-biome": { coords: [182, 162], label: "Coastal Biome" },
+  "canyon-biome": { coords: [168, 174], label: "Canyon Biome" },
+  "polar-biome": { coords: [182, 174], label: "Polar Biome" },
+  "central-plaza": { coords: [175, 168] },
+  "savanna-plaza": { coords: [168, 165] },
+  "coastal-plaza": { coords: [182, 165] },
+  "canyon-plaza": { coords: [168, 171] },
+  "polar-plaza": { coords: [182, 171] },
+  "league-club-room": { coords: [175, 166] },
 };
