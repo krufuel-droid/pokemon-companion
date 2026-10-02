@@ -1,4 +1,4 @@
-import { GALAR_LOCATIONS, PALDEA_LOCATIONS, KANTO_LOCATIONS, JOHTO_LOCATIONS, HOENN_LOCATIONS } from "@/lib/data/region-maps";
+import { GALAR_LOCATIONS, PALDEA_LOCATIONS, KANTO_LOCATIONS, JOHTO_LOCATIONS, HOENN_LOCATIONS, SINNOH_LOCATIONS } from "@/lib/data/region-maps";
 
 interface RegionMapProps {
   region: string;
@@ -14,6 +14,7 @@ const REGION_LABELS: Record<string, string> = {
   kanto: "Kanto",
   johto: "Johto",
   hoenn: "Hoenn",
+  sinnoh: "Sinnoh",
 };
 
 function GalarTerrain() {
@@ -288,9 +289,69 @@ function HoennTerrain() {
   );
 }
 
+function SinnohTerrain() {
+  return (
+    <>
+      {/* ocean */}
+      <rect x="0" y="0" width="200" height="205" rx="12" fill="#1e3a5f" />
+      <rect x="0" y="0" width="200" height="205" rx="12" fill="#274b73" opacity="0.6" />
+
+      {/* mainland Sinnoh — diamond shape */}
+      <path
+        d="M 100,24
+           C 115,35 130,48 142,62
+           C 154,76 162,92 160,108
+           C 158,124 148,140 134,152
+           C 120,164 106,170 92,164
+           C 78,158 64,148 54,134
+           C 44,120 38,104 42,88
+           C 46,72 58,56 72,44
+           C 82,36 92,28 100,24
+           Z"
+        fill="#4a7c3f"
+        stroke="#356030"
+        strokeWidth="1.5"
+      />
+      {/* Mt. Coronet tint (center spine) */}
+      <path
+        d="M 96,30 L 104,30 L 106,110 L 94,110 Z"
+        fill="#8a8a8a"
+        opacity="0.5"
+      />
+      {/* snowy north tint */}
+      <ellipse cx="100" cy="38" rx="18" ry="12" fill="#e8e8e8" opacity="0.45" />
+      {/* Eterna Forest tint */}
+      <ellipse cx="65" cy="88" rx="10" ry="8" fill="#2d5c33" opacity="0.6" />
+      {/* Great Marsh tint */}
+      <ellipse cx="115" cy="127" rx="8" ry="5" fill="#3d6b4a" opacity="0.6" />
+
+      {/* Iron Island */}
+      <ellipse cx="30" cy="100" rx="5" ry="7" fill="#4a7c3f" stroke="#356030" strokeWidth="1" />
+      {/* Fullmoon / Newmoon islands */}
+      <ellipse cx="20" cy="110" rx="4" ry="3" fill="#4a7c3f" stroke="#356030" strokeWidth="0.8" />
+      <ellipse cx="15" cy="115" rx="3" ry="2.5" fill="#4a7c3f" stroke="#356030" strokeWidth="0.8" />
+      {/* Battle Zone island (northeast) */}
+      <path
+        d="M 168,60
+           C 176,56 186,58 192,64
+           C 198,70 198,80 194,88
+           C 190,96 182,100 174,96
+           C 166,92 162,82 164,72
+           C 165,66 166,62 168,60
+           Z"
+        fill="#4a7c3f"
+        stroke="#356030"
+        strokeWidth="1"
+      />
+      {/* Stark Mountain tint */}
+      <ellipse cx="190" cy="65" rx="5" ry="5" fill="#8a4a3a" opacity="0.5" />
+    </>
+  );
+}
+
 /**
  * Stylized hand-drawn region maps with encounter pins.
- * Regions are added one by one — Galar, Paldea, Kanto, Johto, and Hoenn so far.
+ * Regions are added one by one — Galar, Paldea, Kanto, Johto, Hoenn, and Sinnoh so far.
  */
 export function RegionMap({ region, highlight, showAll }: RegionMapProps) {
   const locations =
@@ -303,7 +364,9 @@ export function RegionMap({ region, highlight, showAll }: RegionMapProps) {
           : region === "johto"
           ? JOHTO_LOCATIONS
           : region === "hoenn"
-            ? HOENN_LOCATIONS
+          ? HOENN_LOCATIONS
+          : region === "sinnoh"
+            ? SINNOH_LOCATIONS
             : null;
 
   if (!locations) {
