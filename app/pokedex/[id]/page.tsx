@@ -81,8 +81,8 @@ export default async function SpeciesPage({
       // Showdown's shiny sprites for the three alternate masks are
       // pixel-identical to regular; use our corrected local shinies.
       // (Teal Mask's Showdown shiny is correct.)
-      const slug = f.formName.toLowerCase().replace(/ /g, "-");
-      const needsLocalShiny = species.id === 1017 && slug !== "teal-mask";
+      const slug = f.formName.toLowerCase().replace(/ mask/g, "");
+      const needsLocalShiny = species.id === 1017 && slug !== "teal";
       return {
         name: f.formName,
         types: f.types as string[],
