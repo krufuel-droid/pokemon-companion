@@ -589,17 +589,18 @@ function JoinRunButton({ runId, onJoined }: { runId: string; onJoined: () => voi
       mark(insertData ? `inserted id:${(insertData as { id: string }).id.slice(0,8)}` : "inserted-no-data");
       if (error) {
         if (error.code === "23505") {
-          mark("already-joined-reloading");
-          window.location.reload();
+          mark("already-a-participant");
+          setError("✅ You're already in this run! If you don't see yourself, the list isn't refreshing.");
+          setBusy(false);
           return;
         }
         throw error;
       }
       void unlockAchievement(user.id, "soul-link").catch(() => {});
-      mark("success-waiting-3s");
-      // Wait 3 seconds so the debug text is visible, then reload.
-      await new Promise((r) => setTimeout(r, 3000));
-      window.location.reload();
+      mark(`SUCCESS! Inserted. Run:${runId.slice(0,8)} User:${user.id.slice(0,8)}`);
+      setError(`✅ Joined! If you don't see yourself in Trainers, the list isn't refreshing.`);
+      setBusy(false);
+      return;
     } catch (err) {
       const msg = err instanceof Error && err.message ? err.message : "Could not join the run.";
       console.error("Join run failed:", err);
