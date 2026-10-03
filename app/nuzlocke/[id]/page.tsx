@@ -452,6 +452,18 @@ function JoinRunButton({ runId, onJoined }: { runId: string; onJoined: () => voi
     setError(null);
     try {
       const supabase = createClient();
+      // The user needs a trainer profile before they can join — the
+      // participants table references profiles(id).
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("id", user.id)
+        .maybeSingle();
+      if (!profile) {
+        setError("Set up your trainer profile first, then join the run.");
+        setBusy(false);
+        return;
+      }
       const { error } = await supabase
         .from("nuzlocke_participants")
         .insert({ run_id: runId, user_id: user.id });
@@ -476,7 +488,14 @@ function JoinRunButton({ runId, onJoined }: { runId: string; onJoined: () => voi
         {busy ? "Joining…" : "Join run"}
       </button>
       {error && (
-        <p role="alert" className="mt-2 text-sm text-red-700 dark:text-red-300">{error}</p>
+        <p role="alert" className="mt-2 text-sm text-red-700 dark:text-red-300">
+          {error}{" "}
+          {error.includes("trainer profile") && (
+            <Link href="/profile" className="font-semibold underline underline-offset-2">
+              Go to profile setup
+            </Link>
+          )}
+        </p>
       )}
     </div>
   );
