@@ -314,6 +314,14 @@ export default function ChampionsPage() {
                             <dd>{mon.nature}</dd>
                           </div>
                         )}
+                        {mon.evs && (
+                          <div className="flex gap-1">
+                            <dt className="font-semibold text-slate-400 dark:text-slate-500">
+                              EVs:
+                            </dt>
+                            <dd className="font-mono">{mon.evs}</dd>
+                          </div>
+                        )}
                       </dl>
                       {mon.moves && (
                         <p className="mt-2 text-xs leading-relaxed text-slate-500 dark:text-slate-400">

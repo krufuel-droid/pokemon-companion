@@ -49,6 +49,8 @@ export interface TeamMon {
   ability?: string;
   item?: string;
   nature?: string;
+  /** EV spread, e.g. "252 HP / 252 Atk / 4 Def". Partial if that's all coverage reported. */
+  evs?: string;
   moves?: string[];
 }
 
@@ -282,6 +284,7 @@ export const FEATURED_TEAMS: FeaturedTeam[] = [
         ability: "Defiant",
         item: "Chople Berry",
         nature: "Adamant",
+        evs: "32 HP / 19 SpD",
         moves: ["Sucker Punch", "Kowtow Cleave", "Low Kick", "Iron Head"],
       },
       {
@@ -289,6 +292,7 @@ export const FEATURED_TEAMS: FeaturedTeam[] = [
         ability: "Adaptability",
         item: "Life Orb",
         nature: "Adamant",
+        evs: "25 Spe",
         moves: ["Wave Crash", "Last Respects", "Aqua Jet", "Protect"],
       },
       {
@@ -303,12 +307,13 @@ export const FEATURED_TEAMS: FeaturedTeam[] = [
         ability: "Rough Skin",
         item: "Choice Scarf",
         nature: "Adamant",
+        evs: "27 Spe",
         moves: ["Dragon Claw", "Stomping Tantrum", "Earthquake", "Rock Slide"],
       },
     ],
     replicaCode: "A4RBR NN9YE",
     footnote:
-      "Runner-up Hiroshi Onishi brought Mega Charizard Y sun to the final — a clash of the format's two defining Mega archetypes.",
+      "Runner-up Hiroshi Onishi brought Mega Charizard Y sun to the final — a clash of the format's two defining Mega archetypes. Partial EV investments as reported in post-tournament coverage (both finalists revealed spreads).",
     source: {
       label: "DevonCorp: Takuma Yamazaki — The Makings of a World Champion",
       url: "https://devoncorp.press/tournament-coverage/takuma-yamazaki-the-makings-of-a-world-champion",
