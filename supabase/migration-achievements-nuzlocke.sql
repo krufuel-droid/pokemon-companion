@@ -454,3 +454,28 @@ drop policy if exists friend_nicknames_owner_all on friend_nicknames;
 create policy friend_nicknames_owner_all on friend_nicknames
   for all using (auth.uid() = user_id)
   with check (auth.uid() = user_id);
+
+-- ----------------------------------------------------------------------------
+-- Section 3: Friendship levels (Oct 2026) — points + tiers per friend.
+-- Safe to re-run: every statement is idempotent.
+-- ----------------------------------------------------------------------------
+
+-- friendship_progress: friendship points between two trainers, one row per
+-- direction — (A,B) and (B,A) are separate rows. Points come from daily
+-- "Say hi" interactions; once-per-day is enforced in app code.
+create table if not exists friendship_progress (
+  user_id uuid not null references profiles(id) on delete cascade,
+  friend_id uuid not null references profiles(id) on delete cascade,
+  points int not null default 0,
+  last_interaction_date date,
+  primary key (user_id, friend_id)
+);
+comment on table friendship_progress is 'Friendship level points (Section 3): one row per direction, earned by daily "Say hi" interactions.';
+
+alter table friendship_progress enable row level security;
+
+-- Both parties to a friendship can read and write their own direction's row.
+drop policy if exists friendship_progress_parties on friendship_progress;
+create policy friendship_progress_parties on friendship_progress
+  for all using (auth.uid() = user_id or auth.uid() = friend_id)
+  with check (auth.uid() = user_id or auth.uid() = friend_id);

@@ -10,6 +10,12 @@ import Avatar from "@/components/Avatar";
 import CommunityTabs from "@/components/CommunityTabs";
 import { incrementRecord, getAchievements, type AchievementDef } from "@/lib/achievements";
 import { fetchTradeLists, computeTradeMatches, type TradeEntry, type TradeListPair } from "@/lib/trades";
+import {
+  friendshipTier,
+  friendshipProgressPct,
+  todayLocal,
+  type FriendshipProgress,
+} from "@/lib/friendship";
 import { getSpeciesById } from "@/lib/pokedex";
 import { timeAgo, type FriendProfile, type Friendship } from "@/lib/community";
 
@@ -667,6 +673,13 @@ export default function FriendsPage() {
   const [tradeMatchCounts, setTradeMatchCounts] = useState<Record<string, number> | null>(null);
   const [loadingTradeMatches, setLoadingTradeMatches] = useState(false);
 
+  // Section 3: Friendship levels. Keyed by friend id; one row per direction.
+  const [friendship, setFriendship] = useState<Record<string, FriendshipProgress>>({});
+  // null = unknown (still loading), false = table not migrated yet (hide the UI).
+  const [friendshipReady, setFriendshipReady] = useState<boolean | null>(null);
+  // Toast after a "Say hi".
+  const [hiToast, setHiToast] = useState<string | null>(null);
+
   const [actionBusy, setActionBusy] = useState<string | null>(null);
   const [confirmUnfriend, setConfirmUnfriend] = useState<string | null>(null);
 
@@ -734,6 +747,45 @@ export default function FriendsPage() {
     }
   }, [user]);
 
+  /** Section 3: my friendship progress with each friend (my direction's rows). */
+  const fetchFriendship = useCallback(async () => {
+    if (!user) {
+      setFriendship({});
+      setFriendshipReady(false);
+      return;
+    }
+    try {
+      const { data, error } = await createClient()
+        .from("friendship_progress")
+        .select("friend_id, points, last_interaction_date")
+        .eq("user_id", user.id);
+      if (error) throw error;
+      const map: Record<string, FriendshipProgress> = {};
+      for (
+        const row of (data as
+          | { friend_id: string; points: number; last_interaction_date: string | null }[]
+          | null) ?? []
+      ) {
+        map[row.friend_id] = {
+          points: row.points ?? 0,
+          last_interaction_date: row.last_interaction_date,
+        };
+      }
+      setFriendship(map);
+      setFriendshipReady(true);
+    } catch (e) {
+      // The table doesn't exist until the Section 3 SQL is run — hide the UI.
+      setFriendshipReady(false);
+      const code = (e as { code?: string } | null)?.code;
+      if (code !== "42P01") {
+        console.error(
+          "Failed to load friendship progress:",
+          e instanceof Error ? e.message : e,
+        );
+      }
+    }
+  }, [user]);
+
   // Initial load once auth is ready. State updates happen in the promise
   // continuation (after the network round-trip), never synchronously.
   useEffect(() => {
@@ -747,6 +799,8 @@ export default function FriendsPage() {
         setLoadingFriends(false);
         // Nicknames load alongside the friend list (independent fetch).
         void fetchNicknames();
+        // Friendship levels load alongside too (independent fetch).
+        void fetchFriendship();
       })
       .catch((e: unknown) =>
         console.error("Failed to load friendships:", e instanceof Error ? e.message : e),
@@ -754,7 +808,7 @@ export default function FriendsPage() {
     return () => {
       cancelled = true;
     };
-  }, [configured, loading, user, fetchFriendData, fetchNicknames]);
+  }, [configured, loading, user, fetchFriendData, fetchNicknames, fetchFriendship]);
 
   const rows: FriendRow[] = useMemo(() => {
     if (!user) return [];
@@ -1131,6 +1185,11 @@ export default function FriendsPage() {
    * friendships, so these move the row to 'blocked' (the schema's terminal
    * non-friend state) instead of deleting it.
    */
+  /**
+   * Decline / cancel / unfriend. The schema has no DELETE policy on
+   * friendships, so these move the row to 'blocked' (the schema's terminal
+   * non-friend state) instead of deleting it.
+   */
   async function blockRow(id: string) {
     setActionBusy(id);
     try {
@@ -1142,6 +1201,52 @@ export default function FriendsPage() {
       setConfirmUnfriend(null);
     }
   }
+
+  /**
+   * Section 3: "Say hi" — one friendship point per friend per day.
+   * Upserts my direction's row: points+1, last_interaction_date=today.
+   * The button is disabled once done for the day (app-level enforcement).
+   */
+  async function sayHi(friendId: string, label: string) {
+    if (!user) return;
+    const today = todayLocal();
+    const current = friendship[friendId];
+    if (current?.last_interaction_date === today) return;
+    setActionBusy(`hi-${friendId}`);
+    try {
+      const { error } = await createClient()
+        .from("friendship_progress")
+        .upsert(
+          {
+            user_id: user.id,
+            friend_id: friendId,
+            points: (current?.points ?? 0) + 1,
+            last_interaction_date: today,
+          },
+          { onConflict: "user_id,friend_id" },
+        );
+      if (error) throw error;
+      setFriendship((prev) => ({
+        ...prev,
+        [friendId]: {
+          points: (prev[friendId]?.points ?? 0) + 1,
+          last_interaction_date: today,
+        },
+      }));
+      setHiToast(`+1 friendship with ${label}!`);
+    } catch (e) {
+      console.error("Failed to say hi:", e instanceof Error ? e.message : e);
+    } finally {
+      setActionBusy(null);
+    }
+  }
+
+  // Auto-dismiss the "Say hi" toast.
+  useEffect(() => {
+    if (!hiToast) return;
+    const t = setTimeout(() => setHiToast(null), 2500);
+    return () => clearTimeout(t);
+  }, [hiToast]);
 
   if (!isSupabaseConfigured() || !configured) return <SupabaseNeeded />;
   if (loading) {
@@ -1475,6 +1580,13 @@ export default function FriendsPage() {
                     {filteredFriends.map((r) => {
                       const name = displayName(r.other.id, r.other.username);
                       const hasNickname = !!nicknames[r.other.id];
+                      // Section 3: friendship level (0 points until they say hi).
+                      const fp = friendship[r.other.id] ?? {
+                        points: 0,
+                        last_interaction_date: null,
+                      };
+                      const tier = friendshipTier(fp.points);
+                      const doneToday = fp.last_interaction_date === todayLocal();
                       return (
                         <li key={r.id} className={`${cardClass} !p-4`}>
                           <div className="flex items-center gap-3">
@@ -1549,6 +1661,17 @@ export default function FriendsPage() {
                                   >
                                     <span role="img" aria-hidden="true">✎</span>
                                   </button>
+                                  {friendshipReady && (
+                                    <span
+                                      title={`Friendship: ${fp.points} point${fp.points === 1 ? "" : "s"}`}
+                                      className="shrink-0 rounded-full bg-stone-100 px-1.5 py-0.5 text-[11px] font-semibold text-slate-600 dark:bg-slate-800 dark:text-slate-300"
+                                    >
+                                      <span role="img" aria-hidden="true" className="mr-0.5">
+                                        {tier.emoji}
+                                      </span>
+                                      {tier.name}
+                                    </span>
+                                  )}
                                 </div>
                               )}
                               <div className="mt-1 flex items-center gap-3">
@@ -1567,6 +1690,25 @@ export default function FriendsPage() {
                                   <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
                                     Online
                                   </span>
+                                )}
+                                {friendshipReady && (
+                                  <button
+                                    type="button"
+                                    onClick={() => void sayHi(r.other.id, name)}
+                                    disabled={doneToday || actionBusy === `hi-${r.other.id}`}
+                                    title={
+                                      doneToday
+                                        ? "You already said hi today — come back tomorrow!"
+                                        : `Say hi to ${name} (+1 friendship, once a day)`
+                                    }
+                                    className="rounded-full bg-mint px-2.5 py-0.5 text-xs font-bold text-slate-900 transition hover:brightness-95 disabled:cursor-default disabled:bg-stone-100 disabled:text-slate-400 dark:text-slate-100 dark:disabled:bg-slate-800 dark:disabled:text-slate-500"
+                                  >
+                                    {actionBusy === `hi-${r.other.id}`
+                                      ? "…"
+                                      : doneToday
+                                        ? "Done today ✓"
+                                        : "Say hi 👋"}
+                                  </button>
                                 )}
                               </div>
                             </div>
@@ -1599,6 +1741,26 @@ export default function FriendsPage() {
                               </button>
                             )}
                           </div>
+                          {/* Section 3: one slim progress bar toward the next tier. */}
+                          {friendshipReady && (
+                            <div className="mt-2.5">
+                              <div className="h-1 overflow-hidden rounded-full bg-stone-200 dark:bg-slate-700">
+                                <div
+                                  className="h-1 rounded-full bg-gradient-to-r from-amber-300 to-rose-400 transition-[width]"
+                                  style={{ width: `${friendshipProgressPct(fp.points)}%` }}
+                                />
+                              </div>
+                              <p className="mt-1 text-right text-[11px] text-slate-400 dark:text-slate-500">
+                                {tier.nextTierAt === null ? (
+                                  <span className="font-semibold">MAX</span>
+                                ) : (
+                                  <>
+                                    {fp.points}/{tier.nextTierAt} to {tier.nextTierName}
+                                  </>
+                                )}
+                              </p>
+                            </div>
+                          )}
                         </li>
                       );
                     })}
@@ -1610,6 +1772,15 @@ export default function FriendsPage() {
             </div>
           )}
         </>
+      )}
+      {/* Section 3: "Say hi" confirmation toast. */}
+      {hiToast && (
+        <div
+          role="status"
+          className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 whitespace-nowrap rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white shadow-lg dark:bg-white dark:text-slate-900"
+        >
+          {hiToast}
+        </div>
       )}
     </div>
   );

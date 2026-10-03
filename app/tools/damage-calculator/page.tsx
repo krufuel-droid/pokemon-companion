@@ -14,6 +14,12 @@ function toNum(v: number, fallback: number): number {
   return Number.isFinite(v) ? v : fallback;
 }
 
+/** Clamp a numeric input to a sane range so extreme values can't break the math. */
+function clampNum(v: number, fallback: number, min: number, max: number): number {
+  const n = toNum(v, fallback);
+  return Math.min(max, Math.max(min, n));
+}
+
 function effLabel(eff: number): string {
   if (eff === 0) return "no effect";
   if (eff < 1) return "not very effective";
@@ -151,7 +157,7 @@ export default function DamageCalculator() {
                 max={100}
                 className={inputCls}
                 value={level}
-                onChange={(e) => setLevel(toNum(e.target.valueAsNumber, 50))}
+                onChange={(e) => setLevel(clampNum(e.target.valueAsNumber, 50, 1, 100))}
               />
             </div>
             <div>
@@ -192,9 +198,10 @@ export default function DamageCalculator() {
                 id="dc-power"
                 type="number"
                 min={0}
+                max={250}
                 className={inputCls}
                 value={power}
-                onChange={(e) => setPower(toNum(e.target.valueAsNumber, 80))}
+                onChange={(e) => setPower(clampNum(e.target.valueAsNumber, 80, 0, 250))}
               />
             </div>
             <div>
@@ -207,7 +214,7 @@ export default function DamageCalculator() {
                 min={1}
                 className={inputCls}
                 value={attack}
-                onChange={(e) => setAttack(toNum(e.target.valueAsNumber, 100))}
+                onChange={(e) => setAttack(clampNum(e.target.valueAsNumber, 100, 1, 999))}
               />
             </div>
             <div>
@@ -220,7 +227,7 @@ export default function DamageCalculator() {
                 min={1}
                 className={inputCls}
                 value={defense}
-                onChange={(e) => setDefense(toNum(e.target.valueAsNumber, 100))}
+                onChange={(e) => setDefense(clampNum(e.target.valueAsNumber, 100, 1, 999))}
               />
             </div>
             <div>
@@ -229,9 +236,10 @@ export default function DamageCalculator() {
                 id="dc-hp"
                 type="number"
                 min={1}
+                max={999}
                 className={inputCls}
                 value={hp}
-                onChange={(e) => setHp(toNum(e.target.valueAsNumber, 200))}
+                onChange={(e) => setHp(clampNum(e.target.valueAsNumber, 200, 1, 999))}
               />
             </div>
             <div>
