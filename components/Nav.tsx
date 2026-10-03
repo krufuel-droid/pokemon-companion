@@ -15,6 +15,7 @@ const LINKS = [
   { href: "/champions", label: "Champions" },
   { href: "/achievements", label: "Achievements" },
   { href: "/nuzlocke", label: "Nuzlocke" },
+  { href: "/shiny-hunts", label: "✨ Hunts" },
   { href: "/items", label: "Items" },
   { href: "/moves", label: "Moves" },
   { href: "/news", label: "News" },

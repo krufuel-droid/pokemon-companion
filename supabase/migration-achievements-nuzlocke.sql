@@ -424,6 +424,31 @@ create policy guide_checklists_owner_all on guide_checklists
   for all using (auth.uid() = user_id)
   with check (auth.uid() = user_id);
 
+-- Shiny hunts (added Oct 2026): track shiny hunting progress with encounter counts.
+create table if not exists shiny_hunts (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references profiles(id) on delete cascade,
+  species_id integer not null,
+  species_name text not null,
+  game text,
+  method text not null default 'random',
+  encounters integer not null default 0,
+  odds_denominator integer not null default 4096,
+  has_charm boolean not null default false,
+  status text not null default 'active' check (status in ('active', 'completed', 'abandoned')),
+  notes text,
+  started_at timestamptz not null default now(),
+  completed_at timestamptz,
+  updated_at timestamptz not null default now()
+);
+comment on table shiny_hunts is 'Shiny hunt tracking with encounter counts and odds.';
+alter table shiny_hunts enable row level security;
+
+drop policy if exists shiny_hunts_owner_all on shiny_hunts;
+create policy shiny_hunts_owner_all on shiny_hunts
+  for all using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
 -- Messages: read receipts for unread badges (added Oct 2026).
 alter table messages add column if not exists read_at timestamptz;
 
