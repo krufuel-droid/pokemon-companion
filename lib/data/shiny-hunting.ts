@@ -119,6 +119,22 @@ export const SHINY_SECTIONS: {
       },
     ],
   },
+  {
+    gen: "Legends: Z-A",
+    games: "Pokémon Legends: Z-A",
+    methods: [
+      {
+        title: "Sparkling Power Donuts (Mega Dimension DLC)",
+        detail:
+          "Cook donuts maxing out Sweetness (pink stat) with 8 ingredients including Hyperspace Butter. Like S/V sandwiches but donuts — boost shiny odds for 30 minutes.",
+      },
+      {
+        title: "Mass outbreaks",
+        detail:
+          "Same concept as S/V and Arceus — clear outbreaks to boost odds. Pair with donuts for the best rates.",
+      },
+    ],
+  },
 ];
 
 export const SHINY_TIPS = [

@@ -102,6 +102,22 @@ export const SECTIONS: {
       },
     ],
   },
+  {
+    gen: "Legends: Z-A",
+    games: "Pokémon Legends: Z-A",
+    methods: [
+      {
+        title: "Battle to earn EVs",
+        detail:
+          "Defeat wild or trainer-owned Pokémon — each species grants EVs in its highest base stat. Check EVs on the stats page (press down on the right stick); maxed stats show sparkles.",
+      },
+      {
+        title: "Vitamins (uncapped)",
+        detail:
+          "Same as recent generations — vitamins work all the way to 252. Buy in bulk once cash is flowing from the Z-A Royale.",
+      },
+    ],
+  },
 ];
 
 export const QUICK_TIPS = [

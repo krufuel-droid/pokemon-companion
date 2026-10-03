@@ -76,6 +76,32 @@ export const IV_SECTIONS: {
       },
     ],
   },
+  {
+    gen: "Legends: Z-A",
+    games: "Pokémon Legends: Z-A",
+    methods: [
+      {
+        title: "Hyper Training at the Justice Dojo",
+        detail:
+          "An NPC at the Justice Dojo maxes IVs for Bottle Caps (one stat each) or a Gold Bottle Cap (all six). Pokémon must be Lv. 50+.",
+      },
+      {
+        title: "Bottle Cap sources",
+        detail:
+          "Mable's Research (Lv. 36: 10 caps, Lv. 48: 3 Gold Caps), Infinite Z-A Royale rewards, Ranked Season 1, and Side Mission 103 'Facing the Furfrou League' (1 Gold Cap).",
+      },
+      {
+        title: "Alpha Pokémon",
+        detail:
+          "Alpha Pokémon have maxed IVs in at least 3 stats — great Hyper Training candidates or breeding-adjacent shortcuts.",
+      },
+      {
+        title: "Seeds of Mastery",
+        detail:
+          "Not IVs, but the other Justice Dojo NPC converts moves to Plus Moves for Seeds of Mastery, earned from defeating Alpha Pokémon.",
+      },
+    ],
+  },
 ];
 
 export const IV_TIPS = [
