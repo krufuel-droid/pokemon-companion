@@ -134,6 +134,19 @@ export default async function TrainerProfilePage({
   } = await supabase.auth.getUser();
   const isOwn = me?.id === profile.id;
 
+  // Private profiles: only the owner and accepted friends see the full profile.
+  let isFriend = false;
+  if (!isOwn && me && (profile as { is_private?: boolean }).is_private) {
+    const { data: friendship } = await supabase
+      .from("friendships")
+      .select("id")
+      .or(`and(user_id.eq.${me.id},friend_id.eq.${profile.id}),and(user_id.eq.${profile.id},friend_id.eq.${me.id})`)
+      .eq("status", "accepted")
+      .maybeSingle();
+    isFriend = !!friendship;
+  }
+  const isPrivate = !!((profile as { is_private?: boolean }).is_private) && !isOwn && !isFriend;
+
   // Stats snapshot — same three counts the Compare tab uses.
   const [achRes, runsRes, catchesRes, unlocksRes, catchFeedRes, defsRes] =
     await Promise.all([
@@ -224,6 +237,28 @@ export default async function TrainerProfilePage({
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6">
+      {isPrivate ? (
+        /* Private profile: username only for non-friends. */
+        <div className={cardClass}>
+          <div className="flex items-start gap-5">
+            <Avatar
+              username={profile.username}
+              avatarUrl={null}
+              size={80}
+              online={false}
+            />
+            <div className="min-w-0 flex-1">
+              <h1 className="truncate text-2xl font-bold text-slate-900 dark:text-slate-100">
+                {profile.username}
+              </h1>
+              <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+                🔒 This trainer has a private profile. Add them as a friend to see more.
+              </p>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <>
       {/* Header */}
       <div className={cardClass}>
         <div className="flex items-start gap-5">
@@ -382,6 +417,8 @@ export default async function TrainerProfilePage({
           </ul>
         )}
       </div>
+        </>
+      )}
     </div>
   );
 }

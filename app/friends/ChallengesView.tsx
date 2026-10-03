@@ -167,7 +167,7 @@ export default function ChallengesView({
     setLoggingBusy(true);
     setLogError(null);
     try {
-      const next = await logChallengeProgress(createClient(), challenge.id, me);
+      const next = await logChallengeProgress(createClient(), challenge.id, me, challenge.target_count);
       setMyCount(next);
       setLeaders((prev) => {
         const idx = prev.findIndex((l) => l.userId === me);
@@ -254,7 +254,7 @@ export default function ChallengesView({
               </span>
               {done && <span className="ml-2">🎉 Done!</span>}
             </p>
-            {!auto && (
+            {!auto && !done && (
               <button
                 type="button"
                 onClick={() => void handleLog()}

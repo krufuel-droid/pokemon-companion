@@ -165,9 +165,11 @@ export async function logChallengeProgress(
   client: Client,
   challengeId: string,
   userId: string,
+  target?: number,
 ): Promise<number> {
   const current = await manualCount(client, challengeId, userId);
-  const next = current + 1;
+  // Cap at the target so spamming +1 can't inflate the count (e.g. 300/3).
+  const next = target != null ? Math.min(current + 1, target) : current + 1;
   const { error } = await client.from("challenge_progress").upsert(
     {
       challenge_id: challengeId,
