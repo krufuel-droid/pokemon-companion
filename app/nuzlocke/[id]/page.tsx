@@ -585,13 +585,17 @@ function JoinRunButton({ runId, onJoined }: { runId: string; onJoined: () => voi
       mark("inserted");
       if (error) {
         if (error.code === "23505") {
-          onJoined();
+          mark("already-joined-reloading");
+          window.location.reload();
           return;
         }
         throw error;
       }
       void unlockAchievement(user.id, "soul-link").catch(() => {});
-      onJoined();
+      mark("success-reloading");
+      // Force a full page reload to ensure fresh participant data.
+      // The realtime refresh wasn't reliably picking up the new row.
+      window.location.reload();
     } catch (err) {
       const msg = err instanceof Error && err.message ? err.message : "Could not join the run.";
       console.error("Join run failed:", err);
