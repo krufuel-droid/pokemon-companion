@@ -53,7 +53,7 @@ const FEATURES = [
   },
 ] as const;
 
-const COMING_SOON = ["Shiny-hunt trackers"] as const;
+const COMING_SOON = ["Shiny-hunt trackers", "Collections & favorites"] as const;
 
 export default function HomePage() {
   return (
