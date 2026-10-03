@@ -13,7 +13,8 @@ export type ItemCategory =
   | "evolution-stone"
   | "evolution-item"
   | "battle-item"
-  | "mint";
+  | "mint"
+  | "ability-item";
 
 export interface ItemEntry {
   name: string;
@@ -32,6 +33,7 @@ export const CATEGORY_LABEL: Record<ItemCategory, string> = {
   "evolution-item": "Evolution Items",
   "battle-item": "Battle Items",
   "mint": "Mints",
+  "ability-item": "Ability Items",
 };
 
 const MEGA_GAMES = [
@@ -773,6 +775,22 @@ export const ITEMS: ItemEntry[] = [
     pokemon: [],
     games: ["Scarlet/Violet"],
     obtain: "Delibird Presents (SV)",
+  },
+  {
+    name: "Ability Patch",
+    category: "ability-item",
+    description: "Changes a Pokémon's regular Ability to its Hidden Ability. One-way — use an Ability Capsule to switch back.",
+    pokemon: [],
+    games: ["Sword/Shield", "Scarlet/Violet"],
+    obtain: "200 Dynite Ore in Max Lair (SwSh Crown Tundra); 250 BP at League Club store or 6★ Tera raids (SV Indigo Disk)",
+  },
+  {
+    name: "Ability Capsule",
+    category: "ability-item",
+    description: "Switches a Pokémon between its two regular Abilities. Cannot grant a Hidden Ability — use an Ability Patch for that.",
+    pokemon: [],
+    games: ["Sword/Shield", "Scarlet/Violet"],
+    obtain: "50 BP at Battle Tower (SwSh); ₽100,000 at Chansey Supply or 100 BP (SV)",
   },
 ];
 

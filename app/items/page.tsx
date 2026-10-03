@@ -17,6 +17,7 @@ const CATEGORY_ORDER: ItemCategory[] = [
   "evolution-item",
   "battle-item",
   "mint",
+  "ability-item",
 ];
 
 const CATEGORY_BADGE: Record<ItemCategory, string> = {
@@ -25,6 +26,7 @@ const CATEGORY_BADGE: Record<ItemCategory, string> = {
   "evolution-item": "bg-violet-100 text-violet-800 dark:bg-violet-900 dark:text-violet-200",
   "battle-item": "bg-rose-100 text-rose-800 dark:bg-rose-900 dark:text-rose-200",
   "mint": "bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200",
+  "ability-item": "bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200",
 };
 
 function ItemRow({ item }: { item: ItemEntry }) {

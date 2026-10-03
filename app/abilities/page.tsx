@@ -92,6 +92,35 @@ export default function AbilitiesPage() {
         Every ability, what it does, and which Pokémon have it.
       </p>
 
+      <details className="mt-4 rounded-2xl bg-violet-50 p-5 ring-1 ring-violet-200 dark:bg-violet-950 dark:ring-violet-800">
+        <summary className="cursor-pointer list-none font-semibold text-violet-900 marker:hidden dark:text-violet-200 [&::-webkit-details-marker]:hidden">
+          <span className="mr-2 inline-block transition-transform duration-200 [details[open]_&]:rotate-90">▸</span>
+          What are Hidden Abilities?
+        </summary>
+        <div className="mt-3 space-y-2 text-sm text-slate-700 dark:text-slate-300">
+          <p>
+            Most Pokémon have 1–2 regular abilities, plus a rarer <strong>Hidden Ability</strong> that
+            can&apos;t be found on wild Pokémon or hatched from eggs normally.
+          </p>
+          <ul className="list-disc space-y-1 pl-5">
+            <li>
+              <strong>Ability Patch</strong> — changes a regular ability into the Hidden Ability (one-way).
+              Find it under <Link href="/items" className="font-semibold text-emerald-600 underline underline-offset-2 dark:text-emerald-400">Items → Ability Items</Link>.
+            </li>
+            <li>
+              <strong>Ability Capsule</strong> — switches between the two regular abilities (can&apos;t grant Hidden).
+            </li>
+            <li>
+              In Scarlet/Violet, Hidden Ability Pokémon also appear in Tera raids.
+            </li>
+          </ul>
+          <p>
+            Pokémon marked with the purple <span className="rounded-full bg-violet-100 px-2 py-0.5 text-xs font-semibold text-violet-700 dark:bg-violet-900 dark:text-violet-200">Hidden</span> badge
+            have this ability as their Hidden Ability.
+          </p>
+        </div>
+      </details>
+
       <div className="mt-6">
         <input
           type="search"
