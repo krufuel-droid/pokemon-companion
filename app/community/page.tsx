@@ -198,18 +198,21 @@ function PostCard({
   post,
   reactions,
   userId,
+  isAdmin,
   onReactionsChanged,
   onDeleted,
 }: {
   post: CommunityPost;
   reactions: ReactionRow[];
   userId: string;
+  isAdmin: boolean;
   onReactionsChanged: () => void;
   onDeleted: () => void;
 }) {
   const [deleting, setDeleting] = useState(false);
   const [confirming, setConfirming] = useState(false);
   const mine = post.author_id === userId;
+  const canDelete = mine || isAdmin;
 
   async function remove() {
     setDeleting(true);
@@ -257,7 +260,7 @@ function PostCard({
             onToggled={onReactionsChanged}
           />
         </div>
-        {mine && (
+        {canDelete && (
           <div className="shrink-0">
             {confirming ? (
               <div className="flex gap-2">
@@ -298,6 +301,31 @@ export default function CommunityPage() {
   const [posts, setPosts] = useState<CommunityPost[]>([]);
   const [reactions, setReactions] = useState<ReactionRow[]>([]);
   const [loadingFeed, setLoadingFeed] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    if (!user) {
+      setIsAdmin(false);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      try {
+        const supabase = createClient();
+        const { data } = await supabase
+          .from("profiles")
+          .select("is_admin")
+          .eq("id", user.id)
+          .maybeSingle();
+        if (!cancelled) setIsAdmin((data as { is_admin: boolean } | null)?.is_admin ?? false);
+      } catch {
+        // column may not exist yet
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
 
   /** Pure fetch: newest posts with their authors. Throws on failure. */
   const fetchPosts = useCallback(async (): Promise<CommunityPost[]> => {
@@ -438,6 +466,7 @@ export default function CommunityPage() {
               post={post}
               reactions={reactions}
               userId={user.id}
+              isAdmin={isAdmin}
               onReactionsChanged={refreshReactions}
               onDeleted={reload}
             />
