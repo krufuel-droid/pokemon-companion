@@ -42,7 +42,7 @@ export const INGREDIENTS: Record<string, IngredientInfo> = {
   "Salt": { name: "Salt", emoji: "🧂", shops: ["Artisan Bakery", "Aquiesta Supermarket"], badges: 0, price: 90 },
   "Pepper": { name: "Pepper", emoji: "🧂", shops: ["Artisan Bakery"], badges: 0, price: 100 },
   "Vinegar": { name: "Vinegar", emoji: "🫙", shops: ["Deli Cioso", "Aquiesta Supermarket"], badges: 2, price: 300 },
-  "Cream Cheese": { name: "Cream Cheese", emoji: "🧀", shops: ["Artisan Bakery", "Aquiesta Supermarket"], badges: 0, price: 280 },
+  "Cream Cheese": { name: "Cream Cheese", emoji: "🧈", shops: ["Artisan Bakery", "Aquiesta Supermarket"], badges: 0, price: 280 },
   "Watercress": { name: "Watercress", emoji: "🥗", shops: ["Deli Cioso", "Artisan Bakery"], badges: 0, price: 270 },
   "Potato Tortilla": { name: "Potato Tortilla", emoji: "🥔", shops: ["Deli Cioso"], badges: 0, price: 250 },
   "Olive Oil": { name: "Olive Oil", emoji: "🫒", shops: ["Artisan Bakery", "Aquiesta Supermarket"], badges: 0, price: 300 },
