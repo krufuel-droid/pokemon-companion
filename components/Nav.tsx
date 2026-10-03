@@ -12,6 +12,7 @@ const LINKS = [
     label: "Database",
     children: [
       { href: "/pokedex", label: "Pokédex" },
+      { href: "/collection", label: "Living Dex" },
       { href: "/items", label: "Items" },
       { href: "/moves", label: "Moves" },
       { href: "/abilities", label: "Abilities" },
