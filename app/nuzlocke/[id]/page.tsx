@@ -362,7 +362,7 @@ export default function RunDetailPage({ params }: { params: Promise<{ id: string
           ))}
         </div>
         {!isParticipant && <JoinRunButton runId={id} onJoined={() => void refresh()} />}
-        {isParticipant && <InviteFriend runId={id} />}
+        {isParticipant && <InviteForm runId={id} />}
       </section>
 
       {/* Teams */}
@@ -482,77 +482,43 @@ function JoinRunButton({ runId, onJoined }: { runId: string; onJoined: () => voi
 }
 
 /* ------------------------------------------------------------------ */
-/* Invite a friend                                                       */
+/* Invite: copy a share link — the friend opens it and taps Join run.    */
+/* (RLS only lets a user add themselves as a participant, so direct      */
+/* invites by username are not possible.)                                */
 /* ------------------------------------------------------------------ */
+function InviteForm({ runId }: { runId: string }) {
+  const [copied, setCopied] = useState(false);
 
-function InviteFriend({ runId }: { runId: string }) {
-  const [username, setUsername] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
-  const [isError, setIsError] = useState(false);
-
-  async function invite(e: FormEvent) {
-    e.preventDefault();
-    const name = username.trim();
-    if (!name) return;
-    setBusy(true);
-    setMessage(null);
-    setIsError(false);
+  async function copyLink() {
+    const url = `${window.location.origin}/nuzlocke/${runId}`;
     try {
-      const supabase = createClient();
-      const { data: found, error: lookupError } = await supabase
-        .from("profiles")
-        .select("id, username")
-        .eq("username", name)
-        .maybeSingle();
-      if (lookupError) throw lookupError;
-      if (!found) {
-        setMessage(`No trainer named "${name}" found.`);
-        setIsError(true);
-        return;
-      }
-      const { error } = await supabase
-        .from("nuzlocke_participants")
-        .insert({ run_id: runId, user_id: (found as { id: string }).id });
-      if (error) throw error;
-      void unlockAchievement((found as { id: string }).id, "soul-link").catch(() => {});
-      setMessage(`${(found as { username: string }).username} joined the run!`);
-      setUsername("");
-    } catch (err) {
-      setIsError(true);
-      setMessage(
-        err instanceof Error && /row-level|policy|permission/i.test(err.message)
-          ? "Couldn't add them directly — ask them to open this page and tap Join run."
-          : err instanceof Error ? err.message : "Could not invite that trainer.",
-      );
-    } finally {
-      setBusy(false);
+      await navigator.clipboard.writeText(url);
+    } catch {
+      // Clipboard API unavailable — fall back to selecting a temp input.
+      const input = document.createElement("input");
+      input.value = url;
+      document.body.appendChild(input);
+      input.select();
+      document.execCommand("copy");
+      document.body.removeChild(input);
     }
+    setCopied(true);
+    window.setTimeout(() => setCopied(false), 2500);
   }
 
   return (
-    <form onSubmit={(e) => void invite(e)} className="mt-4 flex max-w-sm flex-col gap-2 sm:flex-row">
-      <input
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-        className={inputClass}
-        placeholder="Trainer's username"
-        aria-label="Trainer's username"
-        maxLength={24}
-      />
+    <div className="mt-4 flex max-w-sm flex-col gap-2">
+      <p className="text-sm text-slate-600 dark:text-slate-400">
+        Friends join with the link — they&apos;ll tap <strong>Join run</strong> on this page.
+      </p>
       <button
-        type="submit"
-        disabled={busy || username.trim() === ""}
-        className="shrink-0 rounded-lg border border-stone-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-mint disabled:opacity-60 dark:border-slate-600 dark:text-slate-300"
+        type="button"
+        onClick={() => void copyLink()}
+        className="shrink-0 rounded-lg border border-stone-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-mint dark:border-slate-600 dark:text-slate-300"
       >
-        {busy ? "Inviting…" : "Invite friend"}
+        {copied ? "Link copied! ✓" : "Copy invite link"}
       </button>
-      {message && (
-        <p role="status" className={`text-sm sm:basis-full ${isError ? "text-red-700 dark:text-red-300" : "text-emerald-700 dark:text-emerald-300"}`}>
-          {message}
-        </p>
-      )}
-    </form>
+    </div>
   );
 }
 
