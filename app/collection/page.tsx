@@ -19,47 +19,65 @@ function CollectionCard({
   caught,
   shiny,
   onToggle,
+  onToggleShiny,
 }: {
   species: SpeciesIndex;
   caught: boolean;
   shiny: boolean;
   onToggle: (speciesId: number) => void;
+  onToggleShiny: (speciesId: number) => void;
 }) {
   return (
-    <button
-      type="button"
-      onClick={() => onToggle(species.id)}
-      className={`relative flex flex-col items-center gap-1.5 rounded-2xl p-4 shadow-sm ring-1 transition hover:-translate-y-0.5 hover:shadow-md ${
-        caught
-          ? "bg-white ring-emerald-300 dark:bg-slate-900 dark:ring-emerald-700"
-          : "bg-white opacity-60 ring-slate-200 grayscale dark:bg-slate-900 dark:ring-slate-700"
-      }`}
-      style={{ contentVisibility: "auto", containIntrinsicSize: "auto 220px" }}
-      aria-pressed={caught}
-      aria-label={`${species.name} ${caught ? "caught" : "not caught"}`}
-    >
+    <div className="relative">
+      <button
+        type="button"
+        onClick={() => onToggle(species.id)}
+        className={`relative flex w-full flex-col items-center gap-1.5 rounded-2xl p-4 shadow-sm ring-1 transition hover:-translate-y-0.5 hover:shadow-md ${
+          caught
+            ? "bg-white ring-emerald-300 dark:bg-slate-900 dark:ring-emerald-700"
+            : "bg-white opacity-60 ring-slate-200 grayscale dark:bg-slate-900 dark:ring-slate-700"
+        }`}
+        style={{ contentVisibility: "auto", containIntrinsicSize: "auto 220px" }}
+        aria-pressed={caught}
+        aria-label={`${species.name} ${caught ? "caught" : "not caught"}`}
+      >
+        {caught && (
+          <span className="absolute left-2 top-2 rounded-full bg-emerald-500 px-2 py-0.5 text-xs font-bold text-white">
+            ✓
+          </span>
+        )}
+        <img
+          src={shiny && caught ? species.sprites.shiny : species.sprites.regular}
+          alt={species.name}
+          className="h-24 w-24 object-contain"
+          loading="lazy"
+        />
+        <span className="text-xs font-medium text-slate-400 dark:text-slate-500">#{species.id}</span>
+        <span className="text-sm font-semibold capitalize text-slate-800 dark:text-slate-100">
+          {species.name}
+        </span>
+        <TypePills types={species.types} />
+      </button>
       {caught && (
-        <span className="absolute left-2 top-2 rounded-full bg-emerald-500 px-2 py-0.5 text-xs font-bold text-white">
-          ✓
-        </span>
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggleShiny(species.id);
+          }}
+          aria-label={shiny ? "Remove shiny mark" : "Mark as shiny"}
+          aria-pressed={shiny}
+          title={shiny ? "Remove shiny mark" : "Mark as shiny"}
+          className={`absolute right-2 top-2 rounded-full p-1.5 text-lg transition ${
+            shiny
+              ? "opacity-100"
+              : "opacity-40 hover:opacity-100"
+          }`}
+        >
+          {shiny ? "✨" : "☆"}
+        </button>
       )}
-      {shiny && caught && (
-        <span className="absolute right-2 top-2 text-lg" aria-label="Shiny caught">
-          ✨
-        </span>
-      )}
-      <img
-        src={shiny && caught ? species.sprites.shiny : species.sprites.regular}
-        alt={species.name}
-        className="h-24 w-24 object-contain"
-        loading="lazy"
-      />
-      <span className="text-xs font-medium text-slate-400 dark:text-slate-500">#{species.id}</span>
-      <span className="text-sm font-semibold capitalize text-slate-800 dark:text-slate-100">
-        {species.name}
-      </span>
-      <TypePills types={species.types} />
-    </button>
+    </div>
   );
 }
 
@@ -140,6 +158,32 @@ export default function CollectionPage() {
       });
       void incrementRecord(user.id, "collection_added", 1);
     }
+  }
+
+  async function toggleShiny(speciesId: number) {
+    if (!user) return;
+    const existing = entries.get(speciesId);
+    if (!existing) return;
+    const newShiny = !existing.is_shiny;
+    const supabase = createClient();
+
+    // Update the shiny flag - delete old row(s) and insert with new value
+    await supabase
+      .from("collection")
+      .delete()
+      .eq("user_id", user.id)
+      .eq("species_id", speciesId);
+    const { error } = await supabase.from("collection").insert({
+      user_id: user.id,
+      species_id: speciesId,
+      is_shiny: newShiny,
+    });
+    if (error) return;
+    setEntries((prev) => {
+      const next = new Map(prev);
+      next.set(speciesId, { species_id: speciesId, is_shiny: newShiny });
+      return next;
+    });
   }
 
   const allSpecies = useMemo(() => getAllSpecies(), []);
@@ -272,6 +316,7 @@ export default function CollectionPage() {
                 caught={!!entry}
                 shiny={entry?.is_shiny ?? false}
                 onToggle={toggleCaught}
+                onToggleShiny={toggleShiny}
               />
             );
           })}
