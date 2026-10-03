@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
 import { incrementRecord } from "@/lib/achievements";
 import { POKEMON_GAMES } from "@/lib/data/games";
+import { speciesAppearsInGame } from "@/lib/game-validation";
 
 export default function DailyCatchLogger({
   speciesId,
@@ -42,6 +43,20 @@ export default function DailyCatchLogger({
     setBusy(true);
     setError(null);
     try {
+      // Fact check: the Pokémon must actually appear in the chosen game.
+      let appears: boolean;
+      try {
+        appears = await speciesAppearsInGame(speciesId, game);
+      } catch {
+        setError("Couldn't verify that game right now — check your connection and try again.");
+        setBusy(false);
+        return;
+      }
+      if (!appears) {
+        setError(`${speciesName} doesn't appear in ${game} — pick the game you actually caught it in.`);
+        setBusy(false);
+        return;
+      }
       const supabase = createClient();
       const { error } = await supabase.from("daily_catches").insert({
         user_id: user.id,
