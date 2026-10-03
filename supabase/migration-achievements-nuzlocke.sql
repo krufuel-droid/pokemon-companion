@@ -146,6 +146,10 @@ drop policy if exists user_achievements_update_own on user_achievements;
 create policy user_achievements_update_own on user_achievements
   for update using (auth.uid() = user_id);
 
+drop policy if exists user_achievements_delete_own on user_achievements;
+create policy user_achievements_delete_own on user_achievements
+  for delete using (auth.uid() = user_id);
+
 -- user_records: stats are public (so progress bars can show on profiles);
 -- a user can only insert/update their own stats.
 drop policy if exists user_records_select_all on user_records;

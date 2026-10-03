@@ -57,6 +57,24 @@ export default function AchievementsPage() {
   const [friendUnlocks, setFriendUnlocks] = useState<FriendUnlock[]>([]);
   const [usernames, setUsernames] = useState<Record<string, string>>({});
   const [dataLoading, setDataLoading] = useState(true);
+  const [resetting, setResetting] = useState(false);
+  const [confirmReset, setConfirmReset] = useState(false);
+
+  async function resetAchievements() {
+    if (!user) return;
+    setResetting(true);
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.from("user_achievements").delete().eq("user_id", user.id);
+      if (error) throw error;
+      setUnlockedAt({});
+      setConfirmReset(false);
+    } catch {
+      // leave state as-is on failure
+    } finally {
+      setResetting(false);
+    }
+  }
 
   const catalogById = useMemo(() => {
     const map: Record<string, AchievementDef> = {};
@@ -177,6 +195,36 @@ export default function AchievementsPage() {
             {unlockedCount} / {total} unlocked
           </p>
         </div>
+        {user && unlockedCount > 0 && (
+          confirmReset ? (
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                disabled={resetting}
+                onClick={() => void resetAchievements()}
+                className="rounded-lg bg-red-600 px-4 py-2 text-sm font-bold text-white shadow-sm transition hover:bg-red-700 disabled:opacity-60"
+              >
+                {resetting ? "Resetting…" : "Yes, reset all"}
+              </button>
+              <button
+                type="button"
+                disabled={resetting}
+                onClick={() => setConfirmReset(false)}
+                className="rounded-lg bg-stone-200 px-4 py-2 text-sm font-bold text-slate-700 dark:bg-slate-700 dark:text-slate-200"
+              >
+                Keep them
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setConfirmReset(true)}
+              className="rounded-lg px-3 py-1.5 text-xs font-semibold text-slate-500 hover:bg-stone-100 hover:text-red-600 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-red-400"
+            >
+              Reset achievements
+            </button>
+          )
+        )}
       </div>
       <div
         className="mt-3 h-2.5 overflow-hidden rounded-full bg-stone-200 dark:bg-slate-700"
