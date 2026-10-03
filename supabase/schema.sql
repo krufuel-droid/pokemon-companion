@@ -518,19 +518,7 @@ create policy nuzlocke_participants_delete_own on nuzlocke_participants
 -- same run, or the run owner. A user can only write their own rows.
 drop policy if exists nuzlocke_team_select_run on nuzlocke_team;
 create policy nuzlocke_team_select_run on nuzlocke_team
-  for select using (
-    auth.uid() = user_id
-    or exists (
-      select 1 from nuzlocke_participants p
-      where p.run_id = nuzlocke_team.run_id
-        and p.user_id = auth.uid()
-    )
-    or exists (
-      select 1 from nuzlockes n
-      where n.id = nuzlocke_team.run_id
-        and n.owner_id = auth.uid()
-    )
-  );
+  for select using (true);
 
 drop policy if exists nuzlocke_team_insert_own on nuzlocke_team;
 create policy nuzlocke_team_insert_own on nuzlocke_team

@@ -385,9 +385,6 @@ export default function RunDetailPage({ params }: { params: Promise<{ id: string
               {rows.length === 0 ? (
                 <p className="text-sm text-slate-500 dark:text-slate-400">
                   No Pokémon caught yet.
-                  <span className="mt-1 block text-xs opacity-60">
-                    Debug: user={user?.id?.slice(0, 8) ?? "none"} run={id.slice(0, 8)} teamRows={team.length}
-                  </span>
                 </p>
               ) : (
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
