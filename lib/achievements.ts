@@ -66,7 +66,6 @@ const FALLBACK_ACHIEVEMENTS: AchievementDef[] = [
   { id: "dex-race-leader", name: "Dex Sprinter", description: "Top the friends Living Dex race leaderboard for a week", icon: "🏁", category: "Collection" },
   { id: "first-card", name: "First Card", description: "Add your first card to your TCG collection", icon: "🃏", category: "TCG" },
   { id: "master-set-first", name: "Master of Sets", description: "Log your first card in the Master Set view", icon: "🌍", category: "TCG" },
-  { id: "first-card-trade", name: "Card Shark", description: "Post your first TCG card trade", icon: "🦈", category: "TCG" },
   { id: "first-mark", name: "Marked!", description: "Catch your first marked Pokémon", icon: "🎖️", category: "Collection" },
   { id: "first-sandwich", name: "Sandwich Chef", description: "Save your first sandwich recipe", icon: "🥪", category: "Fun" },
   { id: "spooky-week-catch-2026", name: "Ghostly Greetings", description: "Log a Pokémon of the Day catch during Spooky Week", icon: "👻", category: "Seasonal" },

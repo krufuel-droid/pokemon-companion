@@ -58,56 +58,5 @@ create policy tcg_price_snapshots_owner_all on tcg_price_snapshots
   for all using (auth.uid() = user_id)
   with check (auth.uid() = user_id);
 
--- TCG card trading board (added Oct 2026)
--- Community card-trade posts: offering card <-> looking-for card, each with
--- name + set + language + condition, plus freeform notes (shipping/grading).
--- Same RLS shape as trade_posts: public read, owner write/delete.
-create table if not exists tcg_trade_posts (
-  id uuid primary key default gen_random_uuid(),
-  user_id uuid not null references profiles(id) on delete cascade,
-  offering_card_name text not null,
-  offering_set text,
-  offering_language text not null default 'en',
-  offering_condition text not null default 'Near Mint',
-  looking_card_name text not null,
-  looking_set text,
-  looking_language text not null default 'en',
-  looking_condition text,
-  notes text,
-  status text not null default 'open' check (status in ('open', 'fulfilled')),
-  created_at timestamptz not null default now()
-);
-comment on table tcg_trade_posts is 'TCG card trading board: community card-trade posts.';
-
-alter table tcg_trade_posts enable row level security;
-
-drop policy if exists tcg_trade_posts_read_all on tcg_trade_posts;
-create policy tcg_trade_posts_read_all
-  on tcg_trade_posts for select
-  using (true);
-
-drop policy if exists tcg_trade_posts_insert_owner on tcg_trade_posts;
-create policy tcg_trade_posts_insert_owner
-  on tcg_trade_posts for insert
-  with check (auth.uid() = user_id);
-
-drop policy if exists tcg_trade_posts_update_owner on tcg_trade_posts;
-create policy tcg_trade_posts_update_owner
-  on tcg_trade_posts for update
-  using (auth.uid() = user_id)
-  with check (auth.uid() = user_id);
-
-drop policy if exists tcg_trade_posts_delete_owner on tcg_trade_posts;
-create policy tcg_trade_posts_delete_owner
-  on tcg_trade_posts for delete
-  using (auth.uid() = user_id);
-
--- Seed the card-trade achievement (guarded).
-do $$
-begin
-  if to_regclass('public.achievements') is not null then
-    insert into achievements (id, name, description, icon, category) values
-      ('first-card-trade', 'Card Shark', 'Post your first TCG card trade', '🦈', 'TCG')
-    on conflict (id) do nothing;
-  end if;
-end $$;
+-- (TCG card trading board removed Oct 2026: liability concerns with real-goods
+-- trades between strangers. The in-game Pokémon trade board remains.)
