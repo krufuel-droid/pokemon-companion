@@ -670,7 +670,23 @@ function AddPokemonForm({ runId, game, team, onAdded }: { runId: string; game: s
 
   async function add(e: FormEvent) {
     e.preventDefault();
-    if (!user || !species) return;
+    if (!user) return;
+    // If the user typed a name but didn't tap a result, auto-select an
+    // exact match so the button doesn't silently do nothing.
+    let chosen = species;
+    if (!chosen && query.trim()) {
+      const exact = searchSpecies(query.trim()).find(
+        (s) => s.name.toLowerCase() === query.trim().toLowerCase()
+      );
+      if (exact) {
+        chosen = exact;
+        setSpecies(exact);
+      }
+    }
+    if (!chosen) {
+      setError("Please search for a species above and tap a result to select it.");
+      return;
+    }
     setBusy(true);
     setError(null);
     try {
@@ -679,8 +695,8 @@ function AddPokemonForm({ runId, game, team, onAdded }: { runId: string; game: s
       const { error } = await supabase.from("nuzlocke_team").insert({
         run_id: runId,
         user_id: user.id,
-        species_id: species.id,
-        species_name: species.name,
+        species_id: chosen.id,
+        species_name: chosen.name,
         nickname: nickname.trim() === "" ? null : nickname.trim(),
         status: "alive",
         met_location: location.trim() === "" ? null : location.trim(),
@@ -802,7 +818,7 @@ function AddPokemonForm({ runId, game, team, onAdded }: { runId: string; game: s
         )}
         <button
           type="submit"
-          disabled={busy || !species}
+          disabled={busy}
           className="rounded-lg bg-mint px-5 py-2 text-sm font-bold text-slate-900 shadow-sm transition hover:brightness-95 disabled:opacity-60 dark:text-slate-100"
         >
           {busy ? "Adding…" : "Add to team"}
