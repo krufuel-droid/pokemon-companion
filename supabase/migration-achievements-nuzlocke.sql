@@ -389,6 +389,9 @@ create table if not exists trade_list (
 );
 comment on table trade_list is 'Pokémon a trainer is offering for trade.';
 
+-- Private profiles (added Oct 2026): when true, only friends can see full profile.
+alter table profiles add column if not exists is_private boolean not null default false;
+
 -- Messages: read receipts for unread badges (added Oct 2026).
 alter table messages add column if not exists read_at timestamptz;
 

@@ -92,6 +92,8 @@ comment on table messages is 'Direct messages between two users.';
 
 alter table messages add column if not exists read_at timestamptz;
 
+alter table profiles add column if not exists is_private boolean not null default false;
+
 -- ----------------------------------------------------------------------------
 -- nuzlockes
 -- Nuzlocke challenge runs: title, optional house rules text, and a status

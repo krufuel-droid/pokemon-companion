@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { GUIDES, type GuideMilestone } from "@/lib/data/guides";
+import GuideCaughtChecklist from "@/components/GuideCaughtChecklist";
 
 /** Guide pages are server-rendered on demand (not pre-built) to keep deployments lean. */
 export const dynamic = "force-dynamic";
@@ -154,6 +155,8 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
           ))}
         </ul>
       </section>
+
+      <GuideCaughtChecklist slug={slug} />
 
       <p className="mt-12 rounded-2xl bg-slate-100 p-4 text-sm text-slate-500 dark:bg-slate-800 dark:text-slate-400">
         Want the full step-by-step walkthrough? This page is the roadmap —
