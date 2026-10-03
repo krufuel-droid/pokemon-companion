@@ -558,11 +558,12 @@ function JoinRunButton({ runId, onJoined }: { runId: string; onJoined: () => voi
       const supabase = createClient();
       // The user needs a trainer profile before they can join — the
       // participants table references profiles(id).
-      const { data: profile } = await supabase
+      const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("id")
         .eq("id", user.id)
         .maybeSingle();
+      if (profileError) throw profileError;
       if (!profile) {
         setError("Set up your trainer profile first, then join the run.");
         setBusy(false);
@@ -584,7 +585,7 @@ function JoinRunButton({ runId, onJoined }: { runId: string; onJoined: () => voi
     } catch (err) {
       const msg = err instanceof Error && err.message ? err.message : "Could not join the run.";
       console.error("Join run failed:", err);
-      setError(`Join failed: ${msg}`);
+      setError(`Join failed: ${msg} (code: ${(err as { code?: string })?.code ?? "none"})`);
     } finally {
       setBusy(false);
     }
