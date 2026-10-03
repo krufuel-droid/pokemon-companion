@@ -6,10 +6,31 @@ import { SANDWICH_POWERS, SANDWICH_GUIDE_TIPS } from "@/lib/data/sandwich-guide"
 import { getIngredientInfo, SHOP_LOCATIONS } from "@/lib/data/ingredient-shops";
 
 function IngredientLine({ text }: { text: string }) {
-  // Parse "1× Chorizo" into quantity and name
-  const match = text.match(/^(\d+×)\s*(.+)$/);
-  const qty = match ? match[1] : "";
-  const name = match ? match[2] : text;
+  // Some recipes list multiple ingredients comma-separated — split them
+  if (text.includes(",")) {
+    return (
+      <>
+        {text.split(",").map((part, i) => (
+          <IngredientLine key={i} text={part.trim()} />
+        ))}
+      </>
+    );
+  }
+
+  // Parse "1× Chorizo" or "Chorizo ×1" into quantity and name
+  let qty = "";
+  let name = text;
+  let match = text.match(/^(\d+×)\s*(.+)$/);
+  if (match) {
+    qty = match[1];
+    name = match[2];
+  } else {
+    match = text.match(/^(.+?)\s*(×\d+)$/);
+    if (match) {
+      name = match[1].trim();
+      qty = match[2];
+    }
+  }
 
   // Herba Mystica is raid-only
   if (name.toLowerCase().includes("herba")) {
