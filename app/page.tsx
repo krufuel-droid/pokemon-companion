@@ -53,6 +53,8 @@ const FEATURES = [
   },
 ] as const;
 
+const COMING_SOON = ["Shiny-hunt trackers"] as const;
+
 export default function HomePage() {
   return (
     <div>
@@ -107,6 +109,27 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Coming soon strip */}
+      <section className="border-t border-stone-200 bg-stone-100/60 dark:border-slate-700 dark:bg-slate-800/60">
+        <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
+          <div className="flex flex-wrap items-center gap-3">
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Coming soon</h2>
+            <span className="rounded-full bg-stone-200 px-3 py-1 text-xs font-semibold text-slate-600 dark:bg-slate-700 dark:text-slate-400">
+              Up next
+            </span>
+          </div>
+          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {COMING_SOON.map((item) => (
+              <div
+                key={item}
+                className="rounded-2xl border border-dashed border-stone-300 bg-white/60 p-6 text-slate-400 dark:border-slate-600 dark:bg-slate-900/60 dark:text-slate-500"
+              >
+                <p className="font-medium">{item}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
