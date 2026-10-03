@@ -285,6 +285,13 @@ for (const [speciesId, formName, ability] of CHAMPIONS_MEGAS) {
 const MASKS: Array<[number, string, string, string[], string]> = [
   [
     1017,
+    "Teal Mask",
+    "ogerpon",
+    ["grass"],
+    "Ogerpon's default form — the mask it wears when you meet it in Kitakami",
+  ],
+  [
+    1017,
     "Wellspring Mask",
     "ogerpon-wellspring",
     ["grass", "water"],
@@ -306,6 +313,36 @@ const MASKS: Array<[number, string, string, string[], string]> = [
   ],
 ];
 
+// Terastallized states — battle-only, no distinct sprites exist, so these reuse
+// the mask sprites. Deliberately no `types`: Stellar isn't in the type chart
+// and must not feed the matchup calculator.
+const MASK_TERAS: Array<[number, string, string, string]> = [
+  [
+    1017,
+    "Teal Mask (Terastallized)",
+    "ogerpon",
+    "Terastallize while wearing the Teal Mask — becomes Stellar type in battle",
+  ],
+  [
+    1017,
+    "Wellspring Mask (Terastallized)",
+    "ogerpon-wellspring",
+    "Terastallize while wearing the Wellspring Mask — becomes Stellar type in battle",
+  ],
+  [
+    1017,
+    "Hearthflame Mask (Terastallized)",
+    "ogerpon-hearthflame",
+    "Terastallize while wearing the Hearthflame Mask — becomes Stellar type in battle",
+  ],
+  [
+    1017,
+    "Cornerstone Mask (Terastallized)",
+    "ogerpon-cornerstone",
+    "Terastallize while wearing the Cornerstone Mask — becomes Stellar type in battle",
+  ],
+];
+
 for (const [speciesId, formName, showdownName, types, obtain] of MASKS) {
   add(speciesId, {
     formName,
@@ -313,6 +350,16 @@ for (const [speciesId, formName, showdownName, types, obtain] of MASKS) {
     sprite: sprite(showdownName),
     types,
     obtain,
+  });
+}
+
+for (const [speciesId, formName, showdownName, note] of MASK_TERAS) {
+  add(speciesId, {
+    formName,
+    kind: "mask",
+    sprite: sprite(showdownName),
+    obtain: "Terastallization (battle-only)",
+    note,
   });
 }
 
