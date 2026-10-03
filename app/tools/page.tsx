@@ -68,6 +68,11 @@ const REFERENCE: Tool[] = [
     title: "Tera Raid Counters",
     desc: "Best builds for the current 7-star raid events, plus raid fundamentals.",
   },
+  {
+    href: "/tools/event-calendar",
+    title: "Event Calendar",
+    desc: "Every active raid, gift, and distribution in one place — with end dates.",
+  },
 ];
 
 const FUN: Tool[] = [
@@ -75,6 +80,11 @@ const FUN: Tool[] = [
     href: "/tools/quiz",
     title: "Who's That Pokémon?",
     desc: "Name the silhouette — build your streak and earn quiz achievements.",
+  },
+  {
+    href: "/tools/cry-quiz",
+    title: "Cry Quiz",
+    desc: "Hear a cry and name that Pokémon — the audio sequel to Who's That Pokémon?",
   },
 ];
 

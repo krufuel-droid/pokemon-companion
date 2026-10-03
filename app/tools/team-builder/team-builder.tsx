@@ -232,6 +232,25 @@ export default function TeamBuilder() {
     }
   }
 
+  /** Copy the team in Pokémon Showdown / PokéPaste import format. */
+  async function copyShowdown() {
+    if (team.length === 0) {
+      setNotice("Add at least one Pokémon to export.");
+      return;
+    }
+    const text = team
+      .map((id) => BY_ID.get(id)?.name ?? "")
+      .filter(Boolean)
+      .join("\n\n");
+    try {
+      await navigator.clipboard.writeText(text);
+      setNotice("Showdown format copied — paste it into Showdown's teambuilder or PokéPaste!");
+      setTimeout(() => setNotice(null), 4000);
+    } catch {
+      setNotice("Copy failed — your browser blocked clipboard access.");
+    }
+  }
+
   return (
     <div className="mx-auto w-full max-w-5xl px-4 py-10">
       <h1 className="text-3xl font-bold text-slate-800 dark:text-slate-100">Team Builder</h1>
@@ -259,6 +278,14 @@ export default function TeamBuilder() {
               className="rounded-full bg-emerald-500 px-4 py-1.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-600"
             >
               {copied ? "Copied!" : "Copy share link"}
+            </button>
+            <button
+              type="button"
+              onClick={() => void copyShowdown()}
+              title="Copy as Pokémon Showdown import text"
+              className="rounded-full bg-white px-4 py-1.5 text-sm font-semibold text-slate-600 ring-1 ring-slate-300 transition hover:bg-slate-100 dark:bg-slate-900 dark:text-slate-300 dark:ring-slate-600 dark:hover:bg-slate-800"
+            >
+              Copy Showdown
             </button>
             {team.length > 0 && (
               <button

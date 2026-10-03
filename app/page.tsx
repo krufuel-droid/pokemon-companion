@@ -1,5 +1,54 @@
 import Link from "next/link";
 import { AuthDebugPanel } from "@/components/AuthDebugPanel";
+import { getAllSpecies } from "@/lib/pokedex";
+import { TYPE_COLORS } from "@/lib/theme";
+
+/** Deterministic daily pick — same Pokémon for everyone, changes at midnight. */
+function PokemonOfTheDay() {
+  const all = getAllSpecies();
+  const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+  let hash = 0;
+  for (let i = 0; i < today.length; i++) hash = (hash * 31 + today.charCodeAt(i)) >>> 0;
+  const mon = all[hash % all.length];
+
+  return (
+    <div className="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
+      <div className="flex flex-col items-center gap-6 p-6 sm:flex-row sm:p-8">
+        <img
+          src={mon.sprites.regular}
+          alt={mon.name}
+          className="h-32 w-32 object-contain"
+          loading="lazy"
+        />
+        <div className="text-center sm:text-left">
+          <p className="text-xs font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
+            ⭐ Pokémon of the Day
+          </p>
+          <h2 className="mt-1 text-2xl font-extrabold text-slate-900 dark:text-slate-100">
+            {mon.name} <span className="text-base font-medium text-slate-400">#{mon.id}</span>
+          </h2>
+          <div className="mt-2 flex flex-wrap justify-center gap-1.5 sm:justify-start">
+            {mon.types.map((t) => (
+              <span
+                key={t}
+                className="rounded-full px-3 py-0.5 text-xs font-bold text-white"
+                style={{ backgroundColor: TYPE_COLORS[t] ?? "#A8A77A" }}
+              >
+                {t}
+              </span>
+            ))}
+          </div>
+          <Link
+            href={`/pokedex/${mon.slug}`}
+            className="mt-4 inline-block rounded-full bg-emerald-500 px-5 py-2 text-sm font-bold text-white shadow-sm transition hover:bg-emerald-600"
+          >
+            Meet {mon.name} →
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 const FEATURES = [
   {
@@ -85,6 +134,11 @@ export default function HomePage() {
             </Link>
           </div>
         </div>
+      </section>
+
+      {/* Pokémon of the Day — deterministic by date, same for everyone */}
+      <section className="mx-auto max-w-6xl px-4 pt-12 sm:px-6">
+        <PokemonOfTheDay />
       </section>
 
       {/* Features grid */}
