@@ -337,6 +337,8 @@ export default function NuzlockePage() {
         </div>
       )}
 
+      <PendingInvites onAnswered={() => void refresh()} />
+
       <div className="mt-8">
         {dataLoading ? (
           <p className="text-center text-sm text-slate-500 dark:text-slate-400">Loading your runs…</p>
@@ -394,5 +396,122 @@ export default function NuzlockePage() {
         )}
       </div>
     </div>
+  );
+}
+
+/* Pending run invites for the current user: accept or decline.          */
+/* ------------------------------------------------------------------ */
+interface PendingInvite {
+  id: string;
+  run_id: string;
+  inviter_id: string;
+  run_title: string;
+  inviter_name: string;
+}
+
+function PendingInvites({ onAnswered }: { onAnswered: () => void }) {
+  const { user } = useAuth();
+  const [invites, setInvites] = useState<PendingInvite[]>([]);
+  const [busyId, setBusyId] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    if (!user) return;
+    try {
+      const supabase = createClient();
+      const { data, error } = await supabase
+        .from("nuzlocke_invites")
+        .select("id, run_id, inviter_id")
+        .eq("invitee_id", user.id)
+        .eq("status", "pending");
+      if (error) throw error;
+      const rows = (data ?? []) as { id: string; run_id: string; inviter_id: string }[];
+      const enriched: PendingInvite[] = [];
+      for (const row of rows) {
+        const [{ data: run }, { data: inviter }] = await Promise.all([
+          supabase.from("nuzlockes").select("title").eq("id", row.run_id).maybeSingle(),
+          supabase.from("profiles").select("username").eq("id", row.inviter_id).maybeSingle(),
+        ]);
+        enriched.push({
+          id: row.id,
+          run_id: row.run_id,
+          inviter_id: row.inviter_id,
+          run_title: (run as { title: string } | null)?.title ?? "Untitled run",
+          inviter_name: (inviter as { username: string } | null)?.username ?? "A trainer",
+        });
+      }
+      setInvites(enriched);
+    } catch {
+      // Invites table may not be migrated yet — stay silent.
+      setInvites([]);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  async function answer(invite: PendingInvite, accept: boolean) {
+    if (!user) return;
+    setBusyId(invite.id);
+    try {
+      const supabase = createClient();
+      if (accept) {
+        const { error: joinError } = await supabase
+          .from("nuzlocke_participants")
+          .insert({ run_id: invite.run_id, user_id: user.id });
+        if (joinError && joinError.code !== "23505") throw joinError;
+        void unlockAchievement(user.id, "soul-link").catch(() => {});
+      }
+      const { error } = await supabase
+        .from("nuzlocke_invites")
+        .update({ status: accept ? "accepted" : "declined" })
+        .eq("id", invite.id);
+      if (error) throw error;
+      setInvites((prev) => prev.filter((i) => i.id !== invite.id));
+      onAnswered();
+    } catch {
+      // Keep the invite visible so the user can retry.
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  if (invites.length === 0) return null;
+
+  return (
+    <section className={`${cardClass} mt-8 border-amber-200 dark:border-amber-800`}>
+      <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">
+        ✉️ Run invites <span className="ml-1 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-bold text-amber-700 dark:bg-amber-900 dark:text-amber-300">{invites.length}</span>
+      </h2>
+      <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+        These trainers want you in their Nuzlocke run. Accept to join, or decline — no hard feelings.
+      </p>
+      <div className="mt-4 space-y-3">
+        {invites.map((invite) => (
+          <div key={invite.id} className="flex flex-wrap items-center gap-3 rounded-xl bg-amber-50 p-4 dark:bg-amber-950/40">
+            <div className="min-w-0 flex-1">
+              <div className="font-semibold text-slate-800 dark:text-slate-100">{invite.run_title}</div>
+              <div className="text-sm text-slate-500 dark:text-slate-400">Invited by {invite.inviter_name}</div>
+            </div>
+            <button
+              type="button"
+              onClick={() => void answer(invite, true)}
+              disabled={busyId === invite.id}
+              className="rounded-lg bg-mint px-4 py-2 text-sm font-bold text-slate-900 shadow-sm hover:brightness-95 disabled:opacity-60 dark:text-slate-100"
+            >
+              {busyId === invite.id ? "…" : "Accept"}
+            </button>
+            <button
+              type="button"
+              onClick={() => void answer(invite, false)}
+              disabled={busyId === invite.id}
+              className="rounded-lg border border-stone-300 px-4 py-2 text-sm font-semibold text-slate-500 hover:border-red-300 hover:text-red-600 disabled:opacity-60 dark:border-slate-600 dark:text-slate-400"
+            >
+              Decline
+            </button>
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }

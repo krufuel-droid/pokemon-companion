@@ -45,6 +45,8 @@ const FALLBACK_ACHIEVEMENTS: AchievementDef[] = [
   { id: "first-friend", name: "Friendly", description: "Add your first friend", icon: "👋", category: "Social" },
   { id: "friends-10", name: "Popular", description: "Have 10 friends", icon: "🎉", category: "Social" },
   { id: "reactions-25", name: "Cheerleader", description: "React to 25 posts", icon: "❤️", category: "Social" },
+  { id: "quiz-rookie", name: "Who's That?", description: "Answer a quiz question correctly", icon: "❓", category: "Fun" },
+  { id: "quiz-streak-10", name: "Poké Scholar", description: "Get a 10-answer streak in Who's That Pokémon?", icon: "🎓", category: "Fun" },
 ];
 
 /**
@@ -99,6 +101,38 @@ export async function getUserRecords(userId: string): Promise<Record<string, num
     return out;
   } catch {
     return {};
+  }
+}
+
+/**
+ * Set a record to the max of its current value and `value`, then run
+ * threshold checks. For best-streak style records. Fire-and-forget safe.
+ */
+export async function maxRecord(userId: string, key: string, value: number): Promise<string[]> {
+  try {
+    const supabase = createClient();
+    const { data, error } = await supabase
+      .from("user_records")
+      .select("stat_value")
+      .eq("user_id", userId)
+      .eq("stat_key", key)
+      .maybeSingle();
+    if (error) throw error;
+    const current = Number((data as { stat_value: number } | null)?.stat_value) || 0;
+    if (value <= current) return [];
+    const { error: upError } = await supabase.from("user_records").upsert(
+      {
+        user_id: userId,
+        stat_key: key,
+        stat_value: value,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "user_id,stat_key" },
+    );
+    if (upError) throw upError;
+    return await checkAchievements(userId);
+  } catch {
+    return [];
   }
 }
 
@@ -340,6 +374,10 @@ export async function checkAchievements(userId: string): Promise<string[]> {
     when("first-friend", acceptedFriends >= 1);
     when("friends-10", acceptedFriends >= 10);
     when("reactions-25", reactions >= 25);
+
+    // Quiz
+    when("quiz-rookie", rec("quiz_correct") >= 1);
+    when("quiz-streak-10", rec("quiz_best_streak") >= 10);
 
     if (earned.length === 0) return [];
 

@@ -26,6 +26,11 @@ const CALCULATORS: Tool[] = [
 
 const TEAM_TOOLS: Tool[] = [
   {
+    href: "/tools/team-weakness",
+    title: "Team Weakness Analyzer",
+    desc: "Add up to 6 Pokémon and spot shared weaknesses, immunities, and STAB coverage gaps.",
+  },
+  {
     href: "/tools/breeding",
     title: "Breeding Compatibility",
     desc: "Check whether two Pokémon can breed by egg group — and see the egg moves their offspring could inherit.",
@@ -44,9 +49,32 @@ const TEAM_TOOLS: Tool[] = [
 
 const REFERENCE: Tool[] = [
   {
+    href: "/tools/type-chart",
+    title: "Type Chart",
+    desc: "Every type matchup in the game — quick lookup for any attack vs. defense, plus the full 18×18 grid.",
+  },
+  {
     href: "/tools/sandwiches",
     title: "Sandwich Guide",
     desc: "Every sandwich recipe sorted by what it does — shiny hunting, breeding, raids, and more.",
+  },
+  {
+    href: "/tools/mystery-gifts",
+    title: "Mystery Gift Tracker",
+    desc: "Active Mystery Gift codes and distributions for Z-A and Scarlet/Violet — tap a code to copy it.",
+  },
+  {
+    href: "/tools/raid-counters",
+    title: "Tera Raid Counters",
+    desc: "Best builds for the current 7-star raid events, plus raid fundamentals.",
+  },
+];
+
+const FUN: Tool[] = [
+  {
+    href: "/tools/quiz",
+    title: "Who's That Pokémon?",
+    desc: "Name the silhouette — build your streak and earn quiz achievements.",
   },
 ];
 
@@ -101,6 +129,7 @@ export default function ToolsIndex() {
         <ToolDropdown title="Calculators" tools={CALCULATORS} defaultOpen />
         <ToolDropdown title="Team Tools" tools={TEAM_TOOLS} />
         <ToolDropdown title="Reference" tools={REFERENCE} />
+        <ToolDropdown title="Fun" tools={FUN} />
       </div>
     </div>
   );

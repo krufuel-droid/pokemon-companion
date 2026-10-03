@@ -2,6 +2,7 @@
 
 import { use, useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { useAuth } from "@/components/AuthProvider";
@@ -375,6 +376,7 @@ export default function RunDetailPage({ params }: { params: Promise<{ id: string
             <CopyInviteLink inviteCode={run.invite_code} />
           </div>
         )}
+        {isParticipant && !isOwner && <LeaveRunButton runId={id} />}
       </section>
 
       {/* Teams */}
@@ -545,6 +547,84 @@ function CopyInviteLink({ inviteCode }: { inviteCode: string | null }) {
   );
 }
 
+/* Leave a run: removes the participant row and their team entries.        */
+/* Owners can't leave — they delete the run instead.                      */
+/* ------------------------------------------------------------------ */
+function LeaveRunButton({ runId }: { runId: string }) {
+  const { user } = useAuth();
+  const router = useRouter();
+  const [confirming, setConfirming] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function leave() {
+    if (!user) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const supabase = createClient();
+      const { error: teamError } = await supabase
+        .from("nuzlocke_team")
+        .delete()
+        .eq("run_id", runId)
+        .eq("user_id", user.id);
+      if (teamError) throw teamError;
+      const { error: partError } = await supabase
+        .from("nuzlocke_participants")
+        .delete()
+        .eq("run_id", runId)
+        .eq("user_id", user.id);
+      if (partError) throw partError;
+      router.push("/nuzlocke");
+    } catch (err) {
+      setError(err instanceof Error && err.message ? err.message : "Could not leave the run.");
+      setBusy(false);
+      setConfirming(false);
+    }
+  }
+
+  if (!confirming) {
+    return (
+      <div className="mt-3">
+        <button
+          type="button"
+          onClick={() => setConfirming(true)}
+          className="rounded-lg border border-stone-300 px-4 py-2 text-sm font-semibold text-slate-500 transition hover:border-red-300 hover:text-red-600 dark:border-slate-600 dark:text-slate-400 dark:hover:border-red-700 dark:hover:text-red-400"
+        >
+          Leave run
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-3 rounded-xl bg-red-50 p-4 ring-1 ring-red-200 dark:bg-red-950/40 dark:ring-red-900">
+      <p className="text-sm text-red-800 dark:text-red-200">
+        Leave this run? Your team entries will be removed. Your memorials stay as keepsakes.
+      </p>
+      <div className="mt-3 flex gap-2">
+        <button
+          type="button"
+          onClick={() => void leave()}
+          disabled={busy}
+          className="rounded-lg bg-red-600 px-4 py-2 text-sm font-bold text-white hover:bg-red-700 disabled:opacity-60"
+        >
+          {busy ? "Leaving…" : "Yes, leave"}
+        </button>
+        <button
+          type="button"
+          onClick={() => { setConfirming(false); setError(null); }}
+          disabled={busy}
+          className="rounded-lg border border-stone-300 px-4 py-2 text-sm font-semibold text-slate-600 dark:border-slate-600 dark:text-slate-300"
+        >
+          Cancel
+        </button>
+      </div>
+      {error && <p role="alert" className="mt-2 text-sm text-red-700 dark:text-red-300">{error}</p>}
+    </div>
+  );
+}
+
 function JoinRunButton({ runId, onJoined }: { runId: string; onJoined: () => void }) {
   const { user } = useAuth();
   const [busy, setBusy] = useState(false);
@@ -619,18 +699,19 @@ function JoinRunButton({ runId, onJoined }: { runId: string; onJoined: () => voi
 }
 
 /* ------------------------------------------------------------------ */
-/* Invite a friend by trainer name (run owners can add participants).     */
+/* Invite a friend by trainer name: sends a request they must accept.     */
 /* ------------------------------------------------------------------ */
 function InviteForm({ runId }: { runId: string }) {
   const [username, setUsername] = useState("");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [isError, setIsError] = useState(false);
+  const { user } = useAuth();
 
   async function invite(e: FormEvent) {
     e.preventDefault();
     const name = username.trim();
-    if (!name) return;
+    if (!name || !user) return;
     setBusy(true);
     setMessage(null);
     setIsError(false);
@@ -647,12 +728,39 @@ function InviteForm({ runId }: { runId: string }) {
         setIsError(true);
         return;
       }
-      const { error } = await supabase
+      const inviteeId = (found as { id: string }).id;
+      if (inviteeId === user.id) {
+        setMessage("That's you — you're already in this run!");
+        setIsError(true);
+        return;
+      }
+      // Already participating?
+      const { data: already } = await supabase
         .from("nuzlocke_participants")
-        .insert({ run_id: runId, user_id: (found as { id: string }).id });
-      if (error) throw error;
-      void unlockAchievement((found as { id: string }).id, "soul-link").catch(() => {});
-      setMessage(`${(found as { username: string }).username} joined the run!`);
+        .select("run_id")
+        .eq("run_id", runId)
+        .eq("user_id", inviteeId)
+        .maybeSingle();
+      if (already) {
+        setMessage(`${(found as { username: string }).username} is already in this run.`);
+        setIsError(true);
+        return;
+      }
+      const { error } = await supabase.from("nuzlocke_invites").insert({
+        run_id: runId,
+        inviter_id: user.id,
+        invitee_id: inviteeId,
+        status: "pending",
+      });
+      if (error) {
+        if (error.code === "23505") {
+          setMessage(`There's already a pending invite for ${(found as { username: string }).username}.`);
+          setIsError(true);
+          return;
+        }
+        throw error;
+      }
+      setMessage(`Invite sent to ${(found as { username: string }).username}! They'll need to accept it.`);
       setUsername("");
     } catch (err) {
       setIsError(true);
