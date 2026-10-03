@@ -647,6 +647,7 @@ async function safeCount(table: string, apply: (q: SupabaseFrom) => unknown): Pr
 function ProfileHighlights({ userId }: { userId: string }) {
   const [latest, setLatest] = useState<{ id: string; icon: string; name: string }[]>([]);
   const [records, setRecords] = useState<Record<string, number>>({});
+  const [emblems, setEmblems] = useState<{ icon: string; name: string; detail: string }[]>([]);
 
   useEffect(() => {
     let cancelled = false;
@@ -675,9 +676,26 @@ function ProfileHighlights({ userId }: { userId: string }) {
             q.select("id", { count: "exact", head: true }).eq("status", "accepted").or(`requester_id.eq.${userId},addressee_id.eq.${userId}`),
           ),
         ]);
+        // Daily Star emblem: 5+ Pokémon-of-the-Day catches.
+        let dailyCatches = 0;
+        try {
+          const supabase = createClient();
+          const { count } = await supabase
+            .from("daily_catches")
+            .select("id", { count: "exact", head: true })
+            .eq("user_id", userId);
+          dailyCatches = count ?? 0;
+        } catch {
+          dailyCatches = 0;
+        }
         if (cancelled) return;
         setLatest(shown);
-        setRecords({ Favorites: favorites, "Shiny hunts": hunts, "Nuzlocke runs": runs, Memorials: memorials, Posts: posts, Friends: friends });
+        setRecords({ Favorites: favorites, "Shiny hunts": hunts, "Nuzlocke runs": runs, Memorials: memorials, Posts: posts, Friends: friends, "Daily catches": dailyCatches });
+        setEmblems(
+          dailyCatches >= 5
+            ? [{ icon: "🌟", name: "Daily Star", detail: `${dailyCatches} Pokémon-of-the-Day catches` }]
+            : []
+        );
       } catch {
         if (!cancelled) setRecords({});
       }
@@ -692,6 +710,26 @@ function ProfileHighlights({ userId }: { userId: string }) {
   return (
     <div className="mx-auto max-w-2xl px-4 pt-10 sm:px-6">
       <div className="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm sm:p-8 dark:border-slate-700 dark:bg-slate-900">
+        {emblems.length > 0 && (
+          <div className="mb-6">
+            <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">Emblems</h2>
+            <div className="mt-3 flex flex-wrap gap-3">
+              {emblems.map((e) => (
+                <div
+                  key={e.name}
+                  title={e.detail}
+                  className="flex items-center gap-3 rounded-2xl bg-gradient-to-br from-amber-100 to-yellow-200 px-4 py-3 ring-2 ring-amber-400 dark:from-amber-900/60 dark:to-yellow-900/40 dark:ring-amber-600"
+                >
+                  <span className="text-4xl" aria-hidden="true">{e.icon}</span>
+                  <span>
+                    <span className="block text-sm font-extrabold text-amber-900 dark:text-amber-200">{e.name}</span>
+                    <span className="block text-xs text-amber-700 dark:text-amber-400">{e.detail}</span>
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
         <div className="flex items-center justify-between gap-4">
           <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">Achievements</h2>
           <Link

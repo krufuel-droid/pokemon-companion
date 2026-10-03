@@ -47,6 +47,8 @@ const FALLBACK_ACHIEVEMENTS: AchievementDef[] = [
   { id: "reactions-25", name: "Cheerleader", description: "React to 25 posts", icon: "❤️", category: "Social" },
   { id: "quiz-rookie", name: "Who's That?", description: "Answer a quiz question correctly", icon: "❓", category: "Fun" },
   { id: "quiz-streak-10", name: "Poké Scholar", description: "Get a 10-answer streak in Who's That Pokémon?", icon: "🎓", category: "Fun" },
+  { id: "daily-first", name: "Daily Catch", description: "Log a Pokémon of the Day catch", icon: "📅", category: "Daily" },
+  { id: "daily-5", name: "Daily Devotee", description: "Log 5 Pokémon of the Day catches", icon: "🌟", category: "Daily" },
 ];
 
 /**
@@ -378,6 +380,10 @@ export async function checkAchievements(userId: string): Promise<string[]> {
     // Quiz
     when("quiz-rookie", rec("quiz_correct") >= 1);
     when("quiz-streak-10", rec("quiz_best_streak") >= 10);
+
+    // Daily catches
+    when("daily-first", rec("daily_catches") >= 1);
+    when("daily-5", rec("daily_catches") >= 5);
 
     if (earned.length === 0) return [];
 

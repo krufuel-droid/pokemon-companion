@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { AuthDebugPanel } from "@/components/AuthDebugPanel";
+import DailyCatchLogger from "@/components/daily-catch-logger";
 import { getAllSpecies } from "@/lib/pokedex";
 import { TYPE_COLORS } from "@/lib/theme";
 
@@ -44,6 +45,9 @@ function PokemonOfTheDay() {
           >
             Meet {mon.name} →
           </Link>
+          <div>
+            <DailyCatchLogger speciesId={mon.id} speciesName={mon.name} potdDate={today} />
+          </div>
         </div>
       </div>
     </div>
