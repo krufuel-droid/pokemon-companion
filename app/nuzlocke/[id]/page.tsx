@@ -588,37 +588,55 @@ function OwnerStatusSetter({ run, onChanged }: { run: Run; onChanged: () => void
       ))}
       {error && <p role="alert" className="text-sm text-red-700 dark:text-red-300">{error}</p>}
       <div className="mt-2 basis-full">
-        {!confirmingDelete ? (
-          <button
-            type="button"
-            disabled={busy}
-            onClick={() => setConfirmingDelete(true)}
-            className="text-xs font-semibold text-red-600 underline underline-offset-2 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
-          >
-            Delete this run
-          </button>
-        ) : (
-          <p className="text-sm text-slate-600 dark:text-slate-400">
-            Delete this run and all its teams?{" "}
-            <button
-              type="button"
-              disabled={busy}
-              onClick={() => void deleteRun()}
-              className="font-bold text-red-600 underline underline-offset-2 dark:text-red-400"
-            >
-              {busy ? "Deleting…" : "Yes, delete"}
-            </button>{" "}
-            <button
-              type="button"
-              disabled={busy}
-              onClick={() => setConfirmingDelete(false)}
-              className="font-semibold text-slate-500 underline underline-offset-2 dark:text-slate-400"
-            >
-              Cancel
-            </button>
-          </p>
-        )}
+        <button
+          type="button"
+          disabled={busy}
+          onClick={() => setConfirmingDelete(true)}
+          className="text-xs font-semibold text-red-600 underline underline-offset-2 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+        >
+          Delete this run
+        </button>
       </div>
+      {confirmingDelete && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="delete-run-title"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+          onClick={() => { if (!busy) setConfirmingDelete(false); }}
+        >
+          <div
+            className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl dark:bg-slate-900"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 id="delete-run-title" className="text-lg font-bold text-slate-900 dark:text-slate-100">
+              Delete this run?
+            </h2>
+            <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
+              You&apos;re about to delete <strong>{run.title}</strong> and all its teams.
+              This can&apos;t be undone. Proceed?
+            </p>
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                type="button"
+                disabled={busy}
+                onClick={() => setConfirmingDelete(false)}
+                className="rounded-lg border border-stone-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-stone-50 disabled:opacity-60 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-800"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={busy}
+                onClick={() => void deleteRun()}
+                className="rounded-lg bg-red-600 px-4 py-2 text-sm font-bold text-white shadow-sm transition hover:bg-red-700 disabled:opacity-60"
+              >
+                {busy ? "Deleting…" : "Yes, delete"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
