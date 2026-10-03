@@ -13,6 +13,8 @@ const LINKS = [
   { href: "/guides", label: "Guides" },
   { href: "/community", label: "Community" },
   { href: "/champions", label: "Champions" },
+  { href: "/achievements", label: "Achievements" },
+  { href: "/nuzlocke", label: "Nuzlocke" },
   { href: "/items", label: "Items" },
   { href: "/moves", label: "Moves" },
   { href: "/news", label: "News" },

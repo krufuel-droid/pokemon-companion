@@ -8,6 +8,7 @@ import { useAuth } from "@/components/AuthProvider";
 import SupabaseNeeded from "@/components/SupabaseNeeded";
 import Avatar from "@/components/Avatar";
 import CommunityTabs from "@/components/CommunityTabs";
+import { incrementRecord } from "@/lib/achievements";
 import {
   MAX_POST_LENGTH,
   REACTION_EMOJI,
@@ -70,6 +71,8 @@ function Composer({ onPosted }: { onPosted: () => void }) {
       }
       setBody("");
       onPosted();
+      // Fire-and-forget: never let achievement tracking break posting.
+      void incrementRecord(user.id, "posts_made").catch(() => {});
     } finally {
       setBusy(false);
     }
@@ -148,6 +151,9 @@ function ReactionBar({
         // 23505 = unique violation: someone (or a double tap) beat us to it.
         if (error && error.code !== "23505") {
           console.error("Reaction failed:", error.message);
+        } else if (!error) {
+          // Fire-and-forget: only count genuinely new reactions.
+          void incrementRecord(userId, "reactions_given").catch(() => {});
         }
       }
       onToggled();

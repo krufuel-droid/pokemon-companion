@@ -7,6 +7,8 @@ import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { useAuth, type Profile } from "@/components/AuthProvider";
 import SupabaseNeeded from "@/components/SupabaseNeeded";
 import { searchSpecies } from "@/lib/pokedex";
+import { useEffect, useMemo } from "react";
+import { getAchievements, getUserAchievements, type AchievementDef } from "@/lib/achievements";
 
 const inputClass =
   "w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-mint focus:outline-none focus:ring-2 focus:ring-mint/40 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500";
@@ -116,6 +118,110 @@ function FavoritePreview({ name }: { name: string }) {
   );
 }
 
+type SupabaseFrom = ReturnType<ReturnType<typeof createClient>["from"]>;
+
+/** Count rows on a table with a filter; any failure reads as 0. */
+async function safeCount(table: string, apply: (q: SupabaseFrom) => unknown): Promise<number> {
+  try {
+    const supabase = createClient();
+    const res = (await apply(supabase.from(table))) as { count: number | null; error: unknown };
+    if (res.error) return 0;
+    return res.count ?? 0;
+  } catch {
+    return 0;
+  }
+}
+
+/** Achievements showcase + record chips shown above the profile editor. */
+function ProfileHighlights({ userId }: { userId: string }) {
+  const [latest, setLatest] = useState<{ id: string; icon: string; name: string }[]>([]);
+  const [records, setRecords] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const [defs, mine] = await Promise.all([
+          getAchievements().catch(() => [] as AchievementDef[]),
+          getUserAchievements(userId).catch(() => []),
+        ]);
+        const byId = new Map(defs.map((d) => [d.id, d]));
+        const sorted = [...mine].sort((a, b) => b.unlocked_at.localeCompare(a.unlocked_at)).slice(0, 6);
+        const shown = sorted
+          .map((u) => {
+            const def = byId.get(u.achievement_id);
+            return def ? { id: def.id, icon: def.icon, name: def.name } : null;
+          })
+          .filter((x): x is { id: string; icon: string; name: string } => x !== null);
+
+        const [favorites, hunts, runs, memorials, posts, friends] = await Promise.all([
+          safeCount("favorites", (q) => q.select("id", { count: "exact", head: true }).eq("user_id", userId)),
+          safeCount("shiny_hunts", (q) => q.select("id", { count: "exact", head: true }).eq("owner_id", userId).eq("completed", true)),
+          safeCount("nuzlockes", (q) => q.select("id", { count: "exact", head: true }).eq("owner_id", userId)),
+          safeCount("memorials", (q) => q.select("id", { count: "exact", head: true }).eq("owner_id", userId)),
+          safeCount("posts", (q) => q.select("id", { count: "exact", head: true }).eq("author_id", userId)),
+          safeCount("friendships", (q) =>
+            q.select("id", { count: "exact", head: true }).eq("status", "accepted").or(`requester_id.eq.${userId},addressee_id.eq.${userId}`),
+          ),
+        ]);
+        if (cancelled) return;
+        setLatest(shown);
+        setRecords({ Favorites: favorites, "Shiny hunts": hunts, "Nuzlocke runs": runs, Memorials: memorials, Posts: posts, Friends: friends });
+      } catch {
+        if (!cancelled) setRecords({});
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [userId]);
+
+  const chips = useMemo(() => Object.entries(records), [records]);
+
+  return (
+    <div className="mx-auto max-w-2xl px-4 pt-10 sm:px-6">
+      <div className="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm sm:p-8 dark:border-slate-700 dark:bg-slate-900">
+        <div className="flex items-center justify-between gap-4">
+          <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">Achievements</h2>
+          <Link
+            href="/achievements"
+            className="shrink-0 text-sm font-semibold text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100"
+          >
+            View all →
+          </Link>
+        </div>
+        {latest.length === 0 ? (
+          <p className="mt-3 text-sm text-slate-600 dark:text-slate-400">
+            No achievements yet — <Link href="/achievements" className="font-semibold underline">start exploring</Link>!
+          </p>
+        ) : (
+          <div className="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-6">
+            {latest.map((a) => (
+              <div key={a.id} className="flex flex-col items-center gap-1 text-center" title={a.name}>
+                <span className="text-3xl" aria-hidden="true">{a.icon}</span>
+                <span className="line-clamp-2 text-xs font-medium text-slate-600 dark:text-slate-400">{a.name}</span>
+              </div>
+            ))}
+          </div>
+        )}
+        {chips.length > 0 && (
+          <div className="mt-6 flex flex-wrap gap-2">
+            {chips.map(([label, value]) => (
+              <span
+                key={label}
+                className="inline-flex items-center gap-1.5 rounded-full bg-stone-100 px-3 py-1.5 text-xs font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-300"
+              >
+                <span className="font-bold text-slate-900 dark:text-slate-100">{value}</span>
+                {label}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function ProfileEditor({ profile, onSaved }: { profile: Profile; onSaved: () => void }) {
   const [username, setUsername] = useState(profile.username);
   const [avatarUrl, setAvatarUrl] = useState(profile.avatar_url ?? "");
@@ -162,7 +268,9 @@ function ProfileEditor({ profile, onSaved }: { profile: Profile; onSaved: () => 
   }
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6">
+    <>
+      <ProfileHighlights userId={profile.id} />
+      <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6">
       <div className="rounded-2xl border border-stone-200 bg-white p-8 shadow-sm dark:border-slate-700 dark:bg-slate-900">
         <div className="flex items-center justify-between gap-4">
           <div>
@@ -252,6 +360,7 @@ function ProfileEditor({ profile, onSaved }: { profile: Profile; onSaved: () => 
         </form>
       </div>
     </div>
+    </>
   );
 }
 

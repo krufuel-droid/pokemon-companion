@@ -8,6 +8,7 @@ import { useAuth } from "@/components/AuthProvider";
 import SupabaseNeeded from "@/components/SupabaseNeeded";
 import Avatar from "@/components/Avatar";
 import CommunityTabs from "@/components/CommunityTabs";
+import { incrementRecord } from "@/lib/achievements";
 import { timeAgo, type FriendProfile, type Friendship } from "@/lib/community";
 
 const cardClass =
@@ -214,7 +215,21 @@ export default function FriendsPage() {
     setActionBusy(id);
     try {
       const supabase = createClient();
-      await supabase.from("friendships").update({ status: "accepted" }).eq("id", id);
+      const { error } = await supabase
+        .from("friendships")
+        .update({ status: "accepted" })
+        .eq("id", id);
+      if (!error && user) {
+        // Fire-and-forget: count the new friendship for BOTH users.
+        const row = friendships.find((f) => f.id === id);
+        const otherId = row
+          ? row.requester_id === user.id
+            ? row.addressee_id
+            : row.requester_id
+          : null;
+        void incrementRecord(user.id, "friends_made").catch(() => {});
+        if (otherId) void incrementRecord(otherId, "friends_made").catch(() => {});
+      }
       reload();
     } finally {
       setActionBusy(null);
