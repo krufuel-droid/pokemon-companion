@@ -79,18 +79,30 @@ function mapCard(c: ApiCard): TcgCard {
 
 async function fetchJson(url: string): Promise<unknown> {
   let res: Response;
-  try {
-    res = await fetch(url);
-  } catch {
-    throw new Error("Couldn't reach the card database — check your connection and try again.");
+  let lastError: Error | null = null;
+  // The TCG API is flaky (intermittent 500/502s) — retry a few times
+  // with backoff before giving up.
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      res = await fetch(url);
+    } catch {
+      lastError = new Error("Couldn't reach the card database — check your connection and try again.");
+      await new Promise((r) => setTimeout(r, 500 * (attempt + 1)));
+      continue;
+    }
+    if (res.status === 429) {
+      throw new Error("The card database is rate-limiting us — wait a few seconds and try again.");
+    }
+    if (res.status >= 500 && attempt < 2) {
+      await new Promise((r) => setTimeout(r, 750 * (attempt + 1)));
+      continue;
+    }
+    if (!res.ok) {
+      throw new Error(`The card database returned an error (${res.status}) — try again in a moment.`);
+    }
+    return res.json();
   }
-  if (res.status === 429) {
-    throw new Error("The card database is rate-limiting us — wait a few seconds and try again.");
-  }
-  if (!res.ok) {
-    throw new Error(`The card database returned an error (${res.status}) — try again in a moment.`);
-  }
-  return res.json();
+  throw lastError ?? new Error("The card database is having a rough moment — try again in a bit.");
 }
 
 function normalizeQuery(q: string): string {
