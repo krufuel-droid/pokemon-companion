@@ -22,7 +22,7 @@ export interface AchievementDef {
 }
 
 /**
- * Hardcoded fallback catalog of all 19 achievements. Used by getAchievements()
+ * Hardcoded fallback catalog of all 39 achievements. Used by getAchievements()
  * whenever the `achievements` table is missing or unreadable, so the UI works
  * before Amanda runs the migration.
  */
@@ -49,6 +49,21 @@ const FALLBACK_ACHIEVEMENTS: AchievementDef[] = [
   { id: "quiz-streak-10", name: "Poké Scholar", description: "Get a 10-answer streak in Who's That Pokémon?", icon: "🎓", category: "Fun" },
   { id: "daily-first", name: "Daily Catch", description: "Log a Pokémon of the Day catch", icon: "📅", category: "Daily" },
   { id: "daily-5", name: "Daily Devotee", description: "Log 5 Pokémon of the Day catches", icon: "🌟", category: "Daily" },
+  { id: "streak-7", name: "Week Warrior", description: "Log a Pokémon-of-the-Day catch 7 days in a row", icon: "🔥", category: "Daily" },
+  { id: "streak-30", name: "Unstoppable", description: "Log a Pokémon-of-the-Day catch 30 days in a row", icon: "🌋", category: "Daily" },
+  { id: "hunt-1000", name: "Dedicated", description: "Reach 1,000 encounters on a single shiny hunt", icon: "💪", category: "Shiny" },
+  { id: "shiny-phase-5", name: "Tough Luck Charm", description: "Reach 5 phases on a single shiny hunt", icon: "🍀", category: "Shiny" },
+  { id: "shiny-10", name: "Sparkle Decade", description: "Complete 10 shiny hunts", icon: "💎", category: "Shiny" },
+  { id: "first-trade-post", name: "Open for Business", description: "Create your first community trade post", icon: "🤝", category: "Trading" },
+  { id: "trade-fulfilled", name: "Deal Closed", description: "Mark a trade post fulfilled", icon: "📦", category: "Trading" },
+  { id: "first-rival", name: "Friendly Fire", description: "Declare your first rival", icon: "⚔️", category: "Rivals" },
+  { id: "rival-victory", name: "Top of the Food Chain", description: "Win a weekly rivalry", icon: "🏆", category: "Rivals" },
+  { id: "badge-1", name: "Gym Challenger", description: "Earn your first gym badge", icon: "🏵️", category: "Badges" },
+  { id: "badge-5", name: "Badge Collector", description: "Earn 5 gym badges", icon: "🎖️", category: "Badges" },
+  { id: "badge-10", name: "Gym Leader Material", description: "Earn all 10 gym badges", icon: "👑", category: "Badges" },
+  { id: "dex-race-leader", name: "Dex Sprinter", description: "Top the friends Living Dex race leaderboard for a week", icon: "🏁", category: "Collection" },
+  { id: "spooky-week-catch-2026", name: "Ghostly Greetings", description: "Log a Pokémon of the Day catch during Spooky Week", icon: "👻", category: "Seasonal" },
+  { id: "spooky-week-catch-5-2026", name: "Graveyard Shift", description: "Log 5 Pokémon of the Day catches during Spooky Week", icon: "🪦", category: "Seasonal" },
 ];
 
 /**

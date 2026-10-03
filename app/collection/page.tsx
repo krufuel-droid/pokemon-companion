@@ -7,6 +7,7 @@ import type { SpeciesIndex } from "@/lib/pokedex";
 import { createClient } from "@/lib/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
 import { incrementRecord } from "@/lib/achievements";
+import DexRace from "@/components/DexRace";
 import { TypePills } from "../pokedex/type-pills";
 
 interface CollectionEntry {
@@ -266,6 +267,11 @@ export default function CollectionPage() {
             ✨ {shinyCount} shiny {shinyCount === 1 ? "entry" : "entries"}
           </p>
         )}
+      </div>
+
+      {/* Living Dex race — friendly leaderboard among friends */}
+      <div className="mt-6">
+        <DexRace />
       </div>
 
       {/* Search */}

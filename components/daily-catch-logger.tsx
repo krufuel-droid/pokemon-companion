@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
 import { incrementRecord } from "@/lib/achievements";
+import { evaluateStreakMilestones } from "@/lib/streaks";
+import { checkSeasonalAchievements } from "@/lib/achievements-seasonal";
 import { POKEMON_GAMES } from "@/lib/data/games";
 import { speciesAppearsInGame, checkCatchLocation, encounterLocations } from "@/lib/game-validation";
 import { GAME_LOCATIONS } from "@/lib/data/game-locations";
@@ -120,6 +122,9 @@ export default function DailyCatchLogger({
         throw error;
       }
       void incrementRecord(user.id, "daily_catches", 1).catch(() => {});
+      // Fire-and-forget: unlock streak milestones (7-day, 30-day) if crossed.
+      void evaluateStreakMilestones(user.id).catch(() => {});
+      void checkSeasonalAchievements(user.id, potdDate).catch(() => {});
       setDone(true);
       setOpen(false);
     } catch (err) {

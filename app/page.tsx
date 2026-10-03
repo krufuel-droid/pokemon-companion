@@ -1,12 +1,15 @@
 import Link from "next/link";
 import { AuthDebugPanel } from "@/components/AuthDebugPanel";
 import DailyCatchLogger from "@/components/daily-catch-logger";
+import SeasonalSpotlight from "@/components/SeasonalSpotlight";
+import StreakWidget from "@/components/StreakWidget";
 import { getAllSpecies } from "@/lib/pokedex";
+import { applySeasonalFilter } from "@/lib/seasonal-potd";
 import { TYPE_COLORS } from "@/lib/theme";
 
 /** Deterministic daily pick — same Pokémon for everyone, changes at midnight. */
 function PokemonOfTheDay() {
-  const all = getAllSpecies();
+  const all = applySeasonalFilter(getAllSpecies());
   const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
   let hash = 0;
   for (let i = 0; i < today.length; i++) hash = (hash * 31 + today.charCodeAt(i)) >>> 0;
@@ -140,8 +143,16 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Pokémon of the Day — deterministic by date, same for everyone */}
+      {/* Seasonal event spotlight (renders only during an active event) */}
       <section className="mx-auto max-w-6xl px-4 pt-12 sm:px-6">
+        <SeasonalSpotlight />
+      </section>
+
+      {/* Daily streak + Pokémon of the Day — deterministic by date, same for everyone */}
+      <section className="mx-auto max-w-6xl px-4 pt-6 sm:px-6">
+        <StreakWidget />
+      </section>
+      <section className="mx-auto max-w-6xl px-4 pt-6 sm:px-6">
         <PokemonOfTheDay />
       </section>
 

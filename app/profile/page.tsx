@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { useAuth, generateTrainerCode, type Profile } from "@/components/AuthProvider";
 import SupabaseNeeded from "@/components/SupabaseNeeded";
+import BadgeCase from "@/components/BadgeCase";
 import { searchSpecies, getSpeciesById } from "@/lib/pokedex";
 import { fetchTradeLists, type TradeEntry, type TradeTable } from "@/lib/trades";
 import { POKEMON_GAMES } from "@/lib/data/games";
@@ -691,10 +692,19 @@ function ProfileHighlights({ userId }: { userId: string }) {
         if (cancelled) return;
         setLatest(shown);
         setRecords({ Favorites: favorites, "Shiny hunts": hunts, "Nuzlocke runs": runs, Memorials: memorials, Posts: posts, Friends: friends, "Daily catches": dailyCatches });
+        const extraEmblems: { icon: string; name: string; detail: string }[] = [];
+        try {
+          const { getStreakEmblems } = await import("@/lib/streak-emblems");
+          extraEmblems.push(...(await getStreakEmblems(userId).catch(() => [])));
+        } catch { /* streak emblems unavailable */ }
+        try {
+          const { getSeasonalEmblems } = await import("@/lib/seasonal-emblems");
+          extraEmblems.push(...(await getSeasonalEmblems(userId).catch(() => [])));
+        } catch { /* seasonal emblems unavailable */ }
         setEmblems(
           dailyCatches >= 5
-            ? [{ icon: "🌟", name: "Daily Star", detail: `${dailyCatches} Pokémon-of-the-Day catches` }]
-            : []
+            ? [{ icon: "🌟", name: "Daily Star", detail: `${dailyCatches} Pokémon-of-the-Day catches` }, ...extraEmblems]
+            : extraEmblems
         );
       } catch {
         if (!cancelled) setRecords({});
@@ -825,6 +835,9 @@ function ProfileEditor({ profile, onSaved }: { profile: Profile; onSaved: () => 
   return (
     <>
       <ProfileHighlights userId={profile.id} />
+      <div className="mx-auto max-w-2xl px-4 sm:px-6">
+        <BadgeCase userId={profile.id} />
+      </div>
       <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6">
       <div className="mb-6">
         <TrainerCodeCard trainerCode={profile.trainer_code ?? null} />
