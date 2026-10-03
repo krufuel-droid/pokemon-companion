@@ -17,7 +17,7 @@ const labelClass = "mb-1 block text-sm font-medium text-slate-700 dark:text-slat
 
 interface Hunt {
   id: string;
-  user_id: string;
+  owner_id: string;
   species_id: number;
   species_name: string;
   game: string | null;
@@ -272,7 +272,7 @@ function NewHuntForm({ onCreated }: { onCreated: () => void }) {
     try {
       const supabase = createClient();
       const { error } = await supabase.from("shiny_hunts").insert({
-        user_id: user.id,
+        owner_id: user.id,
         species_id: species.id,
         species_name: species.name,
         game: game || null,
@@ -422,7 +422,7 @@ export default function ShinyHuntsPage() {
       const { data, error } = await supabase
         .from("shiny_hunts")
         .select("*")
-        .eq("user_id", user.id)
+        .eq("owner_id", user.id)
         .order("updated_at", { ascending: false });
       if (error) throw error;
       setHunts((data as Hunt[] | null) ?? []);

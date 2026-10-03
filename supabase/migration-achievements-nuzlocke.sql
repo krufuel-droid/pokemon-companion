@@ -425,29 +425,51 @@ create policy guide_checklists_owner_all on guide_checklists
   with check (auth.uid() = user_id);
 
 -- Shiny hunts (added Oct 2026): track shiny hunting progress with encounter counts.
+-- NOTE: the table may already exist from an earlier migration with owner_id.
+-- Add any missing columns idempotently, then ensure RLS.
 create table if not exists shiny_hunts (
   id uuid primary key default gen_random_uuid(),
-  user_id uuid not null references profiles(id) on delete cascade,
-  species_id integer not null,
-  species_name text not null,
+  owner_id uuid references profiles(id) on delete cascade,
+  user_id uuid references profiles(id) on delete cascade,
+  species_id integer,
+  species_name text,
   game text,
   method text not null default 'random',
   encounters integer not null default 0,
   odds_denominator integer not null default 4096,
   has_charm boolean not null default false,
   status text not null default 'active' check (status in ('active', 'completed', 'abandoned')),
+  completed boolean not null default false,
   notes text,
   started_at timestamptz not null default now(),
   completed_at timestamptz,
   updated_at timestamptz not null default now()
 );
+-- Backfill columns if the table predates this migration.
+alter table shiny_hunts add column if not exists owner_id uuid references profiles(id) on delete cascade;
+alter table shiny_hunts add column if not exists user_id uuid references profiles(id) on delete cascade;
+alter table shiny_hunts add column if not exists species_id integer;
+alter table shiny_hunts add column if not exists species_name text;
+alter table shiny_hunts add column if not exists game text;
+alter table shiny_hunts add column if not exists method text not null default 'random';
+alter table shiny_hunts add column if not exists encounters integer not null default 0;
+alter table shiny_hunts add column if not exists odds_denominator integer not null default 4096;
+alter table shiny_hunts add column if not exists has_charm boolean not null default false;
+alter table shiny_hunts add column if not exists status text not null default 'active';
+alter table shiny_hunts add column if not exists completed boolean not null default false;
+alter table shiny_hunts add column if not exists notes text;
+alter table shiny_hunts add column if not exists started_at timestamptz not null default now();
+alter table shiny_hunts add column if not exists completed_at timestamptz;
+alter table shiny_hunts add column if not exists updated_at timestamptz not null default now();
+-- If rows were created with user_id, copy to owner_id so the app's queries work.
+update shiny_hunts set owner_id = user_id where owner_id is null and user_id is not null;
 comment on table shiny_hunts is 'Shiny hunt tracking with encounter counts and odds.';
 alter table shiny_hunts enable row level security;
 
 drop policy if exists shiny_hunts_owner_all on shiny_hunts;
 create policy shiny_hunts_owner_all on shiny_hunts
-  for all using (auth.uid() = user_id)
-  with check (auth.uid() = user_id);
+  for all using (auth.uid() = owner_id or auth.uid() = user_id)
+  with check (auth.uid() = owner_id or auth.uid() = user_id);
 
 -- Messages: read receipts for unread badges (added Oct 2026).
 alter table messages add column if not exists read_at timestamptz;
