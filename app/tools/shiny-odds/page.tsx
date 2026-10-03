@@ -50,6 +50,7 @@ export default function ShinyOddsCalculator() {
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [selectedName, setSelectedName] = useState("");
   const [encounters, setEncounters] = useState<EncounterOption[]>([]);
+  const [gameFilter, setGameFilter] = useState<string>("all");
   const [encounterIdx, setEncounterIdx] = useState(0);
   const [loadingEncounters, setLoadingEncounters] = useState(false);
 
@@ -102,6 +103,7 @@ export default function ShinyOddsCalculator() {
         return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi) || b.chance - a.chance;
       });
       setEncounters(opts);
+      setGameFilter("all");
       setEncounterIdx(0);
       if (opts.length > 0) setSpawnRate(String(opts[0].chance));
     } catch {
@@ -115,7 +117,24 @@ export default function ShinyOddsCalculator() {
     setSelectedId(null);
     setSelectedName("");
     setEncounters([]);
+    setGameFilter("all");
   }
+
+  const availableGames = useMemo(() => {
+    const games: string[] = [];
+    for (const o of encounters) {
+      if (!games.includes(o.game)) games.push(o.game);
+    }
+    return games;
+  }, [encounters]);
+
+  const filteredEncounters = useMemo(
+    () =>
+      gameFilter === "all"
+        ? encounters
+        : encounters.filter((o) => o.game === gameFilter),
+    [encounters, gameFilter]
+  );
 
   const calc = useMemo(() => {
     const spawn = Math.min(100, Math.max(0.01, parseFloat(spawnRate) || 0)) / 100;
@@ -210,26 +229,56 @@ export default function ShinyOddsCalculator() {
           )}
 
           {encounters.length > 0 && (
-            <div className="mt-2">
-              <label htmlFor="encounter" className="block text-sm font-medium text-slate-600 dark:text-slate-400">
-                Where are you hunting?
-              </label>
-              <select
-                id="encounter"
-                value={encounterIdx}
-                onChange={(e) => {
-                  const i = parseInt(e.target.value);
-                  setEncounterIdx(i);
-                  setSpawnRate(String(encounters[i].chance));
-                }}
-                className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-800 outline-none focus:border-emerald-300 focus:ring-2 focus:ring-emerald-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
-              >
-                {encounters.map((o, i) => (
-                  <option key={i} value={i}>
-                    {o.game} — {o.location} ({o.method}, {o.chance}%)
-                  </option>
-                ))}
-              </select>
+            <div className="mt-2 space-y-2">
+              <div>
+                <label htmlFor="gamefilter" className="block text-sm font-medium text-slate-600 dark:text-slate-400">
+                  Game ({availableGames.length})
+                </label>
+                <select
+                  id="gamefilter"
+                  value={gameFilter}
+                  onChange={(e) => {
+                    setGameFilter(e.target.value);
+                    setEncounterIdx(0);
+                    const filtered = e.target.value === "all"
+                      ? encounters
+                      : encounters.filter((o) => o.game === e.target.value);
+                    if (filtered.length > 0) setSpawnRate(String(filtered[0].chance));
+                  }}
+                  className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-800 outline-none focus:border-emerald-300 focus:ring-2 focus:ring-emerald-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+                >
+                  <option value="all">All games ({encounters.length} spots)</option>
+                  {availableGames.map((g) => {
+                    const count = encounters.filter((o) => o.game === g).length;
+                    return (
+                      <option key={g} value={g}>
+                        {g} ({count} {count === 1 ? "spot" : "spots"})
+                      </option>
+                    );
+                  })}
+                </select>
+              </div>
+              <div>
+                <label htmlFor="encounter" className="block text-sm font-medium text-slate-600 dark:text-slate-400">
+                  Where are you hunting? ({filteredEncounters.length})
+                </label>
+                <select
+                  id="encounter"
+                  value={encounterIdx}
+                  onChange={(e) => {
+                    const i = parseInt(e.target.value);
+                    setEncounterIdx(i);
+                    setSpawnRate(String(filteredEncounters[i].chance));
+                  }}
+                  className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-800 outline-none focus:border-emerald-300 focus:ring-2 focus:ring-emerald-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+                >
+                  {filteredEncounters.map((o, i) => (
+                    <option key={i} value={i}>
+                      {gameFilter === "all" ? `${o.game} — ` : ""}{o.location} ({o.method}, {o.chance}%)
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
           )}
         </div>
