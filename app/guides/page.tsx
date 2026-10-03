@@ -47,36 +47,47 @@ export default function GuidesIndex() {
         </div>
       </section>
 
-      {byGen.map(({ gen, guides }) => (
-        <details key={gen} className="mt-4 rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
-          <summary className="cursor-pointer list-none px-6 py-4 text-xl font-bold text-slate-700 marker:hidden dark:text-slate-200 [&::-webkit-details-marker]:hidden">
-            <span className="mr-2 inline-block transition-transform duration-200 [details[open]_&]:rotate-90">▸</span>
-            {gen}
-            <span className="ml-2 text-sm font-medium text-slate-400 dark:text-slate-500">
-              {guides.length} {guides.length === 1 ? "guide" : "guides"}
-            </span>
-          </summary>
-          <div className="grid gap-4 px-6 pb-6 sm:grid-cols-2">
-            {guides.map((guide) => (
-              <Link
-                key={guide.slug}
-                href={`/guides/${guide.slug}`}
-                className="group rounded-2xl bg-slate-50 p-6 ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:shadow-md hover:ring-emerald-300 dark:bg-slate-800 dark:ring-slate-700 dark:hover:ring-emerald-700"
-              >
-                <h3 className="text-lg font-semibold text-slate-800 group-hover:text-emerald-700 dark:text-slate-100 dark:group-hover:text-emerald-300">
-                  {guide.title}
-                </h3>
-                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                  {guide.tagline}
-                </p>
-                <span className="mt-3 inline-block text-sm font-medium text-emerald-600 dark:text-emerald-400">
-                  View guide →
+      <details className="mt-10 rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
+        <summary className="cursor-pointer list-none px-6 py-4 text-xl font-bold text-slate-700 marker:hidden dark:text-slate-200 [&::-webkit-details-marker]:hidden">
+          <span className="mr-2 inline-block transition-transform duration-200 [details[open]_&]:rotate-90">▸</span>
+          Playthrough Guides
+          <span className="ml-2 text-sm font-medium text-slate-400 dark:text-slate-500">
+            {GUIDES.length} games
+          </span>
+        </summary>
+        <div className="space-y-4 px-6 pb-6">
+          {byGen.map(({ gen, guides }) => (
+            <details key={gen} className="rounded-xl bg-slate-50 ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
+              <summary className="cursor-pointer list-none px-5 py-3 text-lg font-semibold text-slate-700 marker:hidden dark:text-slate-200 [&::-webkit-details-marker]:hidden">
+                <span className="mr-2 inline-block transition-transform duration-200 [details[open]_&]:rotate-90">▸</span>
+                {gen}
+                <span className="ml-2 text-sm font-medium text-slate-400 dark:text-slate-500">
+                  {guides.length} {guides.length === 1 ? "guide" : "guides"}
                 </span>
-              </Link>
-            ))}
-          </div>
-        </details>
-      ))}
+              </summary>
+              <div className="grid gap-4 px-5 pb-5 sm:grid-cols-2">
+                {guides.map((guide) => (
+                  <Link
+                    key={guide.slug}
+                    href={`/guides/${guide.slug}`}
+                    className="group rounded-2xl bg-white p-6 ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:shadow-md hover:ring-emerald-300 dark:bg-slate-900 dark:ring-slate-700 dark:hover:ring-emerald-700"
+                  >
+                    <h3 className="text-lg font-semibold text-slate-800 group-hover:text-emerald-700 dark:text-slate-100 dark:group-hover:text-emerald-300">
+                      {guide.title}
+                    </h3>
+                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                      {guide.tagline}
+                    </p>
+                    <span className="mt-3 inline-block text-sm font-medium text-emerald-600 dark:text-emerald-400">
+                      View guide →
+                    </span>
+                  </Link>
+                ))}
+              </div>
+            </details>
+          ))}
+        </div>
+      </details>
 
       {GUIDES.length === 0 && (
         <p className="mt-10 text-slate-500 dark:text-slate-400">
