@@ -57,20 +57,20 @@ async function TradeMatchSummary({
   try {
     const supabase = await createClient();
     const [myW, myT, theirW, theirT] = await Promise.all([
-      supabase.from("trade_wishlist").select("species_id").eq("user_id", viewerId),
-      supabase.from("trade_list").select("species_id").eq("user_id", viewerId),
-      supabase.from("trade_wishlist").select("species_id").eq("user_id", profileId),
-      supabase.from("trade_list").select("species_id").eq("user_id", profileId),
+      supabase.from("trade_wishlist").select("species_id, game").eq("user_id", viewerId),
+      supabase.from("trade_list").select("species_id, game").eq("user_id", viewerId),
+      supabase.from("trade_wishlist").select("species_id, game").eq("user_id", profileId),
+      supabase.from("trade_list").select("species_id, game").eq("user_id", profileId),
     ]);
     if (myW.error || myT.error || theirW.error || theirT.error) return null;
     const { youHaveForThem, theyHaveForYou } = computeTradeMatches(
       {
-        wishlist: (myW.data as { species_id: number }[] | null) ?? [],
-        forTrade: (myT.data as { species_id: number }[] | null) ?? [],
+        wishlist: (myW.data as { species_id: number; game: string | null }[] | null) ?? [],
+        forTrade: (myT.data as { species_id: number; game: string | null }[] | null) ?? [],
       },
       {
-        wishlist: (theirW.data as { species_id: number }[] | null) ?? [],
-        forTrade: (theirT.data as { species_id: number }[] | null) ?? [],
+        wishlist: (theirW.data as { species_id: number; game: string | null }[] | null) ?? [],
+        forTrade: (theirT.data as { species_id: number; game: string | null }[] | null) ?? [],
       },
     );
     const total = youHaveForThem.length + theyHaveForYou.length;

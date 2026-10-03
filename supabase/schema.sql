@@ -695,6 +695,10 @@ create table if not exists trade_list (
 );
 comment on table trade_list is 'Pokémon a trainer is offering for trade.';
 
+-- Game-specific trading (added Oct 2026): which game the trade is for.
+alter table trade_wishlist add column if not exists game text;
+alter table trade_list add column if not exists game text;
+
 alter table trade_wishlist enable row level security;
 alter table trade_list enable row level security;
 

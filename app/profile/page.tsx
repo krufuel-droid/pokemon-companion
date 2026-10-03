@@ -9,6 +9,7 @@ import { useAuth, generateTrainerCode, type Profile } from "@/components/AuthPro
 import SupabaseNeeded from "@/components/SupabaseNeeded";
 import { searchSpecies, getSpeciesById } from "@/lib/pokedex";
 import { fetchTradeLists, type TradeEntry, type TradeTable } from "@/lib/trades";
+import { POKEMON_GAMES } from "@/lib/data/games";
 import { useEffect, useMemo } from "react";
 import { getAchievements, getUserAchievements, type AchievementDef } from "@/lib/achievements";
 
@@ -373,6 +374,7 @@ function TradeListEditor({
   const [query, setQuery] = useState("");
   const [picked, setPicked] = useState<{ id: number; name: string } | null>(null);
   const [note, setNote] = useState("");
+  const [game, setGame] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -414,8 +416,9 @@ function TradeListEditor({
           species_id: picked.id,
           species_name: picked.name,
           note: note.trim() === "" ? null : note.trim().slice(0, 120),
+          game: game === "" ? null : game,
         })
-        .select("id, user_id, species_id, species_name, note")
+        .select("id, user_id, species_id, species_name, note, game")
         .single();
       if (error) {
         setError(
@@ -428,6 +431,7 @@ function TradeListEditor({
       setEntries((prev) => [data as TradeEntry, ...prev]);
       setPicked(null);
       setNote("");
+      setGame("");
       setQuery("");
     } finally {
       setBusy(false);
@@ -501,6 +505,17 @@ function TradeListEditor({
                 />
               )}
               <span className="text-sm font-bold text-slate-900 dark:text-slate-100">{picked.name}</span>
+              <select
+                value={game}
+                onChange={(e) => setGame(e.target.value)}
+                className={`${inputClass} !w-auto`}
+                aria-label="Game (optional)"
+              >
+                <option value="">Any game</option>
+                {POKEMON_GAMES.map((g) => (
+                  <option key={g} value={g}>{g}</option>
+                ))}
+              </select>
               <input
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
@@ -519,7 +534,7 @@ function TradeListEditor({
               </button>
               <button
                 type="button"
-                onClick={() => { setPicked(null); setNote(""); }}
+                onClick={() => { setPicked(null); setNote(""); setGame(""); }}
                 className="text-xs font-semibold text-slate-500 underline dark:text-slate-400"
               >
                 Cancel
@@ -556,9 +571,16 @@ function TradeListEditor({
                     <p className="truncate text-sm font-bold text-slate-900 dark:text-slate-100">
                       {e.species_name}
                     </p>
-                    {e.note && (
-                      <p className="truncate text-xs text-slate-500 dark:text-slate-400">{e.note}</p>
-                    )}
+                    <div className="flex flex-wrap items-center gap-1">
+                      {e.game && (
+                        <span className="rounded-full bg-sky-100 px-2 py-0.5 text-[10px] font-semibold text-sky-800 dark:bg-sky-950 dark:text-sky-300">
+                          {e.game.replace(/^Pokémon /, "")}
+                        </span>
+                      )}
+                      {e.note && (
+                        <p className="truncate text-xs text-slate-500 dark:text-slate-400">{e.note}</p>
+                      )}
+                    </div>
                   </div>
                   <button
                     type="button"

@@ -7,6 +7,7 @@ export interface TradeEntry {
   species_id: number;
   species_name: string;
   note: string | null;
+  game: string | null;
 }
 
 export type TradeTable = "trade_wishlist" | "trade_list";
@@ -28,12 +29,12 @@ export async function fetchTradeLists(
   const [w, t] = await Promise.all([
     client
       .from("trade_wishlist")
-      .select("id, user_id, species_id, species_name, note")
+      .select("id, user_id, species_id, species_name, note, game")
       .eq("user_id", userId)
       .order("created_at", { ascending: false }),
     client
       .from("trade_list")
-      .select("id, user_id, species_id, species_name, note")
+      .select("id, user_id, species_id, species_name, note, game")
       .eq("user_id", userId)
       .order("created_at", { ascending: false }),
   ]);
@@ -49,19 +50,26 @@ export async function fetchTradeLists(
  * Two-way trade matches between me and one other trainer:
  * - youHaveForThem: species on THEIR wishlist that are on MY trade list
  * - theyHaveForYou: species on THEIR trade list that are on MY wishlist
- * Matching is by species_id, so nicknames/notes don't affect it.
+ * Matching is by species_id; when both sides specify a game, the games must
+ * also match (a null game means "any game").
  */
 export function computeTradeMatches<
-  M extends { species_id: number },
-  T extends { species_id: number },
+  M extends { species_id: number; game?: string | null },
+  T extends { species_id: number; game?: string | null },
 >(
   mine: TradeListPair<M>,
   theirs: TradeListPair<T>,
 ): { youHaveForThem: T[]; theyHaveForYou: T[] } {
-  const myTradeIds = new Set(mine.forTrade.map((e) => e.species_id));
-  const myWishIds = new Set(mine.wishlist.map((e) => e.species_id));
+  const gameOk = (a: string | null | undefined, b: string | null | undefined) =>
+    !a || !b || a === b;
+  const myTrade = mine.forTrade;
+  const myWish = mine.wishlist;
   return {
-    youHaveForThem: theirs.wishlist.filter((e) => myTradeIds.has(e.species_id)),
-    theyHaveForYou: theirs.forTrade.filter((e) => myWishIds.has(e.species_id)),
+    youHaveForThem: theirs.wishlist.filter((e) =>
+      myTrade.some((m) => m.species_id === e.species_id && gameOk(m.game, e.game)),
+    ),
+    theyHaveForYou: theirs.forTrade.filter((e) =>
+      myWish.some((m) => m.species_id === e.species_id && gameOk(m.game, e.game)),
+    ),
   };
 }

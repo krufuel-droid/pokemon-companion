@@ -367,9 +367,16 @@ function TradeMatchSpecies({ entry }: { entry: TradeEntry }) {
         <p className="truncate text-xs font-bold text-slate-900 dark:text-slate-100">
           {entry.species_name}
         </p>
-        {entry.note && (
-          <p className="truncate text-xs text-slate-500 dark:text-slate-400">{entry.note}</p>
-        )}
+        <div className="flex flex-wrap items-center gap-1">
+          {entry.game && (
+            <span className="rounded-full bg-sky-100 px-1.5 py-px text-[10px] font-semibold text-sky-800 dark:bg-sky-950 dark:text-sky-300">
+              {entry.game.replace(/^Pokémon /, "")}
+            </span>
+          )}
+          {entry.note && (
+            <p className="truncate text-xs text-slate-500 dark:text-slate-400">{entry.note}</p>
+          )}
+        </div>
       </div>
     </li>
   );
@@ -407,11 +414,11 @@ function TradingView({ me, friends }: { me: string; friends: FriendRow[] }) {
           fetchTradeLists(supabase, me),
           supabase
             .from("trade_wishlist")
-            .select("id, user_id, species_id, species_name, note")
+            .select("id, user_id, species_id, species_name, note, game")
             .in("user_id", ids),
           supabase
             .from("trade_list")
-            .select("id, user_id, species_id, species_name, note")
+            .select("id, user_id, species_id, species_name, note, game")
             .in("user_id", ids),
         ]);
         if (wRes.error) throw new Error(wRes.error.message);
@@ -1034,8 +1041,8 @@ export default function FriendsPage() {
       const mine = await fetchTradeLists(supabase, user.id);
       if (ids.length > 0) {
         const [wRes, tRes] = await Promise.all([
-          supabase.from("trade_wishlist").select("user_id, species_id").in("user_id", ids),
-          supabase.from("trade_list").select("user_id, species_id").in("user_id", ids),
+          supabase.from("trade_wishlist").select("user_id, species_id, game").in("user_id", ids),
+          supabase.from("trade_list").select("user_id, species_id, game").in("user_id", ids),
         ]);
         if (wRes.error || tRes.error) throw new Error("trade lists unavailable");
         const map: Record<string, TradeListPair> = {};
@@ -1282,7 +1289,7 @@ export default function FriendsPage() {
   ];
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6">
+    <div className="mx-auto max-w-2xl overflow-x-hidden px-4 py-10 sm:px-6">
       <h1 className="mb-1 text-2xl font-bold text-slate-900 dark:text-slate-100">Friends</h1>
       <p className="mb-6 text-sm text-slate-600 dark:text-slate-400">
         Add trainers by name. Only mutual friends can message each other.
@@ -1290,14 +1297,14 @@ export default function FriendsPage() {
       <CommunityTabs />
 
       {/* Sub-tabs */}
-      <nav aria-label="Friends sections" className="mb-6 flex gap-1 rounded-xl bg-stone-100 p-1 dark:bg-slate-800">
+      <nav aria-label="Friends sections" className="mb-6 flex gap-1 overflow-x-auto rounded-xl bg-stone-100 p-1 dark:bg-slate-800">
         {tabs.map((t) => (
           <button
             key={t.id}
             type="button"
             onClick={() => setTab(t.id)}
             aria-current={tab === t.id ? "page" : undefined}
-            className={`flex-1 rounded-lg px-4 py-2 text-center text-sm font-semibold transition-colors ${
+            className={`flex-1 whitespace-nowrap rounded-lg px-3 py-2 text-center text-xs font-semibold transition-colors sm:px-4 sm:text-sm ${
               tab === t.id
                 ? "bg-white text-slate-900 shadow-sm dark:bg-slate-900 dark:text-slate-100"
                 : "text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-100"
