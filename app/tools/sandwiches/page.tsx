@@ -3,6 +3,49 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { SANDWICH_POWERS, SANDWICH_GUIDE_TIPS } from "@/lib/data/sandwich-guide";
+import { getIngredientInfo, SHOP_LOCATIONS } from "@/lib/data/ingredient-shops";
+
+function IngredientLine({ text }: { text: string }) {
+  // Parse "1× Chorizo" into quantity and name
+  const match = text.match(/^(\d+×)\s*(.+)$/);
+  const qty = match ? match[1] : "";
+  const name = match ? match[2] : text;
+
+  // Herba Mystica is raid-only
+  if (name.toLowerCase().includes("herba")) {
+    return (
+      <li className="flex items-start gap-2">
+        <span className="text-lg">🌿</span>
+        <span>
+          {qty && <span className="font-semibold">{qty} </span>}
+          {name}
+          <span className="ml-1 rounded-full bg-violet-100 px-2 py-0.5 text-xs font-semibold text-violet-700 dark:bg-violet-900 dark:text-violet-200">
+            5★+ Tera Raids
+          </span>
+        </span>
+      </li>
+    );
+  }
+
+  const info = getIngredientInfo(name);
+  if (!info) {
+    return <li>• {text}</li>;
+  }
+
+  return (
+    <li className="flex items-start gap-2">
+      <span className="text-lg">{info.emoji}</span>
+      <span>
+        {qty && <span className="font-semibold">{qty} </span>}
+        {info.name}
+        <span className="block text-xs text-slate-400 dark:text-slate-500">
+          {info.shops.join(" / ")} · ₽{info.price}
+          {info.badges > 0 && ` · ${info.badges} badges`}
+        </span>
+      </span>
+    </li>
+  );
+}
 
 export default function SandwichesPage() {
   const [query, setQuery] = useState("");
@@ -77,9 +120,9 @@ export default function SandwichesPage() {
                     className="rounded-xl bg-slate-50 p-4 ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700"
                   >
                     <p className="font-bold text-slate-800 dark:text-slate-100">{r.name}</p>
-                    <ul className="mt-2 space-y-1 text-sm text-slate-600 dark:text-slate-400">
+                    <ul className="mt-2 space-y-2 text-sm text-slate-600 dark:text-slate-400">
                       {r.ingredients.map((ing, i) => (
-                        <li key={i}>• {ing}</li>
+                        <IngredientLine key={i} text={ing} />
                       ))}
                     </ul>
                     <p className="mt-2 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
@@ -98,6 +141,20 @@ export default function SandwichesPage() {
           No recipes match your search.
         </p>
       )}
+
+      <section className="mt-8 rounded-2xl bg-slate-100 p-6 dark:bg-slate-800">
+        <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">Where to shop</h2>
+        <ul className="mt-3 space-y-2 text-sm text-slate-700 dark:text-slate-300">
+          {Object.entries(SHOP_LOCATIONS).map(([shop, locations]) => (
+            <li key={shop}>
+              <span className="font-semibold">{shop}:</span> {locations}
+            </li>
+          ))}
+          <li>
+            <span className="font-semibold">Herba Mystica:</span> 5-star and 6-star Tera raids only (~2–3% drop rate)
+          </li>
+        </ul>
+      </section>
 
       <section className="mt-8 rounded-2xl bg-emerald-50 p-6 dark:bg-emerald-950">
         <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">Tips</h2>
