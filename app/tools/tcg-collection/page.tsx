@@ -545,6 +545,36 @@ function WantPane({
 const MASTER_SETUP_NOTE =
   "One-time setup needed: run supabase/migration-tcg-master-set.sql in the Supabase SQL Editor, then refresh.";
 
+function TcgImage({
+  baseUrl,
+  alt,
+  className,
+}: {
+  baseUrl: string | null;
+  alt: string;
+  className?: string;
+}) {
+  const [failed, setFailed] = useState(false);
+  if (!baseUrl || failed) {
+    return (
+      <div
+        className={`flex aspect-[3/4] w-full items-center justify-center bg-slate-100 text-slate-400 dark:bg-slate-800 ${className ?? ""}`}
+      >
+        No image
+      </div>
+    );
+  }
+  return (
+    <img
+      src={`${baseUrl}/low.webp`}
+      alt={alt}
+      loading="lazy"
+      onError={() => setFailed(true)}
+      className={`aspect-[3/4] w-full object-cover ${className ?? ""}`}
+    />
+  );
+}
+
 function MasterSetPane({ userId }: { userId: string | null }) {
   const [pokemon, setPokemon] = useState("");
   const [lang, setLang] = useState("en");
@@ -723,9 +753,7 @@ function MasterSetPane({ userId }: { userId: string | null }) {
                   key={`${m.cardId}-${m.language}`}
                   className="w-44 shrink-0 overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700"
                 >
-                  {m.imageUrl && (
-                    <img src={m.imageUrl} alt={m.cardName} loading="lazy" className="aspect-[3/4] w-full object-cover" />
-                  )}
+                  <TcgImage baseUrl={m.imageUrl} alt={m.cardName} />
                   <div className="p-3">
                     <p className="truncate text-sm font-bold text-slate-900 dark:text-slate-100">
                       {m.cardName}
@@ -862,18 +890,10 @@ function MasterSetPane({ userId }: { userId: string | null }) {
                   }`}
                 >
                   <div className="relative">
-                    {d.image ? (
-                      <img
-                        src={d.image}
-                        alt={`${d.name} (${d.setName})`}
-                        loading="lazy"
-                        className="aspect-[3/4] w-full object-cover"
-                      />
-                    ) : (
-                      <div className="flex aspect-[3/4] w-full items-center justify-center bg-slate-100 text-slate-400 dark:bg-slate-800">
-                        No image
-                      </div>
-                    )}
+                    <TcgImage
+                      baseUrl={d.image}
+                      alt={`${d.name} (${d.setName})`}
+                    />
                     {isOwned && (
                       <span className="absolute right-2 top-2 rounded-full bg-emerald-500 px-2 py-0.5 text-xs font-bold text-white shadow">
                         ✓ Owned
