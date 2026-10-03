@@ -547,36 +547,42 @@ function JoinRunButton({ runId, onJoined }: { runId: string; onJoined: () => voi
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [debugStep, setDebugStep] = useState<string | null>(null);
+
   async function join() {
-    try { localStorage.setItem("join-debug", "start"); } catch {}
+    const mark = (s: string) => {
+      setDebugStep(s);
+      try { localStorage.setItem("join-debug", s); } catch {}
+    };
+    mark("start");
     if (!user) {
-      try { localStorage.setItem("join-debug", "no-user"); } catch {}
+      mark("no-user");
       setError("Not signed in (session missing). Try signing out and back in.");
       return;
     }
     setBusy(true);
     setError(null);
     try {
-      try { localStorage.setItem("join-debug", "creating-client"); } catch {}
+      mark("creating-client");
       const supabase = createClient();
-      try { localStorage.setItem("join-debug", "checking-profile"); } catch {}
+      mark("checking-profile");
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("id")
         .eq("id", user.id)
         .maybeSingle();
-      try { localStorage.setItem("join-debug", "profile-checked"); } catch {}
+      mark("profile-checked");
       if (profileError) throw profileError;
       if (!profile) {
         setError("Set up your trainer profile first, then join the run.");
         setBusy(false);
         return;
       }
-      try { localStorage.setItem("join-debug", "inserting"); } catch {}
+      mark("inserting");
       const { error } = await supabase
         .from("nuzlocke_participants")
         .insert({ run_id: runId, user_id: user.id });
-      try { localStorage.setItem("join-debug", "inserted"); } catch {}
+      mark("inserted");
       if (error) {
         if (error.code === "23505") {
           onJoined();
@@ -591,7 +597,7 @@ function JoinRunButton({ runId, onJoined }: { runId: string; onJoined: () => voi
       console.error("Join run failed:", err);
       setError(`Join failed: ${msg} (code: ${(err as { code?: string })?.code ?? "none"})`);
     } finally {
-      try { localStorage.setItem("join-debug", "done"); } catch {}
+      mark("done");
       setBusy(false);
     }
   }
@@ -615,6 +621,9 @@ function JoinRunButton({ runId, onJoined }: { runId: string; onJoined: () => voi
             </Link>
           )}
         </p>
+      )}
+      {debugStep && (
+        <p className="mt-1 text-xs text-slate-400">Debug: {debugStep}</p>
       )}
     </div>
   );
