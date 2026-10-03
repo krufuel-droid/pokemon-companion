@@ -10,6 +10,7 @@ import { FormProvider } from "./form-context";
 import { FormSwitcher } from "./form-switcher";
 import { EncountersSection } from "./encounters-section";
 import { MatchupsSection } from "./matchups-section";
+import FavoriteButton from "@/components/FavoriteButton";
 import { LearnsetSection } from "./learnset-section";
 import { StatsRadar } from "./stats-radar";
 import { SectionAccordion } from "./section-accordion";
@@ -127,9 +128,14 @@ export default async function SpeciesPage({
               <span className="text-sm font-medium text-slate-400 dark:text-slate-500">
                 #{species.id}
               </span>
-              <h1 className="text-3xl font-bold capitalize tracking-tight">
-                {species.name}
-              </h1>
+              <div className="flex items-center gap-3">
+                <h1 className="text-3xl font-bold capitalize tracking-tight">
+                  {species.name}
+                </h1>
+                <span className="relative inline-block h-8 w-8">
+                  <FavoriteButton speciesId={species.id} />
+                </span>
+              </div>
               {species.genera && (
                 <p className="text-sm text-slate-500 dark:text-slate-400">{species.genera}</p>
               )}

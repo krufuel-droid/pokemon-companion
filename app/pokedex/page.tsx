@@ -1,15 +1,18 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { getAllSpecies, searchSpecies } from "@/lib/pokedex";
 import type { SpeciesIndex } from "@/lib/pokedex";
+import { createClient } from "@/lib/supabase/client";
+import { useAuth } from "@/components/AuthProvider";
 import {
   getRegionalForms,
   REGIONAL_REGIONS,
   type RegionalForm,
 } from "@/lib/data/forms";
 import { TypePills } from "./type-pills";
+import FavoriteButton from "@/components/FavoriteButton";
 
 const TOTAL_COUNT = 1025;
 
@@ -24,9 +27,10 @@ function SpeciesCard({ species }: { species: SpeciesIndex }) {
   return (
     <Link
       href={`/pokedex/${species.id}`}
-      className="flex flex-col items-center gap-1.5 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:shadow-md dark:bg-slate-900 dark:ring-slate-700"
+      className="relative flex flex-col items-center gap-1.5 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:shadow-md dark:bg-slate-900 dark:ring-slate-700"
       style={{ contentVisibility: "auto", containIntrinsicSize: "auto 220px" }}
     >
+      <FavoriteButton speciesId={species.id} />
       <img
         src={species.sprites.regular}
         alt={species.name}
@@ -67,8 +71,37 @@ function RegionalFormCard({ form }: { form: RegionalForm }) {
 }
 
 export default function PokedexPage() {
+  const { user } = useAuth();
   const [query, setQuery] = useState("");
   const [region, setRegion] = useState<string>("all");
+  const [favoritesOnly, setFavoritesOnly] = useState(false);
+  const [favoriteIds, setFavoriteIds] = useState<Set<number>>(new Set());
+
+  useEffect(() => {
+    if (!user) {
+      setFavoriteIds(new Set());
+      setFavoritesOnly(false);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      try {
+        const supabase = createClient();
+        const { data } = await supabase
+          .from("favorites")
+          .select("species_id")
+          .eq("user_id", user.id);
+        if (!cancelled) {
+          setFavoriteIds(new Set(((data as { species_id: number }[] | null) ?? []).map((r) => r.species_id)));
+        }
+      } catch {
+        // table may not exist yet
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
 
   const trimmed = query.trim();
   const searching = trimmed.length >= 2;
@@ -77,13 +110,15 @@ export default function PokedexPage() {
   const regionalForms = useMemo(() => getRegionalForms(), []);
 
   const results = useMemo<SpeciesIndex[]>(
-    () =>
-      browsingRegion
+    () => {
+      const base = browsingRegion
         ? []
         : searching
           ? searchSpecies(trimmed)
-          : getAllSpecies(),
-    [searching, trimmed, browsingRegion]
+          : getAllSpecies();
+      return favoritesOnly ? base.filter((s) => favoriteIds.has(s.id)) : base;
+    },
+    [searching, trimmed, browsingRegion, favoritesOnly, favoriteIds]
   );
 
   const regionResults = useMemo<RegionalForm[]>(
@@ -126,16 +161,30 @@ export default function PokedexPage() {
         >
           <button
             type="button"
-            onClick={() => setRegion("all")}
-            aria-pressed={region === "all"}
+            onClick={() => { setRegion("all"); setFavoritesOnly(false); }}
+            aria-pressed={region === "all" && !favoritesOnly}
             className={`rounded-full px-4 py-1.5 text-sm font-semibold transition-colors ${
-              region === "all"
+              region === "all" && !favoritesOnly
                 ? "bg-emerald-600 text-white"
                 : "bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-100 dark:bg-slate-900 dark:text-slate-400 dark:ring-slate-700 dark:hover:bg-slate-800"
             }`}
           >
             All Pokémon
           </button>
+          {user && (
+            <button
+              type="button"
+              onClick={() => { setFavoritesOnly(!favoritesOnly); setRegion("all"); }}
+              aria-pressed={favoritesOnly}
+              className={`rounded-full px-4 py-1.5 text-sm font-semibold transition-colors ${
+                favoritesOnly
+                  ? "bg-yellow-500 text-white"
+                  : "bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-100 dark:bg-slate-900 dark:text-slate-400 dark:ring-slate-700 dark:hover:bg-slate-800"
+              }`}
+            >
+              ⭐ Favorites ({favoriteIds.size})
+            </button>
+          )}
           {REGIONAL_REGIONS.map((r) => (
             <button
               key={r}
