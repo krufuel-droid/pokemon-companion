@@ -18,6 +18,7 @@ const LINKS = [
   { href: "/shiny-hunts", label: "✨ Hunts" },
   { href: "/items", label: "Items" },
   { href: "/moves", label: "Moves" },
+  { href: "/abilities", label: "Abilities" },
   { href: "/news", label: "News" },
 ] as const;
 

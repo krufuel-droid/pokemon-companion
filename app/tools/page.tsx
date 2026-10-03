@@ -31,6 +31,11 @@ const TOOLS = [
     title: "Shiny Odds Calculator",
     desc: "Combine a Pokémon's spawn rate with your hunting method for the true shiny odds per encounter.",
   },
+  {
+    href: "/tools/sandwiches",
+    title: "Shiny Sandwich Recipes",
+    desc: "Sparkling Power Lv. 3 sandwich recipes for every type in Scarlet/Violet.",
+  },
 ];
 
 export default function ToolsIndex() {
