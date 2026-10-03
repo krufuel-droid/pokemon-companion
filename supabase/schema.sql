@@ -586,15 +586,24 @@ create policy user_records_update_own on user_records
 -- nuzlocke_participants: visible to the participant themselves, anyone else
 -- in the same run, or the run owner. A user can join (insert) and leave
 -- (delete) only their own rows.
+create or replace function public.is_run_participant(p_run_id uuid, p_user_id uuid)
+returns boolean
+language sql
+security definer
+set search_path = public
+stable
+as $$
+  select exists (
+    select 1 from public.nuzlocke_participants
+    where run_id = p_run_id and user_id = p_user_id
+  );
+$$;
+
 drop policy if exists nuzlocke_participants_select_run on nuzlocke_participants;
 create policy nuzlocke_participants_select_run on nuzlocke_participants
   for select using (
     auth.uid() = user_id
-    or exists (
-      select 1 from nuzlocke_participants p
-      where p.run_id = nuzlocke_participants.run_id
-        and p.user_id = auth.uid()
-    )
+    or public.is_run_participant(nuzlocke_participants.run_id, auth.uid())
     or exists (
       select 1 from nuzlockes n
       where n.id = nuzlocke_participants.run_id
