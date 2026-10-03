@@ -148,12 +148,12 @@ export default function HomePage() {
         <SeasonalSpotlight />
       </section>
 
-      {/* Daily streak + Pokémon of the Day — deterministic by date, same for everyone */}
+      {/* Daily streak + Pokémon of the Day — side by side on desktop, stacked on mobile */}
       <section className="mx-auto max-w-6xl px-4 pt-6 sm:px-6">
-        <StreakWidget />
-      </section>
-      <section className="mx-auto max-w-6xl px-4 pt-6 sm:px-6">
-        <PokemonOfTheDay />
+        <div className="grid gap-6 lg:grid-cols-2">
+          <StreakWidget />
+          <PokemonOfTheDay />
+        </div>
       </section>
 
       {/* Features grid */}
