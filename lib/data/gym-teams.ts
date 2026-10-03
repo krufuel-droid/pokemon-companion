@@ -461,7 +461,7 @@ export const GYM_TEAMS: Record<string, GymTeam[]> = {
         { species: "Vileplume", id: 45, level: 34, moves: ["Mega Drain", "Moonblast"] },
       ],
     
-      counterPick: { species: "Pidgeotto", id: 17, location: "Route 1 (catch Pidgey, evolves at Lv. 18)", why: "Flying-type Wing Attack shreds Erika's Grass team." },},
+      counterPick: { species: "Doduo", id: 84, location: "Route 16 (west of Celadon City)", why: "Doduo's high Attack and Flying moves (Drill Peck) hit far harder than Pidgeotto against Erika's Grass team." },},
     {
       gym: "Fuchsia Gym",
       leader: "Koga",
@@ -1632,7 +1632,7 @@ export const GYM_TEAMS: Record<string, GymTeam[]> = {
         { species: "Bellossom", id: 182, level: 56, moves: ["Solar Beam", "Petal Dance", "Sunny Day"] },
       ],
     
-      counterPick: { species: "Pidgeotto", id: 17, location: "Route 1 (catch Pidgey, evolves at Lv. 18)", why: "Flying-type Wing Attack shreds Erika's Grass team." },},
+      counterPick: { species: "Doduo", id: 84, location: "Route 16 (west of Celadon City)", why: "Doduo's high Attack and Flying moves (Drill Peck) hit far harder than Pidgeotto against Erika's Grass team." },},
     {
       gym: "Fuchsia Gym",
       leader: "Janine",
@@ -1838,7 +1838,7 @@ export const GYM_TEAMS: Record<string, GymTeam[]> = {
         { species: "Vileplume", id: 45, level: 29, moves: ["Sleep Powder", "Acid", "Stun Spore", "Giga Drain"] },
       ],
     
-      counterPick: { species: "Pidgeotto", id: 17, location: "Route 1 (catch Pidgey, evolves at Lv. 18)", why: "Flying-type Gust/Wing Attack shreds Erika's Grass team." },},
+      counterPick: { species: "Doduo", id: 84, location: "Route 16 (west of Celadon City)", why: "Doduo's high Attack and Flying moves (Drill Peck) hit far harder than Pidgeotto against Erika's Grass team." },},
     {
       gym: "Fuchsia Gym & Safari Zone",
       leader: "Koga",
@@ -2039,7 +2039,7 @@ export const GYM_TEAMS: Record<string, GymTeam[]> = {
       ],
       note: "Yellow: Tangela 30, Weepinbell 32, Gloom 32.",
     
-      counterPick: { species: "Pidgeotto", id: 17, location: "Route 1 (catch Pidgey, evolves at Lv. 18)", why: "Flying-type Gust/Wing Attack shreds Erika's Grass team." },},
+      counterPick: { species: "Doduo", id: 84, location: "Route 16 (west of Celadon City)", why: "Doduo's high Attack and Flying moves (Drill Peck) hit far harder than Pidgeotto against Erika's Grass team." },},
     {
       gym: "Fuchsia Gym & Safari Zone",
       leader: "Koga",
