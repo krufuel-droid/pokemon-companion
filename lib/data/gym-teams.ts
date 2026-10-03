@@ -1877,7 +1877,7 @@ export const GYM_TEAMS: Record<string, GymTeam[]> = {
         { species: "Arcanine", id: 59, level: 47, moves: ["Bite", "Roar", "Take Down", "Fire Blast"] },
       ],
     
-      counterPick: { species: "Gyarados", id: 130, location: "Old Rod in Vermilion City (catch Magikarp, evolves at Lv. 20)", why: "Water/Flying Gyarados soaks Blaine's Fire team — Surf and Hydro Pump hit massively." },},
+      counterPick: { species: "Vaporeon", id: 134, location: "Eevee gift in Celadon City + Water Stone from the Dept. Store", why: "Surf washes away Blaine's Fire team." },},
     {
       gym: "Viridian Gym",
       leader: "Giovanni",
