@@ -9,6 +9,8 @@ import SupabaseNeeded from "@/components/SupabaseNeeded";
 import Avatar from "@/components/Avatar";
 import CommunityTabs from "@/components/CommunityTabs";
 import { incrementRecord, getAchievements, type AchievementDef } from "@/lib/achievements";
+import { fetchTradeLists, computeTradeMatches, type TradeEntry, type TradeListPair } from "@/lib/trades";
+import { getSpeciesById } from "@/lib/pokedex";
 import { timeAgo, type FriendProfile, type Friendship } from "@/lib/community";
 
 const cardClass =
@@ -29,7 +31,7 @@ function isOnline(lastSeen: string | null | undefined): boolean {
 
 type FriendProfileSeen = FriendProfile & { last_seen: string | null };
 type FriendRow = Friendship & { other: FriendProfileSeen | null };
-type TabId = "friends" | "activity" | "compare";
+type TabId = "friends" | "activity" | "compare" | "trading";
 
 function SectionTitle({ children }: { children: string }) {
   return (
@@ -336,6 +338,284 @@ function CompareView({
 }
 
 /* ------------------------------------------------------------------ */
+/* Trading matchmaker                                                   */
+/* ------------------------------------------------------------------ */
+
+function TradeMatchSpecies({ entry }: { entry: TradeEntry }) {
+  const species = getSpeciesById(entry.species_id);
+  return (
+    <li className="flex items-center gap-2 rounded-lg bg-stone-50 px-2 py-1.5 dark:bg-slate-950">
+      {species && (
+        /* eslint-disable-next-line @next/next/no-img-element */
+        <img
+          src={species.sprites.regular}
+          alt={entry.species_name}
+          width={32}
+          height={32}
+          className="h-8 w-8 shrink-0 object-contain"
+          loading="lazy"
+        />
+      )}
+      <div className="min-w-0">
+        <p className="truncate text-xs font-bold text-slate-900 dark:text-slate-100">
+          {entry.species_name}
+        </p>
+        {entry.note && (
+          <p className="truncate text-xs text-slate-500 dark:text-slate-400">{entry.note}</p>
+        )}
+      </div>
+    </li>
+  );
+}
+
+function TradingView({ me, friends }: { me: string; friends: FriendRow[] }) {
+  const [mine, setMine] = useState<TradeListPair | null>(null);
+  const [theirLists, setTheirLists] = useState<Record<string, TradeListPair>>({});
+  const [loading, setLoading] = useState(true);
+  const [missing, setMissing] = useState(false);
+  const [expanded, setExpanded] = useState<string | null>(null);
+  const [showNoMatches, setShowNoMatches] = useState(false);
+
+  const validFriends = useMemo(
+    () => friends.filter((f): f is FriendRow & { other: FriendProfileSeen } => !!f.other),
+    [friends],
+  );
+  const idsKey = useMemo(
+    () => validFriends.map((f) => f.other.id).sort().join(","),
+    [validFriends],
+  );
+
+  useEffect(() => {
+    if (validFriends.length === 0) {
+      setLoading(false);
+      return;
+    }
+    let cancelled = false;
+    setLoading(true);
+    (async () => {
+      try {
+        const supabase = createClient();
+        const ids = validFriends.map((f) => f.other.id);
+        const [mineRes, wRes, tRes] = await Promise.all([
+          fetchTradeLists(supabase, me),
+          supabase
+            .from("trade_wishlist")
+            .select("id, user_id, species_id, species_name, note")
+            .in("user_id", ids),
+          supabase
+            .from("trade_list")
+            .select("id, user_id, species_id, species_name, note")
+            .in("user_id", ids),
+        ]);
+        if (wRes.error) throw new Error(wRes.error.message);
+        if (tRes.error) throw new Error(tRes.error.message);
+        const map: Record<string, TradeListPair> = {};
+        for (const id of ids) map[id] = { wishlist: [], forTrade: [] };
+        for (const e of ((wRes.data as TradeEntry[] | null) ?? [])) {
+          if (map[e.user_id]) map[e.user_id].wishlist.push(e);
+        }
+        for (const e of ((tRes.data as TradeEntry[] | null) ?? [])) {
+          if (map[e.user_id]) map[e.user_id].forTrade.push(e);
+        }
+        if (!cancelled) {
+          setMine(mineRes);
+          setTheirLists(map);
+          setLoading(false);
+        }
+      } catch {
+        // Trade tables don't exist yet (SQL not run) — hint, don't crash.
+        if (!cancelled) {
+          setMissing(true);
+          setLoading(false);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [me, idsKey]);
+
+  const matches = useMemo(
+    () =>
+      validFriends
+        .map((f) => {
+          const theirs = theirLists[f.other.id] ?? { wishlist: [], forTrade: [] };
+          const { youHaveForThem, theyHaveForYou } = mine
+            ? computeTradeMatches(mine, theirs)
+            : { youHaveForThem: [] as TradeEntry[], theyHaveForYou: [] as TradeEntry[] };
+          return {
+            friend: f,
+            youHaveForThem,
+            theyHaveForYou,
+            total: youHaveForThem.length + theyHaveForYou.length,
+          };
+        })
+        .sort((a, b) => b.total - a.total),
+    [validFriends, mine, theirLists],
+  );
+
+  if (loading) {
+    return (
+      <p className="py-8 text-center text-sm text-slate-500 dark:text-slate-400">
+        Finding trade matches…
+      </p>
+    );
+  }
+  if (missing) {
+    return (
+      <p className="rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:bg-amber-950 dark:text-amber-300">
+        Trading needs the latest database update — run the newest SQL in the Supabase SQL Editor
+        to enable it.
+      </p>
+    );
+  }
+  if (validFriends.length === 0) {
+    return (
+      <p className="py-8 text-center text-sm text-slate-500 dark:text-slate-400">
+        Add some friends to see trade matches here.
+      </p>
+    );
+  }
+
+  const matched = matches.filter((m) => m.total > 0);
+  const unmatched = matches.filter((m) => m.total === 0);
+
+  return (
+    <div>
+      <p className="mb-4 text-sm text-slate-600 dark:text-slate-400">
+        Matches your <Link href="/profile" className="font-semibold underline">Looking For</Link>{" "}
+        and <Link href="/profile" className="font-semibold underline">For Trade</Link> lists against
+        each friend&apos;s. Tap a trainer to see the details.
+      </p>
+
+      {matched.length === 0 && (
+        <p className="py-8 text-center text-sm text-slate-500 dark:text-slate-400">
+          No trade matches yet — add Pokémon to your lists on your profile and check back!
+        </p>
+      )}
+
+      <ul className="space-y-3">
+        {matched.map((m) => {
+          const name = m.friend.other.username;
+          const isOpen = expanded === m.friend.other.id;
+          const summary: string[] = [];
+          if (m.youHaveForThem.length > 0) {
+            summary.push(
+              `You have ${m.youHaveForThem.length} on ${name}'s wishlist`,
+            );
+          }
+          if (m.theyHaveForYou.length > 0) {
+            summary.push(`${name} has ${m.theyHaveForYou.length} you want`);
+          }
+          return (
+            <li key={m.friend.other.id} className={`${cardClass} !p-4`}>
+              <button
+                type="button"
+                onClick={() => setExpanded(isOpen ? null : m.friend.other.id)}
+                aria-expanded={isOpen}
+                className="flex w-full items-center gap-3 text-left"
+              >
+                <Avatar
+                  username={name}
+                  avatarUrl={m.friend.other.avatar_url}
+                  online={isOnline(m.friend.other.last_seen)}
+                />
+                <div className="min-w-0 flex-1">
+                  <Link
+                    href={`/trainer/${encodeURIComponent(name)}`}
+                    onClick={(e) => e.stopPropagation()}
+                    className="block truncate text-sm font-bold text-slate-900 hover:underline dark:text-slate-100"
+                  >
+                    {name}
+                  </Link>
+                  <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+                    <span role="img" aria-hidden="true" className="mr-1">🔄</span>
+                    {summary.join(" · ")}
+                  </p>
+                </div>
+                <span aria-hidden="true" className="shrink-0 text-slate-400">
+                  {isOpen ? "▾" : "▸"}
+                </span>
+              </button>
+
+              {isOpen && (
+                <div
+                  className={`mt-3 grid gap-3 border-t border-stone-100 pt-3 dark:border-slate-800 ${
+                    m.youHaveForThem.length > 0 && m.theyHaveForYou.length > 0
+                      ? "sm:grid-cols-2"
+                      : ""
+                  }`}
+                >
+                  {m.youHaveForThem.length > 0 && (
+                    <div>
+                      <p className="mb-1.5 text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                        You have {m.youHaveForThem.length} they want
+                      </p>
+                      <ul className="space-y-1.5">
+                        {m.youHaveForThem.map((e) => (
+                          <TradeMatchSpecies key={e.id} entry={e} />
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {m.theyHaveForYou.length > 0 && (
+                    <div>
+                      <p className="mb-1.5 text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                        They have {m.theyHaveForYou.length} you want
+                      </p>
+                      <ul className="space-y-1.5">
+                        {m.theyHaveForYou.map((e) => (
+                          <TradeMatchSpecies key={e.id} entry={e} />
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+
+      {unmatched.length > 0 && (
+        <div className="mt-6">
+          <button
+            type="button"
+            onClick={() => setShowNoMatches((v) => !v)}
+            aria-expanded={showNoMatches}
+            className="w-full rounded-xl border border-stone-200 bg-stone-50 px-4 py-2.5 text-left text-sm font-medium text-slate-500 transition hover:bg-stone-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-400 dark:hover:bg-slate-900"
+          >
+            {showNoMatches ? "▾" : "▸"} No trade matches ({unmatched.length})
+          </button>
+          {showNoMatches && (
+            <ul className="mt-2 space-y-2 opacity-70">
+              {unmatched.map((m) => (
+                <li key={m.friend.other.id} className={`${cardClass} !p-3`}>
+                  <div className="flex items-center gap-3">
+                    <Avatar
+                      username={m.friend.other.username}
+                      avatarUrl={m.friend.other.avatar_url}
+                      size={32}
+                    />
+                    <Link
+                      href={`/trainer/${encodeURIComponent(m.friend.other.username)}`}
+                      className="truncate text-sm font-semibold text-slate-700 hover:underline dark:text-slate-300"
+                    >
+                      {m.friend.other.username}
+                    </Link>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
 /* Suggestions                                                         */
 /* ------------------------------------------------------------------ */
 
@@ -350,7 +630,13 @@ interface Suggestion {
 
 export default function FriendsPage() {
   const { configured, loading, user, profile } = useAuth();
-  const [tab, setTab] = useState<TabId>("friends");
+  const [tab, setTab] = useState<TabId>(() => {
+    // The trainer profile links here with ?tab=trading.
+    if (typeof window === "undefined") return "friends";
+    return new URLSearchParams(window.location.search).get("tab") === "trading"
+      ? "trading"
+      : "friends";
+  });
   const [friendships, setFriendships] = useState<Friendship[]>([]);
   const [profiles, setProfiles] = useState<Record<string, FriendProfileSeen>>({});
   const [loadingFriends, setLoadingFriends] = useState(true);
@@ -687,6 +973,7 @@ export default function FriendsPage() {
 
   const tabs: { id: TabId; label: string }[] = [
     { id: "friends", label: `Friends (${friends.length})` },
+    { id: "trading", label: "Trading" },
     { id: "activity", label: "Activity" },
     { id: "compare", label: "Compare" },
   ];
@@ -719,6 +1006,8 @@ export default function FriendsPage() {
       </nav>
 
       {tab === "activity" && <ActivityFeed friendIds={friendIds} profiles={profiles} />}
+
+      {tab === "trading" && <TradingView me={user.id} friends={friends} />}
 
       {tab === "compare" && (
         <CompareView me={user.id} myUsername={profile?.username ?? "You"} friends={friends} />

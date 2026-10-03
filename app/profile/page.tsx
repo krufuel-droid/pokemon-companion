@@ -7,6 +7,7 @@ import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { useAuth, type Profile } from "@/components/AuthProvider";
 import SupabaseNeeded from "@/components/SupabaseNeeded";
 import { searchSpecies, getSpeciesById } from "@/lib/pokedex";
+import { fetchTradeLists, type TradeEntry, type TradeTable } from "@/lib/trades";
 import { useEffect, useMemo } from "react";
 import { getAchievements, getUserAchievements, type AchievementDef } from "@/lib/achievements";
 
@@ -275,6 +276,262 @@ function BuddyPicker({ value, onChange }: { value: number | null; onChange: (id:
   );
 }
 
+/** One trade list on the profile editor: "Looking For" or "For Trade". */
+function TradeListEditor({
+  userId,
+  table,
+  title,
+  icon,
+  hint,
+  addLabel,
+}: {
+  userId: string;
+  table: TradeTable;
+  title: string;
+  icon: string;
+  hint: string;
+  addLabel: string;
+}) {
+  const [entries, setEntries] = useState<TradeEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [missing, setMissing] = useState(false);
+  const [query, setQuery] = useState("");
+  const [picked, setPicked] = useState<{ id: number; name: string } | null>(null);
+  const [note, setNote] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const matches = useMemo(() => searchSpecies(query).slice(0, 12), [query]);
+  const pickedSpecies = picked ? getSpeciesById(picked.id) : undefined;
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const pair = await fetchTradeLists(createClient(), userId);
+        if (!cancelled) {
+          setEntries(table === "trade_wishlist" ? pair.wishlist : pair.forTrade);
+          setLoading(false);
+        }
+      } catch {
+        // The trade tables don't exist yet (SQL not run) — show a hint.
+        if (!cancelled) {
+          setMissing(true);
+          setLoading(false);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [userId, table]);
+
+  async function add() {
+    if (!picked || busy) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const supabase = createClient();
+      const { data, error } = await supabase
+        .from(table)
+        .insert({
+          user_id: userId,
+          species_id: picked.id,
+          species_name: picked.name,
+          note: note.trim() === "" ? null : note.trim().slice(0, 120),
+        })
+        .select("id, user_id, species_id, species_name, note")
+        .single();
+      if (error) {
+        setError(
+          error.code === "23505"
+            ? `${picked.name} is already on this list.`
+            : error.message,
+        );
+        return;
+      }
+      setEntries((prev) => [data as TradeEntry, ...prev]);
+      setPicked(null);
+      setNote("");
+      setQuery("");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function remove(id: string) {
+    setError(null);
+    const supabase = createClient();
+    const { error } = await supabase.from(table).delete().eq("id", id);
+    if (error) {
+      setError(error.message);
+      return;
+    }
+    setEntries((prev) => prev.filter((e) => e.id !== id));
+  }
+
+  return (
+    <div className="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900 sm:p-8">
+      <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">
+        <span role="img" aria-hidden="true" className="mr-2">{icon}</span>
+        {title}
+      </h2>
+      <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">{hint}</p>
+
+      {loading ? (
+        <p className="py-4 text-center text-sm text-slate-500 dark:text-slate-400">Loading…</p>
+      ) : missing ? (
+        <p className="mt-3 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800 dark:bg-amber-950 dark:text-amber-300">
+          Trading lists need the latest database update — run the newest SQL in the Supabase SQL
+          Editor to enable them.
+        </p>
+      ) : (
+        <div className="mt-4">
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            className={inputClass}
+            placeholder="Search Pokémon…"
+            autoComplete="off"
+            aria-label={`Search Pokémon to add to ${title}`}
+          />
+          {matches.length > 0 && (
+            <ul className="mt-1 grid max-h-48 grid-cols-6 gap-1 overflow-auto rounded-lg border border-stone-200 bg-white p-2 dark:border-slate-700 dark:bg-slate-900">
+              {matches.map((m) => (
+                <li key={m.id}>
+                  <button
+                    type="button"
+                    onClick={() => { setPicked({ id: m.id, name: m.name }); setQuery(""); }}
+                    title={m.name}
+                    className={`rounded-lg p-1 transition hover:bg-stone-100 dark:hover:bg-slate-800 ${picked?.id === m.id ? "ring-2 ring-mint" : ""}`}
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={m.sprites.regular} alt={m.name} width={48} height={48} className="h-12 w-12 object-contain" loading="lazy" />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+
+          {picked && (
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              {pickedSpecies && (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img
+                  src={pickedSpecies.sprites.regular}
+                  alt={picked.name}
+                  width={48}
+                  height={48}
+                  className="h-12 w-12 object-contain"
+                />
+              )}
+              <span className="text-sm font-bold text-slate-900 dark:text-slate-100">{picked.name}</span>
+              <input
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                className={`${inputClass} !w-auto flex-1`}
+                placeholder="Note (optional) — e.g. 'shiny' or 'with hidden ability'"
+                maxLength={120}
+                aria-label="Optional note"
+              />
+              <button
+                type="button"
+                onClick={() => void add()}
+                disabled={busy}
+                className="rounded-lg bg-mint px-4 py-2 text-sm font-bold text-slate-900 shadow-sm transition hover:brightness-95 disabled:opacity-60 dark:text-slate-100"
+              >
+                {busy ? "Adding…" : addLabel}
+              </button>
+              <button
+                type="button"
+                onClick={() => { setPicked(null); setNote(""); }}
+                className="text-xs font-semibold text-slate-500 underline dark:text-slate-400"
+              >
+                Cancel
+              </button>
+            </div>
+          )}
+
+          {error && (
+            <p role="alert" className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950 dark:text-red-300">
+              {error}
+            </p>
+          )}
+
+          <ul className="mt-4 space-y-2">
+            {entries.map((e) => {
+              const species = getSpeciesById(e.species_id);
+              return (
+                <li
+                  key={e.id}
+                  className="flex items-center gap-3 rounded-xl bg-stone-50 px-3 py-2 dark:bg-slate-950"
+                >
+                  {species && (
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img
+                      src={species.sprites.regular}
+                      alt={e.species_name}
+                      width={40}
+                      height={40}
+                      className="h-10 w-10 object-contain"
+                      loading="lazy"
+                    />
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-bold text-slate-900 dark:text-slate-100">
+                      {e.species_name}
+                    </p>
+                    {e.note && (
+                      <p className="truncate text-xs text-slate-500 dark:text-slate-400">{e.note}</p>
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => void remove(e.id)}
+                    aria-label={`Remove ${e.species_name} from ${title}`}
+                    className="shrink-0 rounded-lg px-2 py-1 text-sm font-bold text-slate-400 transition hover:bg-red-50 hover:text-red-600 dark:text-slate-500 dark:hover:bg-red-950 dark:hover:text-red-400"
+                  >
+                    ✕
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+          {entries.length === 0 && (
+            <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+              Nothing here yet — search above to add one.
+            </p>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** "Looking For" + "For Trade" sections on the own-profile page. */
+function TradeLists({ userId }: { userId: string }) {
+  return (
+    <div className="mx-auto max-w-2xl space-y-6 px-4 pb-10 sm:px-6">
+      <TradeListEditor
+        userId={userId}
+        table="trade_wishlist"
+        title="Looking For"
+        icon="🔍"
+        hint="Pokémon you want — friends with a match will see it in the Trading tab."
+        addLabel="Add to wishlist"
+      />
+      <TradeListEditor
+        userId={userId}
+        table="trade_list"
+        title="For Trade"
+        icon="🔄"
+        hint="Pokémon you're offering — friends who want them will get matched with you."
+        addLabel="Add to trade list"
+      />
+    </div>
+  );
+}
+
 type SupabaseFrom = ReturnType<ReturnType<typeof createClient>["from"]>;
 
 /** Count rows on a table with a filter; any failure reads as 0. */
@@ -536,7 +793,8 @@ function ProfileEditor({ profile, onSaved }: { profile: Profile; onSaved: () => 
           </button>
         </form>
       </div>
-    </div>
+      </div>
+      <TradeLists userId={profile.id} />
     </>
   );
 }

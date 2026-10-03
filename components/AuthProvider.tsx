@@ -77,11 +77,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const fetchProfile = useCallback(async (userId: string) => {
     try {
       const supabase = createClient();
-      const { data } = await supabase
+      const full = "id, username, avatar_url, bio, favorite_pokemon, buddy_species_id, buddy_nickname, trainer_code, created_at";
+      const minimal = "id, username, avatar_url, bio, favorite_pokemon, created_at";
+      let { data } = await supabase
         .from("profiles")
-        .select("id, username, avatar_url, bio, favorite_pokemon, buddy_species_id, buddy_nickname, created_at")
+        .select(full)
         .eq("id", userId)
         .maybeSingle();
+      if (!data) {
+        // Fall back if newer columns haven't been migrated yet.
+        const retry = await supabase
+          .from("profiles")
+          .select(minimal)
+          .eq("id", userId)
+          .maybeSingle();
+        data = retry.data as typeof data;
+      }
       setProfile((data as Profile | null) ?? null);
     } catch {
       setProfile(null);

@@ -358,3 +358,50 @@ alter table profiles add column if not exists buddy_nickname text;
 drop policy if exists friendships_select_accepted_public on friendships;
 create policy friendships_select_accepted_public on friendships
   for select using (status = 'accepted');
+
+-- ----------------------------------------------------------------------------
+-- Section 2: Trading system (Oct 2026) — wishlist + for-trade lists.
+-- Safe to re-run: create-if-not-exists + drop/create policies.
+-- ----------------------------------------------------------------------------
+create table if not exists trade_wishlist (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references profiles(id) on delete cascade,
+  species_id integer not null,
+  species_name text not null,
+  note text,
+  created_at timestamptz not null default now(),
+  unique (user_id, species_id)
+);
+comment on table trade_wishlist is 'Pokémon a trainer is looking for (trade wishlist).';
+
+create table if not exists trade_list (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references profiles(id) on delete cascade,
+  species_id integer not null,
+  species_name text not null,
+  note text,
+  created_at timestamptz not null default now(),
+  unique (user_id, species_id)
+);
+comment on table trade_list is 'Pokémon a trainer is offering for trade.';
+
+alter table trade_wishlist enable row level security;
+alter table trade_list enable row level security;
+
+-- Trade lists are publicly readable so the matchmaker can compare
+-- friends' lists; only the owner can write their own rows.
+drop policy if exists trade_wishlist_select_all on trade_wishlist;
+create policy trade_wishlist_select_all on trade_wishlist
+  for select using (true);
+
+drop policy if exists trade_wishlist_owner_write on trade_wishlist;
+create policy trade_wishlist_owner_write on trade_wishlist
+  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+drop policy if exists trade_list_select_all on trade_list;
+create policy trade_list_select_all on trade_list
+  for select using (true);
+
+drop policy if exists trade_list_owner_write on trade_list;
+create policy trade_list_owner_write on trade_list
+  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);

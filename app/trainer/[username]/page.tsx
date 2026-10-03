@@ -6,6 +6,7 @@ import SupabaseNeeded from "@/components/SupabaseNeeded";
 import Avatar from "@/components/Avatar";
 import { timeAgo } from "@/lib/community";
 import { getSpeciesById } from "@/lib/pokedex";
+import { computeTradeMatches } from "@/lib/trades";
 import type { Profile } from "@/components/AuthProvider";
 
 /** "Online" = seen within the last 5 minutes (same window as the friends list). */
@@ -36,6 +37,67 @@ interface Catch {
   run_id: string;
 }
 
+/**
+ * Compact trade-match summary shown when a signed-in trainer views someone
+ * else's profile. Compares the viewer's Looking For / For Trade lists against
+ * the profile's lists and links to the Trading tab. Renders nothing when the
+ * trade tables don't exist yet (SQL not run) or there are no matches.
+ */
+async function TradeMatchSummary({
+  viewerId,
+  profileId,
+  username,
+  cardClass,
+}: {
+  viewerId: string;
+  profileId: string;
+  username: string;
+  cardClass: string;
+}) {
+  try {
+    const supabase = await createClient();
+    const [myW, myT, theirW, theirT] = await Promise.all([
+      supabase.from("trade_wishlist").select("species_id").eq("user_id", viewerId),
+      supabase.from("trade_list").select("species_id").eq("user_id", viewerId),
+      supabase.from("trade_wishlist").select("species_id").eq("user_id", profileId),
+      supabase.from("trade_list").select("species_id").eq("user_id", profileId),
+    ]);
+    if (myW.error || myT.error || theirW.error || theirT.error) return null;
+    const { youHaveForThem, theyHaveForYou } = computeTradeMatches(
+      {
+        wishlist: (myW.data as { species_id: number }[] | null) ?? [],
+        forTrade: (myT.data as { species_id: number }[] | null) ?? [],
+      },
+      {
+        wishlist: (theirW.data as { species_id: number }[] | null) ?? [],
+        forTrade: (theirT.data as { species_id: number }[] | null) ?? [],
+      },
+    );
+    const total = youHaveForThem.length + theyHaveForYou.length;
+    if (total === 0) return null;
+    const parts: string[] = [];
+    if (youHaveForThem.length > 0) parts.push(`you have ${youHaveForThem.length} they want`);
+    if (theyHaveForYou.length > 0) parts.push(`they have ${theyHaveForYou.length} you want`);
+    return (
+      <div className={`${cardClass} mt-6`}>
+        <Link href="/friends?tab=trading" className="flex items-center gap-3">
+          <span role="img" aria-hidden="true" className="text-2xl">🔄</span>
+          <div className="min-w-0">
+            <p className="text-sm font-bold text-slate-900 dark:text-slate-100">
+              {total} trade match{total === 1 ? "" : "es"} with {username}
+            </p>
+            <p className="mt-0.5 truncate text-xs text-slate-500 dark:text-slate-400">
+              {parts.join(" · ")} — see the Trading tab →
+            </p>
+          </div>
+        </Link>
+      </div>
+    );
+  } catch {
+    return null;
+  }
+}
+
 export default async function TrainerProfilePage({
   params,
 }: {
@@ -46,13 +108,23 @@ export default async function TrainerProfilePage({
   const { username } = await params;
   const supabase = await createClient();
 
-  const { data: profileData } = await supabase
+  const fullCols =
+    "id, username, avatar_url, bio, favorite_pokemon, buddy_species_id, buddy_nickname, last_seen, created_at";
+  const minimalCols = "id, username, avatar_url, bio, favorite_pokemon, created_at";
+  let { data: profileData } = await supabase
     .from("profiles")
-    .select(
-      "id, username, avatar_url, bio, favorite_pokemon, buddy_species_id, buddy_nickname, last_seen, created_at",
-    )
+    .select(fullCols)
     .ilike("username", ilikeEscape(decodeURIComponent(username)))
     .maybeSingle();
+  if (!profileData) {
+    // Fall back if newer columns haven't been migrated yet.
+    const retry = await supabase
+      .from("profiles")
+      .select(minimalCols)
+      .ilike("username", ilikeEscape(decodeURIComponent(username)))
+      .maybeSingle();
+    profileData = retry.data as typeof profileData;
+  }
 
   if (!profileData) notFound();
   const profile = profileData as FriendProfileRow;
@@ -255,6 +327,16 @@ export default async function TrainerProfilePage({
           ))}
         </div>
       </div>
+
+      {/* Trade matches with the viewer (hidden on your own profile) */}
+      {!isOwn && me && (
+        <TradeMatchSummary
+          viewerId={me.id}
+          profileId={profile.id}
+          username={profile.username}
+          cardClass={cardClass}
+        />
+      )}
 
       {/* Recent activity */}
       <div className={`${cardClass} mt-6`}>
