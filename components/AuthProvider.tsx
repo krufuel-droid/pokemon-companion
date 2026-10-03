@@ -9,7 +9,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import type { User } from "@supabase/supabase-js";
+import type { AuthChangeEvent, Session, User } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 
@@ -122,7 +122,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           .from("profiles")
           .update({ trainer_code: code })
           .eq("id", profileId)
-          .then(({ error }) => {
+          .then(({ error }: { error: { message: string } | null }) => {
             if (!error) {
               setProfile((p) =>
                 p && p.id === profileId ? { ...p, trainer_code: code } : p,
@@ -143,7 +143,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let cancelled = false;
     const supabase = createClient();
 
-    supabase.auth.getSession().then(({ data }) => {
+    supabase.auth.getSession().then(({ data }: { data: { session: Session | null } }) => {
       if (cancelled) return;
       const sessionUser = data.session?.user ?? null;
       logEvent(
@@ -162,7 +162,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, session) => {
+    } = supabase.auth.onAuthStateChange((event: AuthChangeEvent, session: Session | null) => {
       if (cancelled) return;
       const sessionUser = session?.user ?? null;
       logEvent(
