@@ -415,20 +415,7 @@ export default function RunDetailPage({ params }: { params: Promise<{ id: string
           ) : (
             <ul className="divide-y divide-stone-100 dark:divide-slate-800">
               {memorials.map((m) => (
-                <li key={m.id} className="flex items-start gap-3 py-3">
-                  <span className="text-2xl" aria-hidden="true">🪦</span>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-                      {m.nickname ? `${m.nickname} (${m.species_name})` : m.species_name}
-                    </p>
-                    {m.note && (
-                      <p className="mt-0.5 text-sm text-slate-600 dark:text-slate-400">{m.note}</p>
-                    )}
-                    <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">
-                      {m.username} · {timeAgo(m.created_at)}
-                    </p>
-                  </div>
-                </li>
+                <MemorialRow key={m.id} memorial={m} canDelete={!!user && m.owner_id === user.id} onChanged={refresh} />
               ))}
             </ul>
           )}
@@ -441,6 +428,75 @@ export default function RunDetailPage({ params }: { params: Promise<{ id: string
 /* ------------------------------------------------------------------ */
 /* Join run                                                            */
 /* ------------------------------------------------------------------ */
+
+/** A single memorial with an optional delete button for its owner. */
+function MemorialRow({ memorial: m, canDelete, onChanged }: { memorial: Memorial; canDelete: boolean; onChanged: () => void }) {
+  const [confirming, setConfirming] = useState(false);
+  const [busy, setBusy] = useState(false);
+
+  async function remove() {
+    setBusy(true);
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.from("memorials").delete().eq("id", m.id);
+      if (error) throw error;
+      onChanged();
+    } catch {
+      // best-effort; leave the row in place on failure
+    } finally {
+      setBusy(false);
+      setConfirming(false);
+    }
+  }
+
+  return (
+    <li className="flex items-start gap-3 py-3">
+      <span className="text-2xl" aria-hidden="true">🪦</span>
+      <div className="min-w-0 flex-1">
+        <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+          {m.nickname ? `${m.nickname} (${m.species_name})` : m.species_name}
+        </p>
+        {m.note && (
+          <p className="mt-0.5 text-sm text-slate-600 dark:text-slate-400">{m.note}</p>
+        )}
+        <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">
+          {m.username} · {timeAgo(m.created_at)}
+        </p>
+      </div>
+      {canDelete && (
+        confirming ? (
+          <div className="flex shrink-0 gap-1">
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => void remove()}
+              className="rounded-lg bg-red-600 px-2 py-1 text-xs font-semibold text-white disabled:opacity-50"
+            >
+              Delete
+            </button>
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => setConfirming(false)}
+              className="rounded-lg bg-stone-200 px-2 py-1 text-xs font-semibold text-slate-700 dark:bg-slate-700 dark:text-slate-200"
+            >
+              Keep
+            </button>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setConfirming(true)}
+            className="shrink-0 rounded-lg px-2 py-1 text-xs font-semibold text-slate-400 hover:bg-stone-100 hover:text-red-600 dark:hover:bg-slate-800"
+            aria-label={`Delete memorial for ${m.nickname ?? m.species_name}`}
+          >
+            ✕
+          </button>
+        )
+      )}
+    </li>
+  );
+}
 
 function JoinRunButton({ runId, onJoined }: { runId: string; onJoined: () => void }) {
   const { user } = useAuth();
