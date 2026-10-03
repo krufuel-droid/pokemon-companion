@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
 import { incrementRecord } from "@/lib/achievements";
 import { POKEMON_GAMES } from "@/lib/data/games";
-import { speciesAppearsInGame } from "@/lib/game-validation";
+import { speciesAppearsInGame, checkCatchLocation } from "@/lib/game-validation";
 
 export default function DailyCatchLogger({
   speciesId,
@@ -23,6 +23,7 @@ export default function DailyCatchLogger({
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [locationWarning, setLocationWarning] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -38,7 +39,7 @@ export default function DailyCatchLogger({
       .catch(() => {});
   }, [user, potdDate]);
 
-  async function submit() {
+  async function submit(force = false) {
     if (!user || !location.trim()) return;
     setBusy(true);
     setError(null);
@@ -57,6 +58,19 @@ export default function DailyCatchLogger({
         setBusy(false);
         return;
       }
+      // Location cross-check: warn (don't hard-block) if the spot doesn't
+      // match any real encounter location in that game.
+      if (!force) {
+        const locCheck = await checkCatchLocation(speciesId, game, location.trim());
+        if (locCheck === "mismatch") {
+          setLocationWarning(
+            `Hmm — "${location.trim()}" doesn't look like a ${speciesName} spot in ${game}. Double-check the location?`
+          );
+          setBusy(false);
+          return;
+        }
+      }
+      setLocationWarning(null);
       const supabase = createClient();
       const { error } = await supabase.from("daily_catches").insert({
         user_id: user.id,
@@ -147,7 +161,7 @@ export default function DailyCatchLogger({
         Which game?
         <select
           value={game}
-          onChange={(e) => setGame(e.target.value)}
+          onChange={(e) => { setGame(e.target.value); setLocationWarning(null); }}
           className="mt-1 w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100"
         >
           {POKEMON_GAMES.map((g) => (
@@ -159,13 +173,25 @@ export default function DailyCatchLogger({
         Where did you catch it?
         <input
           value={location}
-          onChange={(e) => setLocation(e.target.value)}
+          onChange={(e) => { setLocation(e.target.value); setLocationWarning(null); }}
           placeholder="e.g. Cascarrafa, Area Zero, Route 3…"
           maxLength={80}
           className="mt-1 w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100"
         />
       </label>
       {error && <p className="mt-2 text-xs text-red-600 dark:text-red-400">{error}</p>}
+      {locationWarning && (
+        <div className="mt-2 rounded-xl bg-amber-100 p-3 text-xs text-amber-900 dark:bg-amber-900/50 dark:text-amber-200">
+          <p>{locationWarning}</p>
+          <button
+            onClick={() => void submit(true)}
+            disabled={busy}
+            className="mt-2 rounded-full bg-amber-500 px-3 py-1.5 font-bold text-white hover:bg-amber-600 disabled:opacity-50"
+          >
+            {busy ? "Logging…" : "It's correct — log anyway"}
+          </button>
+        </div>
+      )}
       <div className="mt-3 flex gap-2">
         <button
           onClick={() => void submit()}

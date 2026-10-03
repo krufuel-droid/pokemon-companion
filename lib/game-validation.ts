@@ -58,3 +58,54 @@ export async function speciesAppearsInGame(
   const speciesVersions = await versionsForSpecies(speciesId);
   return versions.some((v) => speciesVersions.includes(v));
 }
+
+function cleanLocationName(name: string): string {
+  return name
+    .replace(/-area$/, "")
+    .split("-")
+    .join(" ")
+    .toLowerCase();
+}
+
+/**
+ * Check a free-text location against the species' real wild-encounter
+ * locations in the given game (via PokéAPI encounters).
+ *
+ * Returns:
+ *  - "match" — the location plausibly matches a real encounter spot.
+ *  - "mismatch" — the game has encounter data but nothing resembles the input.
+ *  - "unknown" — no wild-encounter data for this game (transfer/gift-only,
+ *    or PokéAPI unreachable); can't verify, so don't block.
+ */
+export async function checkCatchLocation(
+  speciesId: number,
+  game: string,
+  location: string
+): Promise<"match" | "mismatch" | "unknown"> {
+  const versions = GAME_VERSIONS[game as PokemonGame];
+  if (!versions) return "unknown";
+  let areas: { location_area: { name: string }; version_details: { version: { name: string } }[] }[];
+  try {
+    const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${speciesId}/encounters`);
+    if (!res.ok) return "unknown";
+    areas = await res.json();
+  } catch {
+    return "unknown";
+  }
+
+  const known = new Set<string>();
+  for (const area of areas) {
+    const inGame = area.version_details.some((vd) => versions.includes(vd.version.name));
+    if (inGame) known.add(cleanLocationName(area.location_area.name));
+  }
+  if (known.size === 0) return "unknown";
+
+  const input = location.toLowerCase().trim();
+  // Fuzzy: either string containing the other, ignoring tiny words.
+  const words = input.split(/[^a-z0-9]+/).filter((w) => w.length > 2);
+  for (const loc of known) {
+    if (loc.includes(input) || input.includes(loc)) return "match";
+    if (words.some((w) => loc.includes(w))) return "match";
+  }
+  return "mismatch";
+}
