@@ -135,6 +135,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (user) await fetchProfile(user.id);
   }, [user, fetchProfile]);
 
+  // Lightweight presence heartbeat: stamp profiles.last_seen so friends can
+  // see who's online ("online" = seen within 5 minutes). Fire-and-forget and
+  // best-effort — a failure here must never break auth.
+  useEffect(() => {
+    if (!configured || !user) return;
+    const supabase = createClient();
+    let cancelled = false;
+    const beat = async () => {
+      try {
+        await supabase
+          .from("profiles")
+          .update({ last_seen: new Date().toISOString() })
+          .eq("id", user.id);
+      } catch {
+        // best-effort; ignore
+      }
+    };
+    void beat();
+    const timer = setInterval(() => {
+      if (!cancelled) void beat();
+    }, 4 * 60 * 1000);
+    return () => {
+      cancelled = true;
+      clearInterval(timer);
+    };
+  }, [configured, user]);
+
   const signOut = useCallback(async () => {
     if (!configured) return;
     const supabase = createClient();
