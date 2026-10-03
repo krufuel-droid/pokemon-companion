@@ -48,6 +48,7 @@ function isActive(pathname: string, href: string): boolean {
 export default function Nav() {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [mobileDbOpen, setMobileDbOpen] = useState(false);
 
   // Close the mobile menu whenever the route changes (render-time
   // adjustment, not an effect, so no cascading renders).
@@ -177,29 +178,52 @@ export default function Nav() {
             <div className="flex flex-col px-4 py-2">
               {LINKS.map((link) => {
                 if ("children" in link) {
+                  const childActive = link.children.some((c) => isActive(pathname, c.href));
                   return (
                     <div key={link.label} className="py-1">
-                      <p className="px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">
+                      <button
+                        type="button"
+                        onClick={() => setMobileDbOpen((v) => !v)}
+                        aria-expanded={mobileDbOpen}
+                        className={`flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-base font-medium transition-colors ${
+                          childActive
+                            ? "bg-emerald-50 font-semibold text-slate-900 dark:bg-emerald-950 dark:text-slate-100"
+                            : "text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100"
+                        }`}
+                      >
                         {link.label}
-                      </p>
-                      {link.children.map((child) => {
-                        const active = isActive(pathname, child.href);
-                        return (
-                          <Link
-                            key={child.href}
-                            href={child.href}
-                            aria-current={active ? "page" : undefined}
-                            onClick={() => setMenuOpen(false)}
-                            className={`block rounded-lg px-3 py-2.5 pl-6 text-base font-medium transition-colors ${
-                              active
-                                ? "bg-emerald-50 font-semibold text-slate-900 dark:bg-emerald-950 dark:text-slate-100"
-                                : "text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100"
-                            }`}
-                          >
-                            {child.label}
-                          </Link>
-                        );
-                      })}
+                        <svg
+                          width="16"
+                          height="16"
+                          viewBox="0 0 16 16"
+                          aria-hidden="true"
+                          className={`transition-transform ${mobileDbOpen ? "rotate-180" : ""}`}
+                        >
+                          <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+                        </svg>
+                      </button>
+                      {mobileDbOpen && (
+                        <div className="mt-1">
+                          {link.children.map((child) => {
+                            const active = isActive(pathname, child.href);
+                            return (
+                              <Link
+                                key={child.href}
+                                href={child.href}
+                                aria-current={active ? "page" : undefined}
+                                onClick={() => setMenuOpen(false)}
+                                className={`block rounded-lg px-3 py-2.5 pl-6 text-base font-medium transition-colors ${
+                                  active
+                                    ? "bg-emerald-50 font-semibold text-slate-900 dark:bg-emerald-950 dark:text-slate-100"
+                                    : "text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100"
+                                }`}
+                              >
+                                {child.label}
+                              </Link>
+                            );
+                          })}
+                        </div>
+                      )}
                     </div>
                   );
                 }
