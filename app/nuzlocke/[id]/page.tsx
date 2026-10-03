@@ -579,10 +579,14 @@ function JoinRunButton({ runId, onJoined }: { runId: string; onJoined: () => voi
         return;
       }
       mark("inserting");
-      const { error } = await supabase
+      const insertPayload = { run_id: runId, user_id: user.id };
+      mark(`inserting run:${runId.slice(0,8)} user:${user.id.slice(0,8)}`);
+      const { data: insertData, error } = await supabase
         .from("nuzlocke_participants")
-        .insert({ run_id: runId, user_id: user.id });
-      mark("inserted");
+        .insert(insertPayload)
+        .select("id")
+        .single();
+      mark(insertData ? `inserted id:${(insertData as { id: string }).id.slice(0,8)}` : "inserted-no-data");
       if (error) {
         if (error.code === "23505") {
           mark("already-joined-reloading");
@@ -592,9 +596,9 @@ function JoinRunButton({ runId, onJoined }: { runId: string; onJoined: () => voi
         throw error;
       }
       void unlockAchievement(user.id, "soul-link").catch(() => {});
-      mark("success-reloading");
-      // Force a full page reload to ensure fresh participant data.
-      // The realtime refresh wasn't reliably picking up the new row.
+      mark("success-waiting-3s");
+      // Wait 3 seconds so the debug text is visible, then reload.
+      await new Promise((r) => setTimeout(r, 3000));
       window.location.reload();
     } catch (err) {
       const msg = err instanceof Error && err.message ? err.message : "Could not join the run.";
