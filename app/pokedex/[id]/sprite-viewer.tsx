@@ -21,11 +21,19 @@ export function SpriteViewer({ name, regular, shiny }: SpriteViewerProps) {
 
   return (
     <div className="flex flex-col items-center gap-3">
-      <img
-        src={src}
-        alt={`${name} ${shinyMode ? "shiny" : "regular"} sprite`}
-        className="h-40 w-40 object-contain"
-      />
+      <div className="relative">
+        {/* Soft glow backdrop so dark-bodied sprites (e.g. shiny Ogerpon)
+            stay visible against the dark theme background. */}
+        <div
+          aria-hidden="true"
+          className="absolute inset-[-1rem] rounded-full bg-[radial-gradient(circle,rgba(148,163,184,0.28)_0%,rgba(148,163,184,0)_70%)] dark:bg-[radial-gradient(circle,rgba(203,213,225,0.22)_0%,rgba(203,213,225,0)_70%)]"
+        />
+        <img
+          src={src}
+          alt={`${name} ${shinyMode ? "shiny" : "regular"} sprite`}
+          className="relative h-40 w-40 object-contain"
+        />
+      </div>
       <div className="flex gap-2" role="group" aria-label="Sprite variant">
         <button
           type="button"
