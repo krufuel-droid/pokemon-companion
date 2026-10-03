@@ -8,7 +8,15 @@ import ThemeToggle from "./theme-toggle";
 
 const LINKS = [
   { href: "/", label: "Home" },
-  { href: "/pokedex", label: "Pokédex" },
+  {
+    label: "Database",
+    children: [
+      { href: "/pokedex", label: "Pokédex" },
+      { href: "/items", label: "Items" },
+      { href: "/moves", label: "Moves" },
+      { href: "/abilities", label: "Abilities" },
+    ],
+  },
   { href: "/tools", label: "Tools" },
   { href: "/guides", label: "Guides" },
   { href: "/community", label: "Community" },
@@ -16,9 +24,6 @@ const LINKS = [
   { href: "/achievements", label: "Achievements" },
   { href: "/nuzlocke", label: "Nuzlocke" },
   { href: "/shiny-hunts", label: "✨ Hunts" },
-  { href: "/items", label: "Items" },
-  { href: "/moves", label: "Moves" },
-  { href: "/abilities", label: "Abilities" },
   { href: "/news", label: "News" },
 ] as const;
 
@@ -73,6 +78,46 @@ export default function Nav() {
         {/* Desktop tabs */}
         <div className="hidden items-center gap-2 sm:flex lg:gap-4">
           {LINKS.map((link) => {
+            if ("children" in link) {
+              const childActive = link.children.some((c) => isActive(pathname, c.href));
+              return (
+                <div key={link.label} className="group relative">
+                  <button
+                    type="button"
+                    aria-expanded="false"
+                    className={`flex items-center gap-1 border-b-2 px-1 pb-1 text-sm font-medium transition-colors ${
+                      childActive
+                        ? "border-mint font-semibold text-slate-900 dark:text-slate-100"
+                        : "border-transparent text-slate-500 hover:border-stone-300 hover:text-slate-800 dark:text-slate-400 dark:hover:border-slate-600 dark:hover:text-slate-100"
+                    }`}
+                  >
+                    {link.label}
+                    <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true" className="transition-transform group-hover:rotate-180">
+                      <path d="M3 4.5l3 3 3-3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+                    </svg>
+                  </button>
+                  <div className="invisible absolute left-0 top-full z-50 min-w-[160px] translate-y-1 rounded-xl border border-stone-200 bg-white p-1 opacity-0 shadow-lg transition-all group-hover:visible group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:visible group-focus-within:translate-y-0 group-focus-within:opacity-100 dark:border-slate-700 dark:bg-slate-900">
+                    {link.children.map((child) => {
+                      const active = isActive(pathname, child.href);
+                      return (
+                        <Link
+                          key={child.href}
+                          href={child.href}
+                          aria-current={active ? "page" : undefined}
+                          className={`block rounded-lg px-3 py-2 text-sm transition-colors ${
+                            active
+                              ? "bg-emerald-100 font-semibold text-emerald-900 dark:bg-emerald-900 dark:text-emerald-100"
+                              : "text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+                          }`}
+                        >
+                          {child.label}
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            }
             const active = isActive(pathname, link.href);
             return (
               <Link
@@ -130,6 +175,33 @@ export default function Nav() {
           <div className="absolute inset-x-0 top-full border-b border-stone-200 bg-white shadow-lg sm:hidden dark:border-slate-700 dark:bg-slate-900">
             <div className="flex flex-col px-4 py-2">
               {LINKS.map((link) => {
+                if ("children" in link) {
+                  return (
+                    <div key={link.label} className="py-1">
+                      <p className="px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">
+                        {link.label}
+                      </p>
+                      {link.children.map((child) => {
+                        const active = isActive(pathname, child.href);
+                        return (
+                          <Link
+                            key={child.href}
+                            href={child.href}
+                            aria-current={active ? "page" : undefined}
+                            onClick={() => setMenuOpen(false)}
+                            className={`block rounded-lg px-3 py-2.5 pl-6 text-base font-medium transition-colors ${
+                              active
+                                ? "bg-emerald-50 font-semibold text-slate-900 dark:bg-emerald-950 dark:text-slate-100"
+                                : "text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100"
+                            }`}
+                          >
+                            {child.label}
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  );
+                }
                 const active = isActive(pathname, link.href);
                 return (
                   <Link
