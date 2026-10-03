@@ -6,6 +6,7 @@ import { useUnreadCount } from "@/hooks/useUnreadCount";
 
 const TABS = [
   { href: "/community", label: "Feed" },
+  { href: "/community/showcase", label: "✨ Showcase" },
   { href: "/community/trades", label: "Trade Board" },
   { href: "/friends", label: "Friends" },
   { href: "/messages", label: "Messages" },

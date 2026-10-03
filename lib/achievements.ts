@@ -22,7 +22,7 @@ export interface AchievementDef {
 }
 
 /**
- * Hardcoded fallback catalog of all 39 achievements. Used by getAchievements()
+ * Hardcoded fallback catalog of all 42 achievements. Used by getAchievements()
  * whenever the `achievements` table is missing or unreadable, so the UI works
  * before Amanda runs the migration.
  */
@@ -41,6 +41,7 @@ const FALLBACK_ACHIEVEMENTS: AchievementDef[] = [
   { id: "memorial-10", name: "Fallen Heroes", description: "Memorialize 10 fallen Pokémon", icon: "🕯️", category: "Nuzlocke" },
   { id: "soul-link", name: "Together Strong", description: "Join a friend's Nuzlocke run", icon: "🤝", category: "Nuzlocke" },
   { id: "first-post", name: "Hello World", description: "Make your first community post", icon: "💬", category: "Social" },
+  { id: "first-showcase", name: "Showcase Star", description: "Share your first shiny in the Shiny Showcase", icon: "✨", category: "Social" },
   { id: "posts-10", name: "Chatterbox", description: "Make 10 community posts", icon: "📣", category: "Social" },
   { id: "first-friend", name: "Friendly", description: "Add your first friend", icon: "👋", category: "Social" },
   { id: "friends-10", name: "Popular", description: "Have 10 friends", icon: "🎉", category: "Social" },
@@ -61,14 +62,18 @@ const FALLBACK_ACHIEVEMENTS: AchievementDef[] = [
   { id: "badge-1", name: "Gym Challenger", description: "Earn your first gym badge", icon: "🏵️", category: "Badges" },
   { id: "badge-5", name: "Badge Collector", description: "Earn 5 gym badges", icon: "🎖️", category: "Badges" },
   { id: "badge-10", name: "Gym Leader Material", description: "Earn all 10 gym badges", icon: "👑", category: "Badges" },
+  { id: "first-gym-badge", name: "First Gym Badge", description: "Log your first gym badge win in the Gym Run Tracker", icon: "🏵️", category: "Badges" },
   { id: "dex-race-leader", name: "Dex Sprinter", description: "Top the friends Living Dex race leaderboard for a week", icon: "🏁", category: "Collection" },
+  { id: "first-card", name: "First Card", description: "Add your first card to your TCG collection", icon: "🃏", category: "TCG" },
+  { id: "first-mark", name: "Marked!", description: "Catch your first marked Pokémon", icon: "🎖️", category: "Collection" },
+  { id: "first-sandwich", name: "Sandwich Chef", description: "Save your first sandwich recipe", icon: "🥪", category: "Fun" },
   { id: "spooky-week-catch-2026", name: "Ghostly Greetings", description: "Log a Pokémon of the Day catch during Spooky Week", icon: "👻", category: "Seasonal" },
   { id: "spooky-week-catch-5-2026", name: "Graveyard Shift", description: "Log 5 Pokémon of the Day catches during Spooky Week", icon: "🪦", category: "Seasonal" },
 ];
 
 /**
  * The full achievement catalog, ordered by category then name. Falls back to
- * the hardcoded 19-def list if the `achievements` table is missing/erroring.
+ * the hardcoded 38-def list if the `achievements` table is missing/erroring.
  */
 export async function getAchievements(): Promise<AchievementDef[]> {
   try {
@@ -325,6 +330,12 @@ export async function checkAchievements(userId: string): Promise<string[]> {
       rec("favorites_added"),
     );
 
+    // Marks (user_marks table, added Oct 2026)
+    const marksCaught = Math.max(
+      await countRows(supabase, "user_marks", (q) => q.eq("user_id", userId)),
+      rec("marks_caught"),
+    );
+
     // Shiny hunts
     const hunts = Math.max(
       await countRows(supabase, "shiny_hunts", (q) => q.eq("owner_id", userId)),
@@ -374,6 +385,7 @@ export async function checkAchievements(userId: string): Promise<string[]> {
     when("favorite-10", favorites >= 10);
     when("favorite-50", favorites >= 50);
     when("favorite-100", favorites >= 100);
+    when("first-mark", marksCaught >= 1);
 
     when("first-hunt", hunts >= 1);
     when("hunt-100", bestEncounters >= 100);

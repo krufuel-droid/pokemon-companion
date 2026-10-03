@@ -41,6 +41,11 @@ const TEAM_TOOLS: Tool[] = [
     desc: "Pick a game and get a balanced team of early-route Pokémon for your next playthrough — viable picks spread across types.",
   },
   {
+    href: "/tools/gym-run",
+    title: "Gym Run Tracker",
+    desc: "Pick a game and log its gyms, trials, and titans in order — your team, results, and notes, with a progress bar toward your next achievement.",
+  },
+  {
     href: "/tools/team-builder",
     title: "Team Builder",
     desc: "Draft a 6-Pokémon team, check defensive weaknesses and offensive coverage, save teams, and share them with a link.",
@@ -57,6 +62,11 @@ const REFERENCE: Tool[] = [
     href: "/tools/sandwiches",
     title: "Sandwich Guide",
     desc: "Every sandwich recipe sorted by what it does — shiny hunting, breeding, raids, and more.",
+  },
+  {
+    href: "/tools/sandwich-builder",
+    title: "Sandwich Builder",
+    desc: "Build a custom Scarlet/Violet sandwich from real ingredients, preview its exact meal powers, and save your favorites.",
   },
   {
     href: "/tools/mystery-gifts",
@@ -85,6 +95,19 @@ const FUN: Tool[] = [
     href: "/tools/cry-quiz",
     title: "Cry Quiz",
     desc: "Hear a cry and name that Pokémon — the audio sequel to Who's That Pokémon?",
+  },
+];
+
+const TRACKERS: Tool[] = [
+  {
+    href: "/tools/marks",
+    title: "Mark Tracker",
+    desc: "Check off all 50 obtainable marks in Scarlet & Violet — wild, weather, time-of-day, and special marks.",
+  },
+  {
+    href: "/tools/tcg-collection",
+    title: "TCG Collection Tracker",
+    desc: "Search every Pokémon TCG card, track your collection and want list by set, and watch sets fill up.",
   },
 ];
 
@@ -139,6 +162,7 @@ export default function ToolsIndex() {
         <ToolDropdown title="Calculators" tools={CALCULATORS} defaultOpen />
         <ToolDropdown title="Team Tools" tools={TEAM_TOOLS} />
         <ToolDropdown title="Reference" tools={REFERENCE} />
+        <ToolDropdown title="Trackers" tools={TRACKERS} />
         <ToolDropdown title="Fun" tools={FUN} />
       </div>
     </div>

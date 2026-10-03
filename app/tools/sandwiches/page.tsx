@@ -101,7 +101,13 @@ export default function SandwichesPage() {
         Sandwich Guide
       </h1>
       <p className="mt-2 text-slate-500 dark:text-slate-400">
-        Every recipe sorted by what it does — shiny hunting, breeding, raids, and more.
+        Every recipe sorted by what it does — shiny hunting, breeding, raids, and more.{" "}
+        <Link
+          href="/tools/sandwich-builder"
+          className="font-semibold text-emerald-600 hover:text-emerald-700 dark:text-emerald-400"
+        >
+          Or build your own in the Sandwich Builder →
+        </Link>
       </p>
 
       <div className="mt-6">
