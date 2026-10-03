@@ -405,3 +405,52 @@ create policy trade_list_select_all on trade_list
 drop policy if exists trade_list_owner_write on trade_list;
 create policy trade_list_owner_write on trade_list
   for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+-- ----------------------------------------------------------------------------
+-- Section 5: Management tools (Oct 2026) — trainer codes + friend nicknames.
+-- Safe to re-run: every statement is idempotent.
+-- ----------------------------------------------------------------------------
+
+-- Trainer codes: a shareable 12-digit code per trainer (QR invites / add-by-code).
+alter table profiles add column if not exists trainer_code text;
+
+-- Backfill: give every profile lacking one a random 12-digit code, keeping
+-- existing codes. The loop regenerates any duplicates (astronomically
+-- unlikely with 12 digits) until every code is unique.
+do $$
+declare
+  dup_count integer := 1;
+begin
+  while dup_count > 0 loop
+    update profiles p
+    set trainer_code = lpad((floor(random() * 1e12))::bigint::text, 12, '0')
+    where p.trainer_code is null
+       or exists (
+         select 1 from profiles q
+         where q.trainer_code = p.trainer_code
+           and q.ctid < p.ctid
+       );
+    select count(*) into dup_count
+    from profiles a
+    join profiles b on a.trainer_code = b.trainer_code and a.ctid < b.ctid;
+  end loop;
+end $$;
+
+create unique index if not exists profiles_trainer_code_key on profiles (trainer_code);
+
+-- Friend nicknames: private per-user display names for friends.
+create table if not exists friend_nicknames (
+  user_id uuid not null references profiles(id) on delete cascade,
+  friend_id uuid not null references profiles(id) on delete cascade,
+  nickname text not null,
+  primary key (user_id, friend_id)
+);
+comment on table friend_nicknames is 'Private per-user nicknames for friends (Section 5).';
+
+alter table friend_nicknames enable row level security;
+
+-- Nicknames are private to the trainer who set them.
+drop policy if exists friend_nicknames_owner_all on friend_nicknames;
+create policy friend_nicknames_owner_all on friend_nicknames
+  for all using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);

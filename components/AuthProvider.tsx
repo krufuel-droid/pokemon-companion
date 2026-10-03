@@ -23,7 +23,24 @@ export interface Profile {
   /** Section 1: buddy Pokémon shown on the friend profile flex sheet. */
   buddy_species_id: number | null;
   buddy_nickname: string | null;
+  /** Section 5: shareable 12-digit trainer code (null until the SQL is run). */
+  trainer_code: string | null;
   created_at: string;
+}
+
+/**
+ * Generate a random 12-digit trainer code (Section 5: friend invites).
+ * The database backfill in supabase/schema.sql covers existing rows; this
+ * covers brand-new profiles created before/without that column populated.
+ */
+export function generateTrainerCode(): string {
+  const bytes = new Uint8Array(12);
+  if (typeof crypto !== "undefined" && typeof crypto.getRandomValues === "function") {
+    crypto.getRandomValues(bytes);
+  } else {
+    for (let i = 0; i < 12; i++) bytes[i] = Math.floor(Math.random() * 256);
+  }
+  return Array.from(bytes, (b) => String(b % 10)).join("");
 }
 
 interface AuthContextValue {
@@ -92,6 +109,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           .eq("id", userId)
           .maybeSingle();
         data = retry.data as typeof data;
+      }
+      if (data && "trainer_code" in data && !data.trainer_code) {
+        // Column exists but this row predates the backfill: stamp a code now.
+        // Best-effort and fire-and-forget — the unique index makes a collision
+        // fail the update, in which case the row simply stays code-less.
+        const code = generateTrainerCode();
+        const profileId = data.id as string;
+        void supabase
+          .from("profiles")
+          .update({ trainer_code: code })
+          .eq("id", profileId)
+          .then(({ error }) => {
+            if (!error) {
+              setProfile((p) =>
+                p && p.id === profileId ? { ...p, trainer_code: code } : p,
+              );
+            }
+          });
       }
       setProfile((data as Profile | null) ?? null);
     } catch {

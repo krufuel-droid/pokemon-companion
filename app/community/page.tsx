@@ -235,7 +235,7 @@ function PostCard({
           <div className="flex flex-wrap items-baseline gap-x-2">
             {post.author ? (
               <Link
-                href={`/trainers/${encodeURIComponent(post.author.username)}`}
+                href={`/trainer/${encodeURIComponent(post.author.username)}`}
                 className="truncate text-sm font-bold text-slate-900 hover:underline dark:text-slate-100"
               >
                 {post.author.username}

@@ -2,9 +2,10 @@
 
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
+import { QRCodeSVG } from "qrcode.react";
 import { createClient } from "@/lib/supabase/client";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
-import { useAuth, type Profile } from "@/components/AuthProvider";
+import { useAuth, generateTrainerCode, type Profile } from "@/components/AuthProvider";
 import SupabaseNeeded from "@/components/SupabaseNeeded";
 import { searchSpecies, getSpeciesById } from "@/lib/pokedex";
 import { fetchTradeLists, type TradeEntry, type TradeTable } from "@/lib/trades";
@@ -41,10 +42,18 @@ function ProfileSetupForm({ userId, onDone }: { userId: string; onDone: () => vo
     setBusy(true);
     try {
       const supabase = createClient();
-      const { error } = await supabase.from("profiles").insert({
+      let { error } = await supabase.from("profiles").insert({
         id: userId,
         username: username.trim(),
+        trainer_code: generateTrainerCode(),
       });
+      if (error && error.code === "42703") {
+        // trainer_code column not migrated yet — retry without it.
+        ({ error } = await supabase.from("profiles").insert({
+          id: userId,
+          username: username.trim(),
+        }));
+      }
       if (error) {
         setError(
           error.code === "23505"
@@ -99,6 +108,72 @@ function ProfileSetupForm({ userId, onDone }: { userId: string; onDone: () => vo
   );
 }
 
+/** Trainer's own shareable friend code + QR, shown at the top of the profile editor. */
+function TrainerCodeCard({ trainerCode }: { trainerCode: string | null }) {
+  const [copied, setCopied] = useState(false);
+  const [origin] = useState(() =>
+    typeof window === "undefined" ? "" : window.location.origin,
+  );
+
+  async function copyCode() {
+    if (!trainerCode) return;
+    try {
+      await navigator.clipboard.writeText(trainerCode);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // clipboard unavailable — the code is still selectable by hand
+    }
+  }
+
+  return (
+    <div className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+      <div className="flex items-center gap-5">
+        {trainerCode ? (
+          <QRCodeSVG
+            value={`${origin}/friends?add=${trainerCode}`}
+            size={104}
+            level="M"
+            className="h-[104px] w-[104px] shrink-0 rounded-lg bg-white p-1.5"
+            aria-label="QR code linking to your friend invite"
+          />
+        ) : (
+          <div className="flex h-[104px] w-[104px] shrink-0 items-center justify-center rounded-lg bg-stone-100 text-2xl dark:bg-slate-800">
+            <span role="img" aria-hidden="true">🎫</span>
+          </div>
+        )}
+        <div className="min-w-0">
+          <p className="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+            Your trainer code
+          </p>
+          {trainerCode ? (
+            <>
+              <div className="mt-1 flex flex-wrap items-center gap-2">
+                <span className="font-mono text-2xl font-bold tracking-widest text-slate-900 dark:text-slate-100">
+                  {trainerCode}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => void copyCode()}
+                  className="rounded-lg border border-stone-300 px-3 py-1 text-xs font-semibold text-slate-600 transition hover:bg-stone-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-800"
+                >
+                  {copied ? "Copied ✓" : "Copy"}
+                </button>
+              </div>
+              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                Share this code or QR with other trainers — they can add you from the Friends page.
+              </p>
+            </>
+          ) : (
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+              Run the latest database update in the Supabase SQL Editor to get your trainer code.
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
 /** Sprite picker for the avatar field — search and tap a Pokémon. */
 function AvatarPicker({ value, onChange }: { value: string; onChange: (url: string) => void }) {
   const [query, setQuery] = useState("");
@@ -689,6 +764,9 @@ function ProfileEditor({ profile, onSaved }: { profile: Profile; onSaved: () => 
     <>
       <ProfileHighlights userId={profile.id} />
       <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6">
+      <div className="mb-6">
+        <TrainerCodeCard trainerCode={profile.trainer_code ?? null} />
+      </div>
       <div className="rounded-2xl border border-stone-200 bg-white p-8 shadow-sm dark:border-slate-700 dark:bg-slate-900">
         <div className="flex items-center justify-between gap-4">
           <div>
@@ -698,7 +776,7 @@ function ProfileEditor({ profile, onSaved }: { profile: Profile; onSaved: () => 
             </p>
           </div>
           <Link
-            href={`/trainers/${encodeURIComponent(profile.username)}`}
+            href={`/trainer/${encodeURIComponent(profile.username)}`}
             className="shrink-0 rounded-full border border-stone-300 px-4 py-1.5 text-sm font-medium text-slate-700 hover:border-mint hover:text-slate-900 dark:border-slate-600 dark:text-slate-300 dark:hover:text-slate-100"
           >
             View public page

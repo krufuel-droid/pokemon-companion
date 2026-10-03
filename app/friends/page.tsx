@@ -647,6 +647,26 @@ export default function FriendsPage() {
   const [searchInfo, setSearchInfo] = useState<string | null>(null);
   const [searching, setSearching] = useState(false);
 
+  // Add-by-trainer-code (also prefilled from ?add=<code>, e.g. a scanned QR).
+  const [codeInput, setCodeInput] = useState(() => {
+    if (typeof window === "undefined") return "";
+    return new URLSearchParams(window.location.search).get("add") ?? "";
+  });
+
+  // Friend nicknames: my private display names, keyed by friend id.
+  const [nicknames, setNicknames] = useState<Record<string, string>>({});
+  const [editingNickname, setEditingNickname] = useState<string | null>(null);
+  const [nicknameDraft, setNicknameDraft] = useState("");
+  const [nicknameBusy, setNicknameBusy] = useState<string | null>(null);
+  const [nicknameError, setNicknameError] = useState<string | null>(null);
+
+  // Friends-list search + filter chips.
+  const [friendFilter, setFriendFilter] = useState("");
+  const [onlineOnly, setOnlineOnly] = useState(false);
+  const [tradeMatchOnly, setTradeMatchOnly] = useState(false);
+  const [tradeMatchCounts, setTradeMatchCounts] = useState<Record<string, number> | null>(null);
+  const [loadingTradeMatches, setLoadingTradeMatches] = useState(false);
+
   const [actionBusy, setActionBusy] = useState<string | null>(null);
   const [confirmUnfriend, setConfirmUnfriend] = useState<string | null>(null);
 
@@ -693,6 +713,27 @@ export default function FriendsPage() {
       );
   }, [fetchFriendData]);
 
+  /** My private nicknames for friends (owner-only table; empty when the SQL isn't run yet). */
+  const fetchNicknames = useCallback(async () => {
+    if (!user) {
+      setNicknames({});
+      return;
+    }
+    try {
+      const { data, error } = await createClient()
+        .from("friend_nicknames")
+        .select("friend_id, nickname");
+      if (error) throw new Error(error.message);
+      const map: Record<string, string> = {};
+      for (const row of (data as { friend_id: string; nickname: string }[] | null) ?? []) {
+        if (row.nickname) map[row.friend_id] = row.nickname;
+      }
+      setNicknames(map);
+    } catch (e) {
+      console.error("Failed to load nicknames:", e instanceof Error ? e.message : e);
+    }
+  }, [user]);
+
   // Initial load once auth is ready. State updates happen in the promise
   // continuation (after the network round-trip), never synchronously.
   useEffect(() => {
@@ -704,6 +745,8 @@ export default function FriendsPage() {
         setFriendships(rows);
         setProfiles(map);
         setLoadingFriends(false);
+        // Nicknames load alongside the friend list (independent fetch).
+        void fetchNicknames();
       })
       .catch((e: unknown) =>
         console.error("Failed to load friendships:", e instanceof Error ? e.message : e),
@@ -711,7 +754,7 @@ export default function FriendsPage() {
     return () => {
       cancelled = true;
     };
-  }, [configured, loading, user, fetchFriendData]);
+  }, [configured, loading, user, fetchFriendData, fetchNicknames]);
 
   const rows: FriendRow[] = useMemo(() => {
     if (!user) return [];
@@ -830,6 +873,162 @@ export default function FriendsPage() {
       setSearching(false);
     }
   }
+
+  /** Add a friend by 12-digit trainer code (Section 5: QR invites). */
+  async function sendRequestByCode(e: FormEvent) {
+    e.preventDefault();
+    if (!user) return;
+    const code = codeInput.trim();
+    setSearchError(null);
+    setSearchInfo(null);
+    if (!/^\d{12}$/.test(code)) {
+      setSearchError("Trainer codes are 12 digits — check the code and try again.");
+      return;
+    }
+    setSearching(true);
+    try {
+      const supabase = createClient();
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("id, username, avatar_url")
+        .eq("trainer_code", code)
+        .maybeSingle();
+      if (error) {
+        if (error.code === "42703") {
+          setSearchError(
+            "Trainer codes need the latest database update — run it in the Supabase SQL Editor first.",
+          );
+          return;
+        }
+        throw new Error(error.message);
+      }
+      const found = data as FriendProfile | null;
+      if (!found) {
+        setSearchError(`No trainer found with code ${code}. Check the code and try again.`);
+        return;
+      }
+      const { error: reqError, info } = await requestFriend(found);
+      if (reqError) setSearchError(reqError);
+      else {
+        setSearchInfo(info ?? null);
+        setCodeInput("");
+        reload();
+      }
+    } catch (e) {
+      setSearchError(e instanceof Error ? e.message : "Lookup failed — try again.");
+    } finally {
+      setSearching(false);
+    }
+  }
+
+  /** Nickname shown in place of the username in the friends list. */
+  const displayName = useCallback(
+    (friendId: string, username: string) => nicknames[friendId] || username,
+    [nicknames],
+  );
+
+  async function saveNickname(friendId: string) {
+    if (!user) return;
+    const value = nicknameDraft.trim().slice(0, 30);
+    setNicknameError(null);
+    setNicknameBusy(friendId);
+    try {
+      const supabase = createClient();
+      if (value === "") {
+        // Clearing the nickname deletes the row (falls back to the username).
+        const { error } = await supabase
+          .from("friend_nicknames")
+          .delete()
+          .eq("user_id", user.id)
+          .eq("friend_id", friendId);
+        if (error) throw new Error(error.message);
+        setNicknames((prev) => {
+          const next = { ...prev };
+          delete next[friendId];
+          return next;
+        });
+      } else {
+        const { error } = await supabase.from("friend_nicknames").upsert(
+          { user_id: user.id, friend_id: friendId, nickname: value },
+          { onConflict: "user_id,friend_id" },
+        );
+        if (error) throw new Error(error.message);
+        setNicknames((prev) => ({ ...prev, [friendId]: value }));
+      }
+      setEditingNickname(null);
+    } catch (e) {
+      setNicknameError(e instanceof Error ? e.message : "Couldn't save the nickname — try again.");
+    } finally {
+      setNicknameBusy(null);
+    }
+  }
+
+  /**
+   * Lazy trade-match counts per friend for the "Trade matches" filter chip.
+   * Fetched once, the first time the chip is turned on.
+   */
+  const loadTradeMatchCounts = useCallback(async () => {
+    if (!user || tradeMatchCounts || loadingTradeMatches) return;
+    setLoadingTradeMatches(true);
+    try {
+      const supabase = createClient();
+      const ids = friends
+        .map((f) => f.other?.id)
+        .filter((id): id is string => !!id);
+      const counts: Record<string, number> = {};
+      const mine = await fetchTradeLists(supabase, user.id);
+      if (ids.length > 0) {
+        const [wRes, tRes] = await Promise.all([
+          supabase.from("trade_wishlist").select("user_id, species_id").in("user_id", ids),
+          supabase.from("trade_list").select("user_id, species_id").in("user_id", ids),
+        ]);
+        if (wRes.error || tRes.error) throw new Error("trade lists unavailable");
+        const map: Record<string, TradeListPair> = {};
+        for (const id of ids) map[id] = { wishlist: [], forTrade: [] };
+        for (const e of ((wRes.data as (TradeEntry & { user_id: string })[] | null) ?? [])) {
+          if (map[e.user_id]) map[e.user_id].wishlist.push(e);
+        }
+        for (const e of ((tRes.data as (TradeEntry & { user_id: string })[] | null) ?? [])) {
+          if (map[e.user_id]) map[e.user_id].forTrade.push(e);
+        }
+        for (const id of ids) {
+          const { youHaveForThem, theyHaveForYou } = computeTradeMatches(mine, map[id]);
+          counts[id] = youHaveForThem.length + theyHaveForYou.length;
+        }
+      }
+      setTradeMatchCounts(counts);
+    } catch {
+      // Trade tables not migrated yet — treat everyone as having no matches.
+      setTradeMatchCounts({});
+    } finally {
+      setLoadingTradeMatches(false);
+    }
+  }, [user, friends, tradeMatchCounts, loadingTradeMatches]);
+
+  function toggleTradeChip() {
+    if (!tradeMatchOnly) void loadTradeMatchCounts();
+    setTradeMatchOnly(!tradeMatchOnly);
+  }
+
+  const filteredFriends = useMemo(() => {
+    const q = friendFilter.trim().toLowerCase();
+    return friends.filter(
+      (r): r is FriendRow & { other: FriendProfileSeen } => {
+        if (!r.other) return false;
+        if (q) {
+          const nick = (nicknames[r.other.id] ?? "").toLowerCase();
+          const uname = r.other.username.toLowerCase();
+          if (!nick.includes(q) && !uname.includes(q)) return false;
+        }
+        if (onlineOnly && !isOnline(r.other.last_seen)) return false;
+        if (tradeMatchOnly && (tradeMatchCounts?.[r.other.id] ?? 0) === 0) return false;
+        return true;
+      },
+    );
+  }, [friends, friendFilter, nicknames, onlineOnly, tradeMatchOnly, tradeMatchCounts]);
+
+  const friendsListFiltered =
+    friendFilter.trim() !== "" || onlineOnly || tradeMatchOnly;
 
   /** Friend-of-friend suggestions: accepted friendships are publicly readable. */
   const fetchSuggestions = useCallback(async () => {
@@ -1050,6 +1249,35 @@ export default function FriendsPage() {
             )}
           </form>
 
+          {/* Add friend by trainer code */}
+          <form onSubmit={(e) => void sendRequestByCode(e)} className={`${cardClass} mb-6`}>
+            <label htmlFor="friend-code" className="mb-2 block text-sm font-semibold text-slate-900 dark:text-slate-100">
+              Add a friend by trainer code
+            </label>
+            <div className="flex gap-2">
+              <input
+                id="friend-code"
+                value={codeInput}
+                onChange={(e) => setCodeInput(e.target.value.replace(/\D/g, "").slice(0, 12))}
+                className={`${inputClass} font-mono tracking-widest`}
+                placeholder="12-digit code"
+                maxLength={12}
+                inputMode="numeric"
+                autoComplete="off"
+              />
+              <button
+                type="submit"
+                disabled={searching || codeInput.trim() === ""}
+                className="shrink-0 rounded-lg bg-mint px-5 py-2 text-sm font-bold text-slate-900 shadow-sm transition hover:brightness-95 disabled:opacity-60 dark:text-slate-100"
+              >
+                {searching ? "…" : "Send request"}
+              </button>
+            </div>
+            <p className="mt-2 text-xs text-slate-400 dark:text-slate-500">
+              Tip: trainers can share their code from their profile page — or scan the QR.
+            </p>
+          </form>
+
           {loadingFriends ? (
             <p className="py-8 text-center text-sm text-slate-500 dark:text-slate-400">Loading friends…</p>
           ) : (
@@ -1170,29 +1398,159 @@ export default function FriendsPage() {
 
               {/* Friends list */}
               <section>
-                <SectionTitle>{`Friends (${friends.length})`}</SectionTitle>
+                <SectionTitle>
+                  {friendsListFiltered
+                    ? `Friends (${filteredFriends.length} of ${friends.length})`
+                    : `Friends (${friends.length})`}
+                </SectionTitle>
+                {nicknameError && (
+                  <p role="alert" className="mb-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950 dark:text-red-300">
+                    {nicknameError}
+                  </p>
+                )}
                 {friends.length === 0 ? (
                   <p className="text-sm text-slate-500 dark:text-slate-400">
                     No friends yet — send a request above to get started!
                   </p>
                 ) : (
+                  <>
+                    {/* Search + filter chips */}
+                    <div className="mb-4 space-y-2">
+                      <input
+                        type="search"
+                        value={friendFilter}
+                        onChange={(e) => setFriendFilter(e.target.value)}
+                        placeholder="Search friends…"
+                        aria-label="Search friends by name or nickname"
+                        className={inputClass}
+                      />
+                      <div className="flex flex-wrap gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setOnlineOnly((v) => !v)}
+                          aria-pressed={onlineOnly}
+                          className={`rounded-full border px-3 py-1 text-xs font-semibold transition ${
+                            onlineOnly
+                              ? "border-emerald-500 bg-emerald-50 text-emerald-700 dark:border-emerald-600 dark:bg-emerald-950 dark:text-emerald-300"
+                              : "border-stone-300 text-slate-500 hover:border-slate-400 hover:text-slate-700 dark:border-slate-600 dark:text-slate-400 dark:hover:text-slate-200"
+                          }`}
+                        >
+                          <span role="img" aria-hidden="true" className="mr-1">🟢</span>
+                          Online now
+                        </button>
+                        <button
+                          type="button"
+                          onClick={toggleTradeChip}
+                          aria-pressed={tradeMatchOnly}
+                          className={`rounded-full border px-3 py-1 text-xs font-semibold transition ${
+                            tradeMatchOnly
+                              ? "border-mint bg-mint/20 text-slate-900 dark:text-slate-100"
+                              : "border-stone-300 text-slate-500 hover:border-slate-400 hover:text-slate-700 dark:border-slate-600 dark:text-slate-400 dark:hover:text-slate-200"
+                          }`}
+                        >
+                          <span role="img" aria-hidden="true" className="mr-1">🔄</span>
+                          {loadingTradeMatches ? "Checking trades…" : "Trade matches"}
+                        </button>
+                        {friendsListFiltered && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setFriendFilter("");
+                              setOnlineOnly(false);
+                              setTradeMatchOnly(false);
+                            }}
+                            className="rounded-full px-3 py-1 text-xs font-semibold text-slate-400 underline-offset-2 hover:underline dark:text-slate-500"
+                          >
+                            Clear
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                    {filteredFriends.length === 0 ? (
+                      <p className="py-4 text-sm text-slate-500 dark:text-slate-400">
+                        No friends match — try a different search or clear the filters.
+                      </p>
+                    ) : (
                   <ul className="space-y-3">
-                    {friends.map((r) => {
+                    {filteredFriends.map((r) => {
+                      const name = displayName(r.other.id, r.other.username);
+                      const hasNickname = !!nicknames[r.other.id];
                       return (
                         <li key={r.id} className={`${cardClass} !p-4`}>
                           <div className="flex items-center gap-3">
                             <Avatar
-                              username={r.other?.username ?? "?"}
-                              avatarUrl={r.other?.avatar_url}
-                              online={isOnline(r.other?.last_seen)}
+                              username={r.other.username}
+                              avatarUrl={r.other.avatar_url}
+                              online={isOnline(r.other.last_seen)}
                             />
                             <div className="min-w-0 flex-1">
-                              <Link
-                                href={r.other ? `/trainer/${encodeURIComponent(r.other.username)}` : "#"}
-                                className="block truncate text-sm font-bold text-slate-900 hover:underline dark:text-slate-100"
-                              >
-                                {r.other?.username ?? "Unknown trainer"}
-                              </Link>
+                              {editingNickname === r.other.id ? (
+                                <form
+                                  onSubmit={(ev) => {
+                                    ev.preventDefault();
+                                    void saveNickname(r.other.id);
+                                  }}
+                                  className="flex items-center gap-1.5"
+                                >
+                                  <input
+                                    autoFocus
+                                    value={nicknameDraft}
+                                    onChange={(ev) => setNicknameDraft(ev.target.value)}
+                                    maxLength={30}
+                                    placeholder={r.other.username}
+                                    aria-label={`Nickname for ${r.other.username} (clear to remove)`}
+                                    className="w-36 rounded-md border border-stone-300 bg-white px-2 py-1 text-sm text-slate-900 focus:border-mint focus:outline-none focus:ring-2 focus:ring-mint/40 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100"
+                                  />
+                                  <button
+                                    type="submit"
+                                    disabled={nicknameBusy === r.other.id}
+                                    className="rounded-md bg-mint px-2.5 py-1 text-xs font-bold text-slate-900 disabled:opacity-60 dark:text-slate-100"
+                                  >
+                                    {nicknameBusy === r.other.id ? "…" : "Save"}
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setEditingNickname(null);
+                                      setNicknameDraft("");
+                                      setNicknameError(null);
+                                    }}
+                                    className="rounded-md px-2 py-1 text-xs font-medium text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+                                  >
+                                    Cancel
+                                  </button>
+                                </form>
+                              ) : (
+                                <div className="flex min-w-0 items-center gap-1.5">
+                                  <Link
+                                    href={`/trainer/${encodeURIComponent(r.other.username)}`}
+                                    className="truncate text-sm font-bold text-slate-900 hover:underline dark:text-slate-100"
+                                  >
+                                    {name}
+                                  </Link>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setEditingNickname(r.other.id);
+                                      setNicknameDraft(nicknames[r.other.id] ?? "");
+                                      setNicknameError(null);
+                                    }}
+                                    title={
+                                      hasNickname
+                                        ? `Edit nickname for ${r.other.username}`
+                                        : `Set a nickname for ${r.other.username}`
+                                    }
+                                    aria-label={
+                                      hasNickname
+                                        ? `Edit nickname for ${r.other.username}`
+                                        : `Set a nickname for ${r.other.username}`
+                                    }
+                                    className="shrink-0 rounded px-1 text-xs text-slate-400 transition hover:bg-stone-100 hover:text-slate-600 dark:text-slate-500 dark:hover:bg-slate-800 dark:hover:text-slate-300"
+                                  >
+                                    <span role="img" aria-hidden="true">✎</span>
+                                  </button>
+                                </div>
+                              )}
                               <div className="mt-1 flex items-center gap-3">
                                 <Link
                                   href="/messages"
@@ -1200,7 +1558,12 @@ export default function FriendsPage() {
                                 >
                                   Message
                                 </Link>
-                                {isOnline(r.other?.last_seen) && (
+                                {hasNickname && (
+                                  <span className="truncate text-xs text-slate-400 dark:text-slate-500">
+                                    @{r.other.username}
+                                  </span>
+                                )}
+                                {isOnline(r.other.last_seen) && (
                                   <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
                                     Online
                                   </span>
@@ -1230,7 +1593,7 @@ export default function FriendsPage() {
                                 type="button"
                                 onClick={() => setConfirmUnfriend(r.id)}
                                 className="shrink-0 rounded-lg px-2 py-1 text-xs font-medium text-slate-400 hover:bg-red-50 hover:text-red-600 dark:text-slate-500 dark:hover:bg-red-950 dark:hover:text-red-400"
-                                aria-label={`Unfriend ${r.other?.username ?? "trainer"}`}
+                                aria-label={`Unfriend ${name}`}
                               >
                                 Unfriend
                               </button>
@@ -1240,6 +1603,8 @@ export default function FriendsPage() {
                       );
                     })}
                   </ul>
+                    )}
+                  </>
                 )}
               </section>
             </div>

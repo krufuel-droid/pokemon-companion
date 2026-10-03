@@ -352,7 +352,7 @@ export default function MessagesPage() {
                     size={32}
                   />
                   <Link
-                    href={`/trainers/${encodeURIComponent(selectedFriend.username)}`}
+                    href={`/trainer/${encodeURIComponent(selectedFriend.username)}`}
                     className="text-sm font-bold text-slate-900 hover:underline dark:text-slate-100"
                   >
                     {selectedFriend.username}
