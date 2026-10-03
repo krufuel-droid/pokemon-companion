@@ -98,6 +98,55 @@ function ProfileSetupForm({ userId, onDone }: { userId: string; onDone: () => vo
   );
 }
 
+/** Sprite picker for the avatar field — search and tap a Pokémon. */
+function AvatarPicker({ value, onChange }: { value: string; onChange: (url: string) => void }) {
+  const [query, setQuery] = useState("");
+  const matches = useMemo(() => searchSpecies(query).slice(0, 12), [query]);
+
+  return (
+    <div>
+      {value && (
+        <div className="mb-2 flex items-center gap-3">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={value} alt="Selected avatar" width={56} height={56} className="h-14 w-14 rounded-full bg-stone-100 object-contain dark:bg-slate-800" />
+          <button
+            type="button"
+            onClick={() => { onChange(""); setQuery(""); }}
+            className="text-xs font-semibold text-slate-500 underline dark:text-slate-400"
+          >
+            Remove
+          </button>
+        </div>
+      )}
+      <input
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        className={inputClass}
+        placeholder="Search Pokémon…"
+        autoComplete="off"
+        aria-label="Search Pokémon for avatar"
+      />
+      {matches.length > 0 && (
+        <ul className="mt-1 grid max-h-48 grid-cols-6 gap-1 overflow-auto rounded-lg border border-stone-200 bg-white p-2 dark:border-slate-700 dark:bg-slate-900">
+          {matches.map((m) => (
+            <li key={m.id}>
+              <button
+                type="button"
+                onClick={() => { onChange(m.sprites.regular); setQuery(""); }}
+                title={m.name}
+                className={`rounded-lg p-1 transition hover:bg-stone-100 dark:hover:bg-slate-800 ${value === m.sprites.regular ? "ring-2 ring-mint" : ""}`}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={m.sprites.regular} alt={m.name} width={48} height={48} className="h-12 w-12 object-contain" loading="lazy" />
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
 /** Sprite preview for the favorite-Pokémon field (pure derivation, no effect). */
 function FavoritePreview({ name }: { name: string }) {
   const q = name.trim().toLowerCase();
@@ -301,17 +350,10 @@ function ProfileEditor({ profile, onSaved }: { profile: Profile; onSaved: () => 
             />
           </div>
           <div>
-            <label htmlFor="avatar" className={labelClass}>
-              Avatar image URL
+            <label className={labelClass}>
+              Avatar <span className="font-normal text-slate-400 dark:text-slate-500">(pick a Pokémon sprite)</span>
             </label>
-            <input
-              id="avatar"
-              type="url"
-              value={avatarUrl}
-              onChange={(e) => setAvatarUrl(e.target.value)}
-              className={inputClass}
-              placeholder="https://…"
-            />
+            <AvatarPicker value={avatarUrl} onChange={setAvatarUrl} />
           </div>
           <div>
             <label htmlFor="bio" className={labelClass}>
