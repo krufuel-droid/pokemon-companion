@@ -94,6 +94,23 @@ alter table messages add column if not exists read_at timestamptz;
 
 alter table profiles add column if not exists is_private boolean not null default false;
 
+create table if not exists guide_checklists (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references profiles(id) on delete cascade,
+  guide_slug text not null,
+  species_id integer not null,
+  species_name text not null,
+  caught_at timestamptz not null default now(),
+  unique (user_id, guide_slug, species_id)
+);
+comment on table guide_checklists is 'Per-guide caught checklists, synced across devices.';
+alter table guide_checklists enable row level security;
+
+drop policy if exists guide_checklists_owner_all on guide_checklists;
+create policy guide_checklists_owner_all on guide_checklists
+  for all using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
 -- ----------------------------------------------------------------------------
 -- nuzlockes
 -- Nuzlocke challenge runs: title, optional house rules text, and a status

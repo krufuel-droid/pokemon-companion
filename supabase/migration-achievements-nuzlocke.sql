@@ -392,6 +392,24 @@ comment on table trade_list is 'Pokémon a trainer is offering for trade.';
 -- Private profiles (added Oct 2026): when true, only friends can see full profile.
 alter table profiles add column if not exists is_private boolean not null default false;
 
+-- Guide caught checklists (added Oct 2026): per-guide per-user caught tracking, syncs across devices.
+create table if not exists guide_checklists (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references profiles(id) on delete cascade,
+  guide_slug text not null,
+  species_id integer not null,
+  species_name text not null,
+  caught_at timestamptz not null default now(),
+  unique (user_id, guide_slug, species_id)
+);
+comment on table guide_checklists is 'Per-guide caught checklists, synced across devices.';
+alter table guide_checklists enable row level security;
+
+drop policy if exists guide_checklists_owner_all on guide_checklists;
+create policy guide_checklists_owner_all on guide_checklists
+  for all using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
 -- Messages: read receipts for unread badges (added Oct 2026).
 alter table messages add column if not exists read_at timestamptz;
 
