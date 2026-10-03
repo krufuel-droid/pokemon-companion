@@ -322,7 +322,7 @@ export default function RunDetailPage({ params }: { params: Promise<{ id: string
       <div className={`${cardClass} mt-4`}>
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">{run.title}</h1>
+            <h1 className="break-words text-2xl font-bold text-slate-900 dark:text-slate-100">{run.title}</h1>
             {game && (
               <p className="mt-1 text-sm font-medium text-slate-600 dark:text-slate-400">
                 Playing: {game}
@@ -340,7 +340,7 @@ export default function RunDetailPage({ params }: { params: Promise<{ id: string
             <summary className="cursor-pointer text-sm font-semibold text-slate-700 dark:text-slate-300">
               House rules
             </summary>
-            <p className="mt-2 whitespace-pre-line text-sm text-slate-600 dark:text-slate-400">{rules}</p>
+            <p className="mt-2 break-words whitespace-pre-line text-sm text-slate-600 dark:text-slate-400">{rules}</p>
           </details>
         )}
         {isOwner && <OwnerStatusSetter run={run} onChanged={() => void refresh()} />}

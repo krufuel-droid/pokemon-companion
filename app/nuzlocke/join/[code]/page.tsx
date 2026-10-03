@@ -100,11 +100,20 @@ export default function JoinByInvitePage({ params }: { params: Promise<{ code: s
       const { error } = await supabase
         .from("nuzlocke_participants")
         .insert({ run_id: run.id, user_id: user.id });
-      if (error) throw error;
+      if (error) {
+        if (error.code === "23505") {
+          // Already a participant — just go to the run.
+          router.push(`/nuzlocke/${run.id}`);
+          return;
+        }
+        throw error;
+      }
       void unlockAchievement(user.id, "soul-link").catch(() => {});
       router.push(`/nuzlocke/${run.id}`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not join the run.");
+      const msg = err instanceof Error ? err.message : "Could not join the run.";
+      // Show the real error to help diagnose (e.g. missing profile, RLS).
+      setError(msg);
       setBusy(false);
     }
   }

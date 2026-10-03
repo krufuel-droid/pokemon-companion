@@ -253,7 +253,7 @@ export default function NuzlockePage() {
                 onChange={(e) => setTitle(e.target.value)}
                 className={inputClass}
                 placeholder="e.g. Scarlet Soul-Link with Sam"
-                maxLength={120}
+                maxLength={60}
               />
             </div>
             <div>
@@ -301,6 +301,8 @@ export default function NuzlockePage() {
                 value={rules}
                 onChange={(e) => setRules(e.target.value)}
                 className={inputClass}
+                maxLength={2000}
+                placeholder="1. Catch only the first Pokémon per area…"
               />
             </div>
             {createError && (
@@ -343,7 +345,7 @@ export default function NuzlockePage() {
             {ownedFirst.map((run) => (
               <Link key={run.id} href={`/nuzlocke/${run.id}`} className={`${cardClass} block transition hover:shadow-md`}>
                 <div className="flex items-start justify-between gap-3">
-                  <h2 className="font-bold text-slate-900 dark:text-slate-100">{run.title}</h2>
+                  <h2 className="break-words font-bold text-slate-900 dark:text-slate-100">{run.title}</h2>
                   <div className="flex shrink-0 items-center gap-2">
                     <RunTypeBadge type={run.run_type} />
                     <StatusBadge status={run.status} />
