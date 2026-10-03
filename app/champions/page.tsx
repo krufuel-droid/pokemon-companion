@@ -215,28 +215,45 @@ export default function ChampionsPage() {
             The actual six that lifted trophies — with items, natures, and
             movesets where tournament coverage published them.
           </p>
-          <div className="mt-4 space-y-6">
+          <div className="mt-4 space-y-3">
             {FEATURED_TEAMS.map((team) => (
-              <article
+              <details
                 key={`${team.event}-${team.player}`}
-                className="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700"
+                className="group overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700"
               >
-                <div className="border-b border-slate-100 bg-slate-50/60 px-6 py-4 dark:border-slate-800 dark:bg-slate-800/60">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="rounded-full bg-mint px-2.5 py-0.5 text-xs font-bold text-slate-900 dark:text-slate-100">
+                <summary className="cursor-pointer list-none px-6 py-4 marker:hidden [&::-webkit-details-marker]:hidden">
+                  <div className="flex items-center gap-3">
+                    <span className="shrink-0 rounded-full bg-mint px-2.5 py-0.5 text-xs font-bold text-slate-900 dark:text-slate-100">
                       {team.placement}
                     </span>
-                    <span className="text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">
-                      {team.date}
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-base font-extrabold text-slate-900 dark:text-slate-100">
+                        {team.event}
+                      </span>
+                      <span className="mt-0.5 block text-sm text-slate-500 dark:text-slate-400">
+                        {team.player} · {team.date}
+                      </span>
                     </span>
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 20 20"
+                      aria-hidden="true"
+                      className="shrink-0 text-slate-400 transition-transform group-open:rotate-180"
+                    >
+                      <path
+                        d="M5 7l5 5 5-5"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
                   </div>
-                  <h3 className="mt-2 text-lg font-extrabold text-slate-900 dark:text-slate-100">
-                    {team.event}
-                  </h3>
-                  <p className="text-sm font-semibold text-slate-600 dark:text-slate-400">
-                    {team.player}
-                  </p>
-                  <p className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
+                </summary>
+                <div className="border-t border-slate-100 px-6 py-4 dark:border-slate-800">
+                  <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-400">
                     {team.headline}
                   </p>
                 </div>
@@ -306,7 +323,7 @@ export default function ChampionsPage() {
                     {team.footnote}
                   </p>
                 )}
-              </article>
+              </details>
             ))}
           </div>
         </section>

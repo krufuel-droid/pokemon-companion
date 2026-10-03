@@ -591,7 +591,7 @@ export function EncountersSection({ speciesId }: { speciesId: number }) {
           )}
 
           {status.state === "ready" && (
-            <GameList games={status.games} />
+            <GamePicker games={status.games} />
           )}
         </>
       )}
@@ -599,75 +599,54 @@ export function EncountersSection({ speciesId }: { speciesId: number }) {
   );
 }
 
-function GameList({ games }: { games: GameEncounters[] }) {
-  return (
-    <div className="mt-4 space-y-2">
-      {games.map((g) => (
-        <GameBlock key={g.version} game={g} />
-      ))}
-    </div>
-  );
-}
-
 /**
- * One game as its own collapsed dropdown, e.g. "Pokémon Scarlet · 8 locations".
- * Collapsed by default so a 21-game encounter list stays a tidy stack of rows
- * instead of a ten-minute scroll — tapping a game reveals its locations.
+ * A single game dropdown: pick a game, see its encounter locations below.
+ * Keeps the section compact no matter how many games the Pokémon appears in.
  */
-function GameBlock({ game }: { game: GameEncounters }) {
-  const [open, setOpen] = useState(false);
-  const groups = useMemo(() => groupRows(game.rows), [game.rows]);
+function GamePicker({ games }: { games: GameEncounters[] }) {
+  const [selected, setSelected] = useState(games[0]?.version ?? "");
+  const game = games.find((g) => g.version === selected) ?? games[0];
+  const groups = useMemo(() => groupRows(game?.rows ?? []), [game]);
+  const counts = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const g of games) map.set(g.version, groupRows(g.rows).length);
+    return map;
+  }, [games]);
+
+  if (!game) return null;
+
   return (
-    <div className="rounded-xl bg-slate-50 ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        aria-expanded={open}
-        aria-label={`${open ? "Collapse" : "Expand"} encounter locations for ${
-          game.game
-        }`}
-        className="flex w-full items-center gap-3 px-4 py-3 text-left"
+    <div className="mt-4">
+      <label
+        htmlFor="encounter-game"
+        className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300"
       >
-        <span className="min-w-0 flex-1">
-          <span className="block truncate text-sm font-bold text-slate-800 dark:text-slate-100">
-            {game.game}
-          </span>
-          <span className="mt-0.5 block text-xs text-slate-500 dark:text-slate-400">
-            {groups.length}{" "}
-            {groups.length === 1 ? "location" : "locations"}
-          </span>
-        </span>
-        <svg
-          width="18"
-          height="18"
-          viewBox="0 0 20 20"
-          aria-hidden="true"
-          className={`shrink-0 text-slate-400 transition-transform ${
-            open ? "rotate-180" : ""
-          }`}
-        >
-          <path
-            d="M5 7l5 5 5-5"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
+        Game
+      </label>
+      <select
+        id="encounter-game"
+        value={game.version}
+        onChange={(e) => setSelected(e.target.value)}
+        className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-mint focus:outline-none focus:ring-2 focus:ring-mint/40 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100"
+      >
+        {games.map((g) => (
+          <option key={g.version} value={g.version}>
+            {g.game} · {groupRows(g.rows).length}{" "}
+            {groupRows(g.rows).length === 1 ? "location" : "locations"}
+          </option>
+        ))}
+      </select>
+
+      <ul className="mt-3 divide-y divide-slate-100 rounded-xl bg-slate-50 ring-1 ring-slate-200 dark:divide-slate-700/60 dark:bg-slate-800 dark:ring-slate-700">
+        {groups.map((group) => (
+          <LocationGroupRow
+            key={`${group.location}|${group.method}`}
+            group={group}
+            game={game.game}
+            version={game.version}
           />
-        </svg>
-      </button>
-      {open && (
-        <ul className="divide-y divide-slate-100 border-t border-slate-200 dark:divide-slate-700/60 dark:border-slate-700">
-          {groups.map((group) => (
-            <LocationGroupRow
-              key={`${group.location}|${group.method}`}
-              group={group}
-              game={game.game}
-              version={game.version}
-            />
-          ))}
-        </ul>
-      )}
+        ))}
+      </ul>
     </div>
   );
 }
