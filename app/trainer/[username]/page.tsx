@@ -109,7 +109,7 @@ export default async function TrainerProfilePage({
   const supabase = await createClient();
 
   const fullCols =
-    "id, username, avatar_url, bio, favorite_pokemon, buddy_species_id, buddy_nickname, last_seen, created_at";
+    "id, username, avatar_url, bio, favorite_pokemon, buddy_species_id, buddy_nickname, last_seen, is_private, created_at";
   const minimalCols = "id, username, avatar_url, bio, favorite_pokemon, created_at";
   let { data: profileData } = await supabase
     .from("profiles")

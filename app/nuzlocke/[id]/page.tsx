@@ -548,7 +548,10 @@ function JoinRunButton({ runId, onJoined }: { runId: string; onJoined: () => voi
   const [error, setError] = useState<string | null>(null);
 
   async function join() {
-    if (!user) return;
+    if (!user) {
+      setError("Not signed in (session missing). Try signing out and back in.");
+      return;
+    }
     setBusy(true);
     setError(null);
     try {
@@ -579,7 +582,9 @@ function JoinRunButton({ runId, onJoined }: { runId: string; onJoined: () => voi
       void unlockAchievement(user.id, "soul-link").catch(() => {});
       onJoined();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not join the run.");
+      const msg = err instanceof Error && err.message ? err.message : "Could not join the run.";
+      console.error("Join run failed:", err);
+      setError(`Join failed: ${msg}`);
     } finally {
       setBusy(false);
     }

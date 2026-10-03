@@ -81,7 +81,10 @@ export default function JoinByInvitePage({ params }: { params: Promise<{ code: s
   }, [code, user]);
 
   async function join() {
-    if (!user || !run) return;
+    if (!user || !run) {
+      if (!user) setError("Not signed in (session missing). Try signing out and back in.");
+      return;
+    }
     setBusy(true);
     setError(null);
     try {

@@ -886,6 +886,23 @@ function ProfileEditor({ profile, onSaved }: { profile: Profile; onSaved: () => 
               Profile saved!
             </p>
           )}
+          <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-stone-200 bg-stone-50 px-4 py-3 dark:border-slate-700 dark:bg-slate-800">
+            <input
+              type="checkbox"
+              checked={isPrivate}
+              onChange={(e) => setIsPrivate(e.target.checked)}
+              className="mt-1 h-4 w-4 accent-emerald-600"
+            />
+            <span>
+              <span className="block text-sm font-semibold text-slate-900 dark:text-slate-100">
+                🔒 Private profile
+              </span>
+              <span className="mt-0.5 block text-xs text-slate-500 dark:text-slate-400">
+                Only your friends can see your full profile, buddy, and trade lists. Your username
+                stays visible so people can find you.
+              </span>
+            </span>
+          </label>
           <button
             type="submit"
             disabled={busy}
