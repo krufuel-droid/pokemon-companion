@@ -740,6 +740,7 @@ function ProfileEditor({ profile, onSaved }: { profile: Profile; onSaved: () => 
   const [favorite, setFavorite] = useState(profile.favorite_pokemon ?? "");
   const [buddySpeciesId, setBuddySpeciesId] = useState<number | null>(profile.buddy_species_id ?? null);
   const [buddyNickname, setBuddyNickname] = useState(profile.buddy_nickname ?? "");
+  const [isPrivate, setIsPrivate] = useState(profile.is_private ?? false);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -765,6 +766,7 @@ function ProfileEditor({ profile, onSaved }: { profile: Profile; onSaved: () => 
           favorite_pokemon: favorite.trim() === "" ? null : favorite.trim(),
           buddy_species_id: buddySpeciesId,
           buddy_nickname: buddyNickname.trim() === "" ? null : buddyNickname.trim().slice(0, 30),
+          is_private: isPrivate,
         })
         .eq("id", profile.id);
       if (error) {

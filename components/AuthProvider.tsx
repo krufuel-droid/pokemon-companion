@@ -25,6 +25,8 @@ export interface Profile {
   buddy_nickname: string | null;
   /** Section 5: shareable 12-digit trainer code (null until the SQL is run). */
   trainer_code: string | null;
+  /** When true, only friends can see the full profile. */
+  is_private: boolean;
   created_at: string;
 }
 
@@ -94,7 +96,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const fetchProfile = useCallback(async (userId: string) => {
     try {
       const supabase = createClient();
-      const full = "id, username, avatar_url, bio, favorite_pokemon, buddy_species_id, buddy_nickname, trainer_code, created_at";
+      const full = "id, username, avatar_url, bio, favorite_pokemon, buddy_species_id, buddy_nickname, trainer_code, is_private, created_at";
       const minimal = "id, username, avatar_url, bio, favorite_pokemon, created_at";
       let { data } = await supabase
         .from("profiles")
