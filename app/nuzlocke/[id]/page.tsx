@@ -547,66 +547,46 @@ function JoinRunButton({ runId, onJoined }: { runId: string; onJoined: () => voi
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const [debugStep, setDebugStep] = useState<string | null>(null);
-
   async function join() {
-    const mark = (s: string) => {
-      setDebugStep(s);
-      try { localStorage.setItem("join-debug", s); } catch {}
-    };
-    mark("start");
     if (!user) {
-      mark("no-user");
-      setError("Not signed in (session missing). Try signing out and back in.");
+      setError("Not signed in. Try signing out and back in.");
       return;
     }
     setBusy(true);
     setError(null);
     try {
-      mark("creating-client");
       const supabase = createClient();
-      mark("checking-profile");
+      // The user needs a trainer profile before they can join — the
+      // participants table references profiles(id).
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("id")
         .eq("id", user.id)
         .maybeSingle();
-      mark("profile-checked");
       if (profileError) throw profileError;
       if (!profile) {
         setError("Set up your trainer profile first, then join the run.");
         setBusy(false);
         return;
       }
-      mark("inserting");
-      const insertPayload = { run_id: runId, user_id: user.id };
-      mark(`inserting run:${runId.slice(0,8)} user:${user.id.slice(0,8)}`);
-      const { data: insertData, error } = await supabase
+      const { error } = await supabase
         .from("nuzlocke_participants")
-        .insert(insertPayload)
-        .select("id")
-        .single();
-      mark(insertData ? `inserted id:${(insertData as { id: string }).id.slice(0,8)}` : "inserted-no-data");
+        .insert({ run_id: runId, user_id: user.id });
       if (error) {
         if (error.code === "23505") {
-          mark("already-a-participant");
-          setError("✅ You're already in this run! If you don't see yourself, the list isn't refreshing.");
-          setBusy(false);
+          // Already a participant — refresh to show the updated list.
+          onJoined();
           return;
         }
         throw error;
       }
       void unlockAchievement(user.id, "soul-link").catch(() => {});
-      mark(`SUCCESS! Inserted. Run:${runId.slice(0,8)} User:${user.id.slice(0,8)}`);
-      setError(`✅ Joined! If you don't see yourself in Trainers, the list isn't refreshing.`);
-      setBusy(false);
-      return;
+      onJoined();
     } catch (err) {
       const msg = err instanceof Error && err.message ? err.message : "Could not join the run.";
       console.error("Join run failed:", err);
-      setError(`Join failed: ${msg} (code: ${(err as { code?: string })?.code ?? "none"})`);
+      setError(msg);
     } finally {
-      mark("done");
       setBusy(false);
     }
   }
@@ -630,9 +610,6 @@ function JoinRunButton({ runId, onJoined }: { runId: string; onJoined: () => voi
             </Link>
           )}
         </p>
-      )}
-      {debugStep && (
-        <p className="mt-1 text-xs text-slate-400">Debug: {debugStep}</p>
       )}
     </div>
   );
