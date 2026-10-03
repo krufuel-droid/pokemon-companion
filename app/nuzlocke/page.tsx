@@ -86,6 +86,22 @@ export default function NuzlockePage() {
   const [participantCounts, setParticipantCounts] = useState<Record<string, number>>({});
   const [aliveCounts, setAliveCounts] = useState<Record<string, number>>({});
   const [dataLoading, setDataLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  async function deleteRun(runId: string) {
+    if (!confirm("Delete this run? This can't be undone. (Memorials are kept.)")) return;
+    setDeletingId(runId);
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.from("nuzlockes").delete().eq("id", runId);
+      if (error) throw error;
+      setRuns((prev) => prev.filter((r) => r.id !== runId));
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Could not delete the run.");
+    } finally {
+      setDeletingId(null);
+    }
+  }
 
   const [showForm, setShowForm] = useState(false);
   const [title, setTitle] = useState("");
@@ -343,19 +359,36 @@ export default function NuzlockePage() {
         ) : (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {ownedFirst.map((run) => (
-              <Link key={run.id} href={`/nuzlocke/${run.id}`} className={`${cardClass} block transition hover:shadow-md`}>
-                <div className="flex items-start justify-between gap-3">
-                  <h2 className="break-words font-bold text-slate-900 dark:text-slate-100">{run.title}</h2>
-                  <div className="flex shrink-0 items-center gap-2">
-                    <RunTypeBadge type={run.run_type} />
-                    <StatusBadge status={run.status} />
+              <div key={run.id} className={`${cardClass} relative transition hover:shadow-md`}>
+                <Link href={`/nuzlocke/${run.id}`} className="block">
+                  <div className="flex items-start justify-between gap-3">
+                    <h2 className="break-words font-bold text-slate-900 dark:text-slate-100">{run.title}</h2>
+                    <div className="flex shrink-0 items-center gap-2">
+                      <RunTypeBadge type={run.run_type} />
+                      <StatusBadge status={run.status} />
+                    </div>
                   </div>
-                </div>
-                <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm text-slate-600 dark:text-slate-400">
-                  <span>{participantCounts[run.id] ?? 0} trainer{(participantCounts[run.id] ?? 0) === 1 ? "" : "s"}</span>
-                  <span>{aliveCounts[run.id] ?? 0} of yours alive</span>
-                </div>
-              </Link>
+                  <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm text-slate-600 dark:text-slate-400">
+                    <span>{participantCounts[run.id] ?? 0} trainer{(participantCounts[run.id] ?? 0) === 1 ? "" : "s"}</span>
+                    <span>{aliveCounts[run.id] ?? 0} of yours alive</span>
+                  </div>
+                </Link>
+                {run.owner_id === user?.id && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      void deleteRun(run.id);
+                    }}
+                    disabled={deletingId === run.id}
+                    className="absolute right-4 top-4 rounded-lg px-2 py-1 text-xs font-bold text-red-600 hover:bg-red-50 disabled:opacity-50 dark:text-red-400 dark:hover:bg-red-950"
+                    aria-label={`Delete ${run.title}`}
+                  >
+                    {deletingId === run.id ? "…" : "✕"}
+                  </button>
+                )}
+              </div>
             ))}
           </div>
         )}
