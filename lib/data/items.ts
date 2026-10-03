@@ -12,7 +12,8 @@ export type ItemCategory =
   | "mega-stone"
   | "evolution-stone"
   | "evolution-item"
-  | "battle-item";
+  | "battle-item"
+  | "mint";
 
 export interface ItemEntry {
   name: string;
@@ -30,6 +31,7 @@ export const CATEGORY_LABEL: Record<ItemCategory, string> = {
   "evolution-stone": "Evolution Stones",
   "evolution-item": "Evolution Items",
   "battle-item": "Battle Items",
+  "mint": "Mints",
 };
 
 const MEGA_GAMES = [
@@ -407,6 +409,178 @@ export const ITEMS: ItemEntry[] = [
     pokemon: [],
     games: ["Diamond/Pearl", "Black/White", "X/Y", "Sword/Shield", "Scarlet/Violet"],
     obtain: "Delibird Presents (SV); Battle Tower BP (SwSh, D/P)",
+  },
+
+  // ---- Mints (change stat growth to match a nature) ----
+  // Mints don't change the Pokémon's actual nature — only which stats grow
+  // faster/slower. Introduced in Sword/Shield.
+  {
+    name: "Lonely Mint",
+    category: "mint",
+    description: "Changes stat growth to Lonely: ↑ Attack, ↓ Defense.",
+    pokemon: [],
+    games: ["Sword/Shield", "Scarlet/Violet"],
+    obtain: "Battle Tower for 20 BP (SwSh); Chansey Supply for ₽20,000 (SV)",
+  },
+  {
+    name: "Adamant Mint",
+    category: "mint",
+    description: "Changes stat growth to Adamant: ↑ Attack, ↓ Sp. Atk.",
+    pokemon: [],
+    games: ["Sword/Shield", "Scarlet/Violet"],
+    obtain: "Battle Tower for 20 BP (SwSh); Chansey Supply for ₽20,000 (SV)",
+  },
+  {
+    name: "Naughty Mint",
+    category: "mint",
+    description: "Changes stat growth to Naughty: ↑ Attack, ↓ Sp. Def.",
+    pokemon: [],
+    games: ["Sword/Shield", "Scarlet/Violet"],
+    obtain: "Battle Tower for 20 BP (SwSh); Chansey Supply for ₽20,000 (SV)",
+  },
+  {
+    name: "Brave Mint",
+    category: "mint",
+    description: "Changes stat growth to Brave: ↑ Attack, ↓ Speed.",
+    pokemon: [],
+    games: ["Sword/Shield", "Scarlet/Violet"],
+    obtain: "Battle Tower for 20 BP (SwSh); Chansey Supply for ₽20,000 (SV)",
+  },
+  {
+    name: "Bold Mint",
+    category: "mint",
+    description: "Changes stat growth to Bold: ↑ Defense, ↓ Attack.",
+    pokemon: [],
+    games: ["Sword/Shield", "Scarlet/Violet"],
+    obtain: "Battle Tower for 20 BP (SwSh); Chansey Supply for ₽20,000 (SV)",
+  },
+  {
+    name: "Impish Mint",
+    category: "mint",
+    description: "Changes stat growth to Impish: ↑ Defense, ↓ Sp. Atk.",
+    pokemon: [],
+    games: ["Sword/Shield", "Scarlet/Violet"],
+    obtain: "Battle Tower for 20 BP (SwSh); Chansey Supply for ₽20,000 (SV)",
+  },
+  {
+    name: "Lax Mint",
+    category: "mint",
+    description: "Changes stat growth to Lax: ↑ Defense, ↓ Sp. Def.",
+    pokemon: [],
+    games: ["Sword/Shield", "Scarlet/Violet"],
+    obtain: "Battle Tower for 20 BP (SwSh); Chansey Supply for ₽20,000 (SV)",
+  },
+  {
+    name: "Relaxed Mint",
+    category: "mint",
+    description: "Changes stat growth to Relaxed: ↑ Defense, ↓ Speed.",
+    pokemon: [],
+    games: ["Sword/Shield", "Scarlet/Violet"],
+    obtain: "Battle Tower for 20 BP (SwSh); Chansey Supply for ₽20,000 (SV)",
+  },
+  {
+    name: "Modest Mint",
+    category: "mint",
+    description: "Changes stat growth to Modest: ↑ Sp. Atk, ↓ Attack.",
+    pokemon: [],
+    games: ["Sword/Shield", "Scarlet/Violet"],
+    obtain: "Battle Tower for 20 BP (SwSh); Chansey Supply for ₽20,000 (SV)",
+  },
+  {
+    name: "Mild Mint",
+    category: "mint",
+    description: "Changes stat growth to Mild: ↑ Sp. Atk, ↓ Defense.",
+    pokemon: [],
+    games: ["Sword/Shield", "Scarlet/Violet"],
+    obtain: "Battle Tower for 20 BP (SwSh); Chansey Supply for ₽20,000 (SV)",
+  },
+  {
+    name: "Rash Mint",
+    category: "mint",
+    description: "Changes stat growth to Rash: ↑ Sp. Atk, ↓ Sp. Def.",
+    pokemon: [],
+    games: ["Sword/Shield", "Scarlet/Violet"],
+    obtain: "Battle Tower for 20 BP (SwSh); Chansey Supply for ₽20,000 (SV)",
+  },
+  {
+    name: "Quiet Mint",
+    category: "mint",
+    description: "Changes stat growth to Quiet: ↑ Sp. Atk, ↓ Speed.",
+    pokemon: [],
+    games: ["Sword/Shield", "Scarlet/Violet"],
+    obtain: "Battle Tower for 20 BP (SwSh); Chansey Supply for ₽20,000 (SV)",
+  },
+  {
+    name: "Calm Mint",
+    category: "mint",
+    description: "Changes stat growth to Calm: ↑ Sp. Def, ↓ Attack.",
+    pokemon: [],
+    games: ["Sword/Shield", "Scarlet/Violet"],
+    obtain: "Battle Tower for 20 BP (SwSh); Chansey Supply for ₽20,000 (SV)",
+  },
+  {
+    name: "Gentle Mint",
+    category: "mint",
+    description: "Changes stat growth to Gentle: ↑ Sp. Def, ↓ Defense.",
+    pokemon: [],
+    games: ["Sword/Shield", "Scarlet/Violet"],
+    obtain: "Battle Tower for 20 BP (SwSh); Chansey Supply for ₽20,000 (SV)",
+  },
+  {
+    name: "Careful Mint",
+    category: "mint",
+    description: "Changes stat growth to Careful: ↑ Sp. Def, ↓ Sp. Atk.",
+    pokemon: [],
+    games: ["Sword/Shield", "Scarlet/Violet"],
+    obtain: "Battle Tower for 20 BP (SwSh); Chansey Supply for ₽20,000 (SV)",
+  },
+  {
+    name: "Sassy Mint",
+    category: "mint",
+    description: "Changes stat growth to Sassy: ↑ Sp. Def, ↓ Speed.",
+    pokemon: [],
+    games: ["Sword/Shield", "Scarlet/Violet"],
+    obtain: "Battle Tower for 20 BP (SwSh); Chansey Supply for ₽20,000 (SV)",
+  },
+  {
+    name: "Timid Mint",
+    category: "mint",
+    description: "Changes stat growth to Timid: ↑ Speed, ↓ Attack.",
+    pokemon: [],
+    games: ["Sword/Shield", "Scarlet/Violet"],
+    obtain: "Battle Tower for 20 BP (SwSh); Chansey Supply for ₽20,000 (SV)",
+  },
+  {
+    name: "Hasty Mint",
+    category: "mint",
+    description: "Changes stat growth to Hasty: ↑ Speed, ↓ Defense.",
+    pokemon: [],
+    games: ["Sword/Shield", "Scarlet/Violet"],
+    obtain: "Battle Tower for 20 BP (SwSh); Chansey Supply for ₽20,000 (SV)",
+  },
+  {
+    name: "Jolly Mint",
+    category: "mint",
+    description: "Changes stat growth to Jolly: ↑ Speed, ↓ Sp. Atk.",
+    pokemon: [],
+    games: ["Sword/Shield", "Scarlet/Violet"],
+    obtain: "Battle Tower for 20 BP (SwSh); Chansey Supply for ₽20,000 (SV)",
+  },
+  {
+    name: "Naive Mint",
+    category: "mint",
+    description: "Changes stat growth to Naive: ↑ Speed, ↓ Sp. Def.",
+    pokemon: [],
+    games: ["Sword/Shield", "Scarlet/Violet"],
+    obtain: "Battle Tower for 20 BP (SwSh); Chansey Supply for ₽20,000 (SV)",
+  },
+  {
+    name: "Serious Mint",
+    category: "mint",
+    description: "Changes stat growth to Serious: neutral, no stat changes. Resets any mint effect.",
+    pokemon: [],
+    games: ["Sword/Shield", "Scarlet/Violet"],
+    obtain: "Battle Tower for 20 BP (SwSh); Chansey Supply for ₽20,000 (SV)",
   },
   {
     name: "Choice Band",
