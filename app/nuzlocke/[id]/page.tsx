@@ -9,6 +9,7 @@ import SupabaseNeeded from "@/components/SupabaseNeeded";
 import { searchSpecies, type SpeciesIndex } from "@/lib/pokedex";
 import { unlockAchievement } from "@/lib/achievements";
 import { timeAgo } from "@/lib/community";
+import BattleLog from "@/components/BattleLog";
 import { unpackGame } from "../page";
 import { getLocationsForGame } from "@/lib/data/games";
 import RunTypeBadge from "@/components/RunTypeBadge";
@@ -430,6 +431,8 @@ export default function RunDetailPage({ params }: { params: Promise<{ id: string
           )}
         </div>
       </section>
+
+      {run && <BattleLog runId={run.id} onChanged={refresh} />}
     </div>
   );
 }
