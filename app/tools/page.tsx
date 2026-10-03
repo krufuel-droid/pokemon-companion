@@ -45,8 +45,8 @@ const TEAM_TOOLS: Tool[] = [
 const REFERENCE: Tool[] = [
   {
     href: "/tools/sandwiches",
-    title: "Shiny Sandwich Recipes",
-    desc: "Sparkling Power Lv. 3 sandwich recipes for every type in Scarlet/Violet.",
+    title: "Sandwich Guide",
+    desc: "Every sandwich recipe sorted by what it does — shiny hunting, breeding, raids, and more.",
   },
 ];
 
