@@ -6,6 +6,7 @@ import { useAuth } from "@/components/AuthProvider";
 import { incrementRecord } from "@/lib/achievements";
 import { POKEMON_GAMES } from "@/lib/data/games";
 import { speciesAppearsInGame, checkCatchLocation, encounterLocations } from "@/lib/game-validation";
+import { GAME_LOCATIONS } from "@/lib/data/game-locations";
 
 export default function DailyCatchLogger({
   speciesId,
@@ -41,7 +42,8 @@ export default function DailyCatchLogger({
       .catch(() => {});
   }, [user, potdDate]);
 
-  // Load real encounter locations whenever the game changes.
+  // Load locations whenever the game changes: species-specific encounter
+  // data first, then the built-in per-game location list as backbone.
   useEffect(() => {
     if (!open) return;
     let cancelled = false;
@@ -51,11 +53,15 @@ export default function DailyCatchLogger({
     encounterLocations(speciesId, game)
       .then((locs) => {
         if (cancelled) return;
-        setLocations(locs);
-        if (locs.length > 0) setLocation(locs[0]);
+        const list = locs.length > 0 ? locs : (GAME_LOCATIONS[game] ?? []);
+        setLocations(list);
+        if (list.length > 0) setLocation(list[0]);
       })
       .catch(() => {
-        if (!cancelled) setLocations([]);
+        if (cancelled) return;
+        const list = GAME_LOCATIONS[game] ?? [];
+        setLocations(list);
+        if (list.length > 0) setLocation(list[0]);
       })
       .finally(() => {
         if (!cancelled) setLocationsLoading(false);
