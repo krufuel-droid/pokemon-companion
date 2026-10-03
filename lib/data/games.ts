@@ -70,10 +70,29 @@ function prettyLabel(key: string, loc: MapLocation): string {
     .join(" ");
 }
 
-/** Sorted, deduplicated human-readable location names for a game. */
+/** Sorted, deduplicated human-readable location names for a game.
+ *  Matching is fuzzy: "Scarlet" matches "Pokémon Scarlet & Violet". */
 export function getLocationsForGame(game: string | null): string[] {
   if (!game) return [];
-  const region = GAME_REGION[game];
+  const norm = (s: string) =>
+    s.toLowerCase().replace(/pokémon\s*/i, "").replace(/[^a-z0-9]+/g, " ").trim();
+  const needle = norm(game);
+  const needleWords = new Set(needle.split(" ").filter(Boolean));
+  let region: Record<string, MapLocation> | undefined;
+  for (const [title, locs] of Object.entries(GAME_REGION)) {
+    if (title.toLowerCase() === game.toLowerCase()) {
+      region = locs;
+      break;
+    }
+    const hayWords = new Set(norm(title).split(" ").filter(Boolean));
+    // Match when every word of the shorter name appears in the longer one.
+    const [shorter, longer] =
+      needleWords.size <= hayWords.size ? [needleWords, hayWords] : [hayWords, needleWords];
+    if (shorter.size > 0 && [...shorter].every((w) => longer.has(w))) {
+      region = locs;
+      break;
+    }
+  }
   if (!region) return [];
   const names = new Set<string>();
   for (const [key, loc] of Object.entries(region)) {
