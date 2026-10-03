@@ -10,6 +10,7 @@ import { searchSpecies, type SpeciesIndex } from "@/lib/pokedex";
 import { unlockAchievement } from "@/lib/achievements";
 import { timeAgo } from "@/lib/community";
 import { unpackGame } from "../page";
+import { getLocationsForGame } from "@/lib/data/games";
 
 const cardClass =
   "rounded-2xl border border-stone-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900";
@@ -367,7 +368,7 @@ export default function RunDetailPage({ params }: { params: Promise<{ id: string
 
       {/* Teams */}
       <section className="mt-8 space-y-8">
-        {isParticipant && <AddPokemonForm runId={id} onAdded={() => void refresh()} />}
+        {isParticipant && <AddPokemonForm runId={id} game={game} onAdded={() => void refresh()} />}
         {orderedParticipants.length === 0 && (
           <p className="text-sm text-slate-500 dark:text-slate-400">No trainers in this run yet.</p>
         )}
@@ -577,7 +578,7 @@ function OwnerStatusSetter({ run, onChanged }: { run: Run; onChanged: () => void
 /* Add a Pokémon                                                         */
 /* ------------------------------------------------------------------ */
 
-function AddPokemonForm({ runId, onAdded }: { runId: string; onAdded: () => void }) {
+function AddPokemonForm({ runId, game, onAdded }: { runId: string; game: string | null; onAdded: () => void }) {
   const { user } = useAuth();
   const [query, setQuery] = useState("");
   const [species, setSpecies] = useState<SpeciesIndex | null>(null);
@@ -588,6 +589,7 @@ function AddPokemonForm({ runId, onAdded }: { runId: string; onAdded: () => void
   const [error, setError] = useState<string | null>(null);
 
   const matches = useMemo(() => (species ? [] : searchSpecies(query).slice(0, 6)), [query, species]);
+  const locations = useMemo(() => getLocationsForGame(game), [game]);
 
   async function add(e: FormEvent) {
     e.preventDefault();
@@ -680,7 +682,30 @@ function AddPokemonForm({ runId, onAdded }: { runId: string; onAdded: () => void
           </div>
           <div>
             <label htmlFor="add-location" className={labelClass}>Met at</label>
-            <input id="add-location" value={location} onChange={(e) => setLocation(e.target.value)} className={inputClass} placeholder="Route 1" maxLength={60} />
+            {locations.length > 0 ? (
+              <select
+                id="add-location"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                className={inputClass}
+              >
+                <option value="">— Select location —</option>
+                {locations.map((loc) => (
+                  <option key={loc} value={loc}>
+                    {loc}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <input
+                id="add-location"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                className={inputClass}
+                placeholder="Route 1"
+                maxLength={60}
+              />
+            )}
           </div>
           <div>
             <label htmlFor="add-level" className={labelClass}>Level</label>
@@ -799,13 +824,25 @@ function TeamCard({
         <span className="absolute right-2 top-2 text-2xl" aria-label="Fainted" role="img">🪦</span>
       )}
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={spriteUrl(row.species_id)}
-        alt={row.species_name}
-        width={72}
-        height={72}
-        className={`mx-auto h-[72px] w-[72px] ${row.status === "dead" ? "opacity-60 grayscale" : ""}`}
-      />
+      <div className="relative mx-auto h-[72px] w-[72px]">
+        <img
+          src={spriteUrl(row.species_id)}
+          alt={row.species_name}
+          width={72}
+          height={72}
+          className={`h-[72px] w-[72px] ${row.status === "dead" ? "opacity-60 grayscale" : ""}`}
+        />
+        {row.status === "dead" && (
+          <svg
+            viewBox="0 0 72 72"
+            aria-hidden="true"
+            className="absolute inset-0 h-[72px] w-[72px]"
+          >
+            <line x1="14" y1="14" x2="58" y2="58" stroke="#dc2626" strokeWidth="7" strokeLinecap="round" />
+            <line x1="58" y1="14" x2="14" y2="58" stroke="#dc2626" strokeWidth="7" strokeLinecap="round" />
+          </svg>
+        )}
+      </div>
       <p className="mt-1 truncate text-center text-sm font-bold text-slate-900 dark:text-slate-100" title={title}>
         {row.nickname ?? row.species_name}
       </p>

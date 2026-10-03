@@ -7,6 +7,7 @@ import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { useAuth } from "@/components/AuthProvider";
 import SupabaseNeeded from "@/components/SupabaseNeeded";
 import { unlockAchievement } from "@/lib/achievements";
+import { POKEMON_GAMES } from "@/lib/data/games";
 
 const cardClass =
   "rounded-2xl border border-stone-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900";
@@ -255,14 +256,19 @@ export default function NuzlockePage() {
               <label htmlFor="run-game" className={labelClass}>
                 Game <span className="font-normal text-slate-400 dark:text-slate-500">(optional)</span>
               </label>
-              <input
+              <select
                 id="run-game"
                 value={game}
                 onChange={(e) => setGame(e.target.value)}
                 className={inputClass}
-                placeholder="e.g. Scarlet"
-                maxLength={60}
-              />
+              >
+                <option value="">— Select a game —</option>
+                {POKEMON_GAMES.map((g) => (
+                  <option key={g} value={g}>
+                    {g}
+                  </option>
+                ))}
+              </select>
             </div>
             <div>
               <label htmlFor="run-rules" className={labelClass}>
