@@ -1182,9 +1182,6 @@ export default function FriendsPage() {
 
   /**
    * Decline / cancel / unfriend. The schema has no DELETE policy on
-   * friendships, so these move the row to 'blocked' (the schema's terminal
-   * non-friend state) instead of deleting it.
-   */
   /**
    * Decline / cancel / unfriend. The schema has no DELETE policy on
    * friendships, so these move the row to 'blocked' (the schema's terminal
