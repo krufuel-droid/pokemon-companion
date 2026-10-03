@@ -66,6 +66,8 @@ function MatchupGroup({
   );
 }
 
+import { useFormSelection } from "./form-context";
+
 export function MatchupsSection({
   types,
   variants,
@@ -74,9 +76,15 @@ export function MatchupsSection({
   variants: FormVariant[];
 }) {
   const [selected, setSelected] = useState<string>("__base__");
+  const { activeForm, hasForms } = useFormSelection();
 
-  const activeTypes =
-    selected === "__base__"
+  // When the header form dropdown is active (e.g. Ogerpon's masks), the
+  // matchups follow that selection and the in-section tabs are hidden.
+  const controlled = hasForms && activeForm !== null;
+
+  const activeTypes = controlled
+    ? activeForm.types.map(normalizeType)
+    : selected === "__base__"
       ? types.map(normalizeType)
       : ((variants.find((v) => v.name === selected)?.types ?? types).map(
           normalizeType
@@ -107,7 +115,7 @@ export function MatchupsSection({
     >
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-lg font-bold">Weaknesses &amp; resistances</h2>
-        {variants.length > 0 && (
+        {!controlled && variants.length > 0 && (
           <div
             role="group"
             aria-label="Choose form"

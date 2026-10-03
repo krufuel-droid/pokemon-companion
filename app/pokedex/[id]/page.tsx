@@ -6,6 +6,7 @@ import { getFormsForSpecies } from "@/lib/data/forms";
 import { MOVES } from "@/lib/data/moves";
 import { DexEntries } from "./dex-entries";
 import { FormsSection } from "./forms-section";
+import { FormProvider } from "./form-context";
 import { FormSwitcher } from "./form-switcher";
 import { EncountersSection } from "./encounters-section";
 import { MatchupsSection } from "./matchups-section";
@@ -76,12 +77,21 @@ export default async function SpeciesPage({
   // Tera-only entries carry no types and are excluded here.
   const maskFormOptions = getFormsForSpecies(species.id)
     .filter((f) => f.kind === "mask" && f.types && f.types.length > 0)
-    .map((f) => ({
-      name: f.formName,
-      types: f.types as string[],
-      regular: f.sprite,
-      shiny: f.sprite.replace("/gen5/", "/gen5-shiny/"),
-    }));
+    .map((f) => {
+      // Showdown's shiny sprites for the three alternate masks are
+      // pixel-identical to regular; use our corrected local shinies.
+      // (Teal Mask's Showdown shiny is correct.)
+      const slug = f.formName.toLowerCase().replace(/ /g, "-");
+      const needsLocalShiny = species.id === 1017 && slug !== "teal-mask";
+      return {
+        name: f.formName,
+        types: f.types as string[],
+        regular: f.sprite,
+        shiny: needsLocalShiny
+          ? `/sprites/ogerpon-${slug}-shiny.png`
+          : f.sprite.replace("/gen5/", "/gen5-shiny/"),
+      };
+    });
 
   // Alternate forms whose typing differs from the base species —
   // lets the matchups section switch between typings.
@@ -104,7 +114,8 @@ export default async function SpeciesPage({
           ← Pokédex
         </Link>
 
-        {/* Header */}
+        {/* Header — form selection also drives the matchup section below */}
+        <FormProvider forms={maskFormOptions} baseTypes={species.types}>
         <section className="mt-4 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 sm:p-8 dark:bg-slate-900 dark:ring-slate-700">
           <div className="flex flex-col items-center gap-6 sm:flex-row sm:gap-10">
             <img
@@ -140,8 +151,9 @@ export default async function SpeciesPage({
           <EvolutionSection chain={evoChain} currentId={species.id} />
         )}
 
-        {/* Type matchups */}
+        {/* Type matchups — follows the header form selection */}
         <MatchupsSection types={species.types} variants={formVariants} />
+        </FormProvider>
 
         {/* Base stats radar */}
         {species.baseStats && species.baseStats.length === 6 && (

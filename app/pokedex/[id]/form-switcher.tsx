@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import { TypePills } from "../type-pills";
 import { SpriteViewer } from "./sprite-viewer";
+import { useFormSelection } from "./form-context";
 
 export interface FormOption {
   name: string;
@@ -20,9 +20,8 @@ interface FormSwitcherProps {
 }
 
 /** Dropdown to switch between a species' alternate forms (e.g. Ogerpon's
- *  masks). Updates the type pills and the sprite viewer together.
- *  Only renders the dropdown when forms exist; otherwise falls back to the
- *  static type pills + sprite viewer. */
+ *  masks). Updates the type pills and the sprite viewer together, and —
+ *  via FormProvider — the Weaknesses & resistances section too. */
 export function FormSwitcher({
   baseName,
   baseTypes,
@@ -30,10 +29,7 @@ export function FormSwitcher({
   baseShiny,
   forms,
 }: FormSwitcherProps) {
-  const [selected, setSelected] = useState<string>(() => {
-    const baseMatch = forms.find((f) => f.types.join("/") === baseTypes.join("/"));
-    return baseMatch ? baseMatch.name : (forms[0]?.name ?? "__base__");
-  });
+  const { selected, setSelected, activeForm } = useFormSelection();
 
   if (forms.length === 0) {
     return (
@@ -48,7 +44,7 @@ export function FormSwitcher({
     );
   }
 
-  const active = forms.find((f) => f.name === selected) ?? forms[0];
+  const active = activeForm ?? forms[0];
 
   return (
     <>
