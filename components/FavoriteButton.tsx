@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
+import { incrementRecord } from "@/lib/achievements";
 
 /** Star toggle to favorite/unfavorite a Pokémon species. Stops click propagation. */
 export default function FavoriteButton({
@@ -64,6 +65,8 @@ export default function FavoriteButton({
         if (error && error.code !== "23505") throw error;
         setFavorited(true);
         onToggle?.(speciesId, true);
+        // Trigger achievement check
+        void incrementRecord(user.id, "favorites_added", 1);
       }
     } catch {
       // best-effort
