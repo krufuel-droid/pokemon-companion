@@ -20,7 +20,7 @@ import {
 } from "@/lib/data/champions";
 
 export const metadata: Metadata = {
-  title: "Champions Hub — Pokémon Companion",
+  title: "Champions Hub — Poke Companion",
   description:
     "The current Pokémon Champions meta, winning teams from Worlds and Regionals, and the players to watch — with links to follow them.",
 };

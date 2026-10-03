@@ -6,7 +6,7 @@ import { THEME_INIT_SCRIPT } from "@/components/theme-toggle";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Pokémon Companion",
+  title: "Poke Companion",
   description:
     "Your unofficial Pokémon hub — Pokédex, battle tools, and a trainer community.",
 };

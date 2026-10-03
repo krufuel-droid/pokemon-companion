@@ -3,7 +3,7 @@ import Link from "next/link";
 import { NEWS } from "@/lib/data/news";
 
 export const metadata: Metadata = {
-  title: "News — Pokémon Companion",
+  title: "News — Poke Companion",
 };
 
 const TAG_BADGE: Record<string, string> = {

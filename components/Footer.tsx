@@ -13,7 +13,7 @@ export default function Footer() {
           </Link>
         </p>
         <p>
-          Pokémon Companion is an unofficial fan project, not affiliated with
+          Poke Companion is an unofficial fan project, not affiliated with
           Nintendo / Creatures Inc. / GAME FREAK inc.
         </p>
         <p>

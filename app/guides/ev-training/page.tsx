@@ -2,7 +2,7 @@ import Link from "next/link";
 import { SECTIONS, QUICK_TIPS } from "@/lib/data/ev-training";
 
 export const metadata = {
-  title: "EV Training Guide | Pokémon Companion",
+  title: "EV Training Guide | Poke Companion",
   description: "How to EV train in every Pokémon generation, from Gen 3 to Scarlet/Violet.",
 };
 
