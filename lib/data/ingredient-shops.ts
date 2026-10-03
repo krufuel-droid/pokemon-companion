@@ -36,7 +36,7 @@ export const INGREDIENTS: Record<string, IngredientInfo> = {
   "Cheese": { name: "Cheese", emoji: "🧀", shops: ["Artisan Bakery", "Aquiesta Supermarket"], badges: 1, price: 120 },
   "Bacon": { name: "Bacon", emoji: "🥓", shops: ["Deli Cioso"], badges: 1, price: 150 },
   "Lettuce ": { name: "Lettuce", emoji: "🥬", shops: ["Artisan Bakery"], badges: 0, price: 90 },
-  "Mayo": { name: "Mayo", emoji: "🫙", shops: ["Artisan Bakery", "Aquiesta Supermarket"], badges: 0, price: 120 },
+  "Mayo": { name: "Mayo", emoji: "⚪", shops: ["Artisan Bakery", "Aquiesta Supermarket"], badges: 0, price: 120 },
   "Mustard": { name: "Mustard", emoji: "🟡", shops: ["Artisan Bakery", "Aquiesta Supermarket"], badges: 0, price: 130 },
   "Marmalade": { name: "Marmalade", emoji: "🍊", shops: ["Artisan Bakery", "Aquiesta Supermarket"], badges: 4, price: 260 },
   "Salt": { name: "Salt", emoji: "🧂", shops: ["Artisan Bakery", "Aquiesta Supermarket"], badges: 0, price: 90 },
