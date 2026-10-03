@@ -125,34 +125,59 @@ export default function ChampionsPage() {
             </a>
             . Tap any Pokémon to open its Pokédex page.
           </p>
-          <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-4 space-y-2">
             {META_PICKS.map((pick) => {
               const card = getSpeciesCard(pick.speciesName ?? pick.name);
               return (
-                <div
+                <details
                   key={pick.name}
-                  className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700"
+                  className="group rounded-xl bg-white shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700"
                 >
-                  <div className="flex items-center gap-3">
-                    {card && (
-                      <img
-                        src={card.sprite}
-                        alt={card.name}
-                        className="h-12 w-12 object-contain"
-                        loading="lazy"
-                      />
-                    )}
-                    <Link
-                      href={card ? `/pokedex/${card.id}` : "#"}
-                      className="text-base font-bold text-slate-900 hover:underline dark:text-slate-100"
-                    >
-                      {pick.name}
-                    </Link>
+                  <summary className="cursor-pointer list-none px-4 py-3 marker:hidden [&::-webkit-details-marker]:hidden">
+                    <span className="flex items-center gap-3">
+                      {card && (
+                        <img
+                          src={card.sprite}
+                          alt={card.name}
+                          className="h-10 w-10 object-contain"
+                          loading="lazy"
+                        />
+                      )}
+                      <span className="min-w-0 flex-1 truncate text-base font-bold text-slate-900 dark:text-slate-100">
+                        {pick.name}
+                      </span>
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 20 20"
+                        aria-hidden="true"
+                        className="shrink-0 text-slate-400 transition-transform group-open:rotate-180"
+                      >
+                        <path
+                          d="M5 7l5 5 5-5"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    </span>
+                  </summary>
+                  <div className="border-t border-slate-100 px-4 py-3 dark:border-slate-800">
+                    <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-400">
+                      {pick.note}{" "}
+                      {card && (
+                        <Link
+                          href={`/pokedex/${card.id}`}
+                          className="font-semibold text-indigo-700 hover:underline dark:text-indigo-300"
+                        >
+                          Pokédex page ↗
+                        </Link>
+                      )}
+                    </p>
                   </div>
-                  <p className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
-                    {pick.note}
-                  </p>
-                </div>
+                </details>
               );
             })}
           </div>
