@@ -75,7 +75,7 @@ export function searchSpecies(query: string): SpeciesIndex[] {
   for (const s of index) {
     const name = s.name.toLowerCase();
     if (name.startsWith(q)) prefix.push(s);
-    else if (name.includes(q)) substring.push(s);
+    else if (q.length >= 4 && name.includes(q)) substring.push(s);
   }
   return [...prefix, ...substring].slice(0, 50);
 }
