@@ -685,6 +685,7 @@ function AddPokemonForm({ runId, game, team, onAdded }: { runId: string; game: s
   const [level, setLevel] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
 
   const matches = useMemo(() => (species ? [] : searchSpecies(query).slice(0, 6)), [query, species]);
   const locations = useMemo(() => getLocationsForGame(game), [game]);
@@ -701,7 +702,10 @@ function AddPokemonForm({ runId, game, team, onAdded }: { runId: string; game: s
 
   async function add(e: FormEvent) {
     e.preventDefault();
-    if (!user) return;
+    if (!user) {
+      setError("You're not signed in. Please sign in and try again.");
+      return;
+    }
     // If the user typed a name but didn't tap a result, auto-select an
     // exact match so the button doesn't silently do nothing.
     let chosen = species;
@@ -734,12 +738,16 @@ function AddPokemonForm({ runId, game, team, onAdded }: { runId: string; game: s
         level: lvl,
       });
       if (error) throw error;
+      const addedName = nickname.trim() === "" ? chosen.name : nickname.trim();
       setQuery("");
       setSpecies(null);
       setNickname("");
       setLocation("");
       setLevel("");
+      setError(null);
       onAdded();
+      // Brief success confirmation (cleared on next add).
+      setMessage(`${addedName} added to your team!`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not add the Pokémon.");
     } finally {
@@ -845,6 +853,11 @@ function AddPokemonForm({ runId, game, team, onAdded }: { runId: string; game: s
         {error && (
           <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950 dark:text-red-300">
             {error}
+          </p>
+        )}
+        {message && (
+          <p role="status" className="rounded-lg bg-emerald-50 px-3 py-2 text-sm font-medium text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
+            {message}
           </p>
         )}
         <button
