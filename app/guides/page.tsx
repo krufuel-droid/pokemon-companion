@@ -25,14 +25,15 @@ export default function GuidesIndex() {
         Gyms, trials, story beats, and what to do after the credits.
       </p>
 
-      <section className="mt-10">
-        <h2 className="text-xl font-bold text-slate-700 dark:text-slate-200">
+      <details className="mt-10 rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
+        <summary className="cursor-pointer list-none px-6 py-4 text-xl font-bold text-slate-700 marker:hidden dark:text-slate-200 [&::-webkit-details-marker]:hidden">
+          <span className="mr-2 inline-block transition-transform duration-200 [details[open]_&]:rotate-90">▸</span>
           Training
-        </h2>
-        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+        </summary>
+        <div className="grid gap-4 px-6 pb-6 sm:grid-cols-2">
           <Link
             href="/guides/ev-training"
-            className="group rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:shadow-md hover:ring-emerald-300 dark:bg-slate-900 dark:ring-slate-700 dark:hover:ring-emerald-700"
+            className="group rounded-2xl bg-slate-50 p-6 ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:shadow-md hover:ring-emerald-300 dark:bg-slate-800 dark:ring-slate-700 dark:hover:ring-emerald-700"
           >
             <h3 className="text-lg font-semibold text-slate-800 group-hover:text-emerald-700 dark:text-slate-100 dark:group-hover:text-emerald-300">
               EV Training by Generation
@@ -45,7 +46,7 @@ export default function GuidesIndex() {
             </span>
           </Link>
         </div>
-      </section>
+      </details>
 
       <details className="mt-10 rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
         <summary className="cursor-pointer list-none px-6 py-4 text-xl font-bold text-slate-700 marker:hidden dark:text-slate-200 [&::-webkit-details-marker]:hidden">
