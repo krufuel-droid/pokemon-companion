@@ -147,6 +147,63 @@ function AvatarPicker({ value, onChange }: { value: string; onChange: (url: stri
   );
 }
 
+/** Upload a custom picture to Supabase Storage; the public URL becomes the avatar. */
+function AvatarUploader({ userId, onUploaded }: { userId: string; onUploaded: (url: string) => void }) {
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function onFile(input: HTMLInputElement) {
+    const file = input.files?.[0];
+    if (!file) return;
+    setError(null);
+    if (!file.type.startsWith("image/")) {
+      setError("Please choose an image file.");
+      input.value = "";
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      setError("Keep it under 2MB.");
+      input.value = "";
+      return;
+    }
+    setBusy(true);
+    try {
+      const ext = file.name.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") || "png";
+      const path = `${userId}/${Date.now()}.${ext}`;
+      const supabase = createClient();
+      const { error: uploadError } = await supabase.storage.from("avatars").upload(path, file);
+      if (uploadError) throw uploadError;
+      const { data } = supabase.storage.from("avatars").getPublicUrl(path);
+      onUploaded(data.publicUrl);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Upload failed — try again.");
+    } finally {
+      setBusy(false);
+      input.value = "";
+    }
+  }
+
+  return (
+    <div className="mt-2">
+      <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-stone-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-mint dark:border-slate-600 dark:text-slate-300">
+        <span aria-hidden="true">📷</span>
+        {busy ? "Uploading…" : "Upload a picture"}
+        <input
+          type="file"
+          accept="image/*"
+          className="hidden"
+          disabled={busy}
+          onChange={(e) => void onFile(e.target)}
+          aria-label="Upload a profile picture"
+        />
+      </label>
+      {error && (
+        <p role="alert" className="mt-1 text-sm text-red-700 dark:text-red-300">{error}</p>
+      )}
+    </div>
+  );
+}
+
 /** Sprite preview for the favorite-Pokémon field (pure derivation, no effect). */
 function FavoritePreview({ name }: { name: string }) {
   const q = name.trim().toLowerCase();
@@ -351,9 +408,15 @@ function ProfileEditor({ profile, onSaved }: { profile: Profile; onSaved: () => 
           </div>
           <div>
             <label className={labelClass}>
-              Avatar <span className="font-normal text-slate-400 dark:text-slate-500">(pick a Pokémon sprite)</span>
+              Avatar <span className="font-normal text-slate-400 dark:text-slate-500">(pick a Pokémon sprite or upload your own)</span>
             </label>
             <AvatarPicker value={avatarUrl} onChange={setAvatarUrl} />
+            <div className="mt-1 flex items-center gap-2 text-xs text-slate-400 dark:text-slate-500">
+              <span className="h-px flex-1 bg-stone-200 dark:bg-slate-700" />
+              or
+              <span className="h-px flex-1 bg-stone-200 dark:bg-slate-700" />
+            </div>
+            <AvatarUploader userId={profile.id} onUploaded={setAvatarUrl} />
           </div>
           <div>
             <label htmlFor="bio" className={labelClass}>

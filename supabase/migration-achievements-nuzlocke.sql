@@ -286,3 +286,58 @@ begin
     alter publication supabase_realtime add table memorials;
   end if;
 end $$;
+
+-- ----------------------------------------------------------------------------
+-- Nuzlocke invite codes + run types (Oct 2026)
+-- Safe to re-run: every statement is idempotent.
+-- ----------------------------------------------------------------------------
+alter table nuzlockes add column if not exists invite_code text;
+update nuzlockes set invite_code = substr(md5(random()::text), 1, 8) where invite_code is null;
+alter table nuzlockes alter column invite_code set default substr(md5(random()::text), 1, 8);
+create unique index if not exists nuzlockes_invite_code_key on nuzlockes (invite_code);
+alter table nuzlockes add column if not exists run_type text not null default 'standard';
+
+-- ----------------------------------------------------------------------------
+-- Avatar uploads: public "avatars" storage bucket (Oct 2026)
+-- Safe to re-run: bucket upsert + drop/create policies.
+-- ----------------------------------------------------------------------------
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values (
+  'avatars',
+  'avatars',
+  true,
+  2097152,
+  array['image/jpeg', 'image/png', 'image/gif', 'image/webp']
+)
+on conflict (id) do update set
+  public = true,
+  file_size_limit = 2097152,
+  allowed_mime_types = array['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+
+drop policy if exists "avatars_public_read" on storage.objects;
+create policy "avatars_public_read" on storage.objects
+  for select using (bucket_id = 'avatars');
+
+drop policy if exists "avatars_owner_insert" on storage.objects;
+create policy "avatars_owner_insert" on storage.objects
+  for insert with check (
+    bucket_id = 'avatars'
+    and auth.role() = 'authenticated'
+    and (storage.foldername(name))[1] = auth.uid()::text
+  );
+
+drop policy if exists "avatars_owner_update" on storage.objects;
+create policy "avatars_owner_update" on storage.objects
+  for update using (
+    bucket_id = 'avatars'
+    and auth.role() = 'authenticated'
+    and (storage.foldername(name))[1] = auth.uid()::text
+  );
+
+drop policy if exists "avatars_owner_delete" on storage.objects;
+create policy "avatars_owner_delete" on storage.objects
+  for delete using (
+    bucket_id = 'avatars'
+    and auth.role() = 'authenticated'
+    and (storage.foldername(name))[1] = auth.uid()::text
+  );

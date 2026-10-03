@@ -11,6 +11,7 @@ import { unlockAchievement } from "@/lib/achievements";
 import { timeAgo } from "@/lib/community";
 import { unpackGame } from "../page";
 import { getLocationsForGame } from "@/lib/data/games";
+import RunTypeBadge from "@/components/RunTypeBadge";
 
 const cardClass =
   "rounded-2xl border border-stone-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900";
@@ -26,6 +27,8 @@ interface Run {
   title: string;
   rules: string | null;
   status: string;
+  invite_code: string | null;
+  run_type: string | null;
   created_at: string;
 }
 
@@ -115,7 +118,7 @@ export default function RunDetailPage({ params }: { params: Promise<{ id: string
     const supabase = createClient();
     const { data: runData, error: runError } = await supabase
       .from("nuzlockes")
-      .select("id, owner_id, title, rules, status, created_at")
+      .select("id, owner_id, title, rules, status, invite_code, run_type, created_at")
       .eq("id", id)
       .maybeSingle();
     if (runError) throw runError;
@@ -328,6 +331,7 @@ export default function RunDetailPage({ params }: { params: Promise<{ id: string
           </div>
           <div className="flex items-center gap-3">
             <LiveDot />
+            <RunTypeBadge type={run.run_type} />
             <StatusBadge status={run.status} />
           </div>
         </div>
@@ -365,6 +369,11 @@ export default function RunDetailPage({ params }: { params: Promise<{ id: string
         </div>
         {!isParticipant && <JoinRunButton runId={id} onJoined={() => void refresh()} />}
         {isParticipant && <InviteForm runId={id} />}
+        {isOwner && (
+          <div className="mt-3">
+            <CopyInviteLink inviteCode={run.invite_code} />
+          </div>
+        )}
       </section>
 
       {/* Teams */}
@@ -495,6 +504,41 @@ function MemorialRow({ memorial: m, canDelete, onChanged }: { memorial: Memorial
         )
       )}
     </li>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Owner: copy a shareable invite link                                   */
+/* ------------------------------------------------------------------ */
+function CopyInviteLink({ inviteCode }: { inviteCode: string | null }) {
+  const [copied, setCopied] = useState(false);
+  if (!inviteCode) return null;
+
+  async function copy() {
+    const url = `${window.location.origin}/nuzlocke/join/${inviteCode}`;
+    try {
+      await navigator.clipboard.writeText(url);
+    } catch {
+      // Fallback for browsers without clipboard permission.
+      const ta = document.createElement("textarea");
+      ta.value = url;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+    }
+    setCopied(true);
+    window.setTimeout(() => setCopied(false), 2000);
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={() => void copy()}
+      className="rounded-lg border border-stone-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-mint dark:border-slate-600 dark:text-slate-300"
+    >
+      {copied ? "Copied! ✓" : "Copy invite link"}
+    </button>
   );
 }
 

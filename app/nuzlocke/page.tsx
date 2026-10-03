@@ -8,6 +8,7 @@ import { useAuth } from "@/components/AuthProvider";
 import SupabaseNeeded from "@/components/SupabaseNeeded";
 import { unlockAchievement } from "@/lib/achievements";
 import { POKEMON_GAMES } from "@/lib/data/games";
+import RunTypeBadge, { NUZLOCKE_TYPES } from "@/components/RunTypeBadge";
 
 const cardClass =
   "rounded-2xl border border-stone-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900";
@@ -27,6 +28,7 @@ interface Run {
   title: string;
   rules: string | null;
   status: string;
+  run_type: string | null;
   created_at: string;
 }
 
@@ -88,6 +90,7 @@ export default function NuzlockePage() {
   const [showForm, setShowForm] = useState(false);
   const [title, setTitle] = useState("");
   const [game, setGame] = useState("");
+  const [runType, setRunType] = useState("standard");
   const [rules, setRules] = useState(STANDARD_RULES);
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
@@ -100,7 +103,7 @@ export default function NuzlockePage() {
     const supabase = createClient();
     try {
       const [{ data: owned }, { data: parts }] = await Promise.all([
-        supabase.from("nuzlockes").select("id, owner_id, title, rules, status, created_at").eq("owner_id", user.id),
+        supabase.from("nuzlockes").select("id, owner_id, title, rules, status, run_type, created_at").eq("owner_id", user.id),
         supabase.from("nuzlocke_participants").select("run_id").eq("user_id", user.id),
       ]);
       const ownedRuns = (owned as Run[]) ?? [];
@@ -110,7 +113,7 @@ export default function NuzlockePage() {
       if (missing.length > 0) {
         const { data } = await supabase
           .from("nuzlockes")
-          .select("id, owner_id, title, rules, status, created_at")
+          .select("id, owner_id, title, rules, status, run_type, created_at")
           .in("id", missing);
         joinedRuns = (data as Run[]) ?? [];
       }
@@ -183,7 +186,7 @@ export default function NuzlockePage() {
       const supabase = createClient();
       const { data, error } = await supabase
         .from("nuzlockes")
-        .insert({ owner_id: user.id, title: title.trim(), rules: packRules(game, rules), status: "active" })
+        .insert({ owner_id: user.id, title: title.trim(), rules: packRules(game, rules), status: "active", run_type: runType })
         .select("id")
         .single();
       if (error) throw error;
@@ -196,6 +199,7 @@ export default function NuzlockePage() {
       void unlockAchievement(user.id, "first-nuzlocke").catch(() => {});
       setTitle("");
       setGame("");
+      setRunType("standard");
       setRules(STANDARD_RULES);
       setShowForm(false);
       await refresh();
@@ -271,6 +275,23 @@ export default function NuzlockePage() {
               </select>
             </div>
             <div>
+              <label htmlFor="run-type" className={labelClass}>
+                Run type
+              </label>
+              <select
+                id="run-type"
+                value={runType}
+                onChange={(e) => setRunType(e.target.value)}
+                className={inputClass}
+              >
+                {NUZLOCKE_TYPES.map((t) => (
+                  <option key={t.value} value={t.value}>
+                    {t.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
               <label htmlFor="run-rules" className={labelClass}>
                 House rules
               </label>
@@ -323,7 +344,10 @@ export default function NuzlockePage() {
               <Link key={run.id} href={`/nuzlocke/${run.id}`} className={`${cardClass} block transition hover:shadow-md`}>
                 <div className="flex items-start justify-between gap-3">
                   <h2 className="font-bold text-slate-900 dark:text-slate-100">{run.title}</h2>
-                  <StatusBadge status={run.status} />
+                  <div className="flex shrink-0 items-center gap-2">
+                    <RunTypeBadge type={run.run_type} />
+                    <StatusBadge status={run.status} />
+                  </div>
                 </div>
                 <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm text-slate-600 dark:text-slate-400">
                   <span>{participantCounts[run.id] ?? 0} trainer{(participantCounts[run.id] ?? 0) === 1 ? "" : "s"}</span>
