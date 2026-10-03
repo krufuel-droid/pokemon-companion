@@ -177,7 +177,14 @@ create policy nuzlocke_participants_select_run on nuzlocke_participants
 
 drop policy if exists nuzlocke_participants_insert_own on nuzlocke_participants;
 create policy nuzlocke_participants_insert_own on nuzlocke_participants
-  for insert with check (auth.uid() = user_id);
+  for insert with check (
+    auth.uid() = user_id
+    or exists (
+      select 1 from nuzlockes
+      where nuzlockes.id = nuzlocke_participants.run_id
+        and nuzlockes.owner_id = auth.uid()
+    )
+  );
 
 drop policy if exists nuzlocke_participants_delete_own on nuzlocke_participants;
 create policy nuzlocke_participants_delete_own on nuzlocke_participants

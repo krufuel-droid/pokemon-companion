@@ -483,43 +483,74 @@ function JoinRunButton({ runId, onJoined }: { runId: string; onJoined: () => voi
 }
 
 /* ------------------------------------------------------------------ */
-/* Invite: copy a share link — the friend opens it and taps Join run.    */
-/* (RLS only lets a user add themselves as a participant, so direct      */
-/* invites by username are not possible.)                                */
+/* Invite a friend by trainer name (run owners can add participants).     */
 /* ------------------------------------------------------------------ */
 function InviteForm({ runId }: { runId: string }) {
-  const [copied, setCopied] = useState(false);
+  const [username, setUsername] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+  const [isError, setIsError] = useState(false);
 
-  async function copyLink() {
-    const url = `${window.location.origin}/nuzlocke/${runId}`;
+  async function invite(e: FormEvent) {
+    e.preventDefault();
+    const name = username.trim();
+    if (!name) return;
+    setBusy(true);
+    setMessage(null);
+    setIsError(false);
     try {
-      await navigator.clipboard.writeText(url);
-    } catch {
-      // Clipboard API unavailable — fall back to selecting a temp input.
-      const input = document.createElement("input");
-      input.value = url;
-      document.body.appendChild(input);
-      input.select();
-      document.execCommand("copy");
-      document.body.removeChild(input);
+      const supabase = createClient();
+      const { data: found, error: lookupError } = await supabase
+        .from("profiles")
+        .select("id, username")
+        .ilike("username", name)
+        .maybeSingle();
+      if (lookupError) throw lookupError;
+      if (!found) {
+        setMessage(`No trainer named "${name}" found.`);
+        setIsError(true);
+        return;
+      }
+      const { error } = await supabase
+        .from("nuzlocke_participants")
+        .insert({ run_id: runId, user_id: (found as { id: string }).id });
+      if (error) throw error;
+      void unlockAchievement((found as { id: string }).id, "soul-link").catch(() => {});
+      setMessage(`${(found as { username: string }).username} joined the run!`);
+      setUsername("");
+    } catch (err) {
+      setIsError(true);
+      setMessage(
+        err instanceof Error ? err.message : "Could not invite that trainer."
+      );
+    } finally {
+      setBusy(false);
     }
-    setCopied(true);
-    window.setTimeout(() => setCopied(false), 2500);
   }
 
   return (
-    <div className="mt-4 flex max-w-sm flex-col gap-2">
-      <p className="text-sm text-slate-600 dark:text-slate-400">
-        Friends join with the link — they&apos;ll tap <strong>Join run</strong> on this page.
-      </p>
+    <form onSubmit={(e) => void invite(e)} className="mt-4 flex max-w-sm flex-col gap-2 sm:flex-row">
+      <input
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
+        className={inputClass}
+        placeholder="Trainer's username"
+        aria-label="Trainer's username"
+        maxLength={24}
+      />
       <button
-        type="button"
-        onClick={() => void copyLink()}
-        className="shrink-0 rounded-lg border border-stone-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-mint dark:border-slate-600 dark:text-slate-300"
+        type="submit"
+        disabled={busy || username.trim() === ""}
+        className="shrink-0 rounded-lg border border-stone-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-mint disabled:opacity-60 dark:border-slate-600 dark:text-slate-300"
       >
-        {copied ? "Link copied! ✓" : "Copy invite link"}
+        {busy ? "Inviting…" : "Invite friend"}
       </button>
-    </div>
+      {message && (
+        <p role="status" className={`text-sm sm:basis-full ${isError ? "text-red-700 dark:text-red-300" : "text-emerald-700 dark:text-emerald-300"}`}>
+          {message}
+        </p>
+      )}
+    </form>
   );
 }
 
