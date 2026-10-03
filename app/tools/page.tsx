@@ -26,6 +26,11 @@ const TOOLS = [
     title: "Team Builder",
     desc: "Draft a 6-Pokémon team, check defensive weaknesses and offensive coverage, save teams, and share them with a link.",
   },
+  {
+    href: "/tools/shiny-odds",
+    title: "Shiny Odds Calculator",
+    desc: "Combine a Pokémon's spawn rate with your hunting method for the true shiny odds per encounter.",
+  },
 ];
 
 export default function ToolsIndex() {
