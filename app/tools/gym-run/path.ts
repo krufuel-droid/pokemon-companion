@@ -9,7 +9,7 @@
  */
 import { GUIDES } from "@/lib/data/guides";
 
-export type ChallengeKind = "gym" | "trial" | "titan" | "custom";
+export type ChallengeKind = "gym" | "trial" | "titan" | "elite" | "champion" | "custom";
 
 export interface RunChallenge {
   name: string;
@@ -17,12 +17,14 @@ export interface RunChallenge {
   detail: string;
 }
 
-const CHALLENGE_KINDS = new Set(["gym", "trial", "titan"]);
+const CHALLENGE_KINDS = new Set(["gym", "trial", "titan", "elite", "champion"]);
 
 export const KIND_ICONS: Record<ChallengeKind, string> = {
   gym: "🏟️",
   trial: "✨",
   titan: "🗿",
+  elite: "👑",
+  champion: "🏆",
   custom: "⭐",
 };
 
@@ -30,6 +32,8 @@ export const KIND_LABELS: Record<ChallengeKind, string> = {
   gym: "Gym",
   trial: "Trial",
   titan: "Titan",
+  elite: "Elite Four",
+  champion: "Champion",
   custom: "Challenge",
 };
 

@@ -7,6 +7,7 @@ import { unlockAchievement } from "@/lib/achievements";
 import {
   getGymTeamForChallenge,
   gymMemberSprite,
+  type CounterPick,
   type GymTeamMember,
 } from "@/lib/data/gym-teams";
 
@@ -21,7 +22,8 @@ import {
 
 const SCOUT_FIRED_KEY = "gym-team-scout-fired";
 
-function fireScoutAchievement(userId: string) {
+/** Shared: fires "scout" once per session for team-view panels. */
+export function fireScoutAchievement(userId: string) {
   try {
     if (typeof window === "undefined" || !userId) return;
     if (window.sessionStorage.getItem(SCOUT_FIRED_KEY)) return;
@@ -32,8 +34,8 @@ function fireScoutAchievement(userId: string) {
   }
 }
 
-function TeamMemberRow({ member }: { member: GymTeamMember }) {
-  return (
+/** Shared team-member row (sprite + level + moves + ability/item badges). */
+export function TeamMemberRow({ member }: { member: GymTeamMember }) {  return (
     <li className="flex items-start gap-3 rounded-xl bg-slate-50 p-2.5 ring-1 ring-slate-200/70 dark:bg-slate-800/60 dark:ring-slate-700/70">
       <Link
         href={`/pokedex/${member.id}`}
@@ -81,6 +83,56 @@ function TeamMemberRow({ member }: { member: GymTeamMember }) {
         )}
       </div>
     </li>
+  );
+}
+
+/** Sprite URL for a counter-pick (form override or standard sprite). */
+function counterPickSprite(pick: CounterPick): string {
+  return pick.sprite ?? gymMemberSprite({ species: pick.species, id: pick.id, level: 0, moves: [] });
+}
+
+/**
+ * Highlighted "catch this first" prep row: sprite + location + why,
+ * species links to its Pokédex page.
+ */
+export function CounterPickRow({ pick }: { pick: CounterPick }) {
+  return (
+    <div className="mb-2.5 flex items-start gap-3 rounded-xl bg-amber-50 p-2.5 ring-1 ring-amber-200/80 dark:bg-amber-950/30 dark:ring-amber-800/60">
+      <Link
+        href={`/pokedex/${pick.id}`}
+        className="shrink-0 rounded-lg transition hover:ring-2 hover:ring-amber-400"
+        title={`View ${pick.species} in the Pokédex`}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={counterPickSprite(pick)}
+          alt={pick.species}
+          width={56}
+          height={56}
+          loading="lazy"
+          className="h-14 w-14 object-contain"
+        />
+      </Link>
+      <div className="min-w-0 flex-1">
+        <p className="text-xs font-bold uppercase tracking-wide text-amber-700 dark:text-amber-300">
+          💡 Catch this first
+        </p>
+        <div className="mt-0.5 flex flex-wrap items-baseline gap-x-2">
+          <Link
+            href={`/pokedex/${pick.id}`}
+            className="font-semibold text-amber-800 hover:text-amber-700 hover:underline dark:text-amber-200 dark:hover:text-amber-100"
+          >
+            {pick.species}
+          </Link>
+          <span className="text-xs text-slate-500 dark:text-slate-400">
+            📍 {pick.location}
+          </span>
+        </div>
+        <p className="mt-1 text-xs leading-relaxed text-slate-600 dark:text-slate-300">
+          {pick.why}
+        </p>
+      </div>
+    </div>
   );
 }
 
@@ -135,6 +187,7 @@ export default function GymTeamPanel({
               </span>
             )}
           </div>
+          {team.counterPick && <CounterPickRow pick={team.counterPick} />}
           <ul className="space-y-2">
             {team.team.map((member, i) => (
               <TeamMemberRow

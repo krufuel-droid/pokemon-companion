@@ -9,6 +9,7 @@ import SupabaseNeeded from "@/components/SupabaseNeeded";
 import { unlockAchievement } from "@/lib/achievements";
 import { checkBadgeAchievements } from "@/lib/achievements-badges";
 import GymTeamPanel from "@/components/GymTeamPanel";
+import EliteFourPanel from "@/components/EliteFourPanel";
 import { POKEMON_GAMES } from "@/lib/data/games";
 import {
   getChallengesForGame,
@@ -44,7 +45,12 @@ function todayISO(): string {
 function sanitizeEntry(raw: unknown, index: number): GymRunEntry {
   const r = (raw ?? {}) as Partial<GymRunEntry>;
   const kind: ChallengeKind =
-    r.kind === "gym" || r.kind === "trial" || r.kind === "titan" || r.kind === "custom"
+    r.kind === "gym" ||
+    r.kind === "trial" ||
+    r.kind === "titan" ||
+    r.kind === "elite" ||
+    r.kind === "champion" ||
+    r.kind === "custom"
       ? r.kind
       : "custom";
   const result: GymResult =
@@ -510,6 +516,11 @@ export default function GymRunClient() {
                   <>
                     <GymTeamPanel
                       game={activeRun.game}
+                      challengeName={entry.challenge}
+                    />
+                    <EliteFourPanel
+                      game={activeRun.game}
+                      kind={entry.kind}
                       challengeName={entry.challenge}
                     />
                     <ChallengeEditor
