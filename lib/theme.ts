@@ -20,7 +20,8 @@ export const TYPE_COLORS: Record<string, string> = {
   Fairy: "#D685AD",
 };
 
-/** Return the hex color for a capitalized type name, falling back to Normal. */
+/** Return the hex color for a type name (case-insensitive), falling back to Normal. */
 export function typeColor(t: string): string {
-  return TYPE_COLORS[t] ?? "#A8A77A";
+  const key = t.charAt(0).toUpperCase() + t.slice(1).toLowerCase();
+  return TYPE_COLORS[key] ?? "#A8A77A";
 }
