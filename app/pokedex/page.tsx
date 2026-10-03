@@ -23,14 +23,20 @@ const REGION_ADJECTIVE: Record<string, string> = {
   Paldea: "Paldean",
 };
 
-function SpeciesCard({ species }: { species: SpeciesIndex }) {
+function SpeciesCard({
+  species,
+  onFavoriteToggle,
+}: {
+  species: SpeciesIndex;
+  onFavoriteToggle?: (speciesId: number, favorited: boolean) => void;
+}) {
   return (
     <Link
       href={`/pokedex/${species.id}`}
       className="relative flex flex-col items-center gap-1.5 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:shadow-md dark:bg-slate-900 dark:ring-slate-700"
       style={{ contentVisibility: "auto", containIntrinsicSize: "auto 220px" }}
     >
-      <FavoriteButton speciesId={species.id} />
+      <FavoriteButton speciesId={species.id} onToggle={onFavoriteToggle} />
       <img
         src={species.sprites.regular}
         alt={species.name}
@@ -250,7 +256,18 @@ export default function PokedexPage() {
         ) : (
           <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
             {results.map((species) => (
-              <SpeciesCard key={species.id} species={species} />
+              <SpeciesCard
+                key={species.id}
+                species={species}
+                onFavoriteToggle={(id, fav) =>
+                  setFavoriteIds((prev) => {
+                    const next = new Set(prev);
+                    if (fav) next.add(id);
+                    else next.delete(id);
+                    return next;
+                  })
+                }
+              />
             ))}
           </div>
         )}

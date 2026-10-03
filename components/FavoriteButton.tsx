@@ -5,7 +5,13 @@ import { createClient } from "@/lib/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
 
 /** Star toggle to favorite/unfavorite a Pokémon species. Stops click propagation. */
-export default function FavoriteButton({ speciesId }: { speciesId: number }) {
+export default function FavoriteButton({
+  speciesId,
+  onToggle,
+}: {
+  speciesId: number;
+  onToggle?: (speciesId: number, favorited: boolean) => void;
+}) {
   const { user } = useAuth();
   const [favorited, setFavorited] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -49,6 +55,7 @@ export default function FavoriteButton({ speciesId }: { speciesId: number }) {
           .eq("user_id", user.id)
           .eq("species_id", speciesId);
         setFavorited(false);
+        onToggle?.(speciesId, false);
       } else {
         const { error } = await supabase.from("favorites").insert({
           user_id: user.id,
@@ -56,6 +63,7 @@ export default function FavoriteButton({ speciesId }: { speciesId: number }) {
         });
         if (error && error.code !== "23505") throw error;
         setFavorited(true);
+        onToggle?.(speciesId, true);
       }
     } catch {
       // best-effort
