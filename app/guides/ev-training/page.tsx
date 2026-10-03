@@ -136,14 +136,17 @@ export default function EVTrainingPage() {
         them in every era.
       </p>
 
-      <div className="mt-8 space-y-8">
+      <div className="mt-8 space-y-4">
         {SECTIONS.map((s) => (
-          <section key={s.gen} className="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-            <div className="flex flex-wrap items-baseline gap-2">
-              <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">{s.gen}</h2>
-              <p className="text-sm text-slate-500 dark:text-slate-400">{s.games}</p>
-            </div>
-            <ul className="mt-4 space-y-4">
+          <details key={s.gen} className="rounded-2xl border border-stone-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900">
+            <summary className="cursor-pointer list-none px-6 py-4 text-xl font-bold text-slate-900 marker:hidden dark:text-slate-100 [&::-webkit-details-marker]:hidden">
+              <span className="mr-2 inline-block transition-transform duration-200 [details[open]_&]:rotate-90">▸</span>
+              {s.gen}
+              <span className="ml-2 text-sm font-medium text-slate-500 dark:text-slate-400">
+                {s.games}
+              </span>
+            </summary>
+            <ul className="space-y-4 px-6 pb-6">
               {s.methods.map((m) => (
                 <li key={m.title}>
                   <p className="font-semibold text-slate-800 dark:text-slate-200">{m.title}</p>
@@ -151,7 +154,7 @@ export default function EVTrainingPage() {
                 </li>
               ))}
             </ul>
-          </section>
+          </details>
         ))}
       </div>
 
