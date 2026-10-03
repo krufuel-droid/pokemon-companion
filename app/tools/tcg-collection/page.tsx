@@ -5,9 +5,21 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { unlockAchievement } from "@/lib/achievements";
 import { fetchSetCardIds, searchCards, type TcgCard } from "@/lib/tcg";
+import {
+  TCGDEX_LANGUAGES,
+  detailsForPrints,
+  formatPrice,
+  getPriceMovers,
+  searchPrints,
+  snapshotTrackedPrices,
+  variantBadges,
+  type PriceMover,
+  type TcgdexCardDetail,
+  type TcgdexCardSummary,
+} from "@/lib/tcgdex";
 
 type ListKind = "collection" | "want";
-type Tab = "search" | "collection" | "want";
+type Tab = "search" | "collection" | "want" | "master";
 
 interface TcgRow {
   id: string;
