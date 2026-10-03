@@ -568,7 +568,14 @@ function JoinRunButton({ runId, onJoined }: { runId: string; onJoined: () => voi
       const { error } = await supabase
         .from("nuzlocke_participants")
         .insert({ run_id: runId, user_id: user.id });
-      if (error) throw error;
+      if (error) {
+        if (error.code === "23505") {
+          // Already a participant — refresh to show them in the list.
+          onJoined();
+          return;
+        }
+        throw error;
+      }
       void unlockAchievement(user.id, "soul-link").catch(() => {});
       onJoined();
     } catch (err) {
