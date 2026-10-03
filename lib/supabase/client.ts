@@ -25,7 +25,28 @@ export function createClient() {
     );
   }
   if (!browserClient) {
-    browserClient = createBrowserClient(supabaseUrl()!, supabaseAnonKey()!);
+    browserClient = createBrowserClient(supabaseUrl()!, supabaseAnonKey()!, {
+      cookies: {
+        getAll() {
+          return document.cookie.split(";").map((c) => {
+            const [name, ...rest] = c.trim().split("=");
+            return { name, value: rest.join("=") };
+          });
+        },
+        setAll(cookies) {
+          for (const { name, value, options } of cookies) {
+            // Explicit cookie attributes for Chrome: SameSite=Lax allows the
+            // cookie on top-level navigation, Secure requires HTTPS (Vercel
+            // is HTTPS), path=/ makes it site-wide, and a long Max-Age keeps
+            // the session alive. Without these, Chrome's defaults can drop
+            // the auth cookie, causing the TOKEN_REFRESHED death spiral.
+            let cookie = `${name}=${value}; path=${options?.path ?? "/"}; Max-Age=${options?.maxAge ?? 31536000}; SameSite=Lax; Secure`;
+            if (options?.domain) cookie += `; domain=${options.domain}`;
+            document.cookie = cookie;
+          }
+        },
+      },
+    });
   }
   return browserClient;
 }
