@@ -548,33 +548,37 @@ function JoinRunButton({ runId, onJoined }: { runId: string; onJoined: () => voi
   const [error, setError] = useState<string | null>(null);
 
   async function join() {
+    try { localStorage.setItem("join-debug", "start"); } catch {}
     if (!user) {
+      try { localStorage.setItem("join-debug", "no-user"); } catch {}
       setError("Not signed in (session missing). Try signing out and back in.");
       return;
     }
     setBusy(true);
     setError(null);
     try {
+      try { localStorage.setItem("join-debug", "creating-client"); } catch {}
       const supabase = createClient();
-      // The user needs a trainer profile before they can join — the
-      // participants table references profiles(id).
+      try { localStorage.setItem("join-debug", "checking-profile"); } catch {}
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("id")
         .eq("id", user.id)
         .maybeSingle();
+      try { localStorage.setItem("join-debug", "profile-checked"); } catch {}
       if (profileError) throw profileError;
       if (!profile) {
         setError("Set up your trainer profile first, then join the run.");
         setBusy(false);
         return;
       }
+      try { localStorage.setItem("join-debug", "inserting"); } catch {}
       const { error } = await supabase
         .from("nuzlocke_participants")
         .insert({ run_id: runId, user_id: user.id });
+      try { localStorage.setItem("join-debug", "inserted"); } catch {}
       if (error) {
         if (error.code === "23505") {
-          // Already a participant — refresh to show them in the list.
           onJoined();
           return;
         }
@@ -587,6 +591,7 @@ function JoinRunButton({ runId, onJoined }: { runId: string; onJoined: () => voi
       console.error("Join run failed:", err);
       setError(`Join failed: ${msg} (code: ${(err as { code?: string })?.code ?? "none"})`);
     } finally {
+      try { localStorage.setItem("join-debug", "done"); } catch {}
       setBusy(false);
     }
   }
