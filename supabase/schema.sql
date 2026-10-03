@@ -29,6 +29,10 @@ alter table profiles add column if not exists avatar_url text;
 alter table profiles add column if not exists bio text check (char_length(bio) <= 500);
 alter table profiles add column if not exists favorite_pokemon text;
 
+-- Section 1 additions: buddy Pokémon shown on friend profiles. Safe to re-run.
+alter table profiles add column if not exists buddy_species_id integer;
+alter table profiles add column if not exists buddy_nickname text;
+
 -- ----------------------------------------------------------------------------
 -- posts
 -- Community feed posts. Body is limited to 1–2000 characters.

@@ -20,6 +20,9 @@ export interface Profile {
   avatar_url: string | null;
   bio: string | null;
   favorite_pokemon: string | null;
+  /** Section 1: buddy Pokémon shown on the friend profile flex sheet. */
+  buddy_species_id: number | null;
+  buddy_nickname: string | null;
   created_at: string;
 }
 
@@ -76,7 +79,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const supabase = createClient();
       const { data } = await supabase
         .from("profiles")
-        .select("id, username, avatar_url, bio, favorite_pokemon, created_at")
+        .select("id, username, avatar_url, bio, favorite_pokemon, buddy_species_id, buddy_nickname, created_at")
         .eq("id", userId)
         .maybeSingle();
       setProfile((data as Profile | null) ?? null);

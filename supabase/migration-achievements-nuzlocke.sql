@@ -348,6 +348,10 @@ create policy "avatars_owner_delete" on storage.objects
 -- ----------------------------------------------------------------------------
 alter table profiles add column if not exists last_seen timestamptz;
 
+-- Section 1 (friend profile flex sheet): buddy Pokémon. Safe to re-run.
+alter table profiles add column if not exists buddy_species_id integer;
+alter table profiles add column if not exists buddy_nickname text;
+
 -- Accepted friendships are publicly readable so friend-of-friend
 -- suggestions can be computed. Pending/blocked rows stay private
 -- to the two people involved.

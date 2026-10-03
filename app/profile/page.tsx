@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { useAuth, type Profile } from "@/components/AuthProvider";
 import SupabaseNeeded from "@/components/SupabaseNeeded";
-import { searchSpecies } from "@/lib/pokedex";
+import { searchSpecies, getSpeciesById } from "@/lib/pokedex";
 import { useEffect, useMemo } from "react";
 import { getAchievements, getUserAchievements, type AchievementDef } from "@/lib/achievements";
 
@@ -224,6 +224,57 @@ function FavoritePreview({ name }: { name: string }) {
   );
 }
 
+/** Buddy Pokémon picker — search and tap a Pokémon, like the avatar picker. */
+function BuddyPicker({ value, onChange }: { value: number | null; onChange: (id: number | null) => void }) {
+  const [query, setQuery] = useState("");
+  const matches = useMemo(() => searchSpecies(query).slice(0, 12), [query]);
+  const current = value != null ? getSpeciesById(value) : undefined;
+
+  return (
+    <div>
+      {current && (
+        <div className="mb-2 flex items-center gap-3">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={current.sprites.regular} alt={current.name} width={56} height={56} className="h-14 w-14 object-contain" />
+          <span className="text-sm font-bold text-slate-900 dark:text-slate-100">{current.name}</span>
+          <button
+            type="button"
+            onClick={() => { onChange(null); setQuery(""); }}
+            className="text-xs font-semibold text-slate-500 underline dark:text-slate-400"
+          >
+            Remove
+          </button>
+        </div>
+      )}
+      <input
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        className={inputClass}
+        placeholder="Search Pokémon…"
+        autoComplete="off"
+        aria-label="Search Pokémon for buddy"
+      />
+      {matches.length > 0 && (
+        <ul className="mt-1 grid max-h-48 grid-cols-6 gap-1 overflow-auto rounded-lg border border-stone-200 bg-white p-2 dark:border-slate-700 dark:bg-slate-900">
+          {matches.map((m) => (
+            <li key={m.id}>
+              <button
+                type="button"
+                onClick={() => { onChange(m.id); setQuery(""); }}
+                title={m.name}
+                className={`rounded-lg p-1 transition hover:bg-stone-100 dark:hover:bg-slate-800 ${value === m.id ? "ring-2 ring-mint" : ""}`}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={m.sprites.regular} alt={m.name} width={48} height={48} className="h-12 w-12 object-contain" loading="lazy" />
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
 type SupabaseFrom = ReturnType<ReturnType<typeof createClient>["from"]>;
 
 /** Count rows on a table with a filter; any failure reads as 0. */
@@ -333,6 +384,8 @@ function ProfileEditor({ profile, onSaved }: { profile: Profile; onSaved: () => 
   const [avatarUrl, setAvatarUrl] = useState(profile.avatar_url ?? "");
   const [bio, setBio] = useState(profile.bio ?? "");
   const [favorite, setFavorite] = useState(profile.favorite_pokemon ?? "");
+  const [buddySpeciesId, setBuddySpeciesId] = useState<number | null>(profile.buddy_species_id ?? null);
+  const [buddyNickname, setBuddyNickname] = useState(profile.buddy_nickname ?? "");
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -356,6 +409,8 @@ function ProfileEditor({ profile, onSaved }: { profile: Profile; onSaved: () => 
           avatar_url: avatarUrl.trim() === "" ? null : avatarUrl.trim(),
           bio: bio.trim() === "" ? null : bio.trim().slice(0, 500),
           favorite_pokemon: favorite.trim() === "" ? null : favorite.trim(),
+          buddy_species_id: buddySpeciesId,
+          buddy_nickname: buddyNickname.trim() === "" ? null : buddyNickname.trim().slice(0, 30),
         })
         .eq("id", profile.id);
       if (error) {
@@ -444,6 +499,23 @@ function ProfileEditor({ profile, onSaved }: { profile: Profile; onSaved: () => 
               placeholder="e.g. Pikachu"
             />
             <FavoritePreview name={favorite} />
+          </div>
+          <div>
+            <label className={labelClass}>
+              Buddy Pokémon <span className="font-normal text-slate-400 dark:text-slate-500">(travels with you on your profile)</span>
+            </label>
+            <BuddyPicker value={buddySpeciesId} onChange={setBuddySpeciesId} />
+            <label htmlFor="buddy-nickname" className={`${labelClass} mt-3`}>
+              Buddy nickname <span className="font-normal text-slate-400 dark:text-slate-500">(optional)</span>
+            </label>
+            <input
+              id="buddy-nickname"
+              value={buddyNickname}
+              onChange={(e) => setBuddyNickname(e.target.value)}
+              className={inputClass}
+              placeholder="e.g. Sparky"
+              maxLength={30}
+            />
           </div>
           {error && (
             <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950 dark:text-red-300">

@@ -170,7 +170,7 @@ function ActivityFeed({
                 <p className="text-sm text-slate-700 dark:text-slate-300">
                   <span role="img" aria-hidden="true" className="mr-1">{item.achievementIcon}</span>
                   <Link
-                    href={`/trainers/${encodeURIComponent(item.username)}`}
+                    href={`/trainer/${encodeURIComponent(item.username)}`}
                     className="font-bold text-slate-900 hover:underline dark:text-slate-100"
                   >
                     {item.username}
@@ -181,7 +181,7 @@ function ActivityFeed({
                 <p className="text-sm text-slate-700 dark:text-slate-300">
                   <span role="img" aria-hidden="true" className="mr-1">⚾</span>
                   <Link
-                    href={`/trainers/${encodeURIComponent(item.username)}`}
+                    href={`/trainer/${encodeURIComponent(item.username)}`}
                     className="font-bold text-slate-900 hover:underline dark:text-slate-100"
                   >
                     {item.username}
@@ -437,13 +437,15 @@ export default function FriendsPage() {
     }));
   }, [friendships, profiles, user]);
 
-  const incoming = rows.filter(
-    (r) => r.status === "pending" && user && r.addressee_id === user.id,
+  const incoming = useMemo(
+    () => rows.filter((r) => r.status === "pending" && user && r.addressee_id === user.id),
+    [rows, user],
   );
-  const outgoing = rows.filter(
-    (r) => r.status === "pending" && user && r.requester_id === user.id,
+  const outgoing = useMemo(
+    () => rows.filter((r) => r.status === "pending" && user && r.requester_id === user.id),
+    [rows, user],
   );
-  const friends = rows.filter((r) => r.status === "accepted");
+  const friends = useMemo(() => rows.filter((r) => r.status === "accepted"), [rows]);
   const friendIds = useMemo(
     () => friends.map((f) => f.other?.id).filter((id): id is string => !!id),
     [friends],
@@ -774,7 +776,7 @@ export default function FriendsPage() {
                           <Avatar username={s.profile.username} avatarUrl={s.profile.avatar_url} />
                           <div className="min-w-0 flex-1">
                             <Link
-                              href={`/trainers/${encodeURIComponent(s.profile.username)}`}
+                              href={`/trainer/${encodeURIComponent(s.profile.username)}`}
                               className="block truncate text-sm font-bold text-slate-900 hover:underline dark:text-slate-100"
                             >
                               {s.profile.username}
@@ -813,7 +815,7 @@ export default function FriendsPage() {
                           <Avatar username={r.other?.username ?? "?"} avatarUrl={r.other?.avatar_url} />
                           <div className="min-w-0 flex-1">
                             <Link
-                              href={r.other ? `/trainers/${encodeURIComponent(r.other.username)}` : "#"}
+                              href={r.other ? `/trainer/${encodeURIComponent(r.other.username)}` : "#"}
                               className="truncate text-sm font-bold text-slate-900 hover:underline dark:text-slate-100"
                             >
                               {r.other?.username ?? "Unknown trainer"}
@@ -897,7 +899,7 @@ export default function FriendsPage() {
                             />
                             <div className="min-w-0 flex-1">
                               <Link
-                                href={r.other ? `/trainers/${encodeURIComponent(r.other.username)}` : "#"}
+                                href={r.other ? `/trainer/${encodeURIComponent(r.other.username)}` : "#"}
                                 className="block truncate text-sm font-bold text-slate-900 hover:underline dark:text-slate-100"
                               >
                                 {r.other?.username ?? "Unknown trainer"}
