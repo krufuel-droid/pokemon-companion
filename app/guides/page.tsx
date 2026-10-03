@@ -25,6 +25,28 @@ export default function GuidesIndex() {
         Gyms, trials, story beats, and what to do after the credits.
       </p>
 
+      <section className="mt-10">
+        <h2 className="text-xl font-bold text-slate-700 dark:text-slate-200">
+          Training
+        </h2>
+        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+          <Link
+            href="/guides/ev-training"
+            className="group rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:shadow-md hover:ring-emerald-300 dark:bg-slate-900 dark:ring-slate-700 dark:hover:ring-emerald-700"
+          >
+            <h3 className="text-lg font-semibold text-slate-800 group-hover:text-emerald-700 dark:text-slate-100 dark:group-hover:text-emerald-300">
+              EV Training by Generation
+            </h3>
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+              How to train Effort Values in every era, from Gen 3 to Scarlet/Violet.
+            </p>
+            <span className="mt-3 inline-block text-sm font-medium text-emerald-600 dark:text-emerald-400">
+              View guide →
+            </span>
+          </Link>
+        </div>
+      </section>
+
       {byGen.map(({ gen, guides }) => (
         <section key={gen} className="mt-10">
           <h2 className="text-xl font-bold text-slate-700 dark:text-slate-200">
