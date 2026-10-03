@@ -44,6 +44,7 @@ interface TeamRow {
   status: "alive" | "dead" | "boxed";
   met_location: string | null;
   level: number | null;
+  gender: "male" | "female" | "unknown";
   added_at: string;
 }
 
@@ -147,7 +148,7 @@ export default function RunDetailPage({ params }: { params: Promise<{ id: string
     try {
       const { data } = await supabase
         .from("nuzlocke_team")
-        .select("id, run_id, user_id, species_id, species_name, nickname, status, met_location, level, added_at")
+        .select("id, run_id, user_id, species_id, species_name, nickname, status, met_location, level, gender, added_at")
         .eq("run_id", id)
         .order("added_at", { ascending: true });
       team = (data as TeamRow[] | null) ?? [];
@@ -702,6 +703,7 @@ function AddPokemonForm({ runId, game, team, onAdded }: { runId: string; game: s
   const [nickname, setNickname] = useState("");
   const [location, setLocation] = useState("");
   const [level, setLevel] = useState("");
+  const [gender, setGender] = useState<"male" | "female" | "unknown">("unknown");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
@@ -755,6 +757,7 @@ function AddPokemonForm({ runId, game, team, onAdded }: { runId: string; game: s
         status: "alive",
         met_location: location.trim() === "" ? null : location.trim(),
         level: lvl,
+        gender,
       });
       if (error) throw error;
       const addedName = nickname.trim() === "" ? chosen.name : nickname.trim();
@@ -868,6 +871,19 @@ function AddPokemonForm({ runId, game, team, onAdded }: { runId: string; game: s
             <label htmlFor="add-level" className={labelClass}>Level</label>
             <input id="add-level" type="number" min={1} max={100} value={level} onChange={(e) => setLevel(e.target.value)} className={inputClass} placeholder="5" />
           </div>
+          <div>
+            <label htmlFor="add-gender" className={labelClass}>Gender</label>
+            <select
+              id="add-gender"
+              value={gender}
+              onChange={(e) => setGender(e.target.value as "male" | "female" | "unknown")}
+              className={inputClass}
+            >
+              <option value="unknown">Unknown</option>
+              <option value="male">♂ Male</option>
+              <option value="female">♀ Female</option>
+            </select>
+          </div>
         </div>
         {error && (
           <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950 dark:text-red-300">
@@ -920,6 +936,24 @@ function TeamCard({
       const supabase = createClient();
       const { error } = await supabase.from("nuzlocke_team").update(patch).eq("id", row.id);
       if (error) throw error;
+      // Reviving removes the memorial — they're back among the living.
+      if (patch.status === "alive" && user) {
+        try {
+          let q = supabase
+            .from("memorials")
+            .select("id")
+            .eq("owner_id", user.id)
+            .eq("species_name", row.species_name)
+            .order("created_at", { ascending: false })
+            .limit(1);
+          q = row.nickname ? q.eq("nickname", row.nickname) : q.is("nickname", null);
+          const { data } = await q.maybeSingle();
+          const mid = (data as { id: string } | null)?.id;
+          if (mid) await supabase.from("memorials").delete().eq("id", mid);
+        } catch {
+          // Memorial cleanup is best-effort; the revive itself succeeded.
+        }
+      }
       onChanged();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not update.");
@@ -1007,6 +1041,8 @@ function TeamCard({
       </div>
       <p className="mt-1 truncate text-center text-sm font-bold text-slate-900 dark:text-slate-100" title={title}>
         {row.nickname ?? row.species_name}
+        {row.gender === "male" && <span className="ml-1 text-blue-500" aria-label="Male">♂</span>}
+        {row.gender === "female" && <span className="ml-1 text-pink-500" aria-label="Female">♀</span>}
       </p>
       {row.nickname && (
         <p className="truncate text-center text-xs text-slate-500 dark:text-slate-400">{row.species_name}</p>

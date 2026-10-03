@@ -101,6 +101,10 @@ create table if not exists nuzlocke_team (
 );
 comment on table nuzlocke_team is 'Nuzlocke team members per participant (alive, dead, or boxed).';
 
+-- Gender tracking (added Oct 2026). Safe to re-run.
+alter table nuzlocke_team add column if not exists gender text not null default 'unknown'
+  check (gender in ('male', 'female', 'unknown'));
+
 -- ----------------------------------------------------------------------------
 -- Indexes
 -- ----------------------------------------------------------------------------

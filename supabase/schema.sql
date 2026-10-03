@@ -433,6 +433,9 @@ create table if not exists nuzlocke_team (
 );
 comment on table nuzlocke_team is 'Nuzlocke team members per participant (alive, dead, or boxed).';
 
+alter table nuzlocke_team add column if not exists gender text not null default 'unknown'
+  check (gender in ('male', 'female', 'unknown'));
+
 -- Indexes
 create index if not exists idx_user_achievements_user on user_achievements (user_id);
 create index if not exists idx_nuzlocke_participants_run on nuzlocke_participants (run_id);
