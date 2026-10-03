@@ -389,6 +389,14 @@ create table if not exists trade_list (
 );
 comment on table trade_list is 'Pokémon a trainer is offering for trade.';
 
+-- Messages: read receipts for unread badges (added Oct 2026).
+alter table messages add column if not exists read_at timestamptz;
+
+drop policy if exists messages_update_read on messages;
+create policy messages_update_read on messages
+  for update using (auth.uid() = receiver_id)
+  with check (auth.uid() = receiver_id);
+
 -- Game-specific trading (added Oct 2026): which game the trade is for.
 alter table trade_wishlist add column if not exists game text;
 alter table trade_list add column if not exists game text;

@@ -55,6 +55,7 @@ export interface DirectMessage {
   receiver_id: string;
   body: string;
   created_at: string;
+  read_at: string | null;
 }
 
 /** "just now" / "5m ago" / "2h ago" / "3d ago" / "Mar 4". */

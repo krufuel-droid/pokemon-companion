@@ -32,6 +32,7 @@ const POLL_MS = 15000;
 interface Conversation {
   friend: FriendProfile;
   lastMessage: DirectMessage | null;
+  unreadCount: number;
 }
 
 export default function MessagesPage() {
@@ -82,20 +83,25 @@ export default function MessagesPage() {
       const supabase = createClient();
       const { data, error } = await supabase
         .from("messages")
-        .select("id, sender_id, receiver_id, body, created_at")
+        .select("id, sender_id, receiver_id, body, created_at, read_at")
         .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
         .order("created_at", { ascending: false })
         .limit(300);
       if (error) throw new Error(error.message);
       const all = (data as DirectMessage[]) ?? [];
       const latest = new Map<string, DirectMessage>();
+      const unread = new Map<string, number>();
       for (const m of all) {
         const other = m.sender_id === user.id ? m.receiver_id : m.sender_id;
         if (!latest.has(other)) latest.set(other, m);
+        if (m.receiver_id === user.id && !m.read_at) {
+          unread.set(other, (unread.get(other) ?? 0) + 1);
+        }
       }
       const convos: Conversation[] = friendList.map((f) => ({
         friend: f,
         lastMessage: latest.get(f.id) ?? null,
+        unreadCount: unread.get(f.id) ?? 0,
       }));
       convos.sort((a, b) =>
         (b.lastMessage?.created_at ?? "").localeCompare(a.lastMessage?.created_at ?? ""),
@@ -112,7 +118,7 @@ export default function MessagesPage() {
       const supabase = createClient();
       const { data, error } = await supabase
         .from("messages")
-        .select("id, sender_id, receiver_id, body, created_at")
+        .select("id, sender_id, receiver_id, body, created_at, read_at")
         .or(
           `and(sender_id.eq.${user.id},receiver_id.eq.${friendId}),and(sender_id.eq.${friendId},receiver_id.eq.${user.id})`,
         )
@@ -154,6 +160,26 @@ export default function MessagesPage() {
         if (cancelled) return;
         setMessages(rows);
         setLoadingThread(false);
+        // Mark their messages as read.
+        const unreadIds = rows
+          .filter((m) => m.receiver_id === user.id && !m.read_at)
+          .map((m) => m.id);
+        if (unreadIds.length > 0) {
+          const supabase = createClient();
+          void supabase
+            .from("messages")
+            .update({ read_at: new Date().toISOString() })
+            .in("id", unreadIds)
+            .then(() => {
+              if (!cancelled) {
+                setMessages((prev) =>
+                  prev.map((m) =>
+                    unreadIds.includes(m.id) ? { ...m, read_at: new Date().toISOString() } : m,
+                  ),
+                );
+              }
+            });
+        }
       })
       .catch((e: unknown) => {
         if (cancelled) return;
@@ -315,8 +341,18 @@ export default function MessagesPage() {
               >
                 <Avatar username={c.friend.username} avatarUrl={c.friend.avatar_url} size={36} />
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate text-sm font-bold text-slate-900 dark:text-slate-100">
-                    {c.friend.username}
+                  <span className="flex items-center gap-2">
+                    <span className="block truncate text-sm font-bold text-slate-900 dark:text-slate-100">
+                      {c.friend.username}
+                    </span>
+                    {c.unreadCount > 0 && (
+                      <span
+                        aria-label={`${c.unreadCount} unread`}
+                        className="flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-red-600 px-1 text-[10px] font-bold text-white"
+                      >
+                        {c.unreadCount > 99 ? "99+" : c.unreadCount}
+                      </span>
+                    )}
                   </span>
                   <span className="block truncate text-xs text-slate-500 dark:text-slate-400">
                     {c.lastMessage

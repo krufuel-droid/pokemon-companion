@@ -90,6 +90,8 @@ create table if not exists messages (
 );
 comment on table messages is 'Direct messages between two users.';
 
+alter table messages add column if not exists read_at timestamptz;
+
 -- ----------------------------------------------------------------------------
 -- nuzlockes
 -- Nuzlocke challenge runs: title, optional house rules text, and a status
@@ -325,6 +327,11 @@ create policy messages_insert_participants on messages
 drop policy if exists messages_delete_sender on messages;
 create policy messages_delete_sender on messages
   for delete using (auth.uid() = sender_id);
+
+drop policy if exists messages_update_read on messages;
+create policy messages_update_read on messages
+  for update using (auth.uid() = receiver_id)
+  with check (auth.uid() = receiver_id);
 
 -- nuzlockes: everyone can read; only the owner can write.
 drop policy if exists nuzlockes_select_all on nuzlockes;
