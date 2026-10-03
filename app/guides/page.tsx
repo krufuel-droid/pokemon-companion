@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { GUIDES } from "@/lib/data/guides";
+import { SECTIONS as EV_SECTIONS, QUICK_TIPS as EV_TIPS } from "@/lib/data/ev-training";
 
 export const metadata = {
   title: "Playthrough Guides | Pokémon Companion",
@@ -29,22 +30,38 @@ export default function GuidesIndex() {
         <summary className="cursor-pointer list-none px-6 py-4 text-xl font-bold text-slate-700 marker:hidden dark:text-slate-200 [&::-webkit-details-marker]:hidden">
           <span className="mr-2 inline-block transition-transform duration-200 [details[open]_&]:rotate-90">▸</span>
           Training
+          <span className="ml-2 text-sm font-medium text-slate-400 dark:text-slate-500">
+            EV training by generation
+          </span>
         </summary>
-        <div className="grid gap-4 px-6 pb-6 sm:grid-cols-2">
-          <Link
-            href="/guides/ev-training"
-            className="group rounded-2xl bg-slate-50 p-6 ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:shadow-md hover:ring-emerald-300 dark:bg-slate-800 dark:ring-slate-700 dark:hover:ring-emerald-700"
-          >
-            <h3 className="text-lg font-semibold text-slate-800 group-hover:text-emerald-700 dark:text-slate-100 dark:group-hover:text-emerald-300">
-              EV Training by Generation
-            </h3>
-            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-              How to train Effort Values in every era, from Gen 3 to Scarlet/Violet.
-            </p>
-            <span className="mt-3 inline-block text-sm font-medium text-emerald-600 dark:text-emerald-400">
-              View guide →
-            </span>
-          </Link>
+        <div className="space-y-4 px-6 pb-6">
+          {EV_SECTIONS.map((s) => (
+            <details key={s.gen} className="rounded-xl bg-slate-50 ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
+              <summary className="cursor-pointer list-none px-5 py-3 text-lg font-semibold text-slate-700 marker:hidden dark:text-slate-200 [&::-webkit-details-marker]:hidden">
+                <span className="mr-2 inline-block transition-transform duration-200 [details[open]_&]:rotate-90">▸</span>
+                {s.gen}
+                <span className="ml-2 text-sm font-medium text-slate-400 dark:text-slate-500">
+                  {s.games}
+                </span>
+              </summary>
+              <ul className="space-y-3 px-5 pb-5">
+                {s.methods.map((m) => (
+                  <li key={m.title}>
+                    <p className="font-semibold text-slate-800 dark:text-slate-200">{m.title}</p>
+                    <p className="mt-0.5 text-sm text-slate-600 dark:text-slate-400">{m.detail}</p>
+                  </li>
+                ))}
+              </ul>
+            </details>
+          ))}
+          <div className="rounded-xl bg-emerald-50 p-5 dark:bg-emerald-950">
+            <p className="font-semibold text-slate-800 dark:text-slate-200">Quick tips</p>
+            <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-slate-600 dark:text-slate-400">
+              {EV_TIPS.map((tip) => (
+                <li key={tip}>{tip}</li>
+              ))}
+            </ul>
+          </div>
         </div>
       </details>
 
