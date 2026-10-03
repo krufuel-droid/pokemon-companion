@@ -28,6 +28,38 @@ export interface GameGuide {
 
 export const GUIDES: GameGuide[] = [
   {
+    slug: "legends-z-a",
+    title: "Pokémon Legends: Z-A",
+    generation: "Gen IX",
+    tagline: "All of Lumiose City is your wild area — climb the Z-A Royale from Rank Z to Rank A in real-time battles.",
+    path: [
+      { name: "Arrival in Lumiose", detail: "Meet your starter: Chikorita, Totodile, or Tepig · settle in at Hotel Z", kind: "story" },
+      { name: "Wild Zones", detail: "Catch Pokémon coexisting with humans across the city's districts · urban redevelopment by Quasartico, Inc.", kind: "story" },
+      { name: "Z-A Royale: Rank Z → F", detail: "Nighttime Battle Zones appear — challenge wandering trainers, dodge pre-emptive strikes", kind: "other" },
+      { name: "Mega Evolution", detail: "Collect Mega Energy to fill the gauge and Mega Evolve mid-battle · extend it by dealing damage", kind: "story" },
+      { name: "Z-A Royale: Rank E → B", detail: "Promotion battles against rival trainers · complete bonus card side quests for rank points", kind: "other" },
+      { name: "Z-A Royale: Rank A", detail: "The final promotion — win and have your wish granted", kind: "champion" },
+    ],
+    story: [
+      "Lumiose City — the Paris-inspired metropolis from X and Y — is undergoing a massive urban redevelopment project led by Quasartico, Inc., meant to shape the city into a place that belongs to both people and Pokémon. You arrive as a newcomer, take up residence at Hotel Z, and get pulled into the Z-A Royale: a nightly tournament where trainers battle in designated Battle Zones across the city, climbing from Rank Z all the way to Rank A.",
+      "Unlike every mainline game before it, Legends: Z-A abandons turn-based combat entirely. Battles play out in real time — you move your trainer around the arena, position your Pokémon, dodge incoming attacks, and issue move commands with timing that matters. You can even launch pre-emptive strikes on trainers in Battle Zones before they notice you — but they can do the same to you, stunning your Pokémon for a few precious seconds.",
+      "Mega Evolution returns as a core mechanic: fill your Mega Gauge with Mega Energy collected around the city, then unleash a Mega Evolution mid-battle. Keep dealing damage to stay Mega Evolved longer. Wild Zones scattered through Lumiose let Pokémon live alongside the city's human districts, and your goal — win the Royale, reach Rank A, and claim the one wish granted to the champion.",
+    ],
+    tips: [
+      "Positioning is everything: real-time battles reward dodging and flanking. Don't stand still trading hits like it's turn-based.",
+      "Pre-emptive strikes in Battle Zones give you a free opening — sneak up on wandering trainers at night.",
+      "Collect Mega Energy as you explore so your gauge is ready for tough promotion battles.",
+      "Bonus cards (side quests) grant rank points — they speed up your climb between promotion matches.",
+      "Wild Zones are your catching grounds; Battle Zones (night only) are your battling grounds. Plan around the day/night cycle.",
+      "Starter choice: Chikorita (Grass), Totodile (Water), or Tepig (Fire) — pick for the early matchups you'll face in the city districts.",
+    ],
+    postgame: [
+      "Mega Dimension DLC (Dec 2025): spatial distortions appear across Lumiose — investigate with Ansha and the Mythical Pokémon Hoopa, explore Hyperspace Lumiose, and discover Mega Raichu X and Mega Raichu Y.",
+      "The DLC lets Pokémon push beyond level 100 — a series first.",
+      "Physical bundle (Switch 2 Edition + Mega Dimension) released October 29, 2026, with a 100 Ultra Ball Mystery Gift bonus.",
+    ],
+  },
+  {
     slug: "scarlet-violet",
     title: "Pokémon Scarlet & Violet",
     generation: "Gen IX",
