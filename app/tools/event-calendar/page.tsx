@@ -2,7 +2,7 @@ import Link from "next/link";
 import { GAME_EVENTS, KIND_LABEL, KIND_COLOR, type GameEvent } from "@/lib/data/events";
 
 export const metadata = {
-  title: "Event Calendar | Poke Companion",
+  title: "Event Calendar | Poké Companion",
   description: "Active Tera Raids, Mystery Gifts, and distributions with end dates — never miss one.",
 };
 

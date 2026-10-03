@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import { FeedbackForm } from "./feedback-form";
 
 export const metadata: Metadata = {
-  title: "Feedback | Poke Companion",
+  title: "Feedback | Poké Companion",
   description:
-    "Report a bug, suggest a feature, or just say hi to the Poke Companion team.",
+    "Report a bug, suggest a feature, or just say hi to the Poké Companion team.",
 };
 
 export default function FeedbackPage() {

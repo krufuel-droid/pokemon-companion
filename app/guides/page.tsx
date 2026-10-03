@@ -6,7 +6,7 @@ import { SHINY_SECTIONS, SHINY_TIPS } from "@/lib/data/shiny-hunting";
 import { IV_SECTIONS, IV_TIPS } from "@/lib/data/iv-training";
 
 export const metadata = {
-  title: "Playthrough Guides | Poke Companion",
+  title: "Playthrough Guides | Poké Companion",
   description:
     "The intended path through every mainline Pokémon game — gyms, trials, story beats, and post-game.",
 };

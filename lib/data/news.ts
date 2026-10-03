@@ -1,5 +1,5 @@
 /**
- * Poke Companion news feed.
+ * Poké Companion news feed.
  *
  * Entries are shown newest-first on /news. To add an entry, append a new
  * object at the TOP of the NEWS array with:
@@ -21,10 +21,10 @@ export interface NewsItem {
 export const NEWS: NewsItem[] = [
   {
     date: "2026-10-01",
-    title: "Poke Companion launches community features",
+    title: "Poké Companion launches community features",
     body: "The Community tab is live! Make posts, react with ❤️ 🔥 😮 👏, add friends by trainer name, and trade DMs with your friends. The Pokédex now shows all 1,025 species on one page too.",
     source: {
-      label: "Poke Companion",
+      label: "Poké Companion",
       url: "https://pokemon-companion-pi.vercel.app/community",
     },
     tag: "App",

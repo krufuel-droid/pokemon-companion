@@ -10,7 +10,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const guide = GUIDES.find((g) => g.slug === slug);
   return {
-    title: guide ? `${guide.title} Playthrough Guide | Poke Companion` : "Guide | Poke Companion",
+    title: guide ? `${guide.title} Playthrough Guide | Poké Companion` : "Guide | Poké Companion",
     description: guide?.tagline ?? "Playthrough guide.",
   };
 }

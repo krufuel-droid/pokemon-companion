@@ -1,7 +1,7 @@
 import RandomizerClient from "./RandomizerClient";
 
 export const metadata = {
-  title: "Team Randomizer | Poke Companion",
+  title: "Team Randomizer | Poké Companion",
   description:
     "Pick a game and get a balanced team of early-game Pokémon for your next playthrough.",
 };

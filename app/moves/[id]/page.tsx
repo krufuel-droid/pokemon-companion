@@ -44,7 +44,7 @@ export async function generateMetadata({
   const { id } = await params;
   const move = MOVES.find((m) => m.id === Number(id));
   return {
-    title: move ? `${move.name} | Poke Companion` : "Move | Poke Companion",
+    title: move ? `${move.name} | Poké Companion` : "Move | Poké Companion",
   };
 }
 
