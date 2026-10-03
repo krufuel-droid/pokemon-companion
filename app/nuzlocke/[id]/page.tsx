@@ -531,6 +531,7 @@ function OwnerStatusSetter({ run, onChanged }: { run: Run; onChanged: () => void
   const { user } = useAuth();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
 
   async function setStatus(status: string) {
     if (!user || status === run.status) return;
@@ -548,6 +549,22 @@ function OwnerStatusSetter({ run, onChanged }: { run: Run; onChanged: () => void
       setError(err instanceof Error ? err.message : "Could not update the status.");
     } finally {
       setBusy(false);
+    }
+  }
+
+  async function deleteRun() {
+    if (!user) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.from("nuzlockes").delete().eq("id", run.id);
+      if (error) throw error;
+      window.location.href = "/nuzlocke";
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not delete the run.");
+      setBusy(false);
+      setConfirmingDelete(false);
     }
   }
 
@@ -570,6 +587,38 @@ function OwnerStatusSetter({ run, onChanged }: { run: Run; onChanged: () => void
         </button>
       ))}
       {error && <p role="alert" className="text-sm text-red-700 dark:text-red-300">{error}</p>}
+      <div className="mt-2 basis-full">
+        {!confirmingDelete ? (
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() => setConfirmingDelete(true)}
+            className="text-xs font-semibold text-red-600 underline underline-offset-2 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+          >
+            Delete this run
+          </button>
+        ) : (
+          <p className="text-sm text-slate-600 dark:text-slate-400">
+            Delete this run and all its teams?{" "}
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => void deleteRun()}
+              className="font-bold text-red-600 underline underline-offset-2 dark:text-red-400"
+            >
+              {busy ? "Deleting…" : "Yes, delete"}
+            </button>{" "}
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => setConfirmingDelete(false)}
+              className="font-semibold text-slate-500 underline underline-offset-2 dark:text-slate-400"
+            >
+              Cancel
+            </button>
+          </p>
+        )}
+      </div>
     </div>
   );
 }
