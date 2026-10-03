@@ -83,10 +83,37 @@ export default function DailyCatchLogger({
     }
   }
 
+  async function unlog() {
+    if (!user) return;
+    setBusy(true);
+    try {
+      const { error } = await createClient()
+        .from("daily_catches")
+        .delete()
+        .eq("user_id", user.id)
+        .eq("potd_date", potdDate);
+      if (error) throw error;
+      setDone(false);
+    } catch {
+      // Keep the logged state so the user can retry.
+    } finally {
+      setBusy(false);
+    }
+  }
+
   if (done) {
     return (
-      <p className="mt-4 inline-block rounded-full bg-emerald-100 px-4 py-2 text-sm font-bold text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300">
-        ✅ Logged! Nice catch, trainer.
+      <p className="mt-4 flex items-center justify-center gap-2 text-sm sm:justify-start">
+        <span className="inline-block rounded-full bg-emerald-100 px-4 py-2 font-bold text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300">
+          ✅ Logged! Nice catch, trainer.
+        </span>
+        <button
+          onClick={() => void unlog()}
+          disabled={busy}
+          className="font-semibold text-slate-400 underline-offset-2 hover:text-red-500 hover:underline disabled:opacity-50"
+        >
+          {busy ? "…" : "Undo"}
+        </button>
       </p>
     );
   }
