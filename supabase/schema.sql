@@ -298,6 +298,17 @@ drop policy if exists friendships_update_participants on friendships;
 create policy friendships_update_participants on friendships
   for update using (auth.uid() = requester_id or auth.uid() = addressee_id);
 
+-- Friends enhancements (Oct 2026): online presence + friend suggestions.
+-- Safe to re-run: every statement is idempotent.
+alter table profiles add column if not exists last_seen timestamptz;
+
+-- Accepted friendships are publicly readable so friend-of-friend
+-- suggestions can be computed. Pending/blocked rows stay private
+-- to the two people involved.
+drop policy if exists friendships_select_accepted_public on friendships;
+create policy friendships_select_accepted_public on friendships
+  for select using (status = 'accepted');
+
 -- messages: only sender/receiver can read or send; sender can delete own.
 drop policy if exists messages_select_participants on messages;
 create policy messages_select_participants on messages

@@ -341,3 +341,16 @@ create policy "avatars_owner_delete" on storage.objects
     and auth.role() = 'authenticated'
     and (storage.foldername(name))[1] = auth.uid()::text
   );
+
+-- ----------------------------------------------------------------------------
+-- Friends enhancements (Oct 2026): online presence + friend suggestions.
+-- Safe to re-run: every statement is idempotent.
+-- ----------------------------------------------------------------------------
+alter table profiles add column if not exists last_seen timestamptz;
+
+-- Accepted friendships are publicly readable so friend-of-friend
+-- suggestions can be computed. Pending/blocked rows stay private
+-- to the two people involved.
+drop policy if exists friendships_select_accepted_public on friendships;
+create policy friendships_select_accepted_public on friendships
+  for select using (status = 'accepted');
