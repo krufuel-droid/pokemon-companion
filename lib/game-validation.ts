@@ -59,12 +59,39 @@ export async function speciesAppearsInGame(
   return versions.some((v) => speciesVersions.includes(v));
 }
 
-function cleanLocationName(name: string): string {
+/**
+ * Real wild-encounter location names for a species in a game, via PokéAPI.
+ * Returns an empty array when there's no encounter data (e.g. Scarlet/Violet,
+ * transfer-only) — callers should fall back to free text.
+ */
+export async function encounterLocations(
+  speciesId: number,
+  game: string
+): Promise<string[]> {
+  const versions = GAME_VERSIONS[game as PokemonGame];
+  if (!versions) return [];
+  let areas: { location_area: { name: string }; version_details: { version: { name: string } }[] }[];
+  try {
+    const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${speciesId}/encounters`);
+    if (!res.ok) return [];
+    areas = await res.json();
+  } catch {
+    return [];
+  }
+  const names = new Set<string>();
+  for (const area of areas) {
+    const inGame = area.version_details.some((vd) => versions.includes(vd.version.name));
+    if (inGame) names.add(prettyLocation(area.location_area.name));
+  }
+  return [...names].sort((a, b) => a.localeCompare(b));
+}
+
+function prettyLocation(name: string): string {
   return name
     .replace(/-area$/, "")
     .split("-")
-    .join(" ")
-    .toLowerCase();
+    .map((w) => (w.length > 0 ? w[0].toUpperCase() + w.slice(1) : w))
+    .join(" ");
 }
 
 /**
@@ -96,7 +123,7 @@ export async function checkCatchLocation(
   const known = new Set<string>();
   for (const area of areas) {
     const inGame = area.version_details.some((vd) => versions.includes(vd.version.name));
-    if (inGame) known.add(cleanLocationName(area.location_area.name));
+    if (inGame) known.add(prettyLocation(area.location_area.name).toLowerCase());
   }
   if (known.size === 0) return "unknown";
 

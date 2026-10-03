@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
 import { incrementRecord } from "@/lib/achievements";
 import { POKEMON_GAMES } from "@/lib/data/games";
-import { speciesAppearsInGame, checkCatchLocation } from "@/lib/game-validation";
+import { speciesAppearsInGame, checkCatchLocation, encounterLocations } from "@/lib/game-validation";
 
 export default function DailyCatchLogger({
   speciesId,
@@ -24,6 +24,8 @@ export default function DailyCatchLogger({
   const [done, setDone] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [locationWarning, setLocationWarning] = useState<string | null>(null);
+  const [locations, setLocations] = useState<string[] | null>(null); // null = not loaded yet
+  const [locationsLoading, setLocationsLoading] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -38,6 +40,30 @@ export default function DailyCatchLogger({
       })
       .catch(() => {});
   }, [user, potdDate]);
+
+  // Load real encounter locations whenever the game changes.
+  useEffect(() => {
+    if (!open) return;
+    let cancelled = false;
+    setLocationsLoading(true);
+    setLocations(null);
+    setLocation("");
+    encounterLocations(speciesId, game)
+      .then((locs) => {
+        if (cancelled) return;
+        setLocations(locs);
+        if (locs.length > 0) setLocation(locs[0]);
+      })
+      .catch(() => {
+        if (!cancelled) setLocations([]);
+      })
+      .finally(() => {
+        if (!cancelled) setLocationsLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [game, open, speciesId]);
 
   async function submit(force = false) {
     if (!user || !location.trim()) return;
@@ -171,13 +197,32 @@ export default function DailyCatchLogger({
       </label>
       <label className="mt-2 block text-xs font-semibold text-slate-500 dark:text-slate-400">
         Where did you catch it?
-        <input
-          value={location}
-          onChange={(e) => { setLocation(e.target.value); setLocationWarning(null); }}
-          placeholder="e.g. Cascarrafa, Area Zero, Route 3…"
-          maxLength={80}
-          className="mt-1 w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100"
-        />
+        {locationsLoading ? (
+          <p className="mt-1 text-sm font-normal text-slate-400">Loading locations…</p>
+        ) : locations && locations.length > 0 ? (
+          <select
+            value={location}
+            onChange={(e) => { setLocation(e.target.value); setLocationWarning(null); }}
+            className="mt-1 w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100"
+          >
+            {locations.map((loc) => (
+              <option key={loc}>{loc}</option>
+            ))}
+          </select>
+        ) : (
+          <>
+            <input
+              value={location}
+              onChange={(e) => { setLocation(e.target.value); setLocationWarning(null); }}
+              placeholder="e.g. Cascarrafa, Area Zero, Route 3…"
+              maxLength={80}
+              className="mt-1 w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100"
+            />
+            <p className="mt-1 font-normal text-slate-400">
+              No location list for this game — type it in.
+            </p>
+          </>
+        )}
       </label>
       {error && <p className="mt-2 text-xs text-red-600 dark:text-red-400">{error}</p>}
       {locationWarning && (
