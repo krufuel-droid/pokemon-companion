@@ -368,7 +368,7 @@ export default function RunDetailPage({ params }: { params: Promise<{ id: string
 
       {/* Teams */}
       <section className="mt-8 space-y-8">
-        {isParticipant && <AddPokemonForm runId={id} game={game} onAdded={() => void refresh()} />}
+        {isParticipant && <AddPokemonForm runId={id} game={game} team={team} onAdded={() => void refresh()} />}
         {orderedParticipants.length === 0 && (
           <p className="text-sm text-slate-500 dark:text-slate-400">No trainers in this run yet.</p>
         )}
@@ -578,7 +578,7 @@ function OwnerStatusSetter({ run, onChanged }: { run: Run; onChanged: () => void
 /* Add a Pokémon                                                         */
 /* ------------------------------------------------------------------ */
 
-function AddPokemonForm({ runId, game, onAdded }: { runId: string; game: string | null; onAdded: () => void }) {
+function AddPokemonForm({ runId, game, team, onAdded }: { runId: string; game: string | null; team: TeamRow[]; onAdded: () => void }) {
   const { user } = useAuth();
   const [query, setQuery] = useState("");
   const [species, setSpecies] = useState<SpeciesIndex | null>(null);
@@ -590,6 +590,16 @@ function AddPokemonForm({ runId, game, onAdded }: { runId: string; game: string 
 
   const matches = useMemo(() => (species ? [] : searchSpecies(query).slice(0, 6)), [query, species]);
   const locations = useMemo(() => getLocationsForGame(game), [game]);
+
+  // Nuzlocke "one catch per area" warning: flag if this trainer already
+  // caught something at the selected location.
+  const duplicateCatch = useMemo(() => {
+    if (!user || !location.trim()) return null;
+    const loc = location.trim().toLowerCase();
+    return team.find(
+      (t) => t.user_id === user.id && (t.met_location ?? "").toLowerCase() === loc
+    ) ?? null;
+  }, [team, location, user]);
 
   async function add(e: FormEvent) {
     e.preventDefault();
@@ -707,6 +717,12 @@ function AddPokemonForm({ runId, game, onAdded }: { runId: string; game: string 
               />
             )}
           </div>
+          {duplicateCatch && (
+            <p role="alert" className="rounded-lg bg-amber-50 px-3 py-2 text-sm font-medium text-amber-800 dark:bg-amber-950 dark:text-amber-200">
+              ⚠️ You already caught {duplicateCatch.nickname ?? duplicateCatch.species_name} at {duplicateCatch.met_location}!
+              Nuzlocke rules say one catch per area — add anyway if your house rules allow it.
+            </p>
+          )}
           <div>
             <label htmlFor="add-level" className={labelClass}>Level</label>
             <input id="add-level" type="number" min={1} max={100} value={level} onChange={(e) => setLevel(e.target.value)} className={inputClass} placeholder="5" />
