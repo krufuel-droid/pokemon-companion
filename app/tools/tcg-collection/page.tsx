@@ -539,6 +539,400 @@ function WantPane({
 }
 
 /* ------------------------------------------------------------------ */
+/* Master Set — every print of a Pokémon in every language, with prices */
+/* ------------------------------------------------------------------ */
+
+const MASTER_SETUP_NOTE =
+  "One-time setup needed: run supabase/migration-tcg-master-set.sql in the Supabase SQL Editor, then refresh.";
+
+function MasterSetPane({ userId }: { userId: string | null }) {
+  const [pokemon, setPokemon] = useState("");
+  const [lang, setLang] = useState("en");
+  const [prints, setPrints] = useState<TcgdexCardDetail[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [searched, setSearched] = useState(false);
+  const [owned, setOwned] = useState<Set<string>>(new Set());
+  const [ownedTotal, setOwnedTotal] = useState(0);
+  const [currency, setCurrency] = useState<"USD" | "EUR">("USD");
+  const [pricesUpdated, setPricesUpdated] = useState<string | null>(null);
+  const [movers, setMovers] = useState<PriceMover[]>([]);
+  const [setupNeeded, setSetupNeeded] = useState(false);
+  const [busyIds, setBusyIds] = useState<Set<string>>(new Set());
+  const runId = useRef(0);
+
+  // Price movers digest — loads once when the tab mounts for a signed-in user.
+  useEffect(() => {
+    if (!userId) return;
+    const sb = getSupabase();
+    if (!sb) return;
+    getPriceMovers(sb as unknown as Parameters<typeof getPriceMovers>[0], userId)
+      .then(setMovers)
+      .catch(() => {});
+  }, [userId]);
+
+  async function loadPrints(pokeName: string, language: string) {
+    const q = pokeName.trim();
+    if (q.length < 2) return;
+    const id = ++runId.current;
+    setLoading(true);
+    setError(null);
+    try {
+      const summaries = await searchPrints(q);
+      if (runId.current !== id) return;
+      const details = await detailsForPrints(
+        summaries.map((s) => s.id),
+        language
+      );
+      if (runId.current !== id) return;
+      const list = [...details.values()].sort((a, b) =>
+        a.setName.localeCompare(b.setName)
+      );
+      setPrints(list);
+      setSearched(true);
+      const freshest = list
+        .map((d) => d.pricing.updated)
+        .filter((u): u is string => !!u)
+        .sort()
+        .pop();
+      setPricesUpdated(freshest ? freshest.slice(0, 10) : null);
+
+      // Owned marks for these prints (signed in only).
+      const sb = getSupabase();
+      if (sb && userId && list.length > 0) {
+        const { data, error: ownErr } = await sb
+          .from("tcg_master_set")
+          .select("card_id")
+          .eq("user_id", userId)
+          .eq("language", language)
+          .in(
+            "card_id",
+            list.map((d) => d.id)
+          );
+        if (runId.current !== id) return;
+        if (ownErr && isMissingTable(ownErr)) {
+          setSetupNeeded(true);
+        } else if (!ownErr && data) {
+          setOwned(new Set((data as { card_id: string }[]).map((r) => r.card_id)));
+        }
+        // Best-effort daily price snapshot for the movers digest.
+        void snapshotTrackedPrices(
+          sb as unknown as Parameters<typeof snapshotTrackedPrices>[0],
+          userId
+        ).catch(() => {});
+      }
+      // Total owned across all languages, for the header stat.
+      if (sb && userId) {
+        const { data: all } = await sb
+          .from("tcg_master_set")
+          .select("id")
+          .eq("user_id", userId);
+        if (runId.current !== id) return;
+        setOwnedTotal((all as unknown[] | null)?.length ?? 0);
+      }
+    } catch (e) {
+      if (runId.current !== id) return;
+      setError(e instanceof Error ? e.message : "Could not load prints — try again.");
+    } finally {
+      if (runId.current === id) setLoading(false);
+    }
+  }
+
+  function submit(e: React.FormEvent) {
+    e.preventDefault();
+    void loadPrints(pokemon, lang);
+  }
+
+  function changeLang(next: string) {
+    setLang(next);
+    if (searched) void loadPrints(pokemon, next);
+  }
+
+  async function toggleOwned(detail: TcgdexCardDetail) {
+    const sb = getSupabase();
+    if (!sb || !userId || busyIds.has(detail.id)) return;
+    setBusyIds((s) => new Set(s).add(detail.id));
+    try {
+      if (owned.has(detail.id)) {
+        const { error } = await sb
+          .from("tcg_master_set")
+          .delete()
+          .eq("user_id", userId)
+          .eq("card_id", detail.id)
+          .eq("language", lang);
+        if (!error) {
+          setOwned((s) => {
+            const n = new Set(s);
+            n.delete(detail.id);
+            return n;
+          });
+          setOwnedTotal((t) => Math.max(0, t - 1));
+        }
+      } else {
+        const { error } = await sb.from("tcg_master_set").insert({
+          user_id: userId,
+          card_id: detail.id,
+          card_name: detail.name,
+          set_name: detail.setName,
+          language: lang,
+          image_url: detail.image,
+        });
+        if (!error) {
+          if (isMissingTable(error)) setSetupNeeded(true);
+          setOwned((s) => new Set(s).add(detail.id));
+          setOwnedTotal((t) => t + 1);
+          void unlockAchievement(userId, "master-set-first").catch(() => {});
+        } else if (isMissingTable(error)) {
+          setSetupNeeded(true);
+        }
+      }
+    } finally {
+      setBusyIds((s) => {
+        const n = new Set(s);
+        n.delete(detail.id);
+        return n;
+      });
+    }
+  }
+
+  if (setupNeeded) {
+    return (
+      <p className="mt-8 rounded-2xl bg-amber-50 p-6 text-center text-sm text-amber-800 ring-1 ring-amber-200 dark:bg-amber-950/30 dark:text-amber-300 dark:ring-amber-900">
+        {MASTER_SETUP_NOTE}
+      </p>
+    );
+  }
+
+  const langLabel = TCGDEX_LANGUAGES.find((l) => l.code === lang)?.label ?? lang;
+
+  return (
+    <div>
+      {/* Price movers digest */}
+      {userId && movers.length > 0 && (
+        <section aria-label="Price movers" className="mb-8">
+          <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100">
+            📈 Price movers <span className="text-xs font-semibold text-slate-400">7-day, ±10%+</span>
+          </h2>
+          <div className="mt-3 flex gap-3 overflow-x-auto pb-2">
+            {movers.map((m) => {
+              const up = m.pctChange >= 0;
+              const langName =
+                TCGDEX_LANGUAGES.find((l) => l.code === m.language)?.label ?? m.language;
+              return (
+                <div
+                  key={`${m.cardId}-${m.language}`}
+                  className="w-44 shrink-0 overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700"
+                >
+                  {m.imageUrl && (
+                    <img src={m.imageUrl} alt={m.cardName} loading="lazy" className="aspect-[3/4] w-full object-cover" />
+                  )}
+                  <div className="p-3">
+                    <p className="truncate text-sm font-bold text-slate-900 dark:text-slate-100">
+                      {m.cardName}
+                    </p>
+                    <p className="truncate text-xs text-slate-500 dark:text-slate-400">
+                      {langName}
+                      {m.setName ? ` · ${m.setName}` : ""}
+                    </p>
+                    <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                      {formatPrice(m.oldPrice, m.currency)} →{" "}
+                      {formatPrice(m.newPrice, m.currency)}
+                    </p>
+                    <span
+                      className={`mt-1 inline-block rounded-full px-2 py-0.5 text-xs font-bold tabular-nums ${
+                        up
+                          ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"
+                          : "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300"
+                      }`}
+                    >
+                      {up ? "▲" : "▼"} {Math.abs(m.pctChange).toFixed(0)}%
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
+      {/* Pokémon + language pickers */}
+      <form onSubmit={submit} className="flex flex-col gap-3 sm:flex-row">
+        <input
+          type="search"
+          value={pokemon}
+          onChange={(e) => setPokemon(e.target.value)}
+          placeholder="Pokémon — e.g. Sylveon"
+          aria-label="Pokémon"
+          className="flex-1 rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-800 placeholder:text-slate-400 focus:border-emerald-500 focus:outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+        />
+        <select
+          value={lang}
+          onChange={(e) => changeLang(e.target.value)}
+          aria-label="Language"
+          className="rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-800 focus:border-emerald-500 focus:outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+        >
+          {TCGDEX_LANGUAGES.map((l) => (
+            <option key={l.code} value={l.code}>
+              {l.label}
+            </option>
+          ))}
+        </select>
+        <button
+          type="submit"
+          disabled={loading || pokemon.trim().length < 2}
+          className="rounded-xl bg-emerald-600 px-6 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-emerald-700 disabled:opacity-50"
+        >
+          {loading ? "Loading…" : "Show prints"}
+        </button>
+      </form>
+      <p className="mt-2 text-xs text-slate-400 dark:text-slate-500">
+        Every print of that Pokémon — all sets, all variants — in {langLabel}. Card data
+        and prices via TCGdex (TCGPlayer USD + Cardmarket EUR, updated daily
+        {pricesUpdated ? `, last ${pricesUpdated}` : ""}).
+      </p>
+
+      {error && (
+        <div className="mt-6 rounded-2xl bg-red-50 p-6 text-center ring-1 ring-red-200 dark:bg-red-950/30 dark:ring-red-900">
+          <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
+          <button
+            type="button"
+            onClick={() => void loadPrints(pokemon, lang)}
+            className="mt-3 rounded-full bg-red-600 px-4 py-1.5 text-sm font-semibold text-white hover:bg-red-700"
+          >
+            Retry
+          </button>
+        </div>
+      )}
+
+      {!loading && !error && searched && prints.length === 0 && (
+        <p className="mt-8 text-center text-slate-500 dark:text-slate-400">
+          No {langLabel} prints found for “{pokemon.trim()}”.
+        </p>
+      )}
+
+      {prints.length > 0 && (
+        <>
+          <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="text-sm font-bold text-slate-800 dark:text-slate-100">
+                {owned.size}/{prints.length} {langLabel} prints owned
+              </p>
+              <div className="mt-1 h-2 w-48 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+                <div
+                  className="h-full rounded-full bg-emerald-500 transition-all"
+                  style={{ width: `${(owned.size / prints.length) * 100}%` }}
+                />
+              </div>
+              {userId && ownedTotal > 0 && (
+                <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">
+                  {ownedTotal} total across all languages
+                </p>
+              )}
+            </div>
+            <div className="flex gap-1 rounded-xl bg-slate-100 p-1 dark:bg-slate-800">
+              {(["USD", "EUR"] as const).map((c) => (
+                <button
+                  key={c}
+                  type="button"
+                  onClick={() => setCurrency(c)}
+                  className={`rounded-lg px-3 py-1 text-xs font-bold ${
+                    currency === c
+                      ? "bg-white text-slate-900 shadow-sm dark:bg-slate-900 dark:text-slate-100"
+                      : "text-slate-500 dark:text-slate-400"
+                  }`}
+                >
+                  {c === "USD" ? "$ USD" : "€ EUR"}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+            {prints.map((d) => {
+              const isOwned = owned.has(d.id);
+              const busy = busyIds.has(d.id);
+              const price = currency === "USD" ? d.pricing.usd : d.pricing.eur;
+              return (
+                <div
+                  key={d.id}
+                  className={`overflow-hidden rounded-2xl bg-white shadow-sm ring-1 transition dark:bg-slate-900 ${
+                    isOwned
+                      ? "ring-2 ring-emerald-500 dark:ring-emerald-400"
+                      : "ring-slate-200 dark:ring-slate-700"
+                  }`}
+                >
+                  <div className="relative">
+                    {d.image ? (
+                      <img
+                        src={d.image}
+                        alt={`${d.name} (${d.setName})`}
+                        loading="lazy"
+                        className="aspect-[3/4] w-full object-cover"
+                      />
+                    ) : (
+                      <div className="flex aspect-[3/4] w-full items-center justify-center bg-slate-100 text-slate-400 dark:bg-slate-800">
+                        No image
+                      </div>
+                    )}
+                    {isOwned && (
+                      <span className="absolute right-2 top-2 rounded-full bg-emerald-500 px-2 py-0.5 text-xs font-bold text-white shadow">
+                        ✓ Owned
+                      </span>
+                    )}
+                  </div>
+                  <div className="p-3">
+                    <p className="truncate text-sm font-bold text-slate-900 dark:text-slate-100">
+                      {d.name}
+                    </p>
+                    <p className="truncate text-xs text-slate-500 dark:text-slate-400">
+                      {d.setName} · #{d.localId}
+                    </p>
+                    <div className="mt-1.5 flex flex-wrap gap-1">
+                      {variantBadges(d.variants).map((b) => (
+                        <span
+                          key={b}
+                          className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-600 dark:bg-slate-800 dark:text-slate-300"
+                        >
+                          {b}
+                        </span>
+                      ))}
+                      {d.rarity && (
+                        <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-semibold text-amber-700 dark:bg-amber-950 dark:text-amber-300">
+                          {d.rarity}
+                        </span>
+                      )}
+                    </div>
+                    <p className="mt-1.5 text-sm font-black tabular-nums text-slate-800 dark:text-slate-100">
+                      {formatPrice(price, currency)}
+                      <span className="ml-1 text-[11px] font-semibold text-slate-400">
+                        market
+                      </span>
+                    </p>
+                    <button
+                      type="button"
+                      disabled={!userId || busy}
+                      onClick={() => void toggleOwned(d)}
+                      title={userId ? undefined : "Sign in to track ownership"}
+                      className={`mt-2 w-full rounded-lg px-3 py-1.5 text-xs font-bold transition disabled:opacity-40 ${
+                        isOwned
+                          ? "bg-slate-200 text-slate-700 hover:bg-slate-300 dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600"
+                          : "bg-emerald-600 text-white hover:bg-emerald-700"
+                      }`}
+                    >
+                      {busy ? "Saving…" : isOwned ? "✓ In master set" : "+ I own this"}
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
 /* Main page                                                          */
 /* ------------------------------------------------------------------ */
 
@@ -734,6 +1128,7 @@ export default function TcgCollectionPage() {
     { id: "search", label: "🔍 Search" },
     { id: "collection", label: "📦 My Collection", count: collection.length },
     { id: "want", label: "⭐ Want List", count: want.length },
+    { id: "master", label: "🌍 Master Set" },
   ];
 
   return (
@@ -839,6 +1234,7 @@ export default function TcgCollectionPage() {
               </p>
             )
           ))}
+        {tab === "master" && <MasterSetPane userId={userId} />}
       </div>
 
       {toast && <Toast message={toast} onDone={() => setToast(null)} />}
