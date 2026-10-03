@@ -789,3 +789,60 @@ drop policy if exists friendship_progress_parties on friendship_progress;
 create policy friendship_progress_parties on friendship_progress
   for all using (auth.uid() = user_id or auth.uid() = friend_id)
   with check (auth.uid() = user_id or auth.uid() = friend_id);
+
+-- ----------------------------------------------------------------------------
+-- Section 4: Shared goals & weekly challenges (Oct 2026).
+-- Safe to re-run: every statement is idempotent.
+-- ----------------------------------------------------------------------------
+
+-- challenges: one challenge per (goal_type, week_start). The app keeps it to
+-- ONE active challenge per week; the first signed-in trainer to open the
+-- Challenges tab each Monday auto-creates that week's row (the INSERT policy
+-- allows it, and the unique constraint prevents duplicates).
+create table if not exists challenges (
+  id uuid primary key default gen_random_uuid(),
+  title text not null,
+  description text,
+  goal_type text not null,
+  target_count int not null,
+  week_start date not null,
+  created_at timestamptz not null default now(),
+  unique (goal_type, week_start)
+);
+comment on table challenges is 'Weekly friend challenges (Section 4): one active challenge per week.';
+
+-- challenge_progress: each trainer's count toward a challenge. One row per
+-- (challenge, user); the app upserts. The 'say_hi' goal type is auto-counted
+-- from friendship_progress rows instead of using this table.
+create table if not exists challenge_progress (
+  challenge_id uuid not null references challenges(id) on delete cascade,
+  user_id uuid not null references profiles(id) on delete cascade,
+  count int not null default 0,
+  updated_at timestamptz not null default now(),
+  primary key (challenge_id, user_id)
+);
+comment on table challenge_progress is 'Per-trainer progress on weekly challenges (Section 4).';
+
+alter table challenges enable row level security;
+alter table challenge_progress enable row level security;
+
+-- Challenge definitions are public; any signed-in trainer may create the
+-- weekly row (auto-creation on first visit), and the unique constraint keeps
+-- it to one per goal type per week. No other writes are exposed.
+drop policy if exists challenges_select_all on challenges;
+create policy challenges_select_all on challenges
+  for select using (true);
+
+drop policy if exists challenges_insert_authenticated on challenges;
+create policy challenges_insert_authenticated on challenges
+  for insert with check (auth.role() = 'authenticated');
+
+-- Progress is public (leaderboard); only the owner can write their own rows.
+drop policy if exists challenge_progress_select_all on challenge_progress;
+create policy challenge_progress_select_all on challenge_progress
+  for select using (true);
+
+drop policy if exists challenge_progress_owner_write on challenge_progress;
+create policy challenge_progress_owner_write on challenge_progress
+  for all using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);

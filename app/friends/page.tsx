@@ -17,6 +17,7 @@ import {
   type FriendshipProgress,
 } from "@/lib/friendship";
 import { getSpeciesById } from "@/lib/pokedex";
+import ChallengesView from "./ChallengesView";
 import { timeAgo, type FriendProfile, type Friendship } from "@/lib/community";
 
 const cardClass =
@@ -37,7 +38,7 @@ function isOnline(lastSeen: string | null | undefined): boolean {
 
 type FriendProfileSeen = FriendProfile & { last_seen: string | null };
 type FriendRow = Friendship & { other: FriendProfileSeen | null };
-type TabId = "friends" | "activity" | "compare" | "trading";
+type TabId = "friends" | "activity" | "compare" | "trading" | "challenges";
 
 function SectionTitle({ children }: { children: string }) {
   return (
@@ -1277,6 +1278,7 @@ export default function FriendsPage() {
     { id: "trading", label: "Trading" },
     { id: "activity", label: "Activity" },
     { id: "compare", label: "Compare" },
+    { id: "challenges", label: "Challenges" },
   ];
 
   return (
@@ -1312,6 +1314,10 @@ export default function FriendsPage() {
 
       {tab === "compare" && (
         <CompareView me={user.id} myUsername={profile?.username ?? "You"} friends={friends} />
+      )}
+
+      {tab === "challenges" && (
+        <ChallengesView me={user.id} myUsername={profile?.username ?? "You"} nicknames={nicknames} />
       )}
 
       {tab === "friends" && (
