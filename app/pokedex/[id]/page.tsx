@@ -4,10 +4,9 @@ import type { Metadata } from "next";
 import { getSpeciesById } from "@/lib/pokedex";
 import { getFormsForSpecies } from "@/lib/data/forms";
 import { MOVES } from "@/lib/data/moves";
-import { TypePills } from "../type-pills";
-import { SpriteViewer } from "./sprite-viewer";
 import { DexEntries } from "./dex-entries";
 import { FormsSection } from "./forms-section";
+import { FormSwitcher } from "./form-switcher";
 import { EncountersSection } from "./encounters-section";
 import { MatchupsSection } from "./matchups-section";
 import { LearnsetSection } from "./learnset-section";
@@ -73,6 +72,17 @@ export default async function SpeciesPage({
       ? (evolutions.chains[evoChainIndex] as EvoNode)
       : null;
 
+  // Mask forms (e.g. Ogerpon) with sprites for the header form switcher.
+  // Tera-only entries carry no types and are excluded here.
+  const maskFormOptions = getFormsForSpecies(species.id)
+    .filter((f) => f.kind === "mask" && f.types && f.types.length > 0)
+    .map((f) => ({
+      name: f.formName,
+      types: f.types as string[],
+      regular: f.sprite,
+      shiny: f.sprite.replace("/gen5/", "/gen5-shiny/"),
+    }));
+
   // Alternate forms whose typing differs from the base species —
   // lets the matchups section switch between typings.
   const formVariants = getFormsForSpecies(species.id)
@@ -113,13 +123,12 @@ export default async function SpeciesPage({
                 <p className="text-sm text-slate-500 dark:text-slate-400">{species.genera}</p>
               )}
               <div className="mt-1">
-                <TypePills types={species.types} />
-              </div>
-              <div className="mt-4">
-                <SpriteViewer
-                  name={species.name}
-                  regular={species.sprites.regular}
-                  shiny={species.sprites.shiny}
+                <FormSwitcher
+                  baseName={species.name}
+                  baseTypes={species.types}
+                  baseRegular={species.sprites.regular}
+                  baseShiny={species.sprites.shiny}
+                  forms={maskFormOptions}
                 />
               </div>
             </div>
