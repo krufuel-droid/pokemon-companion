@@ -764,9 +764,9 @@ function AddPokemonForm({ runId, game, team, onAdded }: { runId: string; game: s
       setLocation("");
       setLevel("");
       setError(null);
-      onAdded();
-      // Brief success confirmation (cleared on next add).
-      setMessage(`${addedName} added to your team!`);
+      // Full reload to guarantee the new row appears — the realtime/state
+      // refresh was silently showing an empty team after successful inserts.
+      window.location.reload();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not add the Pokémon.");
     } finally {
