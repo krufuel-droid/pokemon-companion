@@ -14,6 +14,7 @@ import {
   getPriceMovers,
   searchPrints,
   snapshotTrackedPrices,
+  snapshotWantListPrices,
   variantBadges,
   type CardPricing,
   type PriceMover,
@@ -39,6 +40,29 @@ interface TcgRow {
 
 const SETUP_NOTE =
   "One-time setup needed: run supabase/migration-tcg-collection.sql in the Supabase SQL Editor, then refresh.";
+
+const BINDER_SETUP_NOTE =
+  "One-time setup needed: run supabase/migration-binder-showcase.sql in the Supabase SQL Editor, then refresh.";
+
+/** A card the user wants to pin to their public binder showcase. */
+interface PinTarget {
+  cardId: string;
+  cardName: string;
+  imageUrl: string | null;
+  setName: string | null;
+}
+
+interface BinderPin {
+  card_id: string;
+  position: number;
+}
+
+/** Smallest free showcase slot (0-8), or -1 when all 9 are taken. */
+function nextFreePosition(pins: BinderPin[]): number {
+  const used = new Set(pins.map((p) => p.position));
+  for (let i = 0; i < 9; i++) if (!used.has(i)) return i;
+  return -1;
+}
 
 function getSupabase() {
   try {
@@ -306,6 +330,8 @@ function OwnedTile({
   onQty,
   onMove,
   onRemove,
+  isPinned,
+  onTogglePin,
 }: {
   row: TcgRow;
   rarity?: string | null;
@@ -313,6 +339,8 @@ function OwnedTile({
   onQty: (row: TcgRow, qty: number) => void;
   onMove: (row: TcgRow, to: ListKind) => void;
   onRemove: (row: TcgRow) => void;
+  isPinned?: boolean;
+  onTogglePin?: () => void;
 }) {
   return (
     <div className="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
@@ -356,6 +384,20 @@ function OwnedTile({
             ✕
           </button>
         </div>
+        {onTogglePin && (
+          <button
+            type="button"
+            onClick={onTogglePin}
+            title={isPinned ? "Remove from your binder showcase" : "Pin to your binder showcase"}
+            className={`mt-1.5 w-full rounded-lg px-3 py-1.5 text-xs font-bold transition ${
+              isPinned
+                ? "bg-violet-100 text-violet-700 hover:bg-violet-200 dark:bg-violet-950 dark:text-violet-300 dark:hover:bg-violet-900"
+                : "bg-slate-100 text-slate-500 hover:bg-violet-100 hover:text-violet-700 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-violet-950 dark:hover:text-violet-300"
+            }`}
+          >
+            {isPinned ? "📌 Pinned to binder" : "📌 Pin to binder"}
+          </button>
+        )}
       </div>
     </div>
   );
@@ -379,6 +421,8 @@ function CollectionPane({
   onQty,
   onMove,
   onRemove,
+  pinnedIds,
+  onTogglePin,
 }: {
   rows: TcgRow[];
   progress: Record<string, { owned: number; total: number }>;
@@ -387,6 +431,8 @@ function CollectionPane({
   onQty: (row: TcgRow, qty: number) => void;
   onMove: (row: TcgRow, to: ListKind) => void;
   onRemove: (row: TcgRow) => void;
+  pinnedIds: Set<string>;
+  onTogglePin: (target: PinTarget) => void;
 }) {
   const [setFilter, setSetFilter] = useState<string>("all");
 
@@ -482,6 +528,15 @@ function CollectionPane({
                     onQty={onQty}
                     onMove={onMove}
                     onRemove={onRemove}
+                    isPinned={pinnedIds.has(row.card_id)}
+                    onTogglePin={() =>
+                      onTogglePin({
+                        cardId: row.card_id,
+                        cardName: row.card_name,
+                        imageUrl: row.image_url,
+                        setName: row.set_name,
+                      })
+                    }
                   />
                 ))}
               </div>
@@ -578,7 +633,15 @@ function TcgImage({
   );
 }
 
-function MasterSetPane({ userId }: { userId: string | null }) {
+function MasterSetPane({
+  userId,
+  pinnedIds,
+  onTogglePin,
+}: {
+  userId: string | null;
+  pinnedIds: Set<string>;
+  onTogglePin: (target: PinTarget) => void;
+}) {
   const [pokemon, setPokemon] = useState("");
   const [lang, setLang] = useState("en");
   const [prints, setPrints] = useState<TcgdexCardDetail[]>([]);
@@ -961,6 +1024,31 @@ function MasterSetPane({ userId }: { userId: string | null }) {
                     >
                       {busy ? "Saving…" : isOwned ? "✓ In master set" : "+ I own this"}
                     </button>
+                    {userId && (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          onTogglePin({
+                            cardId: d.id,
+                            cardName: d.name,
+                            imageUrl: d.image ? `${d.image}/low.webp` : null,
+                            setName: d.setName,
+                          })
+                        }
+                        title={
+                          pinnedIds.has(d.id)
+                            ? "Remove from your binder showcase"
+                            : "Pin to your binder showcase"
+                        }
+                        className={`mt-1.5 w-full rounded-lg px-3 py-1.5 text-xs font-bold transition ${
+                          pinnedIds.has(d.id)
+                            ? "bg-violet-100 text-violet-700 hover:bg-violet-200 dark:bg-violet-950 dark:text-violet-300 dark:hover:bg-violet-900"
+                            : "bg-slate-100 text-slate-500 hover:bg-violet-100 hover:text-violet-700 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-violet-950 dark:hover:text-violet-300"
+                        }`}
+                      >
+                        {pinnedIds.has(d.id) ? "📌 Pinned to binder" : "📌 Pin to binder"}
+                      </button>
+                    )}
                   </div>
                 </div>
               );
@@ -978,7 +1066,7 @@ function MasterSetPane({ userId }: { userId: string | null }) {
 /* ------------------------------------------------------------------ */
 
 const VALUE_SETUP_NOTE =
-  "One-time setup needed: run supabase/migration-tcg-collection.sql and supabase/migration-tcg-master-set.sql in the Supabase SQL Editor, then refresh.";
+  "One-time setup needed: run supabase/migration-tcg-collection.sql, supabase/migration-tcg-master-set.sql, and supabase/migration-tcg-price-alerts.sql in the Supabase SQL Editor, then refresh.";
 
 /** Session-level price cache so the dashboard doesn't hammer TCGdex. */
 const valuePriceCache = new Map<string, CardPricing | null>();
@@ -1052,18 +1140,26 @@ async function fetchValuePrices(cardIds: string[]): Promise<void> {
 function ValuePane({
   userId,
   collectionRows,
+  wantRows,
   onToast,
+  onViewAlertCard,
+  onAlertsCount,
 }: {
   userId: string;
   collectionRows: TcgRow[];
+  wantRows: TcgRow[];
   onToast: (msg: string) => void;
+  onViewAlertCard: (cardId: string) => void;
+  onAlertsCount: (count: number) => void;
 }) {
   const [missing, setMissing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [lines, setLines] = useState<ValueLine[]>([]);
   const [currency, setCurrency] = useState<"USD" | "EUR">("USD");
   const [movers, setMovers] = useState<PriceMover[]>([]);
+  const [alerts, setAlerts] = useState<PriceMover[]>([]);
   const unlockedRef = useRef(false);
+  const dealHunterRef = useRef(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -1093,6 +1189,58 @@ function ValuePane({
           userId
         );
         if (!cancelled) setMovers(m);
+      } catch {
+        /* ignore */
+      }
+
+      // Best-effort daily snapshots for the movers digest and price alerts —
+      // want-list cards first so a fresh drop shows up right away.
+      try {
+        await Promise.all([
+          snapshotWantListPrices(
+            sb as unknown as Parameters<typeof snapshotWantListPrices>[0],
+            userId
+          ),
+          snapshotTrackedPrices(
+            sb as unknown as Parameters<typeof snapshotTrackedPrices>[0],
+            userId
+          ),
+        ]);
+      } catch {
+        /* ignore */
+      }
+
+      // 🔔 Price alerts: 7-day drops of 10%+ on want-listed + tracked cards,
+      // minus ones the user dismissed (a dismissal expires when a NEWER
+      // snapshot arrives — compare against the latest snapshot per card).
+      try {
+        const drops = await getPriceMovers(
+          sb as unknown as Parameters<typeof getPriceMovers>[0],
+          userId,
+          10,
+          "drops"
+        );
+        if (cancelled) return;
+        const dismissed = new Map<string, string>();
+        const { data: disData, error: disErr } = await sb
+          .from("dismissed_alerts")
+          .select("card_id,dismissed_at")
+          .eq("user_id", userId);
+        if (!disErr) {
+          for (const d of (disData as { card_id: string; dismissed_at: string }[]) ?? []) {
+            dismissed.set(d.card_id, d.dismissed_at.slice(0, 10));
+          }
+        }
+        if (cancelled) return;
+        const visible = drops.filter((a) => {
+          const d = dismissed.get(a.cardId);
+          // Hidden only while the dismissal is as fresh as the latest snapshot.
+          return !d || !a.latestSnapDate || d < a.latestSnapDate;
+        });
+        if (!cancelled) {
+          setAlerts(visible);
+          onAlertsCount(visible.length);
+        }
       } catch {
         /* ignore */
       }
@@ -1136,7 +1284,7 @@ function ValuePane({
     return () => {
       cancelled = true;
     };
-  }, [userId, collectionRows]);
+  }, [userId, collectionRows, onAlertsCount]);
 
   const totalUsd = useMemo(
     () => lines.reduce((s, l) => s + (l.usd ?? 0) * l.qty, 0),
@@ -1162,6 +1310,44 @@ function ValuePane({
       })
       .catch(() => {});
   }, [loading, userId, totalUsd, onToast]);
+
+  // 🏷️ Deal Hunter: fires the first time the alerts section renders with
+  // at least one alert for a signed-in user.
+  useEffect(() => {
+    if (!userId || alerts.length === 0 || dealHunterRef.current) return;
+    dealHunterRef.current = true;
+    try {
+      unlockAchievement(userId, "deal-hunter")
+        .then((ok) => {
+          if (ok) onToast("🏷️ Achievement unlocked: Deal Hunter!");
+        })
+        .catch(() => {});
+    } catch {
+      /* never break the page over an achievement */
+    }
+  }, [userId, alerts, onToast]);
+
+  // Keep the Value tab badge in sync as alerts get dismissed.
+  useEffect(() => {
+    onAlertsCount(alerts.length);
+  }, [alerts, onAlertsCount]);
+
+  const wantIds = useMemo(() => new Set(wantRows.map((r) => r.card_id)), [wantRows]);
+
+  const dismissAlert = useCallback(
+    async (cardId: string) => {
+      const sb = getSupabase();
+      if (!sb || !userId) return;
+      const { error } = await sb
+        .from("dismissed_alerts")
+        .upsert({ user_id: userId, card_id: cardId }, { onConflict: "user_id,card_id" });
+      if (!error) {
+        setAlerts((prev) => prev.filter((a) => a.cardId !== cardId));
+        onToast("🔕 Alert dismissed — it can reappear if the price drops again.");
+      }
+    },
+    [userId, onToast]
+  );
 
   const setGroups = useMemo(() => {
     const map = new Map<string, { name: string; usd: number; eur: number }>();
@@ -1316,6 +1502,75 @@ function ValuePane({
         )}
       </section>
 
+      {/* 🔔 Price alerts: 7-day drops of 10%+ on want-listed + tracked cards */}
+      {alerts.length > 0 && (
+        <section aria-label="Price alerts">
+          <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100">
+            🔔 Price alerts{" "}
+            <span className="text-xs font-semibold text-slate-400">
+              7-day drops of 10%+ on your want list &amp; tracked prints
+            </span>
+          </h2>
+          <div className="mt-3 space-y-2">
+            {alerts.map((a) => {
+              const langName =
+                TCGDEX_LANGUAGES.find((l) => l.code === a.language)?.label ?? a.language;
+              const onWantList = wantIds.has(a.cardId);
+              return (
+                <div
+                  key={`${a.cardId}-${a.language}`}
+                  className="flex items-center gap-2 rounded-2xl bg-white p-3 ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700"
+                >
+                  <button
+                    type="button"
+                    onClick={() => onViewAlertCard(a.cardId)}
+                    aria-label={`View ${a.cardName}`}
+                    className="flex min-w-0 flex-1 items-center gap-3 text-left"
+                  >
+                    <div className="w-12 shrink-0">
+                      <TcgImage baseUrl={a.imageUrl} alt={a.cardName} />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-bold text-slate-900 dark:text-slate-100">
+                        {a.cardName}
+                      </p>
+                      <p className="truncate text-xs text-slate-500 dark:text-slate-400">
+                        {onWantList ? "⭐ Want list" : `🌍 ${langName}`}
+                        {a.setName ? ` · ${a.setName}` : ""}
+                      </p>
+                      <p className="mt-0.5 text-xs tabular-nums text-slate-500 dark:text-slate-400">
+                        {formatPrice(a.oldPrice, a.currency)} →{" "}
+                        <span className="font-bold text-slate-700 dark:text-slate-200">
+                          {formatPrice(a.newPrice, a.currency)}
+                        </span>
+                        <span className="ml-2 inline-block rounded-full bg-red-100 px-2 py-0.5 text-[11px] font-bold text-red-700 dark:bg-red-950 dark:text-red-300">
+                          ▼ {Math.abs(a.pctChange).toFixed(0)}%
+                        </span>
+                      </p>
+                    </div>
+                    <span className="shrink-0 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                      View →
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => void dismissAlert(a.cardId)}
+                    aria-label={`Dismiss price alert for ${a.cardName}`}
+                    title="Dismiss"
+                    className="shrink-0 rounded-full p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-800 dark:hover:text-slate-300"
+                  >
+                    ✕
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+          <p className="mt-2 text-xs text-slate-400 dark:text-slate-500">
+            Tap a card to jump to it. Dismissed alerts stay hidden until the next price snapshot.
+          </p>
+        </section>
+      )}
+
       {/* 7-day movers */}
       <section aria-label="Price movers">
         <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100">
@@ -1363,8 +1618,8 @@ function ValuePane({
         ) : (
           <p className="mt-3 rounded-2xl bg-slate-100 p-5 text-center text-sm text-slate-500 dark:bg-slate-800/60 dark:text-slate-400">
             No notable 7-day price moves yet — prices get snapshotted daily for
-            cards you track in the Master Set view, so check back once a week of
-            history builds up.
+            your want list and cards you track in the Master Set view, so check
+            back once a week of history builds up.
           </p>
         )}
       </section>
@@ -1385,6 +1640,11 @@ export default function TcgCollectionPage() {
   const [progress, setProgress] = useState<Record<string, { owned: number; total: number }>>({});
   const [progressError, setProgressError] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
+  const [pins, setPins] = useState<BinderPin[]>([]);
+  const [binderSetupNeeded, setBinderSetupNeeded] = useState(false);
+  const [profileUsername, setProfileUsername] = useState<string | null>(null);
+  const [pinBusyIds, setPinBusyIds] = useState<Set<string>>(new Set());
+  const [alertCount, setAlertCount] = useState(0);
 
   useEffect(() => {
     getSupabase()
@@ -1415,6 +1675,105 @@ export default function TcgCollectionPage() {
   useEffect(() => {
     if (userId) void loadRows(userId);
   }, [userId, loadRows]);
+
+  /* Binder showcase pins (for the 📌 Pin to binder actions). */
+  const loadPins = useCallback(async (uid: string) => {
+    const sb = getSupabase();
+    if (!sb) return;
+    const { data, error } = await sb
+      .from("binder_showcase")
+      .select("card_id, position")
+      .eq("user_id", uid);
+    if (error) {
+      if (isMissingTable(error)) setBinderSetupNeeded(true);
+      return;
+    }
+    setBinderSetupNeeded(false);
+    setPins((((data as BinderPin[] | null) ?? []).slice(0, 9)));
+  }, []);
+
+  useEffect(() => {
+    if (!userId) return;
+    void loadPins(userId);
+    const sb = getSupabase();
+    if (sb) {
+      void sb
+        .from("profiles")
+        .select("username")
+        .eq("id", userId)
+        .maybeSingle()
+        .then(({ data }: { data: { username?: string } | null }) => {
+          setProfileUsername(data?.username ?? null);
+        })
+        .catch(() => {});
+    }
+  }, [userId, loadPins]);
+
+  const pinnedIds = useMemo(() => new Set(pins.map((p) => p.card_id)), [pins]);
+
+  const togglePin = useCallback(
+    async (target: PinTarget) => {
+      const sb = getSupabase();
+      if (!sb || !userId || pinBusyIds.has(target.cardId)) return;
+      setPinBusyIds((s) => new Set(s).add(target.cardId));
+      try {
+        if (pinnedIds.has(target.cardId)) {
+          const { error } = await sb
+            .from("binder_showcase")
+            .delete()
+            .eq("user_id", userId)
+            .eq("card_id", target.cardId);
+          if (error) {
+            setToast("Couldn't unpin that card — try again.");
+            return;
+          }
+          setPins((prev) => prev.filter((p) => p.card_id !== target.cardId));
+          setToast(`Unpinned ${target.cardName} from your binder`);
+          return;
+        }
+        if (binderSetupNeeded) {
+          setToast(BINDER_SETUP_NOTE);
+          return;
+        }
+        if (pins.length >= 9) {
+          setToast("Your binder showcase is full — unpin a card to make room.");
+          return;
+        }
+        const position = nextFreePosition(pins);
+        const { error } = await sb.from("binder_showcase").insert({
+          user_id: userId,
+          card_id: target.cardId,
+          card_name: target.cardName,
+          image_url: target.imageUrl,
+          set_name: target.setName,
+          position,
+        });
+        if (error) {
+          if (isMissingTable(error)) {
+            setBinderSetupNeeded(true);
+            setToast(BINDER_SETUP_NOTE);
+            return;
+          }
+          if ((error as { code?: string }).code === "23505") {
+            // Already pinned (unique violation) — resync and carry on.
+            void loadPins(userId);
+            return;
+          }
+          setToast("Couldn't pin that card — try again.");
+          return;
+        }
+        setPins((prev) => [...prev, { card_id: target.cardId, position }]);
+        setToast(`📌 Pinned ${target.cardName} to your binder (${pins.length + 1}/9)`);
+      } finally {
+        setPinBusyIds((s) => {
+          const n = new Set(s);
+          n.delete(target.cardId);
+          return n;
+        });
+      }
+    },
+    [userId, pins, pinnedIds, binderSetupNeeded, pinBusyIds, loadPins],
+  );
 
   /* Per-set completion: fetch each owned set's full card list once (cached
      in lib/tcg) and compare against owned ids. Gentle: one request per set,
@@ -1564,22 +1923,51 @@ export default function TcgCollectionPage() {
     [userId, rows, loadRows],
   );
 
-  const tabs: { id: Tab; label: string; count?: number }[] = [
+  const tabs: { id: Tab; label: string; count?: number; countClass?: string }[] = [
     { id: "search", label: "🔍 Search" },
     { id: "collection", label: "📦 My Collection", count: collection.length },
     { id: "want", label: "⭐ Want List", count: want.length },
     { id: "master", label: "🌍 Master Set" },
-    { id: "value", label: "💰 Value" },
+    {
+      id: "value",
+      label: "💰 Value",
+      count: alertCount,
+      countClass: "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300",
+    },
   ];
+
+  /** Jump from a price alert to the card: Want List if it's there, else Master Set. */
+  const jumpToAlertCard = useCallback(
+    (cardId: string) => {
+      const isWant = rows.some((r) => r.card_id === cardId && r.list === "want");
+      setTab(isWant ? "want" : "master");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    },
+    [rows]
+  );
+
+  const handleAlertsCount = useCallback((n: number) => setAlertCount(n), []);
 
   return (
     <main className="mx-auto w-full max-w-5xl px-4 py-10">
-      <h1 className="text-3xl font-bold text-slate-800 dark:text-slate-100">
-        🃏 TCG Collection Tracker
-      </h1>
-      <p className="mt-2 text-slate-500 dark:text-slate-400">
-        Search every Pokémon TCG card, track what you own and what you&apos;re hunting — by set.
-      </p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="text-3xl font-bold text-slate-800 dark:text-slate-100">
+            🃏 TCG Collection Tracker
+          </h1>
+          <p className="mt-2 text-slate-500 dark:text-slate-400">
+            Search every Pokémon TCG card, track what you own and what you&apos;re hunting — by set.
+          </p>
+        </div>
+        {userId && profileUsername && (
+          <Link
+            href={`/binder/${encodeURIComponent(profileUsername)}`}
+            className="mt-1 shrink-0 rounded-full border border-stone-300 px-4 py-1.5 text-sm font-medium text-slate-700 hover:border-mint hover:text-slate-900 dark:border-slate-600 dark:text-slate-300 dark:hover:text-slate-100"
+          >
+            📸 View my binder
+          </Link>
+        )}
+      </div>
 
       {userId && collection.length > 0 && (
         <div className="mt-6 grid grid-cols-3 gap-3">
@@ -1617,7 +2005,11 @@ export default function TcgCollectionPage() {
           >
             {t.label}
             {typeof t.count === "number" && t.count > 0 && (
-              <span className="ml-1.5 rounded-full bg-slate-200 px-2 py-0.5 text-xs tabular-nums dark:bg-slate-700">
+              <span
+                className={`ml-1.5 rounded-full px-2 py-0.5 text-xs tabular-nums ${
+                  t.countClass ?? "bg-slate-200 dark:bg-slate-700"
+                }`}
+              >
                 {t.count}
               </span>
             )}
@@ -1651,6 +2043,8 @@ export default function TcgCollectionPage() {
               onQty={setQty}
               onMove={moveRow}
               onRemove={removeRow}
+              pinnedIds={pinnedIds}
+              onTogglePin={togglePin}
             />
           ) : (
             authChecked && (
@@ -1675,10 +2069,19 @@ export default function TcgCollectionPage() {
               </p>
             )
           ))}
-        {tab === "master" && <MasterSetPane userId={userId} />}
+        {tab === "master" && (
+          <MasterSetPane userId={userId} pinnedIds={pinnedIds} onTogglePin={togglePin} />
+        )}
         {tab === "value" &&
           (userId ? (
-            <ValuePane userId={userId} collectionRows={collection} onToast={setToast} />
+            <ValuePane
+              userId={userId}
+              collectionRows={collection}
+              wantRows={want}
+              onToast={setToast}
+              onViewAlertCard={jumpToAlertCard}
+              onAlertsCount={handleAlertsCount}
+            />
           ) : (
             authChecked && (
               <p className="mt-8 text-center text-slate-500 dark:text-slate-400">

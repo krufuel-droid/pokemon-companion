@@ -12,7 +12,7 @@ import { searchSpecies, getSpeciesById } from "@/lib/pokedex";
 import { fetchTradeLists, type TradeEntry, type TradeTable } from "@/lib/trades";
 import { POKEMON_GAMES } from "@/lib/data/games";
 import { useEffect, useMemo } from "react";
-import { getAchievements, getUserAchievements, type AchievementDef } from "@/lib/achievements";
+import { getAchievements, getUserAchievements, unlockAchievement, type AchievementDef } from "@/lib/achievements";
 
 const inputClass =
   "w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-mint focus:outline-none focus:ring-2 focus:ring-mint/40 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500";
@@ -789,6 +789,10 @@ function ProfileEditor({ profile, onSaved }: { profile: Profile; onSaved: () => 
   const [buddySpeciesId, setBuddySpeciesId] = useState<number | null>(profile.buddy_species_id ?? null);
   const [buddyNickname, setBuddyNickname] = useState(profile.buddy_nickname ?? "");
   const [isPrivate, setIsPrivate] = useState(profile.is_private ?? false);
+  const [showBinder, setShowBinder] = useState(profile.show_binder ?? false);
+  const [binderBusy, setBinderBusy] = useState(false);
+  const [binderCopied, setBinderCopied] = useState(false);
+  const [binderMsg, setBinderMsg] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -830,6 +834,65 @@ function ProfileEditor({ profile, onSaved }: { profile: Profile; onSaved: () => 
     } finally {
       setBusy(false);
     }
+  }
+
+  /** Flip the public-binder opt-in immediately (independent of the form). */
+  async function onToggleBinder(next: boolean) {
+    if (binderBusy) return;
+    setBinderBusy(true);
+    setBinderMsg(null);
+    try {
+      const supabase = createClient();
+      const wasPublic = showBinder;
+      const { error } = await supabase
+        .from("profiles")
+        .update({ show_binder: next })
+        .eq("id", profile.id);
+      if (error) {
+        setError(
+          (error as { code?: string }).code === "42703"
+            ? "One-time setup needed: run supabase/migration-binder-showcase.sql in the Supabase SQL Editor, then refresh."
+            : (error as { message?: string }).message ?? "Couldn't update your binder setting — try again.",
+        );
+        return;
+      }
+      setShowBinder(next);
+      if (next && !wasPublic) {
+        // First time going public: award the Binder Showcase achievement.
+        try {
+          const ok = await unlockAchievement(profile.id, "show-off");
+          if (ok) setBinderMsg("📸 Achievement unlocked: Binder Showcase!");
+        } catch {
+          /* never let the achievement break the toggle */
+        }
+      }
+      onSaved();
+    } finally {
+      setBinderBusy(false);
+    }
+  }
+
+  /** Copy the public binder URL (clipboard API with a textarea fallback). */
+  async function copyBinderLink() {
+    const url = `${window.location.origin}/binder/${encodeURIComponent(profile.username)}`;
+    try {
+      await navigator.clipboard.writeText(url);
+    } catch {
+      const ta = document.createElement("textarea");
+      ta.value = url;
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.select();
+      try {
+        document.execCommand("copy");
+      } catch {
+        /* best effort */
+      }
+      document.body.removeChild(ta);
+    }
+    setBinderCopied(true);
+    window.setTimeout(() => setBinderCopied(false), 2000);
   }
 
   return (
@@ -954,6 +1017,52 @@ function ProfileEditor({ profile, onSaved }: { profile: Profile; onSaved: () => 
               </span>
             </span>
           </label>
+          <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-stone-200 bg-stone-50 px-4 py-3 dark:border-slate-700 dark:bg-slate-800">
+            <input
+              type="checkbox"
+              checked={showBinder}
+              disabled={binderBusy}
+              onChange={(e) => void onToggleBinder(e.target.checked)}
+              className="mt-1 h-4 w-4 accent-emerald-600"
+            />
+            <span className="flex-1">
+              <span className="block text-sm font-semibold text-slate-900 dark:text-slate-100">
+                📸 Make my binder public
+              </span>
+              <span className="mt-0.5 block text-xs text-slate-500 dark:text-slate-400">
+                Anyone with the link can see your binder page: name, avatar, card totals,
+                portfolio value, and up to 9 pinned cards. Your want list stays private.
+              </span>
+              {showBinder && (
+                <span className="mt-2 flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={copyBinderLink}
+                    className="rounded-full bg-emerald-600 px-4 py-1.5 text-xs font-bold text-white hover:bg-emerald-700"
+                  >
+                    {binderCopied ? "✓ Copied!" : "🔗 Copy binder link"}
+                  </button>
+                  <Link
+                    href={`/binder/${encodeURIComponent(profile.username)}`}
+                    className="rounded-full border border-stone-300 px-4 py-1.5 text-xs font-semibold text-slate-700 hover:border-mint dark:border-slate-600 dark:text-slate-300"
+                  >
+                    View binder
+                  </Link>
+                  <Link
+                    href="/tools/tcg-collection"
+                    className="text-xs font-semibold text-emerald-700 hover:underline dark:text-emerald-400"
+                  >
+                    Pin cards from the TCG page →
+                  </Link>
+                </span>
+              )}
+            </span>
+          </label>
+          {binderMsg && (
+            <p role="status" className="rounded-lg bg-violet-50 px-3 py-2 text-sm text-violet-700 dark:bg-violet-950 dark:text-violet-300">
+              {binderMsg}
+            </p>
+          )}
           <button
             type="submit"
             disabled={busy}

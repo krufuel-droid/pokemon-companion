@@ -422,27 +422,16 @@ function todayISO(): string {
 }
 
 /**
- * Snapshot today's market prices for every card the user tracks in the
- * Master Set view. One row per (card, language) per day max — the unique
- * constraint makes re-runs no-ops. Returns the number of snapshots written.
- *
- * Cron recipe (out of scope, for later): a daily job with a service-role
- * Supabase client can call `snapshotTrackedPrices(serviceClient, userId)`
- * for each user with tracked cards (or loop all users). Because snapshots
- * are keyed by snap_date, the cron is naturally idempotent.
+ * Snapshot today's market prices for a list of (card, language) pairs. One
+ * row per (card, language) per day max — the unique constraint makes re-runs
+ * no-ops. Returns the number of snapshots written.
  */
-export async function snapshotTrackedPrices(
+async function snapshotPairs(
   supabase: SupabaseLike,
-  userId: string
+  userId: string,
+  pairs: string[] // "cardId|||language"
 ): Promise<number> {
-  const { data, error } = await supabase
-    .from("tcg_master_set")
-    .select("card_id,language")
-    .eq("user_id", userId);
-  if (error || !data) return 0;
-  const pairs = [...new Set((data as { card_id: string; language: string }[]).map((r) => `${r.card_id}|||${r.language}`))];
   if (pairs.length === 0) return 0;
-
   const snapDate = todayISO();
   let written = 0;
   const queue = [...pairs];
@@ -476,6 +465,57 @@ export async function snapshotTrackedPrices(
   return written;
 }
 
+/**
+ * Snapshot today's market prices for every card the user tracks in the
+ * Master Set view. One row per (card, language) per day max — the unique
+ * constraint makes re-runs no-ops. Returns the number of snapshots written.
+ *
+ * Cron recipe (out of scope, for later): a daily job with a service-role
+ * Supabase client can call `snapshotTrackedPrices(serviceClient, userId)`
+ * for each user with tracked cards (or loop all users). Because snapshots
+ * are keyed by snap_date, the cron is naturally idempotent.
+ */
+export async function snapshotTrackedPrices(
+  supabase: SupabaseLike,
+  userId: string
+): Promise<number> {
+  const { data, error } = await supabase
+    .from("tcg_master_set")
+    .select("card_id,language")
+    .eq("user_id", userId);
+  if (error || !data) return 0;
+  const pairs = [...new Set((data as { card_id: string; language: string }[]).map((r) => `${r.card_id}|||${r.language}`))];
+  return snapshotPairs(supabase, userId, pairs);
+}
+
+/**
+ * Snapshot today's market prices for every card on the user's WANT LIST
+ * (tcg_collection rows with list='want'). Want-list rows have no language
+ * concept, so snapshots use 'en' — the same market data the Value tab
+ * prices them with. Idempotent like snapshotTrackedPrices: one row per
+ * (card, language) per day, re-runs are no-ops.
+ */
+export async function snapshotWantListPrices(
+  supabase: SupabaseLike,
+  userId: string
+): Promise<number> {
+  const { data, error } = await supabase
+    .from("tcg_collection")
+    .select("card_id,list")
+    .eq("user_id", userId);
+  if (error || !data) return 0;
+  const pairs = [
+    ...new Set(
+      (data as { card_id: string; list: string }[])
+        .filter((r) => r.list === "want")
+        .map((r) => `${r.card_id}|||en`)
+    ),
+  ];
+  return snapshotPairs(supabase, userId, pairs);
+}
+
+export type PriceMoveDirection = "all" | "drops";
+
 export interface PriceMover {
   cardId: string;
   cardName: string;
@@ -486,6 +526,8 @@ export interface PriceMover {
   newPrice: number | null;
   pctChange: number;
   currency: "USD" | "EUR";
+  /** snap_date of the newest snapshot backing this mover (YYYY-MM-DD). */
+  latestSnapDate: string;
 }
 
 interface SnapshotRow {
@@ -498,13 +540,18 @@ interface SnapshotRow {
 
 /**
  * Notable 7-day price moves (≥ minPct %, default 10) for the user's tracked
- * cards, from tcg_price_snapshots. Compares each card's latest snapshot
- * against the oldest snapshot within the trailing 7-day window.
+ * cards (Master Set view) AND want-listed cards, from tcg_price_snapshots.
+ * Compares each card's latest snapshot against the oldest snapshot within
+ * the trailing 7-day window.
+ *
+ * Pass direction="drops" to keep only price drops — used by the Want List
+ * price alerts section.
  */
 export async function getPriceMovers(
   supabase: SupabaseLike,
   userId: string,
-  minPct = 10
+  minPct = 10,
+  direction: PriceMoveDirection = "all"
 ): Promise<PriceMover[]> {
   const { data: snapData, error: snapErr } = await supabase
     .from("tcg_price_snapshots")
@@ -523,6 +570,18 @@ export async function getPriceMovers(
       (r) => [`${r.card_id}|||${r.language}`, r]
     )
   );
+
+  // Want-list cards get meta entries too (English only), so movers/alerts
+  // cover them. Master Set meta wins on collisions (same card, same key).
+  const { data: wantData } = await supabase
+    .from("tcg_collection")
+    .select("card_id,card_name,set_name,image_url,list")
+    .eq("user_id", userId);
+  for (const r of ((wantData as { card_id: string; card_name: string; set_name: string | null; image_url: string | null; list: string }[] | null) ?? [])) {
+    if (r.list !== "want") continue;
+    const key = `${r.card_id}|||en`;
+    if (!meta.has(key)) meta.set(key, { ...r, language: "en" });
+  }
 
   const groups = new Map<string, SnapshotRow[]>();
   for (const s of snaps) {
@@ -562,6 +621,7 @@ export async function getPriceMovers(
     if (oldP === 0) continue;
     const pctChange = ((newP - oldP) / oldP) * 100;
     if (Math.abs(pctChange) < minPct) continue;
+    if (direction === "drops" && pctChange >= 0) continue;
     const m = meta.get(key);
     movers.push({
       cardId: latest.card_id,
@@ -573,6 +633,7 @@ export async function getPriceMovers(
       newPrice: newP,
       pctChange,
       currency,
+      latestSnapDate: latest.snap_date,
     });
   }
   movers.sort((a, b) => Math.abs(b.pctChange) - Math.abs(a.pctChange));

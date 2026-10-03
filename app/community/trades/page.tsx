@@ -17,6 +17,7 @@ import {
   fetchTradePosts,
   type TradePost,
 } from "@/lib/trade-board";
+import TradeMatcher from "./TradeMatcher";
 
 const cardClass =
   "rounded-2xl border border-stone-200 bg-white p-5 shadow-sm sm:p-6 dark:border-slate-700 dark:bg-slate-900";
@@ -335,7 +336,8 @@ function PostCard({
 
   return (
     <article
-      className={`${cardClass} ${post.status === "fulfilled" ? "opacity-70" : ""}`}
+      id={`trade-post-${post.id}`}
+      className={`${cardClass} scroll-mt-24 ${post.status === "fulfilled" ? "opacity-70" : ""}`}
     >
       <div className="flex items-start gap-3">
         <Avatar
@@ -573,6 +575,7 @@ export default function TradeBoardPage() {
         </div>
       ) : (
         <>
+          <TradeMatcher posts={posts} userId={user.id} />
           <div className="mb-6">
             <NewPostForm onCreated={() => void refreshPosts()} />
           </div>

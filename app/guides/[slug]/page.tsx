@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { GUIDES, type GuideMilestone } from "@/lib/data/guides";
 import GuideCaughtChecklist from "@/components/GuideCaughtChecklist";
+import GymTeamPanel from "@/components/GymTeamPanel";
 
 /** Guide pages are server-rendered on demand (not pre-built) to keep deployments lean. */
 export const dynamic = "force-dynamic";
@@ -96,6 +97,7 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
                 <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                   {m.detail}
                 </p>
+                <GymTeamPanel game={guide.title} challengeName={m.name} />
               </div>
             </li>
           ))}

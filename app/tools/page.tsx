@@ -36,6 +36,11 @@ const TEAM_TOOLS: Tool[] = [
     desc: "Add up to 6 Pokémon and spot shared weaknesses, immunities, and STAB coverage gaps.",
   },
   {
+    href: "/tools/coverage",
+    title: "Coverage Analyzer",
+    desc: "Give up to 6 Pokémon their moves and see which of the 18 types your team can hit super-effectively.",
+  },
+  {
     href: "/tools/breeding",
     title: "Breeding Compatibility",
     desc: "Check whether two Pokémon can breed by egg group — and see the egg moves their offspring could inherit.",

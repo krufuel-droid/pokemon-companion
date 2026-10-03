@@ -109,7 +109,7 @@ export default async function TrainerProfilePage({
   const supabase = await createClient();
 
   const fullCols =
-    "id, username, avatar_url, bio, favorite_pokemon, buddy_species_id, buddy_nickname, last_seen, is_private, created_at";
+    "id, username, avatar_url, bio, favorite_pokemon, buddy_species_id, buddy_nickname, last_seen, is_private, show_binder, created_at";
   const minimalCols = "id, username, avatar_url, bio, favorite_pokemon, created_at";
   let { data: profileData } = await supabase
     .from("profiles")
@@ -293,6 +293,14 @@ export default async function TrainerProfilePage({
           <p className="mt-6 whitespace-pre-wrap text-sm text-slate-700 dark:text-slate-300">
             {profile.bio}
           </p>
+        )}
+        {(profile as { show_binder?: boolean }).show_binder && (
+          <Link
+            href={`/binder/${encodeURIComponent(profile.username)}`}
+            className="mt-4 inline-block rounded-full border border-stone-300 px-4 py-1.5 text-sm font-medium text-slate-700 hover:border-mint hover:text-slate-900 dark:border-slate-600 dark:text-slate-300 dark:hover:text-slate-100"
+          >
+            📸 View binder
+          </Link>
         )}
       </div>
 

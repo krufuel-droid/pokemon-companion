@@ -8,6 +8,7 @@ import { useAuth } from "@/components/AuthProvider";
 import SupabaseNeeded from "@/components/SupabaseNeeded";
 import { unlockAchievement } from "@/lib/achievements";
 import { checkBadgeAchievements } from "@/lib/achievements-badges";
+import GymTeamPanel from "@/components/GymTeamPanel";
 import { POKEMON_GAMES } from "@/lib/data/games";
 import {
   getChallengesForGame,
@@ -506,17 +507,23 @@ export default function GymRunClient() {
                   </span>
                 </button>
                 {open && (
-                  <ChallengeEditor
-                    entry={entry}
-                    saving={savingIndex === i}
-                    onClose={() => setEditingIndex(null)}
-                    onSave={(updated) => {
-                      const entries = activeRun.entries.map((e, j) =>
-                        j === i ? updated : e,
-                      );
-                      void saveEntries(activeRun, entries, i);
-                    }}
-                  />
+                  <>
+                    <GymTeamPanel
+                      game={activeRun.game}
+                      challengeName={entry.challenge}
+                    />
+                    <ChallengeEditor
+                      entry={entry}
+                      saving={savingIndex === i}
+                      onClose={() => setEditingIndex(null)}
+                      onSave={(updated) => {
+                        const entries = activeRun.entries.map((e, j) =>
+                          j === i ? updated : e,
+                        );
+                        void saveEntries(activeRun, entries, i);
+                      }}
+                    />
+                  </>
                 )}
               </div>
             );
