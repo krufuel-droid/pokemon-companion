@@ -33,6 +33,53 @@ interface Hunt {
   notes: string | null;
   started_at: string;
   completed_at: string | null;
+  /** Who marked the shiny found (party migration). Null when unset/missing. */
+  found_by_name: string | null;
+}
+
+/** One row of shiny_hunt_parties, enriched with the trainer's username. */
+interface PartyMember {
+  rowId: string;
+  huntId: string;
+  userId: string;
+  username: string;
+  status: "pending" | "accepted";
+  encountersContributed: number;
+}
+
+/** A pending party invite for the current user, enriched with hunt + host. */
+interface PartyInvite {
+  id: string;
+  huntId: string;
+  speciesId: number;
+  speciesName: string;
+  ownerName: string;
+}
+
+/** A hunt the current user participates in as an accepted party member. */
+interface CoopHunt extends Hunt {
+  ownerName: string;
+}
+
+/** Map a raw shiny_hunts row to a Hunt. Missing columns degrade gracefully. */
+function toHunt(r: Record<string, unknown>): Hunt {
+  return {
+    id: String(r.id),
+    owner_id: String(r.owner_id ?? ""),
+    species_id: Number(r.species_id),
+    species_name: String(r.species_name ?? "Unknown"),
+    game: (r.game as string | null) ?? null,
+    method: String(r.method ?? "random"),
+    encounters: Number(r.encounters ?? 0),
+    odds_denominator: Number(r.odds_denominator ?? 4096),
+    has_charm: Boolean(r.has_charm),
+    phases: typeof r.phases === "number" ? r.phases : 1,
+    status: (r.status as Hunt["status"]) ?? "active",
+    notes: (r.notes as string | null) ?? null,
+    started_at: String(r.started_at ?? ""),
+    completed_at: (r.completed_at as string | null) ?? null,
+    found_by_name: (r.found_by_name as string | null) ?? null,
+  };
 }
 
 /** Probability of having found at least one shiny after N encounters at 1/odds. */
@@ -67,11 +114,19 @@ function HuntCard({
   completedCount,
   onUpdate,
   onPhasesMissing,
+  partyMembers,
+  partyReady,
+  onPartyChanged,
 }: {
   hunt: Hunt;
   completedCount: number;
   onUpdate: () => void;
   onPhasesMissing: () => void;
+  /** Accepted + pending party rows for this hunt (host view). */
+  partyMembers: PartyMember[];
+  /** False when the party migration hasn't been run — hides party UI. */
+  partyReady: boolean;
+  onPartyChanged: () => void;
 }) {
   const { user } = useAuth();
   const [busy, setBusy] = useState(false);
@@ -177,6 +232,25 @@ function HuntCard({
         .eq("id", hunt.id);
       if (error) throw error;
       if (status === "completed") {
+        // Best-effort: record who found it for the party history. Separate
+        // update so a missing column (pre-migration) can't break the status
+        // change above.
+        try {
+          const { data: prof } = await supabase
+            .from("profiles")
+            .select("username")
+            .eq("id", user.id)
+            .maybeSingle();
+          await supabase
+            .from("shiny_hunts")
+            .update({
+              found_by: user.id,
+              found_by_name: (prof as { username?: string } | null)?.username ?? "A trainer",
+            })
+            .eq("id", hunt.id);
+        } catch {
+          /* column missing pre-migration — ignore */
+        }
         void unlockAchievement(user.id, "first-shiny").catch(() => {});
         const total = completedCount + 1;
         if (total >= 5) void unlockAchievement(user.id, "shiny-5").catch(() => {});
@@ -423,6 +497,537 @@ function HuntCard({
             </div>
           </div>
         )}
+      </div>
+
+      {partyReady && (
+        <PartySection hunt={hunt} members={partyMembers} onChanged={onPartyChanged} />
+      )}
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Co-op shiny hunts: party invites, shared logging, contributions.    */
+/* ------------------------------------------------------------------ */
+
+/** Per-hunter encounter breakdown. The host's share is derived as
+ *  (hunt total − members' contributions) so it stays exact no matter which
+ *  counter the host logged from. */
+function ContributionList({
+  hunt,
+  members,
+  ownerName,
+}: {
+  hunt: Hunt;
+  members: PartyMember[];
+  ownerName: string;
+}) {
+  const accepted = members.filter((m) => m.status === "accepted");
+  const membersTotal = accepted.reduce((sum, m) => sum + m.encountersContributed, 0);
+  const ownerShare = Math.max(0, hunt.encounters - membersTotal);
+  return (
+    <div>
+      <p className="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+        Encounters by hunter
+      </p>
+      <ul className="mt-1.5 space-y-1 text-sm">
+        <li className="flex items-center justify-between gap-2">
+          <span className="font-semibold text-slate-700 dark:text-slate-200">
+            {ownerName}{" "}
+            <span className="rounded-full bg-stone-200 px-1.5 py-0.5 text-[10px] font-bold uppercase text-slate-500 dark:bg-slate-700 dark:text-slate-400">
+              host
+            </span>
+          </span>
+          <span className="font-bold tabular-nums text-slate-900 dark:text-slate-100">
+            {ownerShare.toLocaleString()}
+          </span>
+        </li>
+        {accepted.map((m) => (
+          <li key={m.rowId} className="flex items-center justify-between gap-2">
+            <span className="text-slate-600 dark:text-slate-300">{m.username}</span>
+            <span className="font-semibold tabular-nums text-slate-700 dark:text-slate-200">
+              {m.encountersContributed.toLocaleString()}
+            </span>
+          </li>
+        ))}
+      </ul>
+      <p className="mt-1.5 border-t border-stone-200 pt-1.5 text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
+        Combined total:{" "}
+        <span className="font-bold text-slate-900 dark:text-slate-100">
+          {hunt.encounters.toLocaleString()}
+        </span>{" "}
+        encounters
+      </p>
+    </div>
+  );
+}
+
+/** Invite a trainer by name to a party hunt — creates a PENDING request they
+ *  must accept (never auto-added), following the Nuzlocke invite flow. */
+function HuntPartyInviteForm({
+  huntId,
+  members,
+  onChanged,
+}: {
+  huntId: string;
+  members: PartyMember[];
+  onChanged: () => void;
+}) {
+  const { user } = useAuth();
+  const [username, setUsername] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+  const [isError, setIsError] = useState(false);
+
+  async function invite(e: React.FormEvent) {
+    e.preventDefault();
+    const name = username.trim();
+    if (!name || !user) return;
+    setBusy(true);
+    setMessage(null);
+    setIsError(false);
+    try {
+      const supabase = createClient();
+      const { data: found, error: lookupError } = await supabase
+        .from("profiles")
+        .select("id, username")
+        .ilike("username", name)
+        .maybeSingle();
+      if (lookupError) throw lookupError;
+      if (!found) {
+        setMessage(`No trainer named "${name}" found.`);
+        setIsError(true);
+        return;
+      }
+      const inviteeId = (found as { id: string }).id;
+      const inviteeName = (found as { username: string }).username;
+      if (inviteeId === user.id) {
+        setMessage("That's you — you're already hosting this hunt!");
+        setIsError(true);
+        return;
+      }
+      const existing = members.find((m) => m.userId === inviteeId);
+      if (existing) {
+        setMessage(
+          existing.status === "accepted"
+            ? `${inviteeName} is already in this party.`
+            : `There's already a pending invite for ${inviteeName}.`,
+        );
+        setIsError(true);
+        return;
+      }
+      const { error } = await supabase.from("shiny_hunt_parties").insert({
+        hunt_id: huntId,
+        user_id: inviteeId,
+        status: "pending",
+      });
+      if (error) {
+        if (error.code === "23505") {
+          setMessage(`There's already a pending invite for ${inviteeName}.`);
+          setIsError(true);
+          return;
+        }
+        throw error;
+      }
+      setMessage(`Invite sent to ${inviteeName}! They'll need to accept it.`);
+      setUsername("");
+      onChanged();
+    } catch (err) {
+      setIsError(true);
+      setMessage(err instanceof Error ? err.message : "Could not invite that trainer.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <form onSubmit={(e) => void invite(e)} className="mt-3">
+      <p className="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+        Invite a hunting buddy
+      </p>
+      <div className="mt-1.5 flex flex-col gap-2 sm:flex-row">
+        <input
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          className={inputClass}
+          placeholder="Trainer's username"
+          aria-label="Trainer's username"
+          maxLength={24}
+        />
+        <button
+          type="submit"
+          disabled={busy || username.trim() === ""}
+          className="shrink-0 rounded-lg border border-stone-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-mint disabled:opacity-60 dark:border-slate-600 dark:text-slate-300"
+        >
+          {busy ? "Inviting…" : "Invite"}
+        </button>
+      </div>
+      {message && (
+        <p
+          role="status"
+          className={`mt-1.5 text-sm ${isError ? "text-red-700 dark:text-red-300" : "text-emerald-700 dark:text-emerald-300"}`}
+        >
+          {message}
+        </p>
+      )}
+    </form>
+  );
+}
+
+/** The Party section inside the host's hunt card: members, contributions,
+ *  pending invites, and the invite form. Additive — solo UX is untouched. */
+function PartySection({
+  hunt,
+  members,
+  onChanged,
+}: {
+  hunt: Hunt;
+  members: PartyMember[];
+  onChanged: () => void;
+}) {
+  const { user } = useAuth();
+  const [busyRow, setBusyRow] = useState<string | null>(null);
+  const accepted = members.filter((m) => m.status === "accepted");
+  const pending = members.filter((m) => m.status === "pending");
+
+  async function rescind(rowId: string, username: string) {
+    if (!user || busyRow) return;
+    if (!confirm(`Rescind the invite to ${username}?`)) return;
+    setBusyRow(rowId);
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.from("shiny_hunt_parties").delete().eq("id", rowId);
+      if (error) throw error;
+      onChanged();
+    } catch {
+      // best-effort
+    } finally {
+      setBusyRow(null);
+    }
+  }
+
+  return (
+    <details className="mt-4 rounded-xl border border-stone-200 bg-stone-50 p-4 dark:border-slate-700 dark:bg-slate-800/50">
+      <summary className="cursor-pointer list-none text-sm font-bold text-slate-700 dark:text-slate-200">
+        👯 Party{" "}
+        <span className="font-semibold text-slate-500 dark:text-slate-400">
+          ({accepted.length} hunting{pending.length > 0 ? ` · ${pending.length} invited` : ""})
+        </span>
+      </summary>
+      <div className="mt-3 space-y-3">
+        {hunt.status === "completed" && hunt.found_by_name && (
+          <p className="rounded-lg bg-yellow-100 px-3 py-2 text-sm font-semibold text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
+            ✨ Shiny found by {hunt.found_by_name}!
+          </p>
+        )}
+        <ContributionList hunt={hunt} members={members} ownerName="You" />
+        {pending.length > 0 && (
+          <div>
+            <p className="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+              Pending invites
+            </p>
+            <ul className="mt-1.5 space-y-1">
+              {pending.map((m) => (
+                <li key={m.rowId} className="flex items-center justify-between gap-2 text-sm">
+                  <span className="text-slate-600 dark:text-slate-300">
+                    {m.username} <span className="text-xs text-slate-400">· waiting for accept</span>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => void rescind(m.rowId, m.username)}
+                    disabled={busyRow === m.rowId}
+                    className="rounded px-2 py-0.5 text-xs font-semibold text-red-600 hover:bg-red-50 disabled:opacity-60 dark:text-red-400 dark:hover:bg-red-950"
+                  >
+                    {busyRow === m.rowId ? "…" : "Rescind"}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+        {hunt.status === "active" && (
+          <HuntPartyInviteForm huntId={hunt.id} members={members} onChanged={onChanged} />
+        )}
+      </div>
+    </details>
+  );
+}
+
+/** Pending party invites for the current user — clearly separated from the
+ *  solo hunts below. Accept flips the row to 'accepted' (+ unlocks the
+ *  Shiny Squad achievement); Decline deletes the row. */
+function PendingPartyInvites({
+  invites,
+  busyId,
+  onAnswer,
+}: {
+  invites: PartyInvite[];
+  busyId: string | null;
+  onAnswer: (invite: PartyInvite, accept: boolean) => void;
+}) {
+  if (invites.length === 0) return null;
+  return (
+    <section className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 p-5 dark:border-amber-800 dark:bg-amber-950/40">
+      <h2 className="font-bold text-slate-900 dark:text-slate-100">
+        ✉️ Hunt party invites{" "}
+        <span className="ml-1 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-bold text-amber-700 dark:bg-amber-900 dark:text-amber-300">
+          {invites.length}
+        </span>
+      </h2>
+      <ul className="mt-3 space-y-2">
+        {invites.map((invite) => {
+          const species = getSpeciesById(invite.speciesId);
+          return (
+            <li
+              key={invite.id}
+              className="flex flex-wrap items-center gap-3 rounded-xl bg-white/70 p-3 dark:bg-slate-900/60"
+            >
+              {species && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={species.sprites.regular}
+                  alt={invite.speciesName}
+                  width={40}
+                  height={40}
+                  className="h-10 w-10 shrink-0 object-contain"
+                  loading="lazy"
+                />
+              )}
+              <div className="min-w-0 flex-1">
+                <p className="font-semibold text-slate-800 dark:text-slate-100">
+                  Co-op hunt: {invite.speciesName}
+                </p>
+                <p className="text-sm text-slate-500 dark:text-slate-400">
+                  Invited by {invite.ownerName} — log encounters together!
+                </p>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => onAnswer(invite, true)}
+                  disabled={busyId === invite.id}
+                  className="rounded-lg bg-mint px-4 py-1.5 text-sm font-bold text-slate-900 transition hover:brightness-95 disabled:opacity-60 dark:text-slate-100"
+                >
+                  {busyId === invite.id ? "…" : "Accept"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onAnswer(invite, false)}
+                  disabled={busyId === invite.id}
+                  className="rounded-lg border border-stone-300 px-4 py-1.5 text-sm font-semibold text-slate-600 transition hover:bg-stone-100 disabled:opacity-60 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-800"
+                >
+                  Decline
+                </button>
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  );
+}
+
+/** A shared hunt the current user participates in as an accepted member:
+ *  combined encounter total, per-hunter contributions, party encounter
+ *  logging (atomic RPC), and "Found it!" for anyone in the party. */
+function PartyHuntCard({
+  hunt,
+  members,
+  onChanged,
+}: {
+  hunt: CoopHunt;
+  members: PartyMember[];
+  onChanged: () => void;
+}) {
+  const { user } = useAuth();
+  const [busy, setBusy] = useState(false);
+  const [customAmount, setCustomAmount] = useState("");
+  const species = getSpeciesById(hunt.species_id);
+  const effectiveOdds = oddsFor(hunt.method, hunt.has_charm);
+  const prob = shinyProbability(hunt.encounters, effectiveOdds);
+
+  async function logEncounters(amount: number) {
+    if (!user || busy || hunt.status !== "active" || amount <= 0) return;
+    setBusy(true);
+    try {
+      const supabase = createClient();
+      const { data, error } = await supabase.rpc("log_party_encounters", {
+        p_hunt_id: hunt.id,
+        p_amount: amount,
+      });
+      if (error) throw error;
+      const total = typeof data === "number" ? data : hunt.encounters + amount;
+      if (total >= 100) void unlockAchievement(user.id, "hunt-100").catch(() => {});
+      if (total >= 1000) void unlockAchievement(user.id, "hunt-1000").catch(() => {});
+      onChanged();
+    } catch {
+      // best-effort (e.g. the party migration hasn't been run)
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function markFound() {
+    if (!user || busy || hunt.status !== "active") return;
+    if (!confirm(`Found the shiny ${hunt.species_name}?! ✨`)) return;
+    setBusy(true);
+    try {
+      const supabase = createClient();
+      const { error } = await supabase
+        .from("shiny_hunts")
+        .update({
+          status: "completed",
+          completed_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", hunt.id);
+      if (error) throw error;
+      // Best-effort: record who found it for the party history. Runs as a
+      // separate update so a missing column (pre-migration) can't break the
+      // status change above.
+      try {
+        const { data: prof } = await supabase
+          .from("profiles")
+          .select("username")
+          .eq("id", user.id)
+          .maybeSingle();
+        await supabase
+          .from("shiny_hunts")
+          .update({
+            found_by: user.id,
+            found_by_name: (prof as { username?: string } | null)?.username ?? "A trainer",
+          })
+          .eq("id", hunt.id);
+      } catch {
+        /* column missing pre-migration — ignore */
+      }
+      void unlockAchievement(user.id, "first-shiny").catch(() => {});
+      onChanged();
+    } catch {
+      // best-effort
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className={cardClass}>
+      <div className="flex items-start gap-4">
+        {species && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={hunt.status === "completed" ? species.sprites.shiny : species.sprites.regular}
+            alt={hunt.species_name}
+            width={72}
+            height={72}
+            className="h-18 w-18 shrink-0 object-contain"
+            loading="lazy"
+          />
+        )}
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <h2 className="truncate text-lg font-bold text-slate-900 dark:text-slate-100">
+              {hunt.species_name}
+            </h2>
+            <StatusBadge status={hunt.status} />
+            <span className="rounded-full bg-sky-100 px-2.5 py-0.5 text-xs font-bold text-sky-800 dark:bg-sky-900 dark:text-sky-200">
+              👯 Co-op
+            </span>
+          </div>
+          <p className="mt-0.5 text-sm text-slate-500 dark:text-slate-400">
+            {methodLabel(hunt.method)}
+            {hunt.game ? ` · ${hunt.game}` : ""} · hosted by {hunt.ownerName}
+          </p>
+          <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+            <span className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+              {hunt.encounters.toLocaleString()}
+            </span>{" "}
+            encounters · 1/{effectiveOdds.toLocaleString()} odds
+          </p>
+          <div className="mt-2 h-2 overflow-hidden rounded-full bg-stone-200 dark:bg-slate-700">
+            <div
+              className="h-2 rounded-full bg-gradient-to-r from-yellow-300 to-amber-400 transition-[width]"
+              style={{ width: `${Math.min(100, prob * 100)}%` }}
+            />
+          </div>
+          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+            {(prob * 100).toFixed(1)}% chance to have found one by now
+          </p>
+        </div>
+      </div>
+
+      {hunt.status === "completed" && hunt.found_by_name && (
+        <p className="mt-4 rounded-lg bg-yellow-100 px-3 py-2 text-sm font-semibold text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
+          ✨ Shiny found by {hunt.found_by_name}!
+        </p>
+      )}
+
+      {hunt.status === "active" && (
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={() => void logEncounters(1)}
+            disabled={busy}
+            className="rounded-lg bg-mint px-6 py-2.5 text-lg font-bold text-slate-900 shadow-sm transition hover:brightness-95 disabled:opacity-60 dark:text-slate-100"
+          >
+            +1
+          </button>
+          <button
+            type="button"
+            onClick={() => void logEncounters(10)}
+            disabled={busy}
+            className="rounded-lg bg-stone-100 px-4 py-2 text-sm font-bold text-slate-700 transition hover:bg-stone-200 disabled:opacity-60 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+          >
+            +10
+          </button>
+          <button
+            type="button"
+            onClick={() => void logEncounters(50)}
+            disabled={busy}
+            className="rounded-lg bg-stone-100 px-4 py-2 text-sm font-bold text-slate-700 transition hover:bg-stone-200 disabled:opacity-60 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+          >
+            +50
+          </button>
+          <div className="flex items-center gap-1">
+            <input
+              type="number"
+              min={1}
+              value={customAmount}
+              onChange={(e) => setCustomAmount(e.target.value)}
+              placeholder="Custom"
+              aria-label="Custom encounter amount"
+              className="w-24 rounded-lg border border-stone-300 bg-white px-2 py-2 text-sm text-slate-900 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100"
+            />
+            <button
+              type="button"
+              onClick={() => {
+                const n = parseInt(customAmount, 10);
+                if (Number.isFinite(n) && n > 0) {
+                  setCustomAmount("");
+                  void logEncounters(n);
+                }
+              }}
+              disabled={busy}
+              className="rounded-lg bg-stone-100 px-3 py-2 text-sm font-bold text-slate-700 transition hover:bg-stone-200 disabled:opacity-60 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+            >
+              Add
+            </button>
+          </div>
+          <div className="ml-auto">
+            <button
+              type="button"
+              onClick={() => void markFound()}
+              disabled={busy}
+              className="rounded-lg bg-yellow-100 px-3 py-1.5 text-sm font-bold text-yellow-800 transition hover:bg-yellow-200 disabled:opacity-60 dark:bg-yellow-900 dark:text-yellow-200"
+            >
+              ✨ Found it!
+            </button>
+          </div>
+        </div>
+      )}
+
+      <div className="mt-4 rounded-xl border border-stone-200 bg-stone-50 p-4 dark:border-slate-700 dark:bg-slate-800/50">
+        <ContributionList hunt={hunt} members={members} ownerName={hunt.ownerName} />
       </div>
     </div>
   );
@@ -717,10 +1322,10 @@ export default function ShinyHuntsPage() {
   const [phasesMissing, setPhasesMissing] = useState(false);
   void configured;
 
-  const fetchHunts = useCallback(async () => {
+  const fetchHunts = useCallback(async (): Promise<Hunt[]> => {
     if (!user) {
       setListLoading(false);
-      return;
+      return [];
     }
     try {
       const supabase = createClient();
@@ -730,40 +1335,202 @@ export default function ShinyHuntsPage() {
         .eq("owner_id", user.id)
         .order("updated_at", { ascending: false });
       if (error) throw error;
-      const rows = (data as (Record<string, unknown> & { phases?: number })[] | null) ?? [];
+      const rows = (data as Record<string, unknown>[] | null) ?? [];
       // Degrade gracefully: if the v2 migration hasn't been run, phases is
       // undefined and every hunt just shows as phase 1.
       const missing = rows.some((r) => r.phases === undefined);
       setPhasesMissing(missing);
-      setHunts(
-        rows.map((r) => ({
-          id: String(r.id),
-          owner_id: String(r.owner_id ?? ""),
-          species_id: Number(r.species_id),
-          species_name: String(r.species_name ?? "Unknown"),
-          game: (r.game as string | null) ?? null,
-          method: String(r.method ?? "random"),
-          encounters: Number(r.encounters ?? 0),
-          odds_denominator: Number(r.odds_denominator ?? 4096),
-          has_charm: Boolean(r.has_charm),
-          phases: typeof r.phases === "number" ? r.phases : 1,
-          status: (r.status as Hunt["status"]) ?? "active",
-          notes: (r.notes as string | null) ?? null,
-          started_at: String(r.started_at ?? ""),
-          completed_at: (r.completed_at as string | null) ?? null,
-        })),
-      );
+      const mapped = rows.map(toHunt);
+      setHunts(mapped);
       setTableMissing(false);
+      return mapped;
     } catch {
       setTableMissing(true);
+      return [];
     } finally {
       setListLoading(false);
     }
   }, [user]);
 
+  /* Co-op party data: pending invites for me, hunts I participate in, and
+   * party rows (accepted + pending) for my hunts + co-op hunts. If the
+   * party migration hasn't been run, the parties table is missing — hide
+   * all party UI and keep solo hunts working. */
+  const [partyInvites, setPartyInvites] = useState<PartyInvite[]>([]);
+  const [coopHunts, setCoopHunts] = useState<CoopHunt[]>([]);
+  const [partyByHunt, setPartyByHunt] = useState<Record<string, PartyMember[]>>({});
+  const [partiesMissing, setPartiesMissing] = useState(false);
+  const [busyInvite, setBusyInvite] = useState<string | null>(null);
+
+  const fetchPartyData = useCallback(
+    async (owned: Hunt[]) => {
+      if (!user) return;
+      try {
+        const supabase = createClient();
+        // My party rows: pending invites + accepted memberships.
+        const { data: myRows, error: myErr } = await supabase
+          .from("shiny_hunt_parties")
+          .select("id,hunt_id,user_id,status,encounters_contributed")
+          .eq("user_id", user.id);
+        if (myErr) throw myErr;
+        const mine = (myRows ?? []) as {
+          id: string;
+          hunt_id: string;
+          user_id: string;
+          status: "pending" | "accepted";
+          encounters_contributed: number;
+        }[];
+        const pendingRows = mine.filter((r) => r.status === "pending");
+        const acceptedRows = mine.filter((r) => r.status === "accepted");
+
+        // Enrich pending invites with the hunt + host name.
+        const invites: PartyInvite[] = [];
+        for (const row of pendingRows) {
+          const { data: h } = await supabase
+            .from("shiny_hunts")
+            .select("species_id,species_name,owner_id")
+            .eq("id", row.hunt_id)
+            .maybeSingle();
+          if (!h) continue;
+          const hh = h as { species_id: number; species_name: string; owner_id: string };
+          const { data: prof } = await supabase
+            .from("profiles")
+            .select("username")
+            .eq("id", hh.owner_id)
+            .maybeSingle();
+          invites.push({
+            id: row.id,
+            huntId: row.hunt_id,
+            speciesId: Number(hh.species_id),
+            speciesName: String(hh.species_name ?? "Unknown"),
+            ownerName: (prof as { username?: string } | null)?.username ?? "A trainer",
+          });
+        }
+        setPartyInvites(invites);
+
+        // Party rows for my hunts (host view) + hunts I participate in.
+        const coopIds = [...new Set(acceptedRows.map((r) => r.hunt_id))];
+        const allHuntIds = [...new Set([...owned.map((h) => h.id), ...coopIds])];
+        let partyRows: {
+          id: string;
+          hunt_id: string;
+          user_id: string;
+          status: "pending" | "accepted";
+          encounters_contributed: number;
+        }[] = [];
+        if (allHuntIds.length > 0) {
+          const { data: pr, error: prErr } = await supabase
+            .from("shiny_hunt_parties")
+            .select("id,hunt_id,user_id,status,encounters_contributed")
+            .in("hunt_id", allHuntIds);
+          if (prErr) throw prErr;
+          partyRows = (pr ?? []) as typeof partyRows;
+        }
+        const memberIds = [...new Set(partyRows.map((r) => r.user_id))];
+        const nameMap: Record<string, string> = {};
+        if (memberIds.length > 0) {
+          const { data: profs } = await supabase
+            .from("profiles")
+            .select("id,username")
+            .in("id", memberIds);
+          for (const p of (profs ?? []) as { id: string; username: string }[]) {
+            nameMap[p.id] = p.username;
+          }
+        }
+        const byHunt: Record<string, PartyMember[]> = {};
+        for (const r of partyRows) {
+          (byHunt[r.hunt_id] ??= []).push({
+            rowId: r.id,
+            huntId: r.hunt_id,
+            userId: r.user_id,
+            username: nameMap[r.user_id] ?? "A trainer",
+            status: r.status,
+            encountersContributed: Number(r.encounters_contributed ?? 0),
+          });
+        }
+        setPartyByHunt(byHunt);
+
+        // Full details for hunts I'm an accepted member of.
+        if (coopIds.length > 0) {
+          const { data: ch, error: chErr } = await supabase
+            .from("shiny_hunts")
+            .select("*")
+            .in("id", coopIds)
+            .order("updated_at", { ascending: false });
+          if (chErr) throw chErr;
+          const chRows = (ch ?? []) as Record<string, unknown>[];
+          const ownerIds = [...new Set(chRows.map((r) => String(r.owner_id ?? "")))].filter(
+            Boolean,
+          );
+          const ownerNames: Record<string, string> = {};
+          if (ownerIds.length > 0) {
+            const { data: oprofs } = await supabase
+              .from("profiles")
+              .select("id,username")
+              .in("id", ownerIds);
+            for (const p of (oprofs ?? []) as { id: string; username: string }[]) {
+              ownerNames[p.id] = p.username;
+            }
+          }
+          setCoopHunts(
+            chRows.map((r) => ({
+              ...toHunt(r),
+              ownerName: ownerNames[String(r.owner_id ?? "")] ?? "A trainer",
+            })),
+          );
+        } else {
+          setCoopHunts([]);
+        }
+        setPartiesMissing(false);
+      } catch {
+        // Parties table not migrated yet — hide party UI, solo hunts unaffected.
+        setPartiesMissing(true);
+        setPartyInvites([]);
+        setCoopHunts([]);
+        setPartyByHunt({});
+      }
+    },
+    [user],
+  );
+
+  /** Answer a pending party invite. Accept flips the row to 'accepted' and
+   *  unlocks the Shiny Squad achievement; Decline deletes the row. */
+  async function answerInvite(invite: PartyInvite, accept: boolean) {
+    if (!user || busyInvite) return;
+    setBusyInvite(invite.id);
+    try {
+      const supabase = createClient();
+      if (accept) {
+        const { error } = await supabase
+          .from("shiny_hunt_parties")
+          .update({ status: "accepted" })
+          .eq("id", invite.id);
+        if (error) throw error;
+        try {
+          await unlockAchievement(user.id, "party-hunt");
+        } catch {
+          /* achievement unlock is best-effort */
+        }
+      } else {
+        const { error } = await supabase.from("shiny_hunt_parties").delete().eq("id", invite.id);
+        if (error) throw error;
+      }
+      const owned = await fetchHunts();
+      await fetchPartyData(owned);
+    } catch {
+      // Keep the invite visible so the user can retry.
+    } finally {
+      setBusyInvite(null);
+    }
+  }
+
   useEffect(() => {
-    if (!loading) void fetchHunts();
-  }, [loading, fetchHunts]);
+    if (loading) return;
+    void (async () => {
+      const owned = await fetchHunts();
+      await fetchPartyData(owned);
+    })();
+  }, [loading, fetchHunts, fetchPartyData]);
 
   const activeHunts = useMemo(() => hunts.filter((h) => h.status === "active"), [hunts]);
   const completedHunts = useMemo(() => hunts.filter((h) => h.status === "completed"), [hunts]);
@@ -791,6 +1558,12 @@ export default function ShinyHuntsPage() {
   }
 
   const refresh = () => void fetchHunts();
+  const refreshAll = () => {
+    void (async () => {
+      const owned = await fetchHunts();
+      await fetchPartyData(owned);
+    })();
+  };
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10">
@@ -805,6 +1578,14 @@ export default function ShinyHuntsPage() {
         </div>
       </div>
 
+      {!partiesMissing && (
+        <PendingPartyInvites
+          invites={partyInvites}
+          busyId={busyInvite}
+          onAnswer={(invite, accept) => void answerInvite(invite, accept)}
+        />
+      )}
+
       {tableMissing ? (
         <p className="mt-6 rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:bg-amber-950 dark:text-amber-300">
           Shiny hunts need the latest database update — run the newest SQL in the Supabase SQL Editor to enable them.
@@ -816,6 +1597,13 @@ export default function ShinyHuntsPage() {
               Phase tracking needs the newest database update — run{" "}
               <code className="font-mono text-xs">supabase/migration-shiny-hunts-v2.sql</code>{" "}
               in the Supabase SQL Editor to enable &ldquo;New phase&rdquo;.
+            </p>
+          )}
+          {partiesMissing && (
+            <p className="mt-6 rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:bg-amber-950 dark:text-amber-300">
+              Co-op hunts need the newest database update — run{" "}
+              <code className="font-mono text-xs">supabase/migration-shiny-hunt-parties.sql</code>{" "}
+              in the Supabase SQL Editor to enable party invites.
             </p>
           )}
 
@@ -844,12 +1632,35 @@ export default function ShinyHuntsPage() {
                         completedCount={completedCount}
                         onUpdate={refresh}
                         onPhasesMissing={() => setPhasesMissing(true)}
+                        partyMembers={partyByHunt[hunt.id] ?? []}
+                        partyReady={!partiesMissing}
+                        onPartyChanged={refreshAll}
                       />
                     ))}
                   </div>
                 </section>
               )}
-              {activeHunts.length === 0 && completedHunts.length === 0 && abandonedHunts.length === 0 && (
+              {!partiesMissing && coopHunts.length > 0 && (
+                <section className="mt-8">
+                  <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">
+                    👯 Co-op hunts <span className="text-sm font-semibold text-slate-500">({coopHunts.length})</span>
+                  </h2>
+                  <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                    Hunts you joined as a party member — log encounters together!
+                  </p>
+                  <div className="mt-3 space-y-4">
+                    {coopHunts.map((hunt) => (
+                      <PartyHuntCard
+                        key={hunt.id}
+                        hunt={hunt}
+                        members={partyByHunt[hunt.id] ?? []}
+                        onChanged={refreshAll}
+                      />
+                    ))}
+                  </div>
+                </section>
+              )}
+              {activeHunts.length === 0 && completedHunts.length === 0 && abandonedHunts.length === 0 && coopHunts.length === 0 && (
                 <p className="mt-6 rounded-2xl border border-dashed border-stone-300 p-8 text-center text-slate-500 dark:border-slate-600 dark:text-slate-400">
                   No hunts yet — start one above! ✨
                 </p>
@@ -872,6 +1683,9 @@ export default function ShinyHuntsPage() {
                         completedCount={completedCount}
                         onUpdate={refresh}
                         onPhasesMissing={() => setPhasesMissing(true)}
+                        partyMembers={partyByHunt[hunt.id] ?? []}
+                        partyReady={!partiesMissing}
+                        onPartyChanged={refreshAll}
                       />
                     ))}
                   </div>

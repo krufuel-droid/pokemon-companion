@@ -8,6 +8,7 @@ import { createClient } from "@/lib/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
 import { incrementRecord } from "@/lib/achievements";
 import DexRace from "@/components/DexRace";
+import { CatchPlanner } from "./catch-planner";
 import { TypePills } from "../pokedex/type-pills";
 
 interface CollectionEntry {
@@ -83,11 +84,13 @@ function CollectionCard({
 }
 
 type Filter = "all" | "caught" | "missing" | "shiny";
+type DexView = "collection" | "planner";
 
 export default function CollectionPage() {
   const { user } = useAuth();
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
+  const [view, setView] = useState<DexView>("collection");
   const [entries, setEntries] = useState<Map<number, CollectionEntry>>(new Map());
   const [loaded, setLoaded] = useState(false);
 
@@ -246,6 +249,38 @@ export default function CollectionPage() {
         Tap a Pokémon to mark it caught. Track your progress toward catching &apos;em all.
       </p>
 
+      {/* View toggle: collection grid vs. catch planner */}
+      <div
+        className="mt-4 inline-flex rounded-full bg-slate-100 p-1 dark:bg-slate-800"
+        role="tablist"
+        aria-label="Living Dex views"
+      >
+        {(
+          [
+            { key: "collection", label: "📖 Collection" },
+            { key: "planner", label: "🗺️ Catch Planner" },
+          ] as const
+        ).map((tab) => (
+          <button
+            key={tab.key}
+            type="button"
+            role="tab"
+            aria-selected={view === tab.key}
+            onClick={() => setView(tab.key)}
+            className={`rounded-full px-4 py-1.5 text-sm font-semibold transition-colors ${
+              view === tab.key
+                ? "bg-emerald-600 text-white shadow-sm"
+                : "text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100"
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {view === "collection" ? (
+        <>
+
       {/* Progress */}
       <div className="mt-6 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
         <div className="flex items-baseline justify-between">
@@ -327,6 +362,10 @@ export default function CollectionPage() {
             );
           })}
         </div>
+      )}
+        </>
+      ) : (
+        <CatchPlanner caught={entries} />
       )}
     </div>
   );

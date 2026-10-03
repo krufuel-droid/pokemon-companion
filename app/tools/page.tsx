@@ -8,9 +8,14 @@ interface Tool {
 
 const CALCULATORS: Tool[] = [
   {
-    href: "/tools/damage-calculator",
+    href: "/tools/damage-calc",
     title: "Damage Calculator",
-    desc: "Gen V+ damage formula with 85–100% rolls, STAB, crits, burn, weather, and type effectiveness.",
+    desc: "Pick real attacker and defender Pokémon — stats, typing, and STAB auto-fill. 16-roll min/max damage with KO odds.",
+  },
+  {
+    href: "/tools/damage-calculator",
+    title: "Advanced Damage Calc",
+    desc: "Manual-entry damage calc with crits, burn, weather, and full stat overrides.",
   },
   {
     href: "/tools/catch-rate",

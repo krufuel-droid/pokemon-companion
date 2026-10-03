@@ -4,22 +4,25 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { unlockAchievement } from "@/lib/achievements";
+import speciesIndex from "@/data/pokedex-index.json";
 import { fetchSetCardIds, searchCards, type TcgCard } from "@/lib/tcg";
 import {
   TCGDEX_LANGUAGES,
   detailsForPrints,
+  englishDetail,
   formatPrice,
   getPriceMovers,
   searchPrints,
   snapshotTrackedPrices,
   variantBadges,
+  type CardPricing,
   type PriceMover,
   type TcgdexCardDetail,
   type TcgdexCardSummary,
 } from "@/lib/tcgdex";
 
 type ListKind = "collection" | "want";
-type Tab = "search" | "collection" | "want" | "master";
+type Tab = "search" | "collection" | "want" | "master" | "value";
 
 interface TcgRow {
   id: string;
@@ -735,6 +738,16 @@ function MasterSetPane({ userId }: { userId: string | null }) {
 
   const langLabel = TCGDEX_LANGUAGES.find((l) => l.code === lang)?.label ?? lang;
 
+  // Species autocomplete for the Pokémon picker (lightweight index, 1025 entries).
+  const speciesSuggestions = useMemo(() => {
+    const q = pokemon.trim().toLowerCase();
+    if (q.length < 2) return [];
+    return (speciesIndex as { name: string }[])
+      .filter((s) => s.name.toLowerCase().startsWith(q))
+      .slice(0, 8)
+      .map((s) => s.name);
+  }, [pokemon]);
+
   return (
     <div>
       {/* Price movers digest */}
@@ -791,8 +804,15 @@ function MasterSetPane({ userId }: { userId: string | null }) {
           onChange={(e) => setPokemon(e.target.value)}
           placeholder="Pokémon — e.g. Sylveon"
           aria-label="Pokémon"
+          list="master-set-species"
+          autoComplete="off"
           className="flex-1 rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-800 placeholder:text-slate-400 focus:border-emerald-500 focus:outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
         />
+        <datalist id="master-set-species">
+          {speciesSuggestions.map((name) => (
+            <option key={name} value={name} />
+          ))}
+        </datalist>
         <select
           value={lang}
           onChange={(e) => changeLang(e.target.value)}
@@ -948,6 +968,406 @@ function MasterSetPane({ userId }: { userId: string | null }) {
           </div>
         </>
       )}
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Value dashboard — total market value, breakdown by set, top cards,  */
+/* and 7-day movers (all priced live via TCGdex).                      */
+/* ------------------------------------------------------------------ */
+
+const VALUE_SETUP_NOTE =
+  "One-time setup needed: run supabase/migration-tcg-collection.sql and supabase/migration-tcg-master-set.sql in the Supabase SQL Editor, then refresh.";
+
+/** Session-level price cache so the dashboard doesn't hammer TCGdex. */
+const valuePriceCache = new Map<string, CardPricing | null>();
+
+interface MasterSetRow {
+  card_id: string;
+  card_name: string;
+  set_name: string | null;
+  language: string;
+  image_url: string | null;
+}
+
+interface ValueLine {
+  key: string;
+  cardId: string;
+  name: string;
+  setName: string;
+  imageUrl: string | null;
+  qty: number;
+  usd: number | null;
+  eur: number | null;
+}
+
+function CurrencyToggle({
+  currency,
+  onChange,
+}: {
+  currency: "USD" | "EUR";
+  onChange: (c: "USD" | "EUR") => void;
+}) {
+  return (
+    <div className="flex gap-1 rounded-xl bg-slate-100 p-1 dark:bg-slate-800">
+      {(["USD", "EUR"] as const).map((c) => (
+        <button
+          key={c}
+          type="button"
+          onClick={() => onChange(c)}
+          aria-pressed={currency === c}
+          className={`rounded-lg px-3 py-1 text-xs font-bold ${
+            currency === c
+              ? "bg-white text-slate-900 shadow-sm dark:bg-slate-900 dark:text-slate-100"
+              : "text-slate-500 dark:text-slate-400"
+          }`}
+        >
+          {c === "USD" ? "$ USD" : "€ EUR"}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+/** Fetch prices for many card ids with a concurrency cap, using the cache. */
+async function fetchValuePrices(cardIds: string[]): Promise<void> {
+  const queue = [...cardIds].filter((id) => !valuePriceCache.has(id));
+  const workers: Promise<void>[] = [];
+  const next = async () => {
+    while (queue.length > 0) {
+      const id = queue.shift()!;
+      try {
+        const detail = await englishDetail(id);
+        valuePriceCache.set(id, detail ? detail.pricing : null);
+      } catch {
+        valuePriceCache.set(id, null);
+      }
+    }
+  };
+  for (let i = 0; i < Math.min(6, queue.length); i++) workers.push(next());
+  await Promise.all(workers);
+}
+
+function ValuePane({
+  userId,
+  collectionRows,
+  onToast,
+}: {
+  userId: string;
+  collectionRows: TcgRow[];
+  onToast: (msg: string) => void;
+}) {
+  const [missing, setMissing] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [lines, setLines] = useState<ValueLine[]>([]);
+  const [currency, setCurrency] = useState<"USD" | "EUR">("USD");
+  const [movers, setMovers] = useState<PriceMover[]>([]);
+  const unlockedRef = useRef(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    const sb = getSupabase();
+    if (!sb) {
+      setLoading(false);
+      return;
+    }
+    void (async () => {
+      // Master Set rows count as 1 each toward portfolio value.
+      const { data: masterData, error: masterErr } = await sb
+        .from("tcg_master_set")
+        .select("card_id,card_name,set_name,language,image_url")
+        .eq("user_id", userId);
+      if (cancelled) return;
+      let masterRows: MasterSetRow[] = [];
+      if (masterErr) {
+        if (isMissingTable(masterErr)) setMissing(true);
+      } else {
+        masterRows = (masterData as MasterSetRow[]) ?? [];
+      }
+
+      // Price movers digest (best-effort, same as Master Set tab).
+      try {
+        const m = await getPriceMovers(
+          sb as unknown as Parameters<typeof getPriceMovers>[0],
+          userId
+        );
+        if (!cancelled) setMovers(m);
+      } catch {
+        /* ignore */
+      }
+
+      const ids = new Set<string>();
+      for (const r of collectionRows) ids.add(r.card_id);
+      for (const r of masterRows) ids.add(r.card_id);
+      await fetchValuePrices([...ids]);
+      if (cancelled) return;
+
+      const built: ValueLine[] = [];
+      collectionRows.forEach((r, i) => {
+        const p = valuePriceCache.get(r.card_id) ?? null;
+        built.push({
+          key: `c-${r.card_id}-${i}`,
+          cardId: r.card_id,
+          name: r.card_name,
+          setName: r.set_name ?? "Unknown set",
+          imageUrl: r.image_url,
+          qty: r.quantity,
+          usd: p?.usd ?? null,
+          eur: p?.eur ?? null,
+        });
+      });
+      masterRows.forEach((r, i) => {
+        const p = valuePriceCache.get(r.card_id) ?? null;
+        built.push({
+          key: `m-${r.card_id}-${r.language}-${i}`,
+          cardId: r.card_id,
+          name: r.card_name,
+          setName: r.set_name ?? "Unknown set",
+          imageUrl: r.image_url,
+          qty: 1,
+          usd: p?.usd ?? null,
+          eur: p?.eur ?? null,
+        });
+      });
+      setLines(built);
+      setLoading(false);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [userId, collectionRows]);
+
+  const totalUsd = useMemo(
+    () => lines.reduce((s, l) => s + (l.usd ?? 0) * l.qty, 0),
+    [lines]
+  );
+  const totalEur = useMemo(
+    () => lines.reduce((s, l) => s + (l.eur ?? 0) * l.qty, 0),
+    [lines]
+  );
+  const total = currency === "USD" ? totalUsd : totalEur;
+  const pricedCount = useMemo(
+    () => lines.filter((l) => (currency === "USD" ? l.usd : l.eur) != null).length,
+    [lines, currency]
+  );
+
+  // 🏆 High Roller: portfolio passes $100 market value.
+  useEffect(() => {
+    if (loading || !userId || totalUsd < 100 || unlockedRef.current) return;
+    unlockedRef.current = true;
+    unlockAchievement(userId, "high-roller")
+      .then((ok) => {
+        if (ok) onToast("💎 Achievement unlocked: High Roller!");
+      })
+      .catch(() => {});
+  }, [loading, userId, totalUsd, onToast]);
+
+  const setGroups = useMemo(() => {
+    const map = new Map<string, { name: string; usd: number; eur: number }>();
+    for (const l of lines) {
+      const g = map.get(l.setName) ?? { name: l.setName, usd: 0, eur: 0 };
+      g.usd += (l.usd ?? 0) * l.qty;
+      g.eur += (l.eur ?? 0) * l.qty;
+      map.set(l.setName, g);
+    }
+    const arr = [...map.values()];
+    arr.sort((a, b) => (currency === "USD" ? b.usd - a.usd : b.eur - a.eur));
+    return arr;
+  }, [lines, currency]);
+
+  const topCards = useMemo(() => {
+    const priced = lines
+      .map((l) => ({
+        ...l,
+        unit: currency === "USD" ? l.usd : l.eur,
+      }))
+      .filter((l) => l.unit != null && l.unit > 0);
+    priced.sort((a, b) => b.unit! * b.qty - a.unit! * a.qty);
+    return priced.slice(0, 10);
+  }, [lines, currency]);
+
+  if (missing) {
+    return (
+      <p className="mt-8 rounded-2xl bg-amber-50 p-6 text-center text-sm text-amber-800 ring-1 ring-amber-200 dark:bg-amber-950/30 dark:text-amber-300 dark:ring-amber-900">
+        {VALUE_SETUP_NOTE}
+      </p>
+    );
+  }
+  if (loading) {
+    return (
+      <p className="mt-8 text-center text-slate-500 dark:text-slate-400">
+        💰 Crunching card values…
+      </p>
+    );
+  }
+  if (lines.length === 0) {
+    return (
+      <p className="mt-8 text-center text-slate-500 dark:text-slate-400">
+        Nothing to value yet — add cards from the Search tab or mark prints in
+        the Master Set tab.
+      </p>
+    );
+  }
+
+  return (
+    <div className="space-y-8">
+      {/* Portfolio total */}
+      <section className="rounded-2xl bg-white p-6 ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">
+              Total collection value
+            </p>
+            <p className="mt-1 text-4xl font-black tabular-nums text-emerald-600 dark:text-emerald-400">
+              {formatPrice(total, currency)}
+            </p>
+            <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">
+              {pricedCount} of {lines.length} cards with{" "}
+              {currency === "USD" ? "TCGPlayer market" : "Cardmarket avg"} data
+              {pricedCount < lines.length ? " — cards without data count as $0" : ""}
+            </p>
+          </div>
+          <CurrencyToggle currency={currency} onChange={setCurrency} />
+        </div>
+      </section>
+
+      {/* Value by set */}
+      <section aria-label="Value by set">
+        <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100">
+          📊 Value by set
+        </h2>
+        <div className="mt-3 space-y-2">
+          {setGroups.map((g) => {
+            const v = currency === "USD" ? g.usd : g.eur;
+            const pct = total > 0 ? Math.min(100, (v / total) * 100) : 0;
+            return (
+              <div
+                key={g.name}
+                className="rounded-xl bg-white p-3 ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700"
+              >
+                <div className="flex items-baseline justify-between gap-3">
+                  <span className="truncate text-sm font-semibold text-slate-700 dark:text-slate-200">
+                    {g.name}
+                  </span>
+                  <span className="shrink-0 text-sm font-black tabular-nums text-slate-800 dark:text-slate-100">
+                    {formatPrice(v, currency)}
+                  </span>
+                </div>
+                <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+                  <div
+                    className="h-full rounded-full bg-emerald-500"
+                    style={{ width: `${pct}%` }}
+                  />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* Top 10 most valuable */}
+      <section aria-label="Most valuable cards">
+        <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100">
+          🏆 Top 10 most valuable
+        </h2>
+        {topCards.length > 0 ? (
+          <ol className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+            {topCards.map((l, i) => (
+              <li
+                key={l.key}
+                className="relative overflow-hidden rounded-2xl bg-white ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700"
+              >
+                <span className="absolute left-2 top-2 z-10 rounded-full bg-slate-900/80 px-2 py-0.5 text-[11px] font-black tabular-nums text-white dark:bg-slate-100/90 dark:text-slate-900">
+                  #{i + 1}
+                </span>
+                {l.imageUrl ? (
+                  <img
+                    src={l.imageUrl}
+                    alt={`${l.name} (${l.setName})`}
+                    loading="lazy"
+                    className="aspect-[245/337] w-full object-cover"
+                    draggable={false}
+                  />
+                ) : (
+                  <div className="flex aspect-[245/337] w-full items-center justify-center bg-slate-100 text-3xl dark:bg-slate-800">
+                    🃏
+                  </div>
+                )}
+                <div className="p-2.5">
+                  <p className="truncate text-xs font-bold text-slate-800 dark:text-slate-100">
+                    {l.name}
+                  </p>
+                  <p className="truncate text-[11px] text-slate-500 dark:text-slate-400">
+                    {l.setName}
+                    {l.qty > 1 ? ` · ×${l.qty}` : ""}
+                  </p>
+                  <p className="mt-0.5 text-sm font-black tabular-nums text-emerald-600 dark:text-emerald-400">
+                    {formatPrice(l.unit! * l.qty, currency)}
+                  </p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        ) : (
+          <p className="mt-3 rounded-2xl bg-slate-100 p-5 text-center text-sm text-slate-500 dark:bg-slate-800/60 dark:text-slate-400">
+            No market prices found for your cards yet.
+          </p>
+        )}
+      </section>
+
+      {/* 7-day movers */}
+      <section aria-label="Price movers">
+        <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100">
+          📈 Biggest 7-day movers{" "}
+          <span className="text-xs font-semibold text-slate-400">±10%+</span>
+        </h2>
+        {movers.length > 0 ? (
+          <div className="mt-3 flex gap-3 overflow-x-auto pb-2">
+            {movers.map((m) => {
+              const up = m.pctChange >= 0;
+              const langName =
+                TCGDEX_LANGUAGES.find((l) => l.code === m.language)?.label ?? m.language;
+              return (
+                <div
+                  key={`${m.cardId}-${m.language}`}
+                  className="w-44 shrink-0 overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700"
+                >
+                  <TcgImage baseUrl={m.imageUrl} alt={m.cardName} />
+                  <div className="p-3">
+                    <p className="truncate text-sm font-bold text-slate-900 dark:text-slate-100">
+                      {m.cardName}
+                    </p>
+                    <p className="truncate text-xs text-slate-500 dark:text-slate-400">
+                      {langName}
+                      {m.setName ? ` · ${m.setName}` : ""}
+                    </p>
+                    <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                      {formatPrice(m.oldPrice, m.currency)} →{" "}
+                      {formatPrice(m.newPrice, m.currency)}
+                    </p>
+                    <span
+                      className={`mt-1 inline-block rounded-full px-2 py-0.5 text-xs font-bold tabular-nums ${
+                        up
+                          ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"
+                          : "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300"
+                      }`}
+                    >
+                      {up ? "▲" : "▼"} {Math.abs(m.pctChange).toFixed(0)}%
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <p className="mt-3 rounded-2xl bg-slate-100 p-5 text-center text-sm text-slate-500 dark:bg-slate-800/60 dark:text-slate-400">
+            No notable 7-day price moves yet — prices get snapshotted daily for
+            cards you track in the Master Set view, so check back once a week of
+            history builds up.
+          </p>
+        )}
+      </section>
     </div>
   );
 }
@@ -1149,6 +1569,7 @@ export default function TcgCollectionPage() {
     { id: "collection", label: "📦 My Collection", count: collection.length },
     { id: "want", label: "⭐ Want List", count: want.length },
     { id: "master", label: "🌍 Master Set" },
+    { id: "value", label: "💰 Value" },
   ];
 
   return (
@@ -1255,6 +1676,16 @@ export default function TcgCollectionPage() {
             )
           ))}
         {tab === "master" && <MasterSetPane userId={userId} />}
+        {tab === "value" &&
+          (userId ? (
+            <ValuePane userId={userId} collectionRows={collection} onToast={setToast} />
+          ) : (
+            authChecked && (
+              <p className="mt-8 text-center text-slate-500 dark:text-slate-400">
+                Sign in above, then come back to see your collection&apos;s value.
+              </p>
+            )
+          ))}
       </div>
 
       {toast && <Toast message={toast} onDone={() => setToast(null)} />}
