@@ -20,7 +20,9 @@ interface FormSwitcherProps {
 }
 
 /** Dropdown to switch between a species' alternate forms (e.g. Ogerpon's
- *  masks). Updates the type pills and the sprite viewer together. */
+ *  masks). Updates the type pills and the sprite viewer together.
+ *  Only renders the dropdown when forms exist; otherwise falls back to the
+ *  static type pills + sprite viewer. */
 export function FormSwitcher({
   baseName,
   baseTypes,
@@ -30,19 +32,8 @@ export function FormSwitcher({
 }: FormSwitcherProps) {
   const [selected, setSelected] = useState<string>(() => {
     const baseMatch = forms.find((f) => f.types.join("/") === baseTypes.join("/"));
-    return baseMatch ? baseMatch.name : "__base__";
+    return baseMatch ? baseMatch.name : (forms[0]?.name ?? "__base__");
   });
-
-  const active =
-    forms.find((f) => f.name === selected) ??
-    (selected === "__base__"
-      ? { name: baseName, types: baseTypes, regular: baseRegular, shiny: baseShiny }
-      : {
-          name: baseName,
-          types: baseTypes,
-          regular: baseRegular,
-          shiny: baseShiny,
-        });
 
   if (forms.length === 0) {
     return (
@@ -57,6 +48,8 @@ export function FormSwitcher({
     );
   }
 
+  const active = forms.find((f) => f.name === selected) ?? forms[0];
+
   return (
     <>
       <div className="mt-1 flex flex-wrap items-center gap-3">
@@ -64,14 +57,11 @@ export function FormSwitcher({
         <label className="flex items-center gap-2 text-sm">
           <span className="font-medium text-slate-500 dark:text-slate-400">Form</span>
           <select
-            value={selected}
+            value={active.name}
             onChange={(e) => setSelected(e.target.value)}
             className="rounded-lg border border-slate-300 bg-white px-2 py-1 text-sm font-medium text-slate-700 shadow-sm focus:border-emerald-500 focus:outline-none dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200"
             aria-label="Select form"
           >
-            {forms.every((f) => f.types.join("/") !== baseTypes.join("/")) && (
-              <option value="__base__">{baseName} (default)</option>
-            )}
             {forms.map((f) => (
               <option key={f.name} value={f.name}>
                 {f.name}
@@ -83,7 +73,7 @@ export function FormSwitcher({
       <div className="mt-4">
         <SpriteViewer
           key={active.name}
-          name={`${baseName} ${active.name !== baseName ? active.name : ""}`.trim()}
+          name={`${baseName} ${active.name}`}
           regular={active.regular}
           shiny={active.shiny}
         />
