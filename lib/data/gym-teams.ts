@@ -500,7 +500,7 @@ export const GYM_TEAMS: Record<string, GymTeam[]> = {
         { species: "Arcanine", id: 59, level: 48, moves: ["Flare Blitz", "Outrage", "Crunch"] },
       ],
     
-      counterPick: { species: "Gyarados", id: 130, location: "Magikarp swimming near Vermilion City (evolves at Lv. 20)", why: "Water/Flying Gyarados soaks Blaine's Fire team — Surf and Hydro Pump hit massively." },},
+      counterPick: { species: "Gyarados", id: 130, location: "Magikarp swimming near Vermilion City (evolves at Lv. 20)", why: "Let's Go lets Water moves go physical — Gyarados's 125 Attack with Waterfall melts Blaine's Fire team. (Wild Squirtle nearby works too.)" },},
     {
       gym: "Viridian Gym",
       leader: "Giovanni",
@@ -513,7 +513,7 @@ export const GYM_TEAMS: Record<string, GymTeam[]> = {
         { species: "Rhydon", id: 112, level: 50, moves: ["Earthquake", "Rock Slide", "Megahorn"] },
       ],
     
-      counterPick: { species: "Articuno", id: 144, location: "Seafoam Islands (Surf, reachable before Giovanni)", why: "Ice-type Blizzard shreds Giovanni's Ground team." },},
+      counterPick: { species: "Gyarados", id: 130, location: "Magikarp swimming near Vermilion City (evolves at Lv. 20)", why: "Let's Go lets Water moves go physical — Gyarados's 125 Attack with Waterfall drowns Giovanni's Ground team. (Wild Squirtle nearby works too.)" },},
   ],
   "Pokémon Sun & Moon": [
     {
@@ -2081,7 +2081,7 @@ export const GYM_TEAMS: Record<string, GymTeam[]> = {
       ],
       note: "Yellow: Ninetales 48, Rapidash 50, Arcanine 54.",
     
-      counterPick: { species: "Gyarados", id: 130, location: "Old Rod in Vermilion City (catch Magikarp, evolves at Lv. 20)", why: "Water/Flying Gyarados soaks Blaine's Fire team — Surf and Hydro Pump hit massively." },},
+      counterPick: { species: "Gyarados", id: 130, location: "Old Rod in Vermilion City (catch Magikarp, evolves at Lv. 20)", why: "No physical/special split in Red/Blue — Water runs off Special, and Gyarados's 100 Special with Surf or Hydro Pump soaks Blaine's Fire team." },},
     {
       gym: "Viridian Gym",
       leader: "Giovanni",
@@ -2096,7 +2096,7 @@ export const GYM_TEAMS: Record<string, GymTeam[]> = {
       ],
       note: "Yellow: Dugtrio 50, Persian 53, Nidoqueen 53, Nidoking 55, Rhydon 55.",
     
-      counterPick: { species: "Vaporeon", id: 134, location: "Eevee gift in Celadon City + Water Stone from the Dept. Store", why: "Surf washes away Giovanni's Ground team." },},
+      counterPick: { species: "Gyarados", id: 130, location: "Old Rod in Vermilion City (catch Magikarp, evolves at Lv. 20)", why: "No physical/special split in Red/Blue — Water runs off Special, and Gyarados's 100 Special with Surf washes Giovanni's Ground team." },},
   ],
 };
 
