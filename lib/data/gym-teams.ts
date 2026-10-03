@@ -500,7 +500,7 @@ export const GYM_TEAMS: Record<string, GymTeam[]> = {
         { species: "Arcanine", id: 59, level: 48, moves: ["Flare Blitz", "Outrage", "Crunch"] },
       ],
     
-      counterPick: { species: "Vaporeon", id: 134, location: "Eevee gift in Celadon City + Water Stone from the Dept. Store", why: "Surf washes away Blaine's Fire team." },},
+      counterPick: { species: "Gyarados", id: 130, location: "Magikarp swimming near Vermilion City (evolves at Lv. 20)", why: "Water/Flying Gyarados soaks Blaine's Fire team — Surf and Hydro Pump hit massively." },},
     {
       gym: "Viridian Gym",
       leader: "Giovanni",
@@ -1670,7 +1670,7 @@ export const GYM_TEAMS: Record<string, GymTeam[]> = {
         { species: "Rapidash", id: 78, level: 59, moves: ["Fire Blast", "Fire Spin", "Fury Attack"] },
       ],
     
-      counterPick: { species: "Tentacruel", id: 73, location: "Surfing Routes 19-21 (catch Tentacool, evolves at Lv. 30)", why: "Water STAB washes away Blaine's Fire team; resists Fire." },},
+      counterPick: { species: "Gyarados", id: 130, location: "Old Rod almost anywhere (catch Magikarp, evolves at Lv. 20)", why: "Water/Flying Gyarados soaks Blaine's Fire team — Surf and Hydro Pump hit massively." },},
     {
       gym: "Viridian Gym",
       leader: "Blue",
@@ -1877,7 +1877,7 @@ export const GYM_TEAMS: Record<string, GymTeam[]> = {
         { species: "Arcanine", id: 59, level: 47, moves: ["Bite", "Roar", "Take Down", "Fire Blast"] },
       ],
     
-      counterPick: { species: "Omanyte", id: 138, location: "Helix Fossil revived at the Cinnabar Lab", why: "Rock/Water typing: Surf and Rock moves hit Blaine's Fire team super-effectively." },},
+      counterPick: { species: "Gyarados", id: 130, location: "Old Rod in Vermilion City (catch Magikarp, evolves at Lv. 20)", why: "Water/Flying Gyarados soaks Blaine's Fire team — Surf and Hydro Pump hit massively." },},
     {
       gym: "Viridian Gym",
       leader: "Giovanni",
@@ -2081,7 +2081,7 @@ export const GYM_TEAMS: Record<string, GymTeam[]> = {
       ],
       note: "Yellow: Ninetales 48, Rapidash 50, Arcanine 54.",
     
-      counterPick: { species: "Omanyte", id: 138, location: "Helix Fossil revived at the Cinnabar Lab", why: "Rock/Water typing: Surf and Rock moves hit Blaine's Fire team super-effectively." },},
+      counterPick: { species: "Gyarados", id: 130, location: "Old Rod in Vermilion City (catch Magikarp, evolves at Lv. 20)", why: "Water/Flying Gyarados soaks Blaine's Fire team — Surf and Hydro Pump hit massively." },},
     {
       gym: "Viridian Gym",
       leader: "Giovanni",
