@@ -151,22 +151,9 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Seasonal event spotlight (renders only during an active event) */}
-      <section className="mx-auto max-w-6xl px-4 pt-12 sm:px-6">
-        <SeasonalSpotlight />
-      </section>
-
-      {/* Daily streak + Pokémon of the Day — side by side on desktop, stacked on mobile */}
-      <section className="mx-auto max-w-6xl px-4 pt-6 sm:px-6">
-        <div className="grid gap-6 lg:grid-cols-2">
-          <StreakWidget />
-          <PokemonOfTheDay />
-        </div>
-      </section>
-
       {/* Latest tournament result banner */}
       {TOURNAMENT_RESULTS.length > 0 && (
-        <section className="mx-auto max-w-6xl px-4 pt-6 sm:px-6">
+        <section className="mx-auto max-w-6xl px-4 pt-8 sm:px-6">
           <Link
             href="/champions#recent-results"
             className="block rounded-2xl bg-gradient-to-r from-amber-500 to-orange-600 p-5 text-white shadow-sm transition hover:shadow-md"
@@ -193,6 +180,19 @@ export default function HomePage() {
           </Link>
         </section>
       )}
+
+      {/* Seasonal event spotlight (renders only during an active event) */}
+      <section className="mx-auto max-w-6xl px-4 pt-12 sm:px-6">
+        <SeasonalSpotlight />
+      </section>
+
+      {/* Daily streak + Pokémon of the Day — side by side on desktop, stacked on mobile */}
+      <section className="mx-auto max-w-6xl px-4 pt-6 sm:px-6">
+        <div className="grid gap-6 lg:grid-cols-2">
+          <StreakWidget />
+          <PokemonOfTheDay />
+        </div>
+      </section>
 
       {/* Features grid */}
       <section className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
