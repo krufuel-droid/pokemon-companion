@@ -144,7 +144,15 @@ export default async function SpeciesPage({
                   baseName={species.name}
                   baseTypes={species.types}
                   baseRegular={species.sprites.regular}
-                  baseShiny={species.sprites.shiny}
+                  // Showdown's gen5-shiny sprites for Poltchageist (#1012) and
+                  // Sinistcha (#1013) are wrong — Poltchageist's serves
+                  // Sinistcha's sprite and Sinistcha's is a pale placeholder —
+                  // so use our corrected local recolors instead.
+                  baseShiny={
+                    species.id === 1012 || species.id === 1013
+                      ? `/sprites/${species.slug}-shiny.png`
+                      : species.sprites.shiny
+                  }
                   forms={maskFormOptions}
                 />
               </div>

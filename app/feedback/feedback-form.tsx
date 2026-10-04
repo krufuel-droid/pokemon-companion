@@ -24,6 +24,23 @@ function isMissingTable(error: unknown): boolean {
   );
 }
 
+/**
+ * Pull the useful bits out of a PostgREST error (code, message, details,
+ * hint) so a failed send can show the real database error for debugging
+ * instead of only the generic friendly message.
+ */
+function describeError(err: unknown): string | null {
+  if (err && typeof err === "object") {
+    const e = err as Record<string, unknown>;
+    const parts = [e.code, e.message, e.details, e.hint].filter(
+      (p): p is string => typeof p === "string" && p.length > 0,
+    );
+    if (parts.length > 0) return parts.join(" | ");
+  }
+  if (err instanceof Error) return err.message;
+  return null;
+}
+
 function FallbackCard() {
   return (
     <div className="rounded-2xl bg-white p-8 text-center shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
@@ -57,6 +74,7 @@ export function FeedbackForm() {
   const [message, setMessage] = useState("");
   const [name, setName] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [errorDetails, setErrorDetails] = useState<string | null>(null);
   const [prefilledFor, setPrefilledFor] = useState<string | null>(null);
 
   // Prefill the trainer name from the logged-in profile once it arrives.
@@ -102,6 +120,7 @@ export function FeedbackForm() {
       return;
     }
     setError(null);
+    setErrorDetails(null);
     setPhase("sending");
     try {
       const supabase = createClient();
@@ -119,6 +138,7 @@ export function FeedbackForm() {
       } else {
         setPhase("form");
         setError("Couldn't send that just now — please try again.");
+        setErrorDetails(describeError(err));
       }
     }
   }
@@ -151,6 +171,7 @@ export function FeedbackForm() {
           onClick={() => {
             setMessage("");
             setError(null);
+            setErrorDetails(null);
             setPhase("form");
           }}
           className="mt-5 rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-emerald-700"
@@ -237,9 +258,19 @@ export function FeedbackForm() {
       </div>
 
       {error && (
-        <p role="alert" className="mt-4 text-sm font-medium text-red-600 dark:text-red-400">
-          {error}
-        </p>
+        <div role="alert" className="mt-4">
+          <p className="text-sm font-medium text-red-600 dark:text-red-400">
+            {error}
+          </p>
+          {errorDetails && (
+            <details className="mt-1 text-xs text-slate-400 dark:text-slate-500">
+              <summary className="cursor-pointer">
+                Technical details (for debugging)
+              </summary>
+              <p className="mt-1 break-words font-mono">{errorDetails}</p>
+            </details>
+          )}
+        </div>
       )}
 
       <button
