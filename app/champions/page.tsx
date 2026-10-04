@@ -128,16 +128,17 @@ export default function ChampionsPage() {
             </a>
             . Tap any Pokémon to open its Pokédex page.
           </p>
-          <div className="mt-4 space-y-2">
+          <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
             {META_PICKS.map((pick) => {
               const card = getSpeciesCard(pick.speciesName ?? pick.name);
+              const usage = pick.note.match(/(\d+(?:\.\d+)?)%/)?.[1];
               return (
                 <details
                   key={pick.name}
-                  className="group rounded-xl bg-white shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700"
+                  className="group rounded-xl bg-white p-3 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700"
                 >
-                  <summary className="cursor-pointer list-none px-4 py-3 marker:hidden [&::-webkit-details-marker]:hidden">
-                    <span className="flex items-center gap-3">
+                  <summary className="cursor-pointer list-none [&::-webkit-details-marker]:hidden">
+                    <span className="flex items-center gap-2">
                       {card && (
                         <img
                           src={card.sprite}
@@ -146,40 +147,29 @@ export default function ChampionsPage() {
                           loading="lazy"
                         />
                       )}
-                      <span className="min-w-0 flex-1 truncate text-base font-bold text-slate-900 dark:text-slate-100">
-                        {pick.name}
+                      <span className="min-w-0">
+                        <span className="block truncate text-sm font-bold text-slate-900 dark:text-slate-100">
+                          {pick.name}
+                        </span>
+                        {usage && (
+                          <span className="block text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                            {usage}% usage
+                          </span>
+                        )}
                       </span>
-                      <svg
-                        width="16"
-                        height="16"
-                        viewBox="0 0 20 20"
-                        aria-hidden="true"
-                        className="shrink-0 text-slate-400 transition-transform group-open:rotate-180"
-                      >
-                        <path
-                          d="M5 7l5 5 5-5"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
                     </span>
                   </summary>
-                  <div className="border-t border-slate-100 px-4 py-3 dark:border-slate-800">
-                    <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-400">
-                      {pick.note}{" "}
-                      {card && (
-                        <Link
-                          href={`/pokedex/${card.id}`}
-                          className="font-semibold text-indigo-700 hover:underline dark:text-indigo-300"
-                        >
-                          Pokédex page ↗
-                        </Link>
-                      )}
-                    </p>
-                  </div>
+                  <p className="mt-2 border-t border-slate-100 pt-2 text-xs leading-relaxed text-slate-600 dark:border-slate-800 dark:text-slate-400">
+                    {pick.note}{" "}
+                    {card && (
+                      <Link
+                        href={`/pokedex/${card.id}`}
+                        className="font-semibold text-indigo-700 hover:underline dark:text-indigo-300"
+                      >
+                        Pokédex ↗
+                      </Link>
+                    )}
+                  </p>
                 </details>
               );
             })}
