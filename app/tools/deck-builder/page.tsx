@@ -69,15 +69,18 @@ function cardClass(pad = "p-3"): string {
 function CardSearch({
   onAdd,
   ownedIds,
+  format,
 }: {
   onAdd: (card: TcgCard) => void;
   ownedIds: Set<string> | null;
+  format: TcgFormat;
 }) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<TcgCard[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searched, setSearched] = useState(false);
+  const [legalOnly, setLegalOnly] = useState(true);
   const runId = useRef(0);
 
   // Species autocomplete (local, instant): type 2+ letters, pick a Pokémon.
@@ -89,6 +92,13 @@ function CardSearch({
       .slice(0, 12)
       .map((s) => s.name);
   }, [query]);
+
+  // Format-legality filter for search results.
+  const visibleResults = useMemo(() => {
+    if (!legalOnly || format === "Unlimited") return results;
+    return results.filter((c) => isLegalInFormat(c, format));
+  }, [results, legalOnly, format]);
+  const hiddenCount = results.length - visibleResults.length;
 
   useEffect(() => {
     const q = query.trim();
@@ -137,6 +147,22 @@ function CardSearch({
           <option key={name} value={name} />
         ))}
       </datalist>
+      {format !== "Unlimited" && (
+        <label className="mt-2 flex cursor-pointer items-center gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400">
+          <input
+            type="checkbox"
+            checked={legalOnly}
+            onChange={(e) => setLegalOnly(e.target.checked)}
+            className="h-4 w-4 rounded accent-emerald-600"
+          />
+          {format}-legal only
+          {searched && legalOnly && hiddenCount > 0 && (
+            <span className="font-normal text-slate-400">
+              ({hiddenCount} hidden)
+            </span>
+          )}
+        </label>
+      )}
       {loading && (
         <p className="mt-4 text-center text-sm text-slate-500 dark:text-slate-400">
           Searching cards…
@@ -147,13 +173,15 @@ function CardSearch({
           {error}
         </p>
       )}
-      {!loading && !error && searched && results.length === 0 && (
+      {!loading && !error && searched && visibleResults.length === 0 && (
         <p className="mt-4 text-center text-sm text-slate-500 dark:text-slate-400">
-          No cards found for “{query.trim()}”.
+          {hiddenCount > 0
+            ? `No ${format}-legal cards found for “${query.trim()}” — untick the filter to see all prints.`
+            : `No cards found for “${query.trim()}”.`}
         </p>
       )}
       <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
-        {results.map((card) => (
+        {visibleResults.map((card) => (
           <div key={card.id} className={cardClass("p-0")}>
             {card.imageSmall ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -847,7 +875,11 @@ export default function DeckBuilderPage() {
                   Add cards
                 </h3>
                 <div className="mt-3">
-                  <CardSearch onAdd={(c) => void addCard(c)} ownedIds={ownedIds} />
+                  <CardSearch
+                    onAdd={(c) => void addCard(c)}
+                    ownedIds={ownedIds}
+                    format={activeDeck.format}
+                  />
                 </div>
               </section>
             </>
