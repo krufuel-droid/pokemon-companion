@@ -724,6 +724,132 @@ export const DUNGEON_MAPS_GEN1: DungeonMap[] = [
       "6. Exit east to the Indigo Plateau and the Pokemon League."
     ]
   },
+  {
+    game: "Pokémon Red, Blue & Yellow",
+    dungeon: "Rocket Hideout",
+    floors: [
+      {
+        name: "B1F",
+        grid: [
+          "#######################",
+          "#E.........I..........#",
+          "#.....................#",
+          "#..T......#####.......#",
+          "#.........#####...T...#",
+          "#....I....#####.......#",
+          "#.........#####.......#",
+          "#..T..................#",
+          "#.....................#",
+          "#.........S...........#",
+          "#.....................#",
+          "#######################",
+        ],
+        items: [
+          { x: 11, y: 1, name: "PP Up (hidden) — southeasternmost plant in the center" },
+          { x: 5, y: 5, name: "Escape Rope — west of the plants" }
+        ],
+        trainers: [
+          { x: 3, y: 3, note: "Rocket — Drowzee, Machop Lv.21" },
+          { x: 18, y: 4, note: "Rocket — Raticate x2 Lv.21" },
+          { x: 3, y: 7, note: "Rocket — Grimer, Koffing x2 Lv.20" }
+        ],
+        notes: "Enter via the hidden switch behind the poster in the Celadon Game Corner (beat the guarding Grunt first)."
+      },
+      {
+        name: "B2F",
+        grid: [
+          "######################",
+          "#S.................I.#",
+          "#....................#",
+          "#..###############...#",
+          "#..#I...........#.T..#",
+          "#..#.....I.......#...#",
+          "#..#.............#...#",
+          "#..###############...#",
+          "#....................#",
+          "#..I.................#",
+          "#..........S.........#",
+          "######################",
+        ],
+        items: [
+          { x: 19, y: 1, name: "Nugget — northeast of the spin tile maze" },
+          { x: 4, y: 4, name: "Moon Stone — northwest of the spin tile maze" },
+          { x: 9, y: 5, name: "TM07 (Horn Drill) — southeast of the Moon Stone" },
+          { x: 3, y: 9, name: "Super Potion — southwest of the spin tile maze" }
+        ],
+        trainers: [
+          { x: 18, y: 4, note: "Rocket — Zubat, Koffing, Grimer, Zubat, Raticate Lv.17" }
+        ],
+        notes: "First spinner-tile maze: the arrows fling you until you hit a stop tile — plan each slide."
+      },
+      {
+        name: "B3F",
+        grid: [
+          "######################",
+          "#S...................#",
+          "#......I.............#",
+          "#......I..########...#",
+          "#.........#......#.I.#",
+          "#..T......#......#...#",
+          "#.........#......#...#",
+          "#.........########...#",
+          "#....................#",
+          "#..T.................#",
+          "#..........S.........#",
+          "######################",
+        ],
+        items: [
+          { x: 7, y: 2, name: "TM10 (Double-Edge) — south of the stairs from B2F" },
+          { x: 7, y: 3, name: "Nugget (hidden) — one square east of TM10" },
+          { x: 19, y: 4, name: "Rare Candy — east side of the spin tile maze" }
+        ],
+        trainers: [
+          { x: 3, y: 5, note: "Rocket — Machop x2 Lv.21" },
+          { x: 3, y: 9, note: "Rocket — Rattata, Raticate, Drowzee Lv.20" }
+        ],
+        notes: "Second spinner maze on the east side — the Rare Candy sits inside it."
+      },
+      {
+        name: "B4F",
+        grid: [
+          "######################",
+          "#S.......I.....I.....#",
+          "#....................#",
+          "#..T.................#",
+          "#....................#",
+          "#.....#######........#",
+          "#.....#.....#...T....#",
+          "#..I..#.T...#...I....#",
+          "#.....#.....#...T....#",
+          "#.....#######........#",
+          "#....................#",
+          "######################",
+        ],
+        items: [
+          { x: 3, y: 7, name: "HP Up — west of the stairs from B3F" },
+          { x: 9, y: 1, name: "TM02 (Razor Wind) — northwest area" },
+          { x: 15, y: 1, name: "Iron — southwest area (needs the Lift Key)" },
+          { x: 16, y: 7, name: "Super Potion (hidden) — on the machine north of Giovanni" },
+        ],
+        trainers: [
+          { x: 3, y: 3, note: "Rocket — Koffing, Zubat Lv.21" },
+          { x: 16, y: 6, note: "Rocket — Sandshrew, Ekans, Sandslash Lv.23 (drops the Lift Key)" },
+          { x: 8, y: 7, note: "Rocket — Ekans, Sandshrew, Arbok Lv.23 (needs the Lift Key)" },
+          { x: 16, y: 8, note: "Giovanni — Onix Lv.25, Rhyhorn Lv.24, Kangaskhan Lv.29 (RB) — win the Silph Scope" }
+        ],
+        notes: "Giovanni's office needs the Lift Key — grab it from the Grunt in the northwest, then ride the elevator."
+      }
+    ],
+    walkthrough: [
+      "1. In the Celadon Game Corner, beat the Grunt guarding the back-wall poster, inspect the poster, and take the revealed stairs to B1F.",
+      "2. On B1F, clear the three Rockets and grab the Escape Rope west of the plants plus the hidden PP Up in the southeasternmost plant.",
+      "3. Take the south stairs to B2F and ride the spinner tiles: collect the Nugget (northeast), Moon Stone (northwest), TM07 (Horn Drill) southeast of it, and the Super Potion (southwest); beat the Rocket in the maze.",
+      "4. Descend to B3F: pick up TM10 (Double-Edge) south of the stairs and the hidden Nugget beside it, then work the east spinner maze for the Rare Candy.",
+      "5. On B4F, grab the HP Up west of the stairs and TM02 (Razor Wind) in the northwest, then beat the Grunt in the northwest area to get the Lift Key.",
+      "6. With the Lift Key, ride the elevator to reach Giovanni's office: beat his two guards, then Giovanni himself for the Silph Scope.",
+      "7. Sweep the leftovers: the Iron in the southwest (needs the key) and the hidden Super Potion on the machine behind Giovanni."
+    ]
+  },
   // ==================== POKEMON FIRERED & LEAFGREEN ====================
   {
     game: "Pokémon FireRed & LeafGreen",
@@ -1352,6 +1478,134 @@ export const DUNGEON_MAPS_GEN1: DungeonMap[] = [
       "9. Sweep 10F: Rare Candy, Carbos, Ultra Ball and the hidden HP Up.",
       "10. On 11F, fight the last Rockets to Giovanni in the board room and defeat him.",
       "11. Talk to the president for the Master Ball, plus the Zinc and hidden Revive. Team Rocket withdraws."
+    ]
+  },
+  {
+    game: "Pokémon FireRed & LeafGreen",
+    dungeon: "Rocket Hideout",
+    floors: [
+      {
+        name: "B1F",
+        grid: [
+          "#######################",
+          "#E.........I..........#",
+          "#.....................#",
+          "#..T......#####.......#",
+          "#.........#####...T...#",
+          "#....I....#####.......#",
+          "#.........#####.......#",
+          "#..T..................#",
+          "#.....................#",
+          "#.I.......S...........#",
+          "#.....................#",
+          "#######################",
+        ],
+        items: [
+          { x: 11, y: 1, name: "PP Up (hidden) — southeasternmost plant in the center" },
+          { x: 5, y: 5, name: "Escape Rope — west of the plants" },
+          { x: 2, y: 9, name: "Hyper Potion — southwest area (from the southern B2F stairs)" }
+        ],
+        trainers: [
+          { x: 3, y: 3, note: "Grunt — Drowzee, Machop Lv.21" },
+          { x: 18, y: 4, note: "Grunt — Raticate x2 Lv.21" },
+          { x: 3, y: 7, note: "Grunt — Rattata, Raticate x2, Rattata Lv.19" }
+        ],
+        notes: "Enter via the hidden switch behind the poster in the Celadon Game Corner."
+      },
+      {
+        name: "B2F",
+        grid: [
+          "######################",
+          "#S.................I.#",
+          "#....................#",
+          "#..###############...#",
+          "#..#I...........#.T..#",
+          "#..#.....I.......#...#",
+          "#..#.............#...#",
+          "#..###############...#",
+          "#....................#",
+          "#..I.................#",
+          "#..........S.........#",
+          "######################",
+        ],
+        items: [
+          { x: 19, y: 1, name: "X Speed — northeast of the spin tile maze" },
+          { x: 4, y: 4, name: "Moon Stone — northwest of the spin tile maze" },
+          { x: 9, y: 5, name: "TM12 (Taunt) — southeast of the Moon Stone" },
+          { x: 3, y: 9, name: "Super Potion — southwest of the spin tile maze" }
+        ],
+        trainers: [
+          { x: 18, y: 4, note: "Grunt — Zubat, Koffing, Grimer, Zubat, Raticate Lv.17" }
+        ],
+        notes: "Spinner tiles fling you until a stop tile — plan each slide."
+      },
+      {
+        name: "B3F",
+        grid: [
+          "######################",
+          "#S...................#",
+          "#......I.............#",
+          "#......I..########...#",
+          "#.........#......#.I.#",
+          "#..T......#......#...#",
+          "#.........#......#...#",
+          "#.........########...#",
+          "#....................#",
+          "#..T......I..........#",
+          "#..........S.........#",
+          "######################",
+        ],
+        items: [
+          { x: 7, y: 2, name: "TM21 (Frustration) — south of the stairs from B2F" },
+          { x: 7, y: 3, name: "Nugget (hidden) — one square south of the northwest corner" },
+          { x: 19, y: 4, name: "Rare Candy — east side of the spin tile maze" },
+          { x: 10, y: 9, name: "BlackGlasses — south of the stairs to B4F" }
+        ],
+        trainers: [
+          { x: 3, y: 5, note: "Grunt — Machop x2 Lv.21" },
+          { x: 3, y: 9, note: "Grunt — Rattata, Raticate, Drowzee Lv.20" }
+        ]
+      },
+      {
+        name: "B4F",
+        grid: [
+          "######################",
+          "#S.......I.....I.....#",
+          "#....................#",
+          "#..T.................#",
+          "#....................#",
+          "#.....#######........#",
+          "#.....#.....#...T....#",
+          "#..I..#.T...#...I....#",
+          "#.....#.....#...T..I.#",
+          "#.....#######........#",
+          "#....................#",
+          "######################",
+        ],
+        items: [
+          { x: 3, y: 7, name: "Max Ether — west of the stairs from B3F" },
+          { x: 9, y: 1, name: "TM49 (Snatch) — northwest area" },
+          { x: 15, y: 1, name: "Calcium — southwest area (needs the Lift Key)" },
+          { x: 16, y: 7, name: "Net Ball (hidden) — between the plants southwest of Giovanni" },
+          { x: 19, y: 8, name: "Nest Ball (hidden) — between the plants southeast of Giovanni" },
+        ],
+        trainers: [
+          { x: 3, y: 3, note: "Grunt — Koffing, Zubat Lv.21" },
+          { x: 16, y: 6, note: "Grunt — Sandshrew, Ekans, Sandslash Lv.23 (drops the Lift Key)" },
+          { x: 8, y: 7, note: "Grunt — Ekans, Sandshrew, Arbok Lv.23 (needs the Lift Key)" },
+          { x: 16, y: 8, note: "Giovanni — final showdown, win the Silph Scope" }
+        ],
+        notes: "Giovanni's office needs the Lift Key from the northwest Grunt."
+      }
+    ],
+    walkthrough: [
+      "1. In the Celadon Game Corner, beat the Grunt at the back-wall poster, flip the hidden switch, and descend to B1F.",
+      "2. Clear B1F's Grunts; grab the Escape Rope, the hidden PP Up in the plants, and the Hyper Potion in the southwest.",
+      "3. Ride B2F's spinners for the X Speed, Moon Stone, TM12 (Taunt) and Super Potion.",
+      "4. On B3F, take TM21 (Frustration), the hidden Nugget, the Rare Candy in the east maze, and the BlackGlasses by the B4F stairs.",
+      "5. On B4F, loot the Max Ether and TM49 (Snatch), beat the northwest Grunt for the Lift Key.",
+      "6. Unlock the elevator, defeat Giovanni's guards and Giovanni for the Silph Scope.",
+      "7. Sweep up: Calcium in the southwest plus the hidden Net Ball and Nest Ball by Giovanni's plants."
     ]
   },
   {
@@ -2347,6 +2601,135 @@ export const DUNGEON_MAPS_GEN1: DungeonMap[] = [
       "4. Battle and catch Moltres (Lv.50) roosting on 2F, then let Officer Jenny heal your party by the exit.",
       "5. On 3F, beat Coach Trainer Ryan (Primeape/Gyarados/Arcanine/Tauros) for TM39 (Outrage), and loot the Max Revive, TM51 (Blizzard), Max Potion, Full Restore, Golden Nanab Berries and hidden Fresh Water.",
       "6. Exit east to the Indigo Plateau — the Elite Four await."
+    ]
+  },
+  {
+    game: "Pokémon Let's Go, Pikachu! & Let's Go, Eevee!",
+    dungeon: "Rocket Hideout",
+    floors: [
+      {
+        name: "B1F",
+        grid: [
+          "#######################",
+          "#E.........I..........#",
+          "#.....................#",
+          "#..T......#####.......#",
+          "#.........#####...T...#",
+          "#....I....#####.......#",
+          "#.........#####...I...#",
+          "#..T..................#",
+          "#.....................#",
+          "#.I.......S...........#",
+          "#.....................#",
+          "#######################",
+        ],
+        items: [
+          { x: 11, y: 1, name: "Ultra Ball x5 — south of the table in the western room" },
+          { x: 5, y: 5, name: "Mighty Candy x3 — under the table in the eastern room" },
+          { x: 18, y: 6, name: "Team Rocket Set — from the disguised spy at the dead end (say you're here to beat Team Rocket)" },
+          { x: 2, y: 9, name: "Hyper Potion — southwest area (from the southern B2F stairs)" }
+        ],
+        trainers: [
+          { x: 3, y: 3, note: "Grunt — Koffing, Rattata x2 Lv.29" },
+          { x: 18, y: 4, note: "Grunt — Golbat Lv.29" },
+          { x: 3, y: 7, note: "Grunt — Voltorb Lv.29" }
+        ],
+        notes: "The poster switch in the Game Corner opens the way (after the Lavender Cubone events)."
+      },
+      {
+        name: "B2F",
+        grid: [
+          "######################",
+          "#S.................I.#",
+          "#....................#",
+          "#..###############...#",
+          "#..#I...........#.T..#",
+          "#..#.....I.......#...#",
+          "#..#.............#...#",
+          "#..###############...#",
+          "#....................#",
+          "#..I......I..........#",
+          "#..........S.........#",
+          "######################",
+        ],
+        items: [
+          { x: 19, y: 1, name: "Nugget — northeast of the travellator maze" },
+          { x: 4, y: 4, name: "Awakening — northwest of the travellator maze" },
+          { x: 9, y: 5, name: "TM05 (Rest) — center-north of the maze" },
+          { x: 3, y: 9, name: "PP Up — southwest of the maze" },
+          { x: 10, y: 9, name: "X Accuracy (hidden) — south side of the central block" }
+        ],
+        trainers: [
+          { x: 18, y: 4, note: "Grunt — Hypno Lv.29" }
+        ],
+        notes: "Travellator tiles whisk you along their arrows until a yellow stop marker."
+      },
+      {
+        name: "B3F",
+        grid: [
+          "######################",
+          "#S.I.................#",
+          "#......I.............#",
+          "#......I..########...#",
+          "#.......I.#......#.I.#",
+          "#..T......#......#...#",
+          "#.........#......#...#",
+          "#.........########...#",
+          "#....................#",
+          "#..T.................#",
+          "#..........S.........#",
+          "######################",
+        ],
+        items: [
+          { x: 7, y: 2, name: "TM20 (Dark Pulse) — south of the stairs from B2F" },
+          { x: 7, y: 3, name: "Guard Spec. (hidden) — on the electronics boxes south of the ball machine" },
+          { x: 3, y: 1, name: "Revive — northwest corner" },
+          { x: 19, y: 4, name: "Rare Candy — east side of the travellator maze" },
+          { x: 8, y: 4, name: "X Speed — northwest of the maze" }
+        ],
+        trainers: [
+          { x: 3, y: 5, note: "Grunt — Golbat Lv.29" },
+          { x: 3, y: 9, note: "Grunt — Rattata, Voltorb Lv.29" }
+        ]
+      },
+      {
+        name: "B4F",
+        grid: [
+          "######################",
+          "#S.......I.....I.....#",
+          "#....................#",
+          "#..T.................#",
+          "#....................#",
+          "#.....#######........#",
+          "#.....#.....#...T....#",
+          "#..I..#.T...#...I....#",
+          "#.....#.....#...T....#",
+          "#.....#######........#",
+          "#....................#",
+          "######################",
+        ],
+        items: [
+          { x: 3, y: 7, name: "Hyper Potion — room west of the stairs" },
+          { x: 9, y: 1, name: "PP Up — southwest corner of the west room" },
+          { x: 15, y: 1, name: "Elixir — southwest area (needs the Lift Key)" },
+          { x: 16, y: 7, name: "Max Revive (hidden, daily) — eastern drawers behind Giovanni's desk" },
+        ],
+        trainers: [
+          { x: 3, y: 3, note: "Grunt — Ekans, Arbok Lv.29" },
+          { x: 16, y: 6, note: "Grunt — Zubat, Gastly Lv.29 (knocked Lift Key onto the wall — send your partner Pokemon through the vent)" },
+          { x: 8, y: 7, note: "Grunt pair guarding Giovanni's door (needs the Lift Key)" },
+          { x: 16, y: 8, note: "Giovanni — final showdown, win the Silph Scope" }
+        ],
+        notes: "The Lift Key lands on a wall — your partner Pokemon climbs the vent to fetch it."
+      }
+    ],
+    walkthrough: [
+      "1. In the Game Corner, beat the Grunt at the poster (after Lavender's Cubone events), flip the switch, and descend to B1F.",
+      "2. Beat B1F's Grunts; collect the Ultra Balls, Mighty Candies, the Team Rocket Set from the spy, and the Hyper Potion.",
+      "3. Work B2F's travellators for the Nugget, Awakening, TM05 (Rest), PP Up and hidden X Accuracy.",
+      "4. On B3F, grab TM20 (Dark Pulse), the hidden Guard Spec., Revive, Rare Candy and X Speed.",
+      "5. On B4F, loot the west room, beat the Grunt for the Lift Key (partner Pokemon fetches it from the wall).",
+      "6. Unlock Giovanni's door, defeat him, and claim the Silph Scope."
     ]
   }
 ];

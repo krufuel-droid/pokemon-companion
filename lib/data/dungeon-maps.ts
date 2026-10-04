@@ -78,6 +78,14 @@ function words(s: string): string[] {
 }
 
 /**
+ * Milestone names that don't share words with their dungeon, e.g. the Path
+ * calls it "Rocket Game Corner" while the map is titled "Rocket Hideout".
+ */
+const DUNGEON_ALIASES: Record<string, string[]> = {
+  "Rocket Hideout": ["rocket game corner", "game corner", "celadon hideout"],
+};
+
+/**
  * Find the dungeon map matching a Path milestone name ("Rock Tunnel &
  * Lavender" → the "Rock Tunnel" dungeon). Returns null when nothing matches.
  */
@@ -87,11 +95,14 @@ export function findDungeonForMilestone(
 ): DungeonMap | null {
   const dungeons = getDungeonsForGame(game);
   const mWords = new Set(words(milestoneName));
+  const mNorm = words(milestoneName).join(" ");
   // Prefer the longest (most specific) dungeon name that fits.
   const sorted = [...dungeons].sort((a, b) => b.dungeon.length - a.dungeon.length);
   for (const d of sorted) {
     const dWords = words(d.dungeon);
     if (dWords.length > 0 && dWords.every((w) => mWords.has(w))) return d;
+    const aliases = DUNGEON_ALIASES[d.dungeon] ?? [];
+    if (aliases.some((a) => mNorm.includes(a))) return d;
   }
   return null;
 }
