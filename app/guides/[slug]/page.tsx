@@ -5,6 +5,7 @@ import GuideCaughtChecklist from "@/components/GuideCaughtChecklist";
 import GymTeamPanel from "@/components/GymTeamPanel";
 import EliteFourPanel from "@/components/EliteFourPanel";
 import DungeonMapSection from "@/components/DungeonMap";
+import { dungeonAnchor, findDungeonForMilestone } from "@/lib/data/dungeon-maps";
 
 /** Guide pages are server-rendered on demand (not pre-built) to keep deployments lean. */
 export const dynamic = "force-dynamic";
@@ -101,6 +102,17 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
                 </p>
                 <GymTeamPanel game={guide.title} challengeName={m.name} />
                 <EliteFourPanel game={guide.title} kind={m.kind} challengeName={m.name} />
+                {(() => {
+                  const dungeon = findDungeonForMilestone(m.name, guide.title);
+                  return dungeon ? (
+                    <a
+                      href={`#${dungeonAnchor(dungeon.dungeon)}`}
+                      className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1.5 text-xs font-semibold text-emerald-800 ring-1 ring-emerald-200 transition hover:bg-emerald-200 dark:bg-emerald-900/60 dark:text-emerald-200 dark:ring-emerald-800"
+                    >
+                      <span aria-hidden>🗺️</span> View {dungeon.dungeon} map
+                    </a>
+                  ) : null;
+                })()}
               </div>
             </li>
           ))}

@@ -1,8 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   getDungeonsForGame,
+  dungeonAnchor,
   type DungeonFloor,
   type DungeonMap,
 } from "@/lib/data/dungeon-maps";
@@ -196,9 +197,23 @@ function WalkthroughPanel({ steps }: { steps: string[] }) {
 
 function DungeonViewer({ dungeon }: { dungeon: DungeonMap }) {
   const [open, setOpen] = useState(false);
+  const anchor = dungeonAnchor(dungeon.dungeon);
+
+  // Expand automatically when a Path milestone's "View map" link targets us.
+  useEffect(() => {
+    const sync = () => {
+      if (window.location.hash === `#${anchor}`) setOpen(true);
+    };
+    sync();
+    window.addEventListener("hashchange", sync);
+    return () => window.removeEventListener("hashchange", sync);
+  }, [anchor]);
 
   return (
-    <div className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
+    <div
+      id={anchor}
+      className="scroll-mt-24 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700"
+    >
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}

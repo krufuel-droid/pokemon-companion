@@ -61,3 +61,37 @@ export const DUNGEON_MAPS: DungeonMap[] = [
 export function getDungeonsForGame(game: string): DungeonMap[] {
   return DUNGEON_MAPS.filter((d) => d.game === game);
 }
+
+/** Anchor id for a dungeon card, e.g. "dungeon-mt-moon". */
+export function dungeonAnchor(dungeon: string): string {
+  return (
+    "dungeon-" +
+    dungeon
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+  );
+}
+
+function words(s: string): string[] {
+  return s.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim().split(" ").filter(Boolean);
+}
+
+/**
+ * Find the dungeon map matching a Path milestone name ("Rock Tunnel &
+ * Lavender" → the "Rock Tunnel" dungeon). Returns null when nothing matches.
+ */
+export function findDungeonForMilestone(
+  milestoneName: string,
+  game: string,
+): DungeonMap | null {
+  const dungeons = getDungeonsForGame(game);
+  const mWords = new Set(words(milestoneName));
+  // Prefer the longest (most specific) dungeon name that fits.
+  const sorted = [...dungeons].sort((a, b) => b.dungeon.length - a.dungeon.length);
+  for (const d of sorted) {
+    const dWords = words(d.dungeon);
+    if (dWords.length > 0 && dWords.every((w) => mWords.has(w))) return d;
+  }
+  return null;
+}
