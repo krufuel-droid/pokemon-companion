@@ -2731,5 +2731,73 @@ export const DUNGEON_MAPS_GEN1: DungeonMap[] = [
       "5. On B4F, loot the west room, beat the Grunt for the Lift Key (partner Pokemon fetches it from the wall).",
       "6. Unlock Giovanni's door, defeat him, and claim the Silph Scope."
     ]
+  },
+  {
+    game: "Pokémon FireRed & LeafGreen",
+    dungeon: "Rocket Warehouse",
+    walkthrough: [
+      "1. Post-Hall of Fame: Celio needs the Ruby (Mt. Ember) and Sapphire (Dotted Hole, Six Island) — but Scientist Gideon steals the Sapphire and flees to this warehouse in Five Isle Meadow.",
+      "2. Outside: grab the Max Potion in the north clearing (Cut) and the PP Up southwest of the building (Surf).",
+      "3. Inside is a spinner-tile maze like the Celadon hideout — sweep it for the Up-Grade, Pearl, Big Pearl, the hidden Net Ball and Nest Ball, and TM36 (Sludge Bomb).",
+      "4. Defeat the grunts and both Rocket Admins. Confronted with your Earth Badge, the admins disband the Sevii branch — vowing to find Giovanni and rebuild (the Johto branch of GSC/HGSS).",
+      "5. Take the Sapphire back from Gideon in the NE office and return it to Celio — unlocking trades with Ruby/Sapphire/Emerald, the Elite Four rematch, and Cerulean Cave.",
+    ],
+    floors: [
+      {
+        name: "Five Isle Meadow",
+        grid: [
+          "####################",
+          "#..................#",
+          "#..I...............#",
+          "#..................#",
+          "#.............I....#",
+          "#..................#",
+          "#..................#",
+          "#..................#",
+          "#.........E........#",
+          "####################",
+        ],
+        items: [
+          { x: 3, y: 2, name: "Max Potion — north clearing (Cut)" },
+          { x: 14, y: 4, name: "PP Up — southwest of the warehouse (Surf)" },
+        ],
+        trainers: [],
+        notes: "The warehouse sits mid-meadow. One computer screen foreshadows the Lake of Rage forced-evolution plot.",
+      },
+      {
+        name: "Warehouse",
+        grid: [
+          "######################",
+          "#....I......T....I...#",
+          "#..####...####..###..#",
+          "#..####...####..###..#",
+          "#..T......T......T...#",
+          "#....................#",
+          "#...###...####..##...#",
+          "#...###...####..##...#",
+          "#..I.......T......I..#",
+          "#.....I....T....I....#",
+          "#.........E..........#",
+          "######################",
+        ],
+        items: [
+          { x: 5, y: 1, name: "Up-Grade — NW room" },
+          { x: 17, y: 1, name: "Nest Ball (hidden) — Gideon's office (NE), on the box" },
+          { x: 3, y: 8, name: "Pearl — west edge of the maze" },
+          { x: 18, y: 8, name: "Big Pearl — south edge of the maze" },
+          { x: 6, y: 9, name: "Net Ball (hidden) — lone box west of the maze's center" },
+          { x: 16, y: 9, name: "TM36 (Sludge Bomb) — north-central room, on the table" },
+        ],
+        trainers: [
+          { x: 12, y: 1, note: "Scientist Gideon — Voltorb/Electrode/Magnemite/Magneton/Porygon (all Lv.46) → returns the Sapphire" },
+          { x: 3, y: 4, note: "Rocket Grunt — Houndour Lv.49 ×2" },
+          { x: 10, y: 4, note: "Rocket Grunt — Machop Lv.48 ×2, Machoke Lv.48" },
+          { x: 17, y: 4, note: "Rocket Grunt — Hypno Lv.49 ×2" },
+          { x: 11, y: 8, note: "Rocket Admin — Muk Lv.52, Arbok Lv.53, Vileplume Lv.54" },
+          { x: 11, y: 9, note: "Rocket Admin — Golbat Lv.53, Weezing Lv.54, Houndoom Lv.55" },
+        ],
+        notes: "Spinner tiles control the maze — step on them to slide. The admins may be Ariana and Archer.",
+      },
+    ],
   }
 ];

@@ -83,6 +83,13 @@ function words(s: string): string[] {
  */
 const DUNGEON_ALIASES: Record<string, string[]> = {
   "Rocket Hideout": ["rocket game corner", "game corner", "celadon hideout"],
+  "Mt. Coronet": ["spear pillar"],
+  "Plasma Frigate": ["neo team plasma"],
+  "Team Flare HQ (Geosenge)": ["team flare"],
+  "Rocket Warehouse": ["islands iv"],
+  "Oceanic Museum": ["slateport"],
+  "Seafloor Cavern": ["weather crisis"],
+  "Cave of Origin": ["sootopolis showdown", "primal clash"],
 };
 
 /**
