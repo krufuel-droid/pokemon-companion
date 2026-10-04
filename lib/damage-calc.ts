@@ -44,6 +44,18 @@ export interface CombatantInput {
   status?: string;
   evs?: Partial<Record<StatKey, number>>;
   ivs?: Partial<Record<StatKey, number>>;
+  /**
+   * Stat stages -6..+6 (default 0 each). Applied to the attacking /
+   * defending stat in damage (atk/def for physical, spa/spd for special);
+   * spe stages are consumed by speed tools. Stages compose
+   * multiplicatively with ability/item/status stat modifiers, as in-game.
+   */
+  boosts?: Partial<Record<"atk" | "def" | "spa" | "spd" | "spe", number>>;
+  /**
+   * Attacker: Tera type. A move matching it gets ×2 STAB instead of ×1.5.
+   * Stellar is not modeled (falls back to natural STAB) — noted in API docs.
+   */
+  teraType?: string;
   /** Attacker: is its pinch ability (Overgrow etc.) active? */
   pinchActive?: boolean;
   /** Defender: not fully evolved (Eviolite check). */
@@ -174,6 +186,12 @@ export function combatantStats(
   return fullStats(species, level, nature, evs, ivs);
 }
 
+/** Stat-stage multiplier for stages -6..+6 (Gen 7+). */
+export function stageMult(stage: number): number {
+  const s = clamp(Math.round(stage), -6, 6);
+  return s >= 0 ? (2 + s) / 2 : 2 / (2 - s);
+}
+
 /** Probability that `hits` rolls (each equally likely) KO a target with `hp`. */
 function koChance(rolls: number[], hp: number, hits: number): number {
   let dist = new Map<number, number>([[0, 1]]);
@@ -268,9 +286,19 @@ export function calculateDamage(input: DamageCalcInput): DamageCalcResult {
   const maxHp = defStats.hp;
   const targetHp = Math.max(1, input.defender.currentHp ?? maxHp);
 
-  // --- Attack stat with ability/item/status modifiers ---
-  let A = atkStats[physical ? "atk" : "spa"];
+  // --- Attack stat: stages first, then ability/item/status modifiers ---
+  // (in-game order — stages modify the stat, the rest chain-multiply).
+  const atkBoost = clamp(Math.round(input.attacker.boosts?.[physical ? "atk" : "spa"] ?? 0), -6, 6);
+  const defBoost = clamp(Math.round(input.defender.boosts?.[physical ? "def" : "spd"] ?? 0), -6, 6);
+  const fmtStageMult = (m: number) =>
+    Number.isInteger(m) ? String(m) : String(Math.round(m * 1000) / 1000);
+  let A = Math.floor(atkStats[physical ? "atk" : "spa"] * stageMult(atkBoost));
   const statMods: string[] = [];
+  if (atkBoost !== 0) {
+    statMods.push(
+      `${physical ? "Atk" : "SpA"} ${atkBoost > 0 ? "+" : ""}${atkBoost} ×${fmtStageMult(stageMult(atkBoost))}`,
+    );
+  }
   if ((atkAbility === "Huge Power" || atkAbility === "Pure Power") && physical) {
     A = Math.floor(A * 2);
     statMods.push(`${atkAbility} ×2`);
@@ -296,8 +324,13 @@ export function calculateDamage(input: DamageCalcInput): DamageCalcResult {
     statMods.push("Burn ×0.5");
   }
 
-  // --- Defense stat with ability/item/weather modifiers ---
-  let D = defStats[physical ? "def" : "spd"];
+  // --- Defense stat: stages first, then ability/item/weather modifiers ---
+  let D = Math.floor(defStats[physical ? "def" : "spd"] * stageMult(defBoost));
+  if (defBoost !== 0) {
+    statMods.push(
+      `${physical ? "Def" : "SpD"} ${defBoost > 0 ? "+" : ""}${defBoost} ×${fmtStageMult(stageMult(defBoost))}`,
+    );
+  }
   if (defItem === "Eviolite" && nfu) {
     D = Math.floor(D * 1.5);
     statMods.push("Eviolite ×1.5");
@@ -362,14 +395,34 @@ export function calculateDamage(input: DamageCalcInput): DamageCalcResult {
     dmg = Math.floor(dmg * 1.5);
     mods.push("Crit ×1.5");
   }
-  // STAB
-  const stab =
-    stabMode === "on" ||
-    (stabMode === "auto" && atkTypes.includes(moveType));
+  // STAB. Tera rule: a move matching the attacker's Tera type gets ×2
+  // instead of ×1.5. Stellar is explicitly not modeled (falls back to
+  // natural STAB). field.stab "off" forces no STAB; "on" forces ×1.5 as
+  // before — the Tera ×2 needs attacker.teraType set, not stab:"on".
+  const teraNorm = (input.attacker.teraType ?? "").trim();
+  const teraActive =
+    teraNorm !== "" && teraNorm.toLowerCase() !== "stellar";
+  const teraMatch =
+    teraActive && teraNorm.toLowerCase() === moveType.toLowerCase();
+  let stab = false;
+  let stabMult = 1;
+  let teraStab = false;
+  if (stabMode === "off") {
+    stab = false;
+  } else if (stabMode === "on") {
+    stab = true;
+    stabMult = atkAbility === "Adaptability" ? 2 : 1.5;
+  } else if (teraMatch) {
+    stab = true;
+    stabMult = 2;
+    teraStab = true;
+  } else if (atkTypes.includes(moveType)) {
+    stab = true;
+    stabMult = atkAbility === "Adaptability" ? 2 : 1.5;
+  }
   if (stab) {
-    const mult = atkAbility === "Adaptability" ? 2 : 1.5;
-    dmg = Math.floor(dmg * mult);
-    mods.push(`STAB ×${mult}`);
+    dmg = Math.floor(dmg * stabMult);
+    mods.push(`STAB ×${stabMult}${teraStab ? " (Tera)" : ""}`);
   }
   // Type effectiveness
   const defTypes = [defTypesAll[0], defTypesAll[1]].filter(

@@ -9,10 +9,12 @@
  * {
  *   "attacker": { "species": "Charizard" | 6, "level": 50, "nature": "Modest",
  *                 "ability": "Blaze", "item": "Life Orb", "status": "Healthy",
- *                 "evs": { "spa": 252 }, "ivs": { "atk": 31 }, "pinchActive": false },
+ *                 "evs": { "spa": 252 }, "ivs": { "atk": 31 }, "pinchActive": false,
+ *                 "boosts": { "spa": 2 }, "teraType": "Fire" },
  *   "defender": { "species": "Venusaur", "level": 50, "nature": "Calm",
  *                 "ability": "Overgrow", "item": "Sitrus Berry", "status": "Healthy",
- *                 "evs": { "spd": 252 }, "notFullyEvolved": false, "currentHp": null },
+ *                 "evs": { "spd": 252 }, "notFullyEvolved": false, "currentHp": null,
+ *                 "boosts": { "spd": 1 } },
  *   "move": { "power": 90, "type": "Fire", "category": "special" },
  *   "field": { "weather": "None", "terrain": "None", "reflect": false,
  *              "lightScreen": false, "crit": false, "stab": "auto",
@@ -52,6 +54,7 @@ import {
   type DamageCalcInput,
   type DoublesTarget,
 } from "@/lib/damage-calc";
+import { TYPES } from "@/lib/typechart";
 
 export const dynamic = "force-dynamic";
 
@@ -89,6 +92,8 @@ export async function GET() {
         "move.category is 'physical' or 'special'.",
         "field is optional; stab and effectiveness accept 'auto'.",
         "Only attacker.species, defender.species, and move are required.",
+        "boosts: stat stages -6..+6, e.g. { \"atk\": 2 } — applied to the damage stats (atk/def for physical, spa/spd for special), floored, composing with ability/item/status modifiers as in-game.",
+        "attacker.teraType: a move matching it gets ×2 STAB instead of ×1.5. Stellar is not modeled (omit it). Note: field.stab \"on\" still forces ×1.5 — set teraType for the ×2.",
         'Doubles: send "format": "doubles" with "defenders": [foe1, foe2] (exactly two), optional "ally", and "target": "foe1" | "foe2" | "both-foes" | "ally" (default "both-foes").',
         '"both-foes" applies the Gen 7+ ×0.75 spread modifier to each target.',
         "Doubles response has per-target results under \"targets\" (each with rolls, KO summary, modifiers).",
@@ -97,6 +102,53 @@ export async function GET() {
     },
     { status: 200 },
   );
+}
+
+const BOOST_STATS = ["atk", "def", "spa", "spd", "spe"] as const;
+
+function asBoosts(
+  raw: unknown,
+  label: string,
+): CombatantInput["boosts"] {
+  if (raw === undefined || raw === null) return undefined;
+  if (typeof raw !== "object" || Array.isArray(raw)) {
+    throw new Error(`${label}.boosts must be an object like { "atk": 2 }.`);
+  }
+  const out: Record<string, number> = {};
+  for (const [k, v] of Object.entries(raw as Record<string, unknown>)) {
+    if (!(BOOST_STATS as readonly string[]).includes(k)) {
+      throw new Error(
+        `${label}.boosts has unknown stat "${k}" (use atk, def, spa, spd, spe).`,
+      );
+    }
+    const n = Number(v);
+    if (!Number.isInteger(n) || n < -6 || n > 6) {
+      throw new Error(
+        `${label}.boosts.${k} must be an integer from -6 to 6.`,
+      );
+    }
+    out[k] = n;
+  }
+  return out;
+}
+
+function asTeraType(raw: unknown, label: string): string | undefined {
+  if (raw === undefined || raw === null || String(raw).trim() === "") {
+    return undefined;
+  }
+  const s = String(raw).trim();
+  if (s.toLowerCase() === "stellar") {
+    throw new Error(
+      `${label}.teraType "Stellar" is not modeled for attacker STAB — omit it to use natural STAB.`,
+    );
+  }
+  const hit = TYPES.find((t) => t.toLowerCase() === s.toLowerCase());
+  if (!hit) {
+    throw new Error(
+      `${label}.teraType must be one of: ${TYPES.join(", ")}.`,
+    );
+  }
+  return hit;
 }
 
 function asCombatant(
@@ -113,6 +165,8 @@ function asCombatant(
     status: raw.status as string | undefined,
     evs: raw.evs as CombatantInput["evs"],
     ivs: raw.ivs as CombatantInput["ivs"],
+    boosts: asBoosts(raw.boosts, label),
+    teraType: asTeraType(raw.teraType, label),
     pinchActive: raw.pinchActive as boolean | undefined,
     notFullyEvolved: raw.notFullyEvolved as boolean | undefined,
     currentHp: raw.currentHp as number | null | undefined,

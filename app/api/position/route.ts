@@ -35,10 +35,11 @@
  *
  * Math notes (also in GET):
  * - Damage uses the shared Gen 7+ `calculateDamage` — the formula is never
- *   reimplemented here. Stat stages are NOT applied to damage rolls (the
- *   shared calc has no stage hook); they ARE applied to effective speed.
+ *   reimplemented here. Stat stages (boosts) apply to damage stats and
+ *   effective speed.
  * - `teraType` recomputes the defender's typing as the single Tera type
- *   (abilities persist). Stellar keeps the original defense.
+ *   (abilities persist; Stellar keeps the original defense), and grants
+ *   the attacker ×2 STAB on a matching move (Stellar excluded — not modeled).
  * - Type-level abilities (Levitate, Flash Fire, …) are baked into the
  *   effectiveness passed to the calc, so they are never double-counted.
  * - No Protect / Fake Out / priority / redirection modeling — damage is
@@ -49,6 +50,7 @@ import {
   calculateDamage,
   combatantStats,
   resolveSpecies,
+  stageMult,
   type StatKey,
 } from "@/lib/damage-calc";
 import type { SpeciesIndex } from "@/lib/pokedex";
@@ -172,7 +174,7 @@ export async function GET() {
         boosts: "Stat stages, integers from -6 to +6 (default 0).",
         currentHpPct: "0–100 (default 100).",
         teraType:
-          "Any type, or Stellar (keeps the original defense). Recomputes the defender's typing as the single Tera type; abilities persist.",
+          "Any type, or Stellar (keeps the original defense). Recomputes the defender's typing as the single Tera type; abilities persist. On the attacker, a move matching teraType gets ×2 STAB (Stellar excluded).",
       },
       verdict_rule: [
         "favorable: any declared move has koChance >= 0.5, or the attacker's best STAB is ×2+ while it resists the defender's best STAB.",
@@ -181,7 +183,8 @@ export async function GET() {
       ],
       notes: [
         "Damage uses the shared Gen 7+ calculator — same math as the site and /api/damage-calc.",
-        "Stat stages (boosts) apply to effective speed only; damage rolls use unboosted stats.",
+        "Stat stages (boosts) apply to damage stats (atk/def/spa/spd) and effective speed, floored per step as in-game.",
+        "Attacker-side teraType grants ×2 STAB on a matching move (Stellar excluded — not modeled).",
         "Speed order: Tailwind ×2 while active, paralysis ×0.5, Choice Scarf ×1.5, Spe stages applied then floored. Trick Room reverses the order. Ties are listed in input order (in-game they are coin flips).",
         "koChance is the fraction of the 16 damage rolls that KO from the defender's current HP.",
         "threats is STAB-based (best STAB type vs the target's typing, ability- and Tera-adjusted) — it does not use the foe's declared moves and does not predict which move a foe clicks.",
@@ -345,12 +348,10 @@ interface ResolvedMon {
   maxHp: number;
   currentHp: number;
   moves: { name: string; power: number; type: string; category: "physical" | "special" }[];  effectiveSpeed: number;
+  /** Stat stages, passed through to damage rolls. */
+  boosts: Partial<Record<BoostKey, number>>;
   /** True when the ability is a type-level one baked into effectiveness. */
   abilityBaked: boolean;
-}
-
-function stageMult(stage: number): number {
-  return stage >= 0 ? (2 + stage) / 2 : 2 / (2 - stage);
 }
 
 function resolveMon(
@@ -414,6 +415,7 @@ function resolveMon(
       category: m.category,
     })),
     effectiveSpeed: spe,
+    boosts: { ...(c.boosts ?? {}) },
     abilityBaked: getAbilityTypeEffect(c.ability) !== undefined,
   };
 }
@@ -510,6 +512,8 @@ export async function POST(request: Request) {
               status: atk.status,
               evs: atk.evs,
               ivs: atk.ivs,
+              boosts: atk.boosts,
+              teraType: atk.teraType,
             },
             defender: {
               species: def.species.id,
@@ -520,6 +524,7 @@ export async function POST(request: Request) {
               status: def.status,
               evs: def.evs,
               ivs: def.ivs,
+              boosts: def.boosts,
               currentHp: def.currentHp,
             },
             move: { power: mv.power, type: mv.type, category: mv.category },
@@ -577,9 +582,16 @@ export async function POST(request: Request) {
           const hasAbility =
             ally.ability.trim() !== "" &&
             ally.ability.toLowerCase() !== "none";
+          // Attacker-side Tera: a STAB matching the foe's Tera type hits
+          // with ×2 STAB instead of ×1.5 (Stellar excluded — not modeled).
+          const teraOff =
+            foe.teraType &&
+            foe.teraType.toLowerCase() !== "stellar" &&
+            foe.teraType.toLowerCase() === type.toLowerCase();
           threats.push(
             `${foe.name} threatens ${ally.name}: ${type} STAB ×${mult}` +
               (mult >= 4 ? " (4×!)" : "") +
+              (teraOff ? " — Terastallized: ×2 STAB" : "") +
               (note ? ` — ${note}` : hasAbility ? " (ability-adjusted)" : ""),
           );
         }
@@ -593,7 +605,7 @@ export async function POST(request: Request) {
     if ((field.tailwindFoes ?? 0) > 0)
       notes.push(`Tailwind (foes): ${field.tailwindFoes} turn(s) left.`);
     notes.push(
-      "Stat stages apply to effective speed only; damage rolls use unboosted stats.",
+      "Stat stages (boosts) apply to damage stats and effective speed.",
     );
 
     return Response.json(
