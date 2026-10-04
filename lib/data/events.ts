@@ -137,7 +137,7 @@ export const GAME_EVENTS: GameEvent[] = [
     startDate: "2026-10-03",
     endDate: "2026-10-04",
     detail: "Play! Pokémon Regional Championships — VGC.",
-    href: "/champions",
+    href: "/champions#tourn-recife",
   },
   {
     id: "tourn-louisville",
@@ -147,7 +147,7 @@ export const GAME_EVENTS: GameEvent[] = [
     startDate: "2026-10-09",
     endDate: "2026-10-11",
     detail: "Play! Pokémon Regional Championships — VGC.",
-    href: "/champions",
+    href: "/champions#tourn-louisville",
   },
   {
     id: "tourn-nice",
@@ -157,7 +157,7 @@ export const GAME_EVENTS: GameEvent[] = [
     startDate: "2026-10-17",
     endDate: "2026-10-18",
     detail: "Play! Pokémon Regional Championships — VGC.",
-    href: "/champions",
+    href: "/champions#tourn-nice",
   },
   {
     id: "tourn-puebla",
@@ -167,7 +167,7 @@ export const GAME_EVENTS: GameEvent[] = [
     startDate: "2026-10-24",
     endDate: "2026-10-25",
     detail: "Play! Pokémon Regional Championships — VGC.",
-    href: "/champions",
+    href: "/champions#tourn-puebla",
   },
   {
     id: "tourn-gdansk",
@@ -177,7 +177,7 @@ export const GAME_EVENTS: GameEvent[] = [
     startDate: "2026-10-31",
     endDate: "2026-11-01",
     detail: "Play! Pokémon Regional Championships — VGC.",
-    href: "/champions",
+    href: "/champions#tourn-gdansk",
   },
   {
     id: "tourn-buenos-aires",
@@ -187,7 +187,7 @@ export const GAME_EVENTS: GameEvent[] = [
     startDate: "2026-11-14",
     endDate: "2026-11-15",
     detail: "Play! Pokémon Special Championships — VGC.",
-    href: "/champions",
+    href: "/champions#tourn-buenos-aires",
   },
   {
     id: "tourn-laic",
@@ -197,7 +197,7 @@ export const GAME_EVENTS: GameEvent[] = [
     startDate: "2026-11-20",
     endDate: "2026-11-22",
     detail: "Play! Pokémon International Championships — VGC. The big one.",
-    href: "/champions",
+    href: "/champions#tourn-laic",
   },
   {
     id: "tourn-stuttgart",
@@ -207,7 +207,7 @@ export const GAME_EVENTS: GameEvent[] = [
     startDate: "2026-11-28",
     endDate: "2026-11-29",
     detail: "Play! Pokémon Regional Championships — VGC.",
-    href: "/champions",
+    href: "/champions#tourn-stuttgart",
   },
   {
     id: "tourn-las-vegas",
@@ -217,7 +217,7 @@ export const GAME_EVENTS: GameEvent[] = [
     startDate: "2026-12-04",
     endDate: "2026-12-06",
     detail: "Play! Pokémon Regional Championships — VGC.",
-    href: "/champions",
+    href: "/champions#tourn-las-vegas",
   },
 ];
 

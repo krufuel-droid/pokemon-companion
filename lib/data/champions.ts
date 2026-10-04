@@ -480,23 +480,59 @@ export const PLAYER_RANKINGS_SOURCE = {
 /** Upcoming Championship Series events, snapshotted from the official
  *  Pokémon event finder (static list — see EVENT_FINDER_URL for the live schedule). */
 export interface UpcomingTournament {
+  /** Anchor id, e.g. "tourn-louisville" — must match the event id in lib/data/events.ts. */
+  id: string;
   name: string;
   dates: string;
   kind: "Regional" | "Special" | "International";
+  /** Notable players expected — verified names only. */
+  playersToWatch?: string[];
+  /** Storyline angles for this event. */
+  storylines?: string[];
+  /** Where to watch the broadcast. */
+  broadcast?: string;
 }
 
 export const EVENT_FINDER_URL = "https://championships.pokemon.com/en-us/events";
 
 export const UPCOMING_TOURNAMENTS: UpcomingTournament[] = [
-  { name: "Recife Regional Championships", dates: "Oct 3–4", kind: "Regional" },
-  { name: "Louisville Regional Championships", dates: "Oct 9–11", kind: "Regional" },
-  { name: "Nice Regional Championships", dates: "Oct 17–18", kind: "Regional" },
-  { name: "Puebla Regional Championships", dates: "Oct 24–25", kind: "Regional" },
-  { name: "Gdańsk Regional Championships", dates: "Oct 31 – Nov 1", kind: "Regional" },
-  { name: "Buenos Aires Special Championships", dates: "Nov 14–15", kind: "Special" },
-  { name: "Latin America International Championships", dates: "Nov 20–22", kind: "International" },
-  { name: "Stuttgart Regional Championships", dates: "Nov 28–29", kind: "Regional" },
-  { name: "Las Vegas Regional Championships", dates: "Dec 4–6", kind: "Regional" },
+  { id: "tourn-recife", name: "Recife Regional Championships", dates: "Oct 3–4", kind: "Regional" },
+  { id: "tourn-louisville", name: "Louisville Regional Championships", dates: "Oct 9–11", kind: "Regional",
+    playersToWatch: [
+      "Joseph Ugarte — won Baltimore (Sept 2026, first M-C event) with Mega Salamence + Mega Tyranitar; 3x Regional Champion",
+      "Wolfe Glick — 2016 World Champion; Top 64 at Baltimore",
+      "Brady Smith, Blaik Thompson, Dorian Kang, Justin Tang — all Baltimore Top 16/Top 8",
+    ],
+    storylines: [
+      "Back-to-back? Louisville is the second NA regional of the M-C era — if Ugarte's Salamence/Tyranitar core wins again, it becomes the defining team of early M-C.",
+      "Meta still unsolved: with only Baltimore as NA data, Louisville is where the format's first real counter-meta emerges.",
+    ],
+    broadcast: "Expected on Twitch.tv/Pokemon and YouTube.com/Pokemon (2025 event streamed there); Victory Road covers via @VGCVictoryRoad.",
+  },
+  { id: "tourn-nice", name: "Nice Regional Championships", dates: "Oct 17–18", kind: "Regional",
+    playersToWatch: [
+      "Eric Rios — won Frankfurt (Sept 2026, Europe's first M-C event) with Mega Garchomp Z + Mega Raichu Y; 5x Regional Champion",
+      "Sebastian Liu Li — Frankfurt runner-up; Giuseppe Musicco — Frankfurt Top 8",
+      "Théotime Massaut — 2026 LAIC semifinalist; won the Victory Road September Challenge #2",
+    ],
+    storylines: [
+      "Rios's reign: five regional titles and a fresh Frankfurt win — Nice is where Europe finds out if anyone has an answer for his Garchomp Z + Raichu Y core.",
+      "Europe vs. NA meta split: Frankfurt's top cut looked different from Baltimore's — Nice shows whether the regions converge or develop separately.",
+    ],
+    broadcast: "Expected on Twitch.tv/Pokemon and YouTube.com/Pokemon; Victory Road covers via @VGCVictoryRoad.",
+  },
+  { id: "tourn-puebla", name: "Puebla Regional Championships", dates: "Oct 24–25", kind: "Regional",
+    storylines: [
+      "Recife fallout: Latin America's first Champions-era regional (Oct 3–4) just concluded — if a new star or team broke out there, Puebla is where the region adapts.",
+      "Road to São Paulo: the Latin America International is Nov 20–22 — Puebla is the last big CP stop before the continent's biggest event.",
+    ],
+    broadcast: "Expected on Twitch.tv/Pokemon and YouTube.com/Pokemon; Victory Road covers via @VGCVictoryRoad.",
+  },
+  { id: "tourn-gdansk", name: "Gdańsk Regional Championships", dates: "Oct 31 – Nov 1", kind: "Regional" },
+  { id: "tourn-buenos-aires", name: "Buenos Aires Special Championships", dates: "Nov 14–15", kind: "Special" },
+  { id: "tourn-laic", name: "Latin America International Championships", dates: "Nov 20–22", kind: "International" },
+  { id: "tourn-stuttgart", name: "Stuttgart Regional Championships", dates: "Nov 28–29", kind: "Regional" },
+  { id: "tourn-las-vegas", name: "Las Vegas Regional Championships", dates: "Dec 4–6", kind: "Regional" },
 ];
 
 export const FOLLOW_THE_SCENE: FollowLink[] = [
