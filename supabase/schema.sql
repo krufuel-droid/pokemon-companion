@@ -388,10 +388,12 @@ create policy nuzlockes_write_owner on nuzlockes
   with check (auth.uid() = owner_id);
 
 -- shiny_hunts: owner-only (all operations).
+-- NOTE: schema.sql creates this table with user_id; the later
+-- migration-achievements-nuzlocke.sql adds owner_id and re-points this policy.
 drop policy if exists shiny_hunts_owner_all on shiny_hunts;
 create policy shiny_hunts_owner_all on shiny_hunts
-  for all using (auth.uid() = owner_id)
-  with check (auth.uid() = owner_id);
+  for all using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
 
 -- collections: owner-only (all operations).
 drop policy if exists collections_owner_all on collections;

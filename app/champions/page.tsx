@@ -21,6 +21,7 @@ import {
   type SocialLinks,
   type TeamMon,
 } from "@/lib/data/champions";
+import { PickemPicker, PickemLeaderboard } from "./pickem";
 
 export const metadata: Metadata = {
   title: "Champions Hub — Poké Companion",
@@ -495,12 +496,15 @@ export default function ChampionsPage() {
                         Full preview with players to watch coming as the event approaches.
                       </p>
                     )}
+                    <PickemPicker tourney={tourney} />
                   </div>
                 </details>
               );
             })}
           </div>
         </section>
+
+        <PickemLeaderboard />
 
         {/* Players to watch */}
         <section className="mt-10">

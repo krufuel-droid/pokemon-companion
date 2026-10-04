@@ -41,6 +41,16 @@ const TEAM_TOOLS: Tool[] = [
     desc: "Give up to 6 Pokémon their moves and see which of the 18 types your team can hit super-effectively.",
   },
   {
+    href: "/tools/team-coverage",
+    title: "Team Coverage Checker",
+    desc: "Pick 6 Pokémon — 4x/2x defensive breakdowns per attacking type, plus which types your STABs can't touch.",
+  },
+  {
+    href: "/tools/counter-finder",
+    title: "Counter Finder",
+    desc: "Pick a meta threat (forms included) and get ranked type-based answers — who resists it and hits back super-effectively.",
+  },
+  {
     href: "/tools/breeding",
     title: "Breeding Compatibility",
     desc: "Check whether two Pokémon can breed by egg group — and see the egg moves their offspring could inherit.",

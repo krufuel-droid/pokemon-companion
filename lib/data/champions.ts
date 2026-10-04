@@ -592,6 +592,13 @@ export interface TournamentResult {
   /** Winner's key Pokémon, e.g. "Mega Salamence + Mega Tyranitar". */
   winningTeam?: string;
   runnerUp?: string;
+  /**
+   * Pick'em key — set to the tournament's UPCOMING_TOURNAMENTS `id`
+   * (e.g. "tourn-louisville") when the result is recorded, so existing
+   * picks keep scoring after the event leaves the upcoming list.
+   * The weekly meta check must set this when it moves an event here.
+   */
+  pickKey?: string;
 }
 
 export const TOURNAMENT_RESULTS: TournamentResult[] = [
