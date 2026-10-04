@@ -50,6 +50,8 @@ interface TeamRow {
   met_location: string | null;
   level: number | null;
   gender: "male" | "female" | "unknown";
+  /** Soul Link partner row id (bidirectional). Null when unlinked. */
+  linked_to: string | null;
   added_at: string;
 }
 
@@ -153,7 +155,7 @@ export default function RunDetailPage({ params }: { params: Promise<{ id: string
     try {
       const { data } = await supabase
         .from("nuzlocke_team")
-        .select("id, run_id, user_id, species_id, species_name, nickname, status, met_location, level, gender, added_at")
+        .select("id, run_id, user_id, species_id, species_name, nickname, status, met_location, level, gender, linked_to, added_at")
         .eq("run_id", id)
         .order("added_at", { ascending: true });
       team = (data as TeamRow[] | null) ?? [];
@@ -406,6 +408,9 @@ export default function RunDetailPage({ params }: { params: Promise<{ id: string
                       key={row.id}
                       row={row}
                       canAct={!!user && (row.user_id === user.id || isOwner)}
+                      isSoulLink={run?.run_type === "soul-link"}
+                      team={team}
+                      participants={participants}
                       onChanged={() => void refresh()}
                     />
                   ))}
@@ -1138,10 +1143,16 @@ function AddPokemonForm({ runId, game, team, onAdded }: { runId: string; game: s
 function TeamCard({
   row,
   canAct,
+  isSoulLink,
+  team,
+  participants,
   onChanged,
 }: {
   row: TeamRow;
   canAct: boolean;
+  isSoulLink: boolean;
+  team: TeamRow[];
+  participants: Participant[];
   onChanged: () => void;
 }) {
   const { user } = useAuth();
@@ -1150,8 +1161,24 @@ function TeamCard({
   const [makeMemorial, setMakeMemorial] = useState(true);
   const [levelDraft, setLevelDraft] = useState<string | null>(null);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [linkOpen, setLinkOpen] = useState(false);
+  const [linkTarget, setLinkTarget] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const partner = row.linked_to ? team.find((t) => t.id === row.linked_to) ?? null : null;
+  const partnerOwner = partner
+    ? participants.find((p) => p.user_id === partner.user_id)?.username ?? "A trainer"
+    : null;
+  const linkCandidates = team.filter(
+    (t) =>
+      t.id !== row.id &&
+      t.user_id !== row.user_id &&
+      t.status === "alive" &&
+      !t.linked_to,
+  );
+  const candidateOwner = (t: TeamRow) =>
+    participants.find((p) => p.user_id === t.user_id)?.username ?? "A trainer";
 
   async function update(patch: Partial<Pick<TeamRow, "status" | "level">>) {
     setBusy(true);
@@ -1186,6 +1213,42 @@ function TeamCard({
     }
   }
 
+  async function pairLink() {
+    if (!linkTarget) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.rpc("soul_link_pair", {
+        p_mine: row.id,
+        p_partner: linkTarget,
+      });
+      if (error) throw error;
+      setLinkOpen(false);
+      setLinkTarget("");
+      onChanged();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not link.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function unpairLink() {
+    setBusy(true);
+    setError(null);
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.rpc("soul_link_unpair", { p_mine: row.id });
+      if (error) throw error;
+      onChanged();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not unlink.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function confirmDeath() {
     if (!user) return;
     setBusy(true);
@@ -1210,6 +1273,17 @@ function TeamCard({
         }
       }
       void unlockAchievement(user.id, "first-death").catch(() => {});
+      // Soul Link: the linked partner falls too.
+      if (row.linked_to) {
+        try {
+          const { data } = await supabase.rpc("soul_link_cascade", { p_dead_id: row.id });
+          if (typeof data === "string" && data) {
+            setError(`💔 Soul link: ${data} fell too.`);
+          }
+        } catch {
+          // The death itself succeeded; the cascade is best-effort.
+        }
+      }
       setDeathOpen(false);
       setDeathNote("");
       onChanged();
@@ -1278,6 +1352,12 @@ function TeamCard({
       <p className="mt-1 text-center text-xs font-medium capitalize text-slate-400 dark:text-slate-500">
         {row.status}
       </p>
+      {isSoulLink && partner && (
+        <p className="mt-1 truncate text-center text-xs font-semibold text-fuchsia-600 dark:text-fuchsia-400" title={`Linked with ${partner.nickname ?? partner.species_name} (${partnerOwner})`}>
+          🔗 {partner.nickname ?? partner.species_name}
+          <span className="font-normal text-slate-400"> · {partnerOwner}</span>
+        </p>
+      )}
 
       {canAct && (
         <div className="mt-3 space-y-2 border-t border-stone-100 pt-3 dark:border-slate-800">
@@ -1291,6 +1371,26 @@ function TeamCard({
                   className={`${smallBtn} bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-950 dark:text-red-300`}
                 >
                   Mark dead
+                </button>
+              )}
+              {isSoulLink && row.status === "alive" && canAct && !partner && (
+                <button
+                  type="button"
+                  disabled={busy}
+                  onClick={() => setLinkOpen((o) => !o)}
+                  className={`${smallBtn} bg-fuchsia-100 text-fuchsia-700 hover:bg-fuchsia-200 dark:bg-fuchsia-950 dark:text-fuchsia-300`}
+                >
+                  🔗 Link
+                </button>
+              )}
+              {isSoulLink && partner && canAct && (
+                <button
+                  type="button"
+                  disabled={busy}
+                  onClick={() => void unpairLink()}
+                  className={`${smallBtn} bg-stone-100 text-slate-600 hover:bg-stone-200 dark:bg-slate-800 dark:text-slate-300`}
+                >
+                  Unlink
                 </button>
               )}
               {row.status !== "boxed" && row.status !== "dead" && (
@@ -1418,6 +1518,43 @@ function TeamCard({
               >
                 {busy ? "…" : "Confirm death"}
               </button>
+            </div>
+          )}
+
+          {linkOpen && (
+            <div className="space-y-2 rounded-lg bg-fuchsia-50 p-2.5 dark:bg-fuchsia-950/40">
+              <p className="text-xs font-semibold text-fuchsia-800 dark:text-fuchsia-200">
+                Link with a partner&apos;s Pokémon — if one falls, both fall.
+              </p>
+              {linkCandidates.length === 0 ? (
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  No eligible partners right now (they must be alive, unlinked, and another player&apos;s).
+                </p>
+              ) : (
+                <>
+                  <select
+                    value={linkTarget}
+                    onChange={(e) => setLinkTarget(e.target.value)}
+                    className={inputClass}
+                    aria-label="Partner Pokémon"
+                  >
+                    <option value="">— Choose a partner —</option>
+                    {linkCandidates.map((t) => (
+                      <option key={t.id} value={t.id}>
+                        {t.nickname ?? t.species_name} ({t.species_name}) · {candidateOwner(t)}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    type="button"
+                    disabled={busy || !linkTarget}
+                    onClick={() => void pairLink()}
+                    className="w-full rounded-lg bg-fuchsia-600 px-3 py-1.5 text-xs font-bold text-white transition hover:bg-fuchsia-700 disabled:opacity-60"
+                  >
+                    {busy ? "…" : "Pair them up 🔗"}
+                  </button>
+                </>
+              )}
             </div>
           )}
           {error && <p role="alert" className="text-xs text-red-700 dark:text-red-300">{error}</p>}

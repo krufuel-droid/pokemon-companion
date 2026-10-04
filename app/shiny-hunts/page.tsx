@@ -8,6 +8,7 @@ import { useAuth } from "@/components/AuthProvider";
 import SupabaseNeeded from "@/components/SupabaseNeeded";
 import { searchSpecies, getSpeciesById, type SpeciesIndex } from "@/lib/pokedex";
 import { POKEMON_GAMES } from "@/lib/data/games";
+import { fetchGamesForSpecies } from "@/lib/data/species-games";
 import { SHINY_METHODS, oddsFor, methodLabel, methodNote } from "@/lib/shiny-odds";
 import { unlockAchievement } from "@/lib/achievements";
 
@@ -1043,6 +1044,31 @@ function NewHuntForm({ onCreated }: { onCreated: () => void }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
+  // Games this species actually appears in (null = not loaded / load failed).
+  const [speciesGames, setSpeciesGames] = useState<string[] | null>(null);
+
+  // When a Pokémon is picked, look up which games it's in so the Game
+  // dropdown only lists those. Falls back to the full list on failure.
+  useEffect(() => {
+    if (!species) {
+      setSpeciesGames(null);
+      return;
+    }
+    let cancelled = false;
+    setSpeciesGames(null);
+    fetchGamesForSpecies(species.id)
+      .then((games) => {
+        if (cancelled) return;
+        setSpeciesGames(games);
+        setGame((g) => (g && !games.includes(g) ? "" : g));
+      })
+      .catch(() => {
+        if (!cancelled) setSpeciesGames(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [species]);
 
   const matches = useMemo(() => {
     const q = query.trim();
@@ -1149,10 +1175,16 @@ function NewHuntForm({ onCreated }: { onCreated: () => void }) {
           <label htmlFor="hunt-game" className={labelClass}>Game (optional)</label>
           <select id="hunt-game" value={game} onChange={(e) => setGame(e.target.value)} className={inputClass}>
             <option value="">Any game</option>
-            {POKEMON_GAMES.map((g) => (
+            {(speciesGames && speciesGames.length > 0 ? speciesGames : [...POKEMON_GAMES]).map((g) => (
               <option key={g} value={g}>{g}</option>
             ))}
           </select>
+          {species && speciesGames === null && (
+            <p className="mt-1 text-xs text-slate-400">Checking which games have {species.name}…</p>
+          )}
+          {species && speciesGames !== null && speciesGames.length === 0 && (
+            <p className="mt-1 text-xs text-slate-400">No game data found — showing all games.</p>
+          )}
         </div>
         <div>
           <label htmlFor="hunt-method" className={labelClass}>Method</label>
