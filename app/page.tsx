@@ -107,6 +107,13 @@ const FEATURES = [
     href: "/news",
     emoji: "📰",
   },
+  {
+    title: "Events",
+    description:
+      "Tera raids, Mystery Gifts, and tournaments on a real calendar — never miss one.",
+    href: "/events",
+    emoji: "📅",
+  },
 ] as const;
 
 const COMING_SOON = ["Collections & favorites"] as const;
