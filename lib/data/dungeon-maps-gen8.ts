@@ -42,7 +42,6 @@ export const DUNGEON_MAPS_GEN8: DungeonMap[] = [
         "######################"
       ],
       items: [
-      { x: 4, y: 9, name: "Bede's League Card — given by Bede after defeating him" },
       { x: 9, y: 3, name: "Dusk Ball ×3 — alcove just past Worker Francis" },
       { x: 11, y: 7, name: "Grip Claw — small west-jutting alcove south of the second pool" },
       { x: 18, y: 7, name: "Star Piece (hidden) — by the gem-filled mine cart in the large chamber" },
@@ -57,7 +56,7 @@ export const DUNGEON_MAPS_GEN8: DungeonMap[] = [
       { x: 16, y: 5, note: "Team Yell Grunts — double battle WITH Hop (Thievul 21 / Linoone 22, Liepard 22 / Pancham 21)" },
       { x: 20, y: 5, note: "Rail Staff Vincent — Drilbur 22, Onix 23" },
       ],
-      notes: "Wild Stunfisk disguise themselves as Poké Balls on the cave floor. Kabu appears near the exit for a story scene (no battle).",
+      notes: "Wild Stunfisk disguise themselves as Poké Balls on the cave floor. Kabu appears near the exit for a story scene (no battle). Bede's League Card: given by Bede after defeating him.",
     },
     ],
     walkthrough: [

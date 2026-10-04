@@ -25,6 +25,11 @@ const SV_GIFTS: Gift[] = [
   { code: "VB00KC0VER", method: "Code", reward: "Book Cover Rotom Phone case — Violet exclusive", expires: "No expiry announced" },
   { code: "NE0R0T0MC0VER", method: "Code", reward: "Neo-Kitakami Rotom Phone case", expires: "No expiry announced" },
   { code: null, method: "Via Internet", reward: "Mythical Pecha Berry — unlocks the DLC epilogue (needs Hidden Treasure of Area Zero)", expires: "No expiry announced" },
+  { code: null, method: "In person", reward: "Birthday Fidough (Lv. 5, Celebrate, Birthday Ribbon) — Pokémon Centers in Japan, Taiwan, Singapore during your birthday month", expires: "Oct 31, 2026" },
+];
+
+const CHAMPIONS_GIFTS: Gift[] = [
+  { code: "10M1NTRNR", method: "Code", reward: "100 Quick Coupons — collect from the Mailbox", expires: "Dec 31, 2026" },
 ];
 
 function GiftCard({ gift }: { gift: Gift }) {
@@ -93,6 +98,16 @@ export default function MysteryGiftPage() {
       <div className="mt-3 rounded-2xl bg-slate-100 p-4 text-sm text-slate-600 dark:bg-slate-800 dark:text-slate-300">
         <span className="font-bold">How to redeem in S/V:</span> Press X → Poké Portal → Mystery Gift → “Get via Internet” or “Get with Code/Password”.
         Nintendo Switch Online not required.
+      </div>
+
+      <h2 className="mt-8 text-xl font-bold text-slate-700 dark:text-slate-200">Pokémon Champions</h2>
+      <div className="mt-3 grid gap-3 sm:grid-cols-2">
+        {CHAMPIONS_GIFTS.map((g, i) => (
+          <GiftCard key={i} gift={g} />
+        ))}
+      </div>
+      <div className="mt-3 rounded-2xl bg-slate-100 p-4 text-sm text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+        <span className="font-bold">How to redeem in Champions:</span> in-game Mystery Gift → enter the code, then collect your reward from the Mailbox.
       </div>
     </main>
   );

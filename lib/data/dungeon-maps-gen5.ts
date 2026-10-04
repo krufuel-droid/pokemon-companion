@@ -204,7 +204,7 @@ export const DUNGEON_MAPS_GEN5: DungeonMap[] = [
         name: "1F",
         grid: [
           "####################",
-          "#........I.........#",
+          "#........II........#",
           "#..................#",
           "#..T.........T.....#",
           "#..................#",
@@ -218,7 +218,7 @@ export const DUNGEON_MAPS_GEN5: DungeonMap[] = [
         ],
         items: [
           { x: 9, y: 1, name: "Cover Fossil" },
-          { x: 9, y: 1, name: "Plume Fossil" },
+          { x: 10, y: 1, name: "Plume Fossil" },
           { x: 3, y: 8, name: "TM26 (Earthquake)" },
         ],
         trainers: [
@@ -839,7 +839,7 @@ export const DUNGEON_MAPS_GEN5: DungeonMap[] = [
         name: "B1F",
         grid: [
           "######################",
-          "#..I.....####.....I..#",
+          "#..II....####.....I..#",
           "#........####........#",
           "#..T.....####.....T..#",
           "#........####........#",
@@ -853,7 +853,7 @@ export const DUNGEON_MAPS_GEN5: DungeonMap[] = [
         ],
         items: [
           { x: 3, y: 1, name: "Magmarizer" },
-          { x: 3, y: 1, name: "Electirizer" },
+          { x: 4, y: 1, name: "Electirizer" },
           { x: 18, y: 1, name: "Plasma Card" },
         ],
         trainers: [
@@ -877,7 +877,7 @@ export const DUNGEON_MAPS_GEN5: DungeonMap[] = [
           "#......#####.........#",
           "#.....T....S....T....#",
           "#....................#",
-          "#..I.............I...#",
+          "#..I.............II..#",
           "#....................#",
           "######################",
         ],
@@ -887,7 +887,7 @@ export const DUNGEON_MAPS_GEN5: DungeonMap[] = [
           { x: 16, y: 5, name: "Max Revive" },
           { x: 3, y: 9, name: "Max Elixir" },
           { x: 17, y: 9, name: "Power Band" },
-          { x: 17, y: 9, name: "Power Belt" },
+          { x: 18, y: 9, name: "Power Belt" },
         ],
         trainers: [
           { x: 6, y: 3, note: "Team Plasma Grunt — pipe maze" },
@@ -1076,7 +1076,7 @@ export const DUNGEON_MAPS_GEN5: DungeonMap[] = [
         name: "B1F",
         grid: [
           "####################",
-          "#..I..........I....#",
+          "#..II.........II...#",
           "#..................#",
           "#.....T......T.....#",
           "#..................#",
@@ -1090,9 +1090,9 @@ export const DUNGEON_MAPS_GEN5: DungeonMap[] = [
         ],
         items: [
           { x: 3, y: 1, name: "Toxic Orb" },
-          { x: 3, y: 1, name: "Flame Orb" },
+          { x: 4, y: 1, name: "Flame Orb" },
           { x: 14, y: 1, name: "Water Gem" },
-          { x: 14, y: 1, name: "Fire Gem" },
+          { x: 15, y: 1, name: "Fire Gem" },
         ],
         trainers: [
           { x: 6, y: 3, note: "Pokémon Ranger Lewis/Eliza" },

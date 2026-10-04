@@ -81,14 +81,12 @@ export const DUNGEON_MAPS_GEN3: DungeonMap[] = [
         items: [
           { x: 3, y: 4, name: "Poké Ball", note: "northwest corner" },
           { x: 20, y: 1, name: "Max Ether", note: "northeast corner" },
-          { x: 6, y: 8, name: "Devon Goods", note: "from the Grunt after you beat him" },
-          { x: 16, y: 8, name: "HM04 (Strength)", note: "from Wanda's boyfriend after smashing the rocks (needs Rock Smash)" },
         ],
         trainers: [
           { x: 6, y: 8, note: "Team Magma Grunt (R) / Team Aqua Grunt (S, E) — recover the Devon Goods" },
         ],
         notes:
-          "Only Whismur lives here. The tunnel can't be fully crossed until you have Rock Smash (Dynamo Badge).",
+          "Only Whismur lives here. The tunnel can't be fully crossed until you have Rock Smash (Dynamo Badge). Devon Goods: recovered from the Grunt after beating him. HM04 (Strength): from Wanda's boyfriend after smashing the rocks.",
       },
     ],
   },
@@ -122,12 +120,11 @@ export const DUNGEON_MAPS_GEN3: DungeonMap[] = [
         ],
         items: [
           { x: 3, y: 4, name: "Escape Rope", note: "west of the entrance" },
-          { x: 3, y: 8, name: "HM05 (Flash)", note: "from the Hiker near the entrance" },
         ],
         trainers: [
           { x: 3, y: 8, note: "Hiker — gives HM05 (Flash); needs the Knuckle Badge to use outside battle" },
         ],
-        notes: "North ladder leads to B1F; northwest tunnel leads to Steven's chamber at the back of 1F.",
+        notes: "North ladder leads to B1F; northwest tunnel leads to Steven's chamber at the back of 1F. HM05 (Flash): from the Hiker near the entrance.",
       },
       {
         name: "Steven's Chamber (1F Back)",
@@ -141,11 +138,11 @@ export const DUNGEON_MAPS_GEN3: DungeonMap[] = [
           "################",
         ],
         items: [
-          { x: 7, y: 3, name: "TM47 (Steel Wing)", note: "thank-you gift from Steven for delivering the Letter" },
         ],
         trainers: [
           { x: 7, y: 3, note: "Steven — deliver Mr. Stone's Letter; he gives TM47 (Steel Wing)" },
         ],
+        notes: "TM47 (Steel Wing): thank-you gift from Steven for delivering the Letter.",
       },
       {
         name: "B1F",
@@ -254,7 +251,7 @@ export const DUNGEON_MAPS_GEN3: DungeonMap[] = [
           "######################",
           "#.........I..........#",
           "#....................#",
-          "#..S..............S..#",
+          "#.IS.............IS..#",
           "#....................#",
           "#....................#",
           "#......T.............#",
@@ -264,7 +261,7 @@ export const DUNGEON_MAPS_GEN3: DungeonMap[] = [
         ],
         items: [
           { x: 10, y: 1, name: "TM02 (Dragon Claw)", note: "dead-end back room (needs Surf + Waterfall)" },
-          { x: 3, y: 3, name: "TM23 (Iron Tail)", note: "northwesternmost hill of the main room, reached from B1F (needs Surf + Waterfall)" },
+          { x: 2, y: 3, name: "TM23 (Iron Tail)", note: "northwesternmost hill of the main room, reached from B1F (needs Surf + Waterfall)" },
           { x: 17, y: 3, name: "PP Up", note: "southeasternmost hill of the main room, via the inner cave (needs Surf + Waterfall)" },
         ],
         trainers: [
@@ -319,7 +316,7 @@ export const DUNGEON_MAPS_GEN3: DungeonMap[] = [
           "#....I......I........#",
           "#.........S..........#",
           "#....................#",
-          "#..T................T#",
+          "#..T..............T..#",
           "#....................#",
           "#.........S..........#",
           "#....I...............#",
@@ -643,7 +640,7 @@ export const DUNGEON_MAPS_GEN3: DungeonMap[] = [
         name: "1F",
         grid: [
           "######################",
-          "#E.......##.........I#",
+          "#EI......##.........I#",
           "#....................#",
           "#....................#",
           "#..I.................#",
@@ -659,14 +656,12 @@ export const DUNGEON_MAPS_GEN3: DungeonMap[] = [
           { x: 2, y: 1, name: "Dire Hit", note: "hidden — by the large rock north of the Rustboro-side entrance (Dowsing Machine)" },
           { x: 3, y: 4, name: "Poké Ball", note: "northwest corner" },
           { x: 20, y: 1, name: "Max Ether", note: "northeast corner" },
-          { x: 6, y: 8, name: "Devon Parts", note: "from the Grunt after you beat him" },
-          { x: 16, y: 8, name: "Aggronite", note: "from Wanda's boyfriend after smashing the rocks (needs Rock Smash)" },
         ],
         trainers: [
           { x: 6, y: 8, note: "Team Magma Grunt (OR) / Team Aqua Grunt (AS) — recover the Devon Parts" },
         ],
         notes:
-          "Smashing the breakable rocks can also drop random items (Pearl, Heart Scale, Revive, Star Piece, …). Only Whismur lives here.",
+          "Smashing the breakable rocks can also drop random items (Pearl, Heart Scale, Revive, Star Piece, …). Only Whismur lives here. Devon Parts: recovered from the Grunt after beating him. Aggronite: from Wanda's boyfriend after smashing the rocks.",
       },
     ],
   },
@@ -698,12 +693,11 @@ export const DUNGEON_MAPS_GEN3: DungeonMap[] = [
           "####################",
         ],
         items: [
-          { x: 3, y: 8, name: "TM70 (Flash)", note: "from the Hiker near the entrance" },
         ],
         trainers: [
           { x: 3, y: 8, note: "Hiker — gives TM70 (Flash)" },
         ],
-        notes: "North ladder leads to B1F; northwest tunnel leads to Steven's chamber at the back of 1F.",
+        notes: "North ladder leads to B1F; northwest tunnel leads to Steven's chamber at the back of 1F. TM70 (Flash): from the Hiker near the entrance.",
       },
       {
         name: "Steven's Chamber (1F Back)",
@@ -717,12 +711,11 @@ export const DUNGEON_MAPS_GEN3: DungeonMap[] = [
           "################",
         ],
         items: [
-          { x: 7, y: 3, name: "TM51 (Steel Wing)", note: "thank-you gift from Steven for delivering the Letter" },
         ],
         trainers: [
           { x: 7, y: 3, note: "Steven — deliver Mr. Stone's Letter; he gives TM51 (Steel Wing)" },
         ],
-        notes: "Steven admires the ancient mural here (Primal Groudon/Kyogre, version-dependent).",
+        notes: "Steven admires the ancient mural here (Primal Groudon/Kyogre, version-dependent). TM51 (Steel Wing): thank-you gift from Steven for delivering the Letter.",
       },
       {
         name: "B1F",
@@ -850,7 +843,7 @@ export const DUNGEON_MAPS_GEN3: DungeonMap[] = [
           "######################",
           "#.........I..........#",
           "#....................#",
-          "#..S..............S..#",
+          "#..S.............IS..#",
           "#....................#",
           "#....................#",
           "#......T.............#",
@@ -860,7 +853,7 @@ export const DUNGEON_MAPS_GEN3: DungeonMap[] = [
         ],
         items: [
           { x: 10, y: 1, name: "TM02 (Dragon Claw)", note: "dead-end back room (needs Surf + Waterfall)" },
-          { x: 18, y: 3, name: "PP Max", note: "southeasternmost hill of the main room, via the inner cave (needs Surf + Waterfall)" },
+          { x: 17, y: 3, name: "PP Max", note: "southeasternmost hill of the main room, via the inner cave (needs Surf + Waterfall)" },
         ],
         trainers: [
           { x: 7, y: 6, note: "Dragon Tamer Nicolas — rematchable (may reward a Full Restore)" },
@@ -889,13 +882,13 @@ export const DUNGEON_MAPS_GEN3: DungeonMap[] = [
         grid: [
           "######################",
           "#E.........S.........#",
-          "#....................#",
+          "#.............I......#",
           "#....T........T......#",
           "#....................#",
           "#.........S..........#",
           "#....I...............#",
           "#....................#",
-          "#....................#",
+          "#.............I......#",
           "#.........S..........#",
           "######################",
         ],
@@ -920,7 +913,7 @@ export const DUNGEON_MAPS_GEN3: DungeonMap[] = [
           "#....................#",
           "#.........S..........#",
           "#....................#",
-          "#..T................T#",
+          "#..T..............T..#",
           "#....................#",
           "#....I....S....I.....#",
           "#....................#",
@@ -996,13 +989,12 @@ export const DUNGEON_MAPS_GEN3: DungeonMap[] = [
           { x: 10, y: 1, name: "Master Ball", note: "top-right of the item cluster, past the teleporter maze" },
           { x: 5, y: 5, name: "Nugget", note: "bottom-left of the item cluster" },
           { x: 10, y: 5, name: "Electrode", note: "FAKE ITEM — bottom-right of the cluster, Lv 50 battle!" },
-          { x: 8, y: 3, name: "Sharpedonite (AS) / Cameruptite (OR)", note: "from Archie/Maxie via Shelly/Tabitha after the Delta Episode" },
         ],
         trainers: [
           { x: 8, y: 3, note: "Courtney (OR) / Matt (AS) — admin; the leader has left with the submarine" },
         ],
         notes:
-          "VERSION DIFFERENCES: Team Aqua occupies it in Alpha Sapphire, Team Magma in Omega Ruby (grunts, admin, and leader swapped). Unlike R/S, the entrance never seals — you can return freely.",
+          "VERSION DIFFERENCES: Team Aqua occupies it in Alpha Sapphire, Team Magma in Omega Ruby (grunts, admin, and leader swapped). Unlike R/S, the entrance never seals — you can return freely. Sharpedonite (AS) / Cameruptite (OR): from Archie/Maxie via Shelly/Tabitha after the Delta Episode.",
       },
     ],
   },
@@ -1092,12 +1084,11 @@ export const DUNGEON_MAPS_GEN3: DungeonMap[] = [
         items: [
           { x: 3, y: 3, name: "Iron", note: "hidden — west of the southern bridge" },
           { x: 14, y: 5, name: "TM81 (X-Scissor)", note: "atop the southern waterfall (needs Surf + Waterfall)" },
-          { x: 5, y: 7, name: "Dawn Stone", note: "from Wally after defeating him (needs Surf + Strength to reach)" },
         ],
         trainers: [
           { x: 5, y: 7, note: "Wally — final rival battle; gives a Dawn Stone afterwards" },
         ],
-        notes: "The exit leads out to Ever Grande City and the Pokémon League.",
+        notes: "The exit leads out to Ever Grande City and the Pokémon League. Dawn Stone: from Wally after defeating him.",
       },
     ],
   },

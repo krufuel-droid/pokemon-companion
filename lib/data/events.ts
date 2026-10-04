@@ -7,8 +7,8 @@
 export interface GameEvent {
   id: string;
   title: string;
-  game: "Scarlet & Violet" | "Legends: Z-A";
-  kind: "raid" | "gift" | "distribution" | "release";
+  game: "Scarlet & Violet" | "Legends: Z-A" | "Pokémon Champions";
+  kind: "raid" | "gift" | "distribution" | "release" | "tournament";
   /** ISO date, e.g. "2026-10-08". Null = no announced end. */
   startDate: string | null;
   endDate: string | null;
@@ -98,6 +98,127 @@ export const GAME_EVENTS: GameEvent[] = [
     detail: "STRACKSU1T / VTRACKSU1T, SB00KC0VER / VB00KC0VER, NE0R0T0MC0VER, Mythical Pecha Berry. No expiry announced.",
     href: "/tools/mystery-gifts",
   },
+  {
+    id: "metagross-raid",
+    title: "7★ Metagross the Unrivaled (rerun)",
+    game: "Scarlet & Violet",
+    kind: "raid",
+    startDate: "2026-10-16",
+    endDate: "2026-10-22",
+    detail: "Steel Tera Metagross with the Mightiest Mark. Fire, Fighting, and Ground counters.",
+    href: "/tools/raid-counters",
+  },
+  {
+    id: "fidough-birthday",
+    title: "Birthday Fidough (in-store)",
+    game: "Scarlet & Violet",
+    kind: "distribution",
+    startDate: "2025-11-01",
+    endDate: "2026-10-31",
+    detail: "Lv. 5 Fidough with Celebrate and a Birthday Ribbon — Pokémon Centers (Japan, Taiwan, Singapore) during your birthday month. Ends Oct 31!",
+    href: "/tools/mystery-gifts",
+  },
+  {
+    id: "champions-coupons",
+    title: "10M1NTRNR Mystery Gift code",
+    game: "Pokémon Champions",
+    kind: "gift",
+    startDate: null,
+    endDate: "2026-12-31",
+    detail: "100 Quick Coupons — redeem in-game, collect from the Mailbox.",
+    href: "/tools/mystery-gifts",
+  },
+  // ---- Championship Series tournaments (from the Champions page) ----
+  {
+    id: "tourn-recife",
+    title: "Recife Regional Championships",
+    game: "Scarlet & Violet",
+    kind: "tournament",
+    startDate: "2026-10-03",
+    endDate: "2026-10-04",
+    detail: "Play! Pokémon Regional Championships — VGC.",
+    href: "/champions",
+  },
+  {
+    id: "tourn-louisville",
+    title: "Louisville Regional Championships",
+    game: "Scarlet & Violet",
+    kind: "tournament",
+    startDate: "2026-10-09",
+    endDate: "2026-10-11",
+    detail: "Play! Pokémon Regional Championships — VGC.",
+    href: "/champions",
+  },
+  {
+    id: "tourn-nice",
+    title: "Nice Regional Championships",
+    game: "Scarlet & Violet",
+    kind: "tournament",
+    startDate: "2026-10-17",
+    endDate: "2026-10-18",
+    detail: "Play! Pokémon Regional Championships — VGC.",
+    href: "/champions",
+  },
+  {
+    id: "tourn-puebla",
+    title: "Puebla Regional Championships",
+    game: "Scarlet & Violet",
+    kind: "tournament",
+    startDate: "2026-10-24",
+    endDate: "2026-10-25",
+    detail: "Play! Pokémon Regional Championships — VGC.",
+    href: "/champions",
+  },
+  {
+    id: "tourn-gdansk",
+    title: "Gdańsk Regional Championships",
+    game: "Scarlet & Violet",
+    kind: "tournament",
+    startDate: "2026-10-31",
+    endDate: "2026-11-01",
+    detail: "Play! Pokémon Regional Championships — VGC.",
+    href: "/champions",
+  },
+  {
+    id: "tourn-buenos-aires",
+    title: "Buenos Aires Special Championships",
+    game: "Scarlet & Violet",
+    kind: "tournament",
+    startDate: "2026-11-14",
+    endDate: "2026-11-15",
+    detail: "Play! Pokémon Special Championships — VGC.",
+    href: "/champions",
+  },
+  {
+    id: "tourn-laic",
+    title: "Latin America International Championships",
+    game: "Scarlet & Violet",
+    kind: "tournament",
+    startDate: "2026-11-20",
+    endDate: "2026-11-22",
+    detail: "Play! Pokémon International Championships — VGC. The big one.",
+    href: "/champions",
+  },
+  {
+    id: "tourn-stuttgart",
+    title: "Stuttgart Regional Championships",
+    game: "Scarlet & Violet",
+    kind: "tournament",
+    startDate: "2026-11-28",
+    endDate: "2026-11-29",
+    detail: "Play! Pokémon Regional Championships — VGC.",
+    href: "/champions",
+  },
+  {
+    id: "tourn-las-vegas",
+    title: "Las Vegas Regional Championships",
+    game: "Scarlet & Violet",
+    kind: "tournament",
+    startDate: "2026-12-04",
+    endDate: "2026-12-06",
+    detail: "Play! Pokémon Regional Championships — VGC.",
+    href: "/champions",
+  },
 ];
 
 const KIND_LABEL: Record<GameEvent["kind"], string> = {
@@ -105,6 +226,7 @@ const KIND_LABEL: Record<GameEvent["kind"], string> = {
   gift: "Mystery Gift",
   distribution: "Distribution",
   release: "Release",
+  tournament: "Tournament",
 };
 
 const KIND_COLOR: Record<GameEvent["kind"], string> = {
@@ -112,6 +234,7 @@ const KIND_COLOR: Record<GameEvent["kind"], string> = {
   gift: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300",
   distribution: "bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300",
   release: "bg-sky-100 text-sky-700 dark:bg-sky-900 dark:text-sky-300",
+  tournament: "bg-rose-100 text-rose-700 dark:bg-rose-900 dark:text-rose-300",
 };
 
 export { KIND_LABEL, KIND_COLOR };

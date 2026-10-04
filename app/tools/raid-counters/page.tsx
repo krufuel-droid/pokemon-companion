@@ -60,10 +60,10 @@ const EVENTS: RaidEvent[] = [
   },
   {
     name: "Salamence the Unrivaled",
-    teraType: "???",
+    teraType: "Flying",
     dates: "Oct 9 – Oct 15, 2026",
     status: "upcoming",
-    bossMoves: "Details TBA — Salamence is Dragon/Flying, 4× weak to Ice. Expect Dragon Dance and heavy physical hits.",
+    bossMoves: "Flying Tera Salamence (Dragon/Flying base) — 4× weak to Ice. Expect Dragon Dance setup and heavy Flying/Dragon physical hits; bring Ice counters and Intimidate support.",
     counters: [
       {
         pokemon: "Baxcalibur",
@@ -84,6 +84,25 @@ const EVENTS: RaidEvent[] = [
         evs: "252 HP / 252 Atk / 4 Def",
         moves: ["Belly Drum", "Ice Spinner", "Play Rough", "Protect"],
         strategy: "Classic Belly Drum sweeper — max Attack in one turn, then Ice Spinner for massive damage. Thick Fat softens Fire/Ice hits.",
+      },
+    ],
+  },
+  {
+    name: "Metagross the Unrivaled",
+    teraType: "Steel",
+    dates: "Oct 16 – Oct 22, 2026",
+    status: "upcoming",
+    bossMoves: "Steel Tera Metagross (Steel/Psychic base). Full moveset and behavior TBA — check back as the event approaches. Fire, Fighting, and Ground hit it super-effectively.",
+    counters: [
+      {
+        pokemon: "Skeledirge",
+        tera: "Fire",
+        ability: "Unaware",
+        item: "Shell Bell",
+        nature: "Modest",
+        evs: "252 HP / 252 Def / 4 SpA",
+        moves: ["Torch Song", "Will-O-Wisp", "Slack Off", "Protect"],
+        strategy: "Preliminary pick: Unaware ignores its stat boosts, Will-O-Wisp halves its Attack, and Torch Song stacks Special Attack. Full tested builds coming before Oct 16.",
       },
     ],
   },

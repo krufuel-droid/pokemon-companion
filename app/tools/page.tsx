@@ -60,6 +60,11 @@ const TEAM_TOOLS: Tool[] = [
     title: "Team Builder",
     desc: "Draft a 6-Pokémon team, check defensive weaknesses and offensive coverage, save teams, and share them with a link.",
   },
+  {
+    href: "/tools/nuzlocke-encounters",
+    title: "Nuzlocke Encounters",
+    desc: "Pick a game and location to see every wild encounter — levels, rates, and conditions — for planning that first-encounter-per-area catch.",
+  },
 ];
 
 const REFERENCE: Tool[] = [
@@ -89,9 +94,9 @@ const REFERENCE: Tool[] = [
     desc: "Best builds for the current 7-star raid events, plus raid fundamentals.",
   },
   {
-    href: "/tools/event-calendar",
-    title: "Event Calendar",
-    desc: "Every active raid, gift, and distribution in one place — with end dates.",
+    href: "/events",
+    title: "Events Calendar",
+    desc: "Tera raids, Mystery Gifts, distributions, and tournaments on a real calendar — with end dates so nothing slips by.",
   },
 ];
 

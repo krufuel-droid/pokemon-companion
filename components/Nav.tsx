@@ -26,6 +26,7 @@ const LINKS = [
   { href: "/nuzlocke", label: "Nuzlocke" },
   { href: "/shiny-hunts", label: "✨ Hunts" },
   { href: "/news", label: "News" },
+  { href: "/events", label: "📅 Events" },
 ] as const;
 
 function PokeballIcon() {

@@ -168,7 +168,7 @@ export const GYM_TEAMS: Record<string, GymTeam[]> = {
       team: [
         { species: "Mimikyu", id: 778, level: 41, moves: ["Shadow Sneak", "Slash", "Light Screen"] },
         { species: "Banette", id: 354, level: 41, moves: ["Icy Wind", "Sucker Punch", "Shadow Sneak"] },
-        { species: "Greavard", id: 971, level: 41, moves: ["Play Rough", "Crunch", "Phantom Force"] },
+        { species: "Houndstone", id: 972, level: 41, moves: ["Play Rough", "Crunch", "Phantom Force"] },
         {
           species: "Toxtricity (Low-Key)",
           id: 849,
