@@ -164,6 +164,55 @@ export default function ChampionsPage() {
           </p>
         </section>
 
+        {/* Recent results */}
+        <section className="mt-10 scroll-mt-20" id="recent-results">
+          <h2 className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100">
+            Recent results
+          </h2>
+          <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+            Who won the last stops — updated automatically after each event.
+          </p>
+          <div className="mt-4 space-y-3">
+            {TOURNAMENT_RESULTS.map((r) => {
+              const featured = FEATURED_TEAMS.find((t) => t.player === r.winner);
+              return (
+                <details
+                  key={r.name}
+                  className="group overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700"
+                >
+                  <summary className="cursor-pointer list-none p-4 marker:hidden [&::-webkit-details-marker]:hidden">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-bold text-amber-800 dark:bg-amber-900 dark:text-amber-200">
+                        🏆 {r.winner}
+                      </span>
+                      <span className="min-w-0 flex-1 text-sm font-semibold text-slate-700 dark:text-slate-200">{r.name}</span>
+                      <span className="text-xs text-slate-400">{r.dates} · {r.kind}</span>
+                      {featured && (
+                        <svg width="16" height="16" viewBox="0 0 20 20" aria-hidden="true" className="shrink-0 text-slate-400 transition-transform group-open:rotate-180">
+                          <path d="M5 7l5 5 5-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      )}
+                    </div>
+                    {r.winningTeam && (
+                      <p className="mt-1.5 text-sm text-slate-500 dark:text-slate-400">
+                        Winning core: <span className="font-semibold text-slate-700 dark:text-slate-200">{r.winningTeam}</span>
+                      </p>
+                    )}
+                    {r.runnerUp && (
+                      <p className="mt-0.5 text-xs text-slate-400">Runner-up: {r.runnerUp}</p>
+                    )}
+                  </summary>
+                  {featured && (
+                    <div className="border-t border-slate-100 p-4 dark:border-slate-800">
+                      <TeamGrid team={featured.team} />
+                    </div>
+                  )}
+                </details>
+              );
+            })}
+          </div>
+        </section>
+
         {/* Current meta */}
         <section className="mt-10">
           <h2 className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100">
@@ -359,55 +408,6 @@ export default function ChampionsPage() {
                 )}
               </details>
             ))}
-          </div>
-        </section>
-
-        {/* Recent results */}
-        <section className="mt-10 scroll-mt-20" id="recent-results">
-          <h2 className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100">
-            Recent results
-          </h2>
-          <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-            Who won the last stops — updated automatically after each event.
-          </p>
-          <div className="mt-4 space-y-3">
-            {TOURNAMENT_RESULTS.map((r) => {
-              const featured = FEATURED_TEAMS.find((t) => t.player === r.winner);
-              return (
-                <details
-                  key={r.name}
-                  className="group overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700"
-                >
-                  <summary className="cursor-pointer list-none p-4 marker:hidden [&::-webkit-details-marker]:hidden">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-bold text-amber-800 dark:bg-amber-900 dark:text-amber-200">
-                        🏆 {r.winner}
-                      </span>
-                      <span className="min-w-0 flex-1 text-sm font-semibold text-slate-700 dark:text-slate-200">{r.name}</span>
-                      <span className="text-xs text-slate-400">{r.dates} · {r.kind}</span>
-                      {featured && (
-                        <svg width="16" height="16" viewBox="0 0 20 20" aria-hidden="true" className="shrink-0 text-slate-400 transition-transform group-open:rotate-180">
-                          <path d="M5 7l5 5 5-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
-                      )}
-                    </div>
-                    {r.winningTeam && (
-                      <p className="mt-1.5 text-sm text-slate-500 dark:text-slate-400">
-                        Winning core: <span className="font-semibold text-slate-700 dark:text-slate-200">{r.winningTeam}</span>
-                      </p>
-                    )}
-                    {r.runnerUp && (
-                      <p className="mt-0.5 text-xs text-slate-400">Runner-up: {r.runnerUp}</p>
-                    )}
-                  </summary>
-                  {featured && (
-                    <div className="border-t border-slate-100 p-4 dark:border-slate-800">
-                      <TeamGrid team={featured.team} />
-                    </div>
-                  )}
-                </details>
-              );
-            })}
           </div>
         </section>
 
