@@ -78,6 +78,60 @@ function SocialPills({ socials }: { socials: SocialLinks }) {
   );
 }
 
+function TeamGrid({ team }: { team: TeamMon[] }) {
+  return (
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      {team.map((mon) => (
+        <div
+          key={mon.name}
+          className="rounded-xl bg-slate-50 p-3 ring-1 ring-slate-100 dark:bg-slate-800 dark:ring-slate-800"
+        >
+          <MonLink mon={mon} />
+          <dl className="mt-2 space-y-0.5 text-xs text-slate-600 dark:text-slate-400">
+            {mon.ability && (
+              <div className="flex gap-1">
+                <dt className="font-semibold text-slate-400 dark:text-slate-500">
+                  Ability:
+                </dt>
+                <dd>{mon.ability}</dd>
+              </div>
+            )}
+            {mon.item && (
+              <div className="flex gap-1">
+                <dt className="font-semibold text-slate-400 dark:text-slate-500">
+                  Item:
+                </dt>
+                <dd>{mon.item}</dd>
+              </div>
+            )}
+            {mon.nature && (
+              <div className="flex gap-1">
+                <dt className="font-semibold text-slate-400 dark:text-slate-500">
+                  Nature:
+                </dt>
+                <dd>{mon.nature}</dd>
+              </div>
+            )}
+            {mon.evs && (
+              <div className="flex gap-1">
+                <dt className="font-semibold text-slate-400 dark:text-slate-500">
+                  EVs:
+                </dt>
+                <dd className="font-mono">{mon.evs}</dd>
+              </div>
+            )}
+          </dl>
+          {mon.moves && (
+            <p className="mt-2 text-xs leading-relaxed text-slate-500 dark:text-slate-400">
+              {mon.moves.join(" · ")}
+            </p>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function ChampionsPage() {
   return (
     <main className="min-h-screen bg-slate-50 text-slate-800 dark:bg-slate-800 dark:text-slate-100">
@@ -275,54 +329,8 @@ export default function ChampionsPage() {
                     {team.headline}
                   </p>
                 </div>
-                <div className="grid grid-cols-1 gap-3 p-6 sm:grid-cols-2 lg:grid-cols-3">
-                  {team.team.map((mon) => (
-                    <div
-                      key={mon.name}
-                      className="rounded-xl bg-slate-50 p-3 ring-1 ring-slate-100 dark:bg-slate-800 dark:ring-slate-800"
-                    >
-                      <MonLink mon={mon} />
-                      <dl className="mt-2 space-y-0.5 text-xs text-slate-600 dark:text-slate-400">
-                        {mon.ability && (
-                          <div className="flex gap-1">
-                            <dt className="font-semibold text-slate-400 dark:text-slate-500">
-                              Ability:
-                            </dt>
-                            <dd>{mon.ability}</dd>
-                          </div>
-                        )}
-                        {mon.item && (
-                          <div className="flex gap-1">
-                            <dt className="font-semibold text-slate-400 dark:text-slate-500">
-                              Item:
-                            </dt>
-                            <dd>{mon.item}</dd>
-                          </div>
-                        )}
-                        {mon.nature && (
-                          <div className="flex gap-1">
-                            <dt className="font-semibold text-slate-400 dark:text-slate-500">
-                              Nature:
-                            </dt>
-                            <dd>{mon.nature}</dd>
-                          </div>
-                        )}
-                        {mon.evs && (
-                          <div className="flex gap-1">
-                            <dt className="font-semibold text-slate-400 dark:text-slate-500">
-                              EVs:
-                            </dt>
-                            <dd className="font-mono">{mon.evs}</dd>
-                          </div>
-                        )}
-                      </dl>
-                      {mon.moves && (
-                        <p className="mt-2 text-xs leading-relaxed text-slate-500 dark:text-slate-400">
-                          {mon.moves.join(" · ")}
-                        </p>
-                      )}
-                    </div>
-                  ))}
+                <div className="p-6">
+                  <TeamGrid team={team.team} />
                 </div>
                 <div className="flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-slate-100 px-6 py-4 dark:border-slate-800">
                   {team.replicaCode && (
@@ -363,28 +371,43 @@ export default function ChampionsPage() {
             Who won the last stops — updated automatically after each event.
           </p>
           <div className="mt-4 space-y-3">
-            {TOURNAMENT_RESULTS.map((r) => (
-              <div
-                key={r.name}
-                className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700"
-              >
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-bold text-amber-800 dark:bg-amber-900 dark:text-amber-200">
-                    🏆 {r.winner}
-                  </span>
-                  <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">{r.name}</span>
-                  <span className="ml-auto text-xs text-slate-400">{r.dates} · {r.kind}</span>
-                </div>
-                {r.winningTeam && (
-                  <p className="mt-1.5 text-sm text-slate-500 dark:text-slate-400">
-                    Winning core: <span className="font-semibold text-slate-700 dark:text-slate-200">{r.winningTeam}</span>
-                  </p>
-                )}
-                {r.runnerUp && (
-                  <p className="mt-0.5 text-xs text-slate-400">Runner-up: {r.runnerUp}</p>
-                )}
-              </div>
-            ))}
+            {TOURNAMENT_RESULTS.map((r) => {
+              const featured = FEATURED_TEAMS.find((t) => t.player === r.winner);
+              return (
+                <details
+                  key={r.name}
+                  className="group overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700"
+                >
+                  <summary className="cursor-pointer list-none p-4 marker:hidden [&::-webkit-details-marker]:hidden">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-bold text-amber-800 dark:bg-amber-900 dark:text-amber-200">
+                        🏆 {r.winner}
+                      </span>
+                      <span className="min-w-0 flex-1 text-sm font-semibold text-slate-700 dark:text-slate-200">{r.name}</span>
+                      <span className="text-xs text-slate-400">{r.dates} · {r.kind}</span>
+                      {featured && (
+                        <svg width="16" height="16" viewBox="0 0 20 20" aria-hidden="true" className="shrink-0 text-slate-400 transition-transform group-open:rotate-180">
+                          <path d="M5 7l5 5 5-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      )}
+                    </div>
+                    {r.winningTeam && (
+                      <p className="mt-1.5 text-sm text-slate-500 dark:text-slate-400">
+                        Winning core: <span className="font-semibold text-slate-700 dark:text-slate-200">{r.winningTeam}</span>
+                      </p>
+                    )}
+                    {r.runnerUp && (
+                      <p className="mt-0.5 text-xs text-slate-400">Runner-up: {r.runnerUp}</p>
+                    )}
+                  </summary>
+                  {featured && (
+                    <div className="border-t border-slate-100 p-4 dark:border-slate-800">
+                      <TeamGrid team={featured.team} />
+                    </div>
+                  )}
+                </details>
+              );
+            })}
           </div>
         </section>
 
