@@ -6,6 +6,7 @@ import StreakWidget from "@/components/StreakWidget";
 import { getAllSpecies } from "@/lib/pokedex";
 import { applySeasonalFilter } from "@/lib/seasonal-potd";
 import { TYPE_COLORS } from "@/lib/theme";
+import { TOURNAMENT_RESULTS } from "@/lib/data/champions";
 
 /** Deterministic daily pick — same Pokémon for everyone, changes at midnight. */
 function PokemonOfTheDay() {
@@ -162,6 +163,36 @@ export default function HomePage() {
           <PokemonOfTheDay />
         </div>
       </section>
+
+      {/* Latest tournament result banner */}
+      {TOURNAMENT_RESULTS.length > 0 && (
+        <section className="mx-auto max-w-6xl px-4 pt-6 sm:px-6">
+          <Link
+            href="/champions#recent-results"
+            className="block rounded-2xl bg-gradient-to-r from-amber-500 to-orange-600 p-5 text-white shadow-sm transition hover:shadow-md"
+          >
+            <div className="flex flex-wrap items-center gap-4">
+              <span className="text-4xl" aria-hidden>🏆</span>
+              <div className="min-w-0 flex-1">
+                <p className="text-xs font-bold uppercase tracking-widest text-amber-100">
+                  Latest tournament result
+                </p>
+                <p className="mt-0.5 truncate text-lg font-extrabold">
+                  {TOURNAMENT_RESULTS[0].winner} won the {TOURNAMENT_RESULTS[0].name}
+                </p>
+                {TOURNAMENT_RESULTS[0].winningTeam && (
+                  <p className="text-sm text-amber-100">
+                    Winning core: {TOURNAMENT_RESULTS[0].winningTeam}
+                  </p>
+                )}
+              </div>
+              <span className="shrink-0 rounded-full bg-white/20 px-4 py-2 text-sm font-bold">
+                All results →
+              </span>
+            </div>
+          </Link>
+        </section>
+      )}
 
       {/* Features grid */}
       <section className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
