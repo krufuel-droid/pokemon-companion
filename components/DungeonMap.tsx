@@ -53,52 +53,44 @@ function cellLabel(ch: string): string {
 /* Single floor map                                                    */
 /* ------------------------------------------------------------------ */
 
-interface MarkerInfo {
-  kind: "item" | "trainer";
-  x: number;
-  y: number;
-  text: string;
+/** A, B, … Z, AA, AB … for item letters. */
+function letterFor(i: number): string {
+  let s = "";
+  let n = i;
+  do {
+    s = String.fromCharCode(65 + (n % 26)) + s;
+    n = Math.floor(n / 26) - 1;
+  } while (n >= 0);
+  return s;
 }
 
 function FloorMap({ floor }: { floor: DungeonFloor }) {
-  const [selected, setSelected] = useState<MarkerInfo | null>(null);
-
-  const itemByCoord = useMemo(() => {
+  // GameFAQs style: items get letters (A, B, C…), trainers get numbers.
+  const itemLetter = useMemo(() => {
     const m = new Map<string, string>();
-    for (const it of floor.items) m.set(`${it.x},${it.y}`, it.name);
+    floor.items.forEach((it, i) => m.set(`${it.x},${it.y}`, letterFor(i)));
     return m;
   }, [floor.items]);
 
-  const trainerByCoord = useMemo(() => {
+  const trainerNum = useMemo(() => {
     const m = new Map<string, string>();
-    for (const t of floor.trainers) m.set(`${t.x},${t.y}`, t.note);
+    floor.trainers.forEach((t, i) => m.set(`${t.x},${t.y}`, String(i + 1)));
     return m;
   }, [floor.trainers]);
 
-  function handleCell(ch: string, x: number, y: number) {
-    if (ch === "I") {
-      setSelected({
-        kind: "item",
-        x,
-        y,
-        text: itemByCoord.get(`${x},${y}`) ?? "Item",
-      });
-    } else if (ch === "T") {
-      setSelected({
-        kind: "trainer",
-        x,
-        y,
-        text: trainerByCoord.get(`${x},${y}`) ?? "Trainer",
-      });
-    } else {
-      setSelected(null);
-    }
+  function markerFor(ch: string, x: number, y: number): string {
+    if (ch === "I") return itemLetter.get(`${x},${y}`) ?? "I";
+    if (ch === "T") return trainerNum.get(`${x},${y}`) ?? "T";
+    return ch;
   }
 
   return (
-    <div>
+    <div className="min-w-0">
+      <h4 className="mb-2 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+        {floor.name}
+      </h4>
       <div
-        className="inline-block overflow-x-auto rounded-xl bg-white p-2 ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700"
+        className="inline-block max-w-full overflow-x-auto rounded-xl bg-white p-2 ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700"
         role="img"
         aria-label={`Schematic map of ${floor.name}`}
       >
@@ -106,64 +98,51 @@ function FloorMap({ floor }: { floor: DungeonFloor }) {
           {floor.grid.map((row, y) => (
             <div key={y} className="flex gap-[2px]">
               {row.split("").map((ch, x) => (
-                <button
+                <span
                   key={x}
-                  type="button"
-                  disabled={ch !== "I" && ch !== "T"}
-                  onClick={() => handleCell(ch, x, y)}
-                  onMouseEnter={() => {
-                    if (ch === "I" || ch === "T") handleCell(ch, x, y);
-                  }}
-                  title={cellLabel(ch)}
-                  aria-label={
-                    ch === "I" || ch === "T"
-                      ? `${cellLabel(ch)} at column ${x + 1}, row ${y + 1}`
-                      : undefined
+                  title={
+                    ch === "I"
+                      ? floor.items.find((it) => it.x === x && it.y === y)?.name ?? "Item"
+                      : ch === "T"
+                        ? floor.trainers.find((t) => t.x === x && t.y === y)?.note ?? "Trainer"
+                        : cellLabel(ch)
                   }
                   className={cellClass(ch)}
                 >
-                  {ch === "#" || ch === "." ? "" : ch}
-                </button>
+                  {ch === "#" || ch === "." ? "" : markerFor(ch, x, y)}
+                </span>
               ))}
             </div>
           ))}
         </div>
       </div>
 
-      {/* Legend */}
-      <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-slate-500 dark:text-slate-400">
-        {[
-          ["S", "Stairs", "bg-amber-200 text-amber-900 dark:bg-amber-900/70 dark:text-amber-200"],
-          ["I", "Item", "bg-emerald-200 text-emerald-900 dark:bg-emerald-900/70 dark:text-emerald-200"],
-          ["T", "Trainer", "bg-red-200 text-red-900 dark:bg-red-900/70 dark:text-red-200"],
-          ["E", "Entrance", "bg-sky-200 text-sky-900 dark:bg-sky-900/70 dark:text-sky-200"],
-          ["X", "Exit", "bg-violet-200 text-violet-900 dark:bg-violet-900/70 dark:text-violet-200"],
-        ].map(([ch, label, cls]) => (
-          <span key={ch} className="inline-flex items-center gap-1">
-            <span className={`flex h-4 w-4 items-center justify-center rounded-sm text-[9px] font-bold ${cls}`}>
-              {ch}
-            </span>
-            {label}
-          </span>
-        ))}
-      </div>
-
-      {/* Selected marker readout */}
-      <div aria-live="polite" className="mt-2 min-h-6 text-sm">
-        {selected ? (
-          <p className="inline-block rounded-lg bg-slate-100 px-3 py-1.5 font-medium text-slate-700 ring-1 ring-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:ring-slate-700">
-            <span aria-hidden>{selected.kind === "item" ? "💎 " : "⚔️ "}</span>
-            {selected.text}
-            <span className="ml-2 text-xs text-slate-400">
-              ({selected.x + 1}, {selected.y + 1})
-            </span>
+      {/* GameFAQs-style legend: A = Item name */}
+      {(floor.items.length > 0 || floor.trainers.length > 0) && (
+        <div className="mt-2 rounded-xl bg-stone-50 p-3 ring-1 ring-slate-200 dark:bg-slate-800/60 dark:ring-slate-700">
+          <p className="mb-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+            Legend
           </p>
-        ) : (
-          <p className="text-xs text-slate-400 dark:text-slate-500">
-            Tap a highlighted tile to see what&apos;s there.
-          </p>
-        )}
-      </div>
+          <div className="grid grid-cols-1 gap-x-4 gap-y-0.5 sm:grid-cols-2">
+            {floor.items.map((it, i) => (
+              <p key={`i-${i}`} className="truncate text-xs text-slate-600 dark:text-slate-300" title={it.name}>
+                <span className="mr-1.5 inline-flex h-4 w-4 items-center justify-center rounded-sm bg-emerald-200 text-[9px] font-bold text-emerald-900 dark:bg-emerald-900/70 dark:text-emerald-200">
+                  {letterFor(i)}
+                </span>
+                {it.name}
+              </p>
+            ))}
+            {floor.trainers.map((t, i) => (
+              <p key={`t-${i}`} className="truncate text-xs text-slate-600 dark:text-slate-300" title={t.note}>
+                <span className="mr-1.5 inline-flex h-4 w-4 items-center justify-center rounded-sm bg-red-200 text-[9px] font-bold text-red-900 dark:bg-red-900/70 dark:text-red-200">
+                  {i + 1}
+                </span>
+                ⚔️ {t.note}
+              </p>
+            ))}
+          </div>
+        </div>
+      )}
 
       {floor.notes && (
         <p className="mt-1 text-xs italic text-slate-500 dark:text-slate-400">
@@ -216,9 +195,7 @@ function WalkthroughPanel({ steps }: { steps: string[] }) {
 /* ------------------------------------------------------------------ */
 
 function DungeonViewer({ dungeon }: { dungeon: DungeonMap }) {
-  const [floorIdx, setFloorIdx] = useState(0);
   const [open, setOpen] = useState(false);
-  const floor = dungeon.floors[floorIdx] ?? dungeon.floors[0];
 
   return (
     <div className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
@@ -230,6 +207,9 @@ function DungeonViewer({ dungeon }: { dungeon: DungeonMap }) {
       >
         <h3 className="font-semibold text-slate-800 dark:text-slate-100">
           🗺️ {dungeon.dungeon}
+          <span className="ml-2 text-xs font-normal text-slate-400 dark:text-slate-500">
+            {dungeon.floors.length} {dungeon.floors.length === 1 ? "floor" : "floors"}
+          </span>
         </h3>
         <span
           aria-hidden
@@ -241,34 +221,12 @@ function DungeonViewer({ dungeon }: { dungeon: DungeonMap }) {
 
       {open && (
         <div className="mt-3">
-          {dungeon.floors.length > 1 && (
-            <div className="mb-3 flex flex-wrap gap-1.5" role="tablist" aria-label="Floors">
-              {dungeon.floors.map((f, i) => (
-                <button
-                  key={f.name}
-                  type="button"
-                  role="tab"
-                  aria-selected={i === floorIdx}
-                  onClick={() => {
-                    setFloorIdx(i);
-                  }}
-                  className={`rounded-lg px-3 py-1 text-xs font-bold transition ${
-                    i === floorIdx
-                      ? "bg-emerald-600 text-white shadow-sm"
-                      : "bg-slate-100 text-slate-600 ring-1 ring-slate-200 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:ring-slate-700 dark:hover:bg-slate-700"
-                  }`}
-                >
-                  {f.name}
-                </button>
-              ))}
-            </div>
-          )}
-          {dungeon.floors.length === 1 && (
-            <p className="mb-2 text-xs font-semibold text-slate-400 dark:text-slate-500">
-              {dungeon.floors[0].name}
-            </p>
-          )}
-          {floor && <FloorMap key={floor.name} floor={floor} />}
+          {/* GameFAQs style: all floors visible at once, side by side */}
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-3">
+            {dungeon.floors.map((f) => (
+              <FloorMap key={f.name} floor={f} />
+            ))}
+          </div>
           <WalkthroughPanel steps={dungeon.walkthrough} />
         </div>
       )}
