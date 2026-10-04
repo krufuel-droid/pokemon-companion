@@ -442,8 +442,8 @@ export const PLAYERS_TO_WATCH: PlayerToWatch[] = [
   },
   {
     name: "Eric Rios",
-    tagline: "All-time #2 · 719 pts · Frankfurt Regional Champion",
-    bio: "Went a perfect 17-0 to win Frankfurt (Sept 2026, 1,129 players) — the first Regulation M-C European Regional — with Mega Garchomp Z and Mega Raichu Y.",
+    tagline: "All-time #2 · 5x Regional Champion",
+    bio: "Went a perfect 17-0 to win Frankfurt (Sept 2026, 1,129 players) — the first Regulation M-C European Regional — with Mega Garchomp Z and Mega Raichu Y. That was his fifth Regional title, making him the hottest player in Europe heading into Nice.",
   },
   {
     name: "Paul Chua",
