@@ -206,7 +206,7 @@ export const GYM_TEAMS: Record<string, GymTeam[]> = {
         { species: "Pawniard", id: 624, level: 21, moves: ["Metal Claw", "Fury Cutter", "Aerial Ace"], ability: "Defiant" },
         { species: "Segin Starmobile", id: 966, level: 20, moves: ["Wicked Torque", "Swift", "Spin Out", "Brick Break"], ability: "Intimidate" },
       ],
-      note: "Star Barrage first: KO 30 of the crew's Pokémon in 10 minutes with Let's Go auto-battles (your first 3 party Pokémon). Vending machines and Clive at the entrance fully heal you.",
+      note: "Star Barrage first: KO 30 of the crew\u2019s Pokémon (Murkrow, Nymble, Pawniard, Sneasel, Sableye, Stunky, Zorua) in 10 minutes with Let\u2019s Go auto-battles (your first 3 party Pokémon). Vending machines and Clive at the entrance fully heal you.",
     },
     {
       gym: "Schedar Squad Base",
@@ -217,7 +217,7 @@ export const GYM_TEAMS: Record<string, GymTeam[]> = {
         { species: "Torkoal", id: 324, level: 27, moves: ["Flame Wheel", "Clear Smog"], ability: "Drought" },
         { species: "Schedar Starmobile", id: 966, level: 26, moves: ["Blazing Torque", "Overheat", "Swift", "Screech"], ability: "Speed Boost" },
       ],
-      note: "Star Barrage first: KO 30 of the crew's Pokémon in 10 minutes with Let's Go auto-battles (your first 3 party Pokémon). Blazing Torque can burn — Water/Rock/Ground counters recommended.",
+      note: "Star Barrage first: KO 30 of the crew\u2019s Pokémon (Houndour, Numel, Growlithe, Litleo, Torkoal, Charcadet) in 10 minutes with Let\u2019s Go auto-battles. Blazing Torque can burn \u2014 Water/Rock/Ground counters recommended.",
     },
     {
       gym: "Navi Squad Base",
@@ -230,7 +230,7 @@ export const GYM_TEAMS: Record<string, GymTeam[]> = {
         { species: "Muk", id: 89, level: 32, moves: ["Sludge Wave", "Mud-Slap"], ability: "Stench" },
         { species: "Navi Starmobile", id: 966, level: 32, moves: ["Noxious Torque", "Spin Out", "Flame Charge", "Smog"], ability: "Toxic Debris" },
       ],
-      note: "Star Barrage first: KO 30 of the crew's Pokémon in 10 minutes with Let's Go auto-battles (your first 3 party Pokémon). Heavy poison pressure — bring Antidotes and Ground/Psychic coverage.",
+      note: "Star Barrage first: KO 30 of the crew\u2019s Pokémon (Ghastly, Grafaiai, Foongus, Amoonguss, Gulpin, Swalot, Venonat, Seviper, Paldean Wooper) in 10 minutes with Let\u2019s Go auto-battles. Heavy poison pressure \u2014 bring Antidotes and Ground/Psychic coverage.",
     },
     {
       gym: "Ruchbah Squad Base",
@@ -243,7 +243,7 @@ export const GYM_TEAMS: Record<string, GymTeam[]> = {
         { species: "Dachsbun", id: 927, level: 51, moves: ["Crunch", "Play Rough", "Mud-Slap", "Baby-Doll Eyes"] },
         { species: "Ruchbah Starmobile", id: 966, level: 50, moves: ["Magical Torque", "Confuse Ray", "Steel Roller", "Spin Out"], ability: "Misty Surge" },
       ],
-      note: "Star Barrage first: KO 30 of the crew's Pokémon in 10 minutes with Let's Go auto-battles (your first 3 party Pokémon). Ortega's Dachsbun is his only answer to Steel-types.",
+      note: "Star Barrage first: KO 30 of the crew\u2019s Pokémon (Tinkatink, Tinkatuff, Kirlia, Gardevoir, Marill, Morgrem) in 10 minutes with Let\u2019s Go auto-battles. Ortega\u2019s Dachsbun is his only answer to Steel-types.",
     },
     {
       gym: "Caph Squad Base",
@@ -257,7 +257,7 @@ export const GYM_TEAMS: Record<string, GymTeam[]> = {
         { species: "Annihilape", id: 979, level: 56, moves: ["Rage Fist", "Close Combat", "Ice Punch", "Fire Punch"], ability: "Vital Spirit" },
         { species: "Caph Starmobile", id: 966, level: 56, moves: ["Combat Torque", "Spin Out", "Shift Gear", "High Horsepower"], ability: "Stamina" },
       ],
-      note: "Star Barrage first: KO 30 of the crew's Pokémon in 10 minutes with Let's Go auto-battles (your first 3 party Pokémon). The Starmobile's Shift Gear + Combat Torque can sweep unprepared teams.",
+      note: "Star Barrage first: KO 30 of the crew\u2019s Pokémon (Mankey, Primeape, Hariyama, Makuhita, Toxicroak, Hawlucha, Falinks, Flamigo, Gallade, Medicham, Crabominable, Passimian, Heracross, Breloom) in 10 minutes with Let\u2019s Go auto-battles. The Starmobile\u2019s Shift Gear + Combat Torque can sweep unprepared teams.",
     },
   ],
   "Pokémon Sword & Shield": [
