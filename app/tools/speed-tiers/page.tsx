@@ -7,6 +7,11 @@ import { NATURES } from "@/lib/data/natures";
 import { SpeciesPicker } from "../_components/species-picker";
 import type { SpeciesIndex } from "@/lib/pokedex";
 import { inputCls, labelCls, sectionCls } from "../damage-calc/shared";
+import {
+  TeamSavePicker,
+  savedMemberSpecies,
+  type SavedTeam,
+} from "../_components/team-save-picker";
 
 interface TierEntry {
   key: string;
@@ -92,6 +97,29 @@ export default function SpeedTiersPage() {
     setEntries((prev) => [...prev, makeEntry(s, nextKey())]);
   };
 
+  /** Replace the tier list with a Team Builder save: species, natures, Speed EVs, Choice Scarf. */
+  const loadTeam = (team: SavedTeam | null) => {
+    if (!team) return;
+    const loaded = team.members
+      .map((m, i) => {
+        const s = savedMemberSpecies(m);
+        if (!s) return null;
+        const entry = makeEntry(s, `import-${Date.now()}-${i}`);
+        const nature =
+          m.nature && NATURES.some((n) => n.name === m.nature)
+            ? m.nature
+            : entry.nature;
+        return {
+          ...entry,
+          nature,
+          evs: clamp(m.evs?.spe ?? 252, 0, 252),
+          scarf: (m.item ?? "").trim().toLowerCase() === "choice scarf",
+        };
+      })
+      .filter((e): e is TierEntry => e !== null);
+    if (loaded.length > 0) setEntries(loaded);
+  };
+
   const tiers = useMemo(() => {
     const rows = entries.map((e) => {
       const speed = finalSpeed(e, level);
@@ -145,6 +173,19 @@ export default function SpeedTiersPage() {
               placeholder="Search to add…"
             />
           </div>
+        </div>
+      </div>
+
+      <div className={`${sectionCls} mt-5`}>
+        <h2 className="font-bold text-slate-800 dark:text-slate-100">
+          📥 Import from Team Builder
+        </h2>
+        <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+          Loads species, natures, Speed EVs, and Choice Scarf from a saved
+          team (replaces the current list).
+        </p>
+        <div className="mt-2">
+          <TeamSavePicker onSelect={loadTeam} actionLabel="Load team" />
         </div>
       </div>
 

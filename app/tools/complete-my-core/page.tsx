@@ -4,11 +4,23 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { TYPES, effectiveness } from "@/lib/typechart";
 import {
+  ABILITY_TYPE_EFFECTS,
+  abilityDefenseMult,
+  abilityNote,
+  getAbilityTypeEffect,
+} from "@/lib/data/ability-effects";
+import {
   buildCandidatePool,
   MonPicker,
   type CandidateMon,
 } from "../_components/mon-picker";
 import { TypePill } from "../_components/species-picker";
+import {
+  TeamSavePicker,
+  savedMemberToCandidate,
+  type SavedTeam,
+} from "../_components/team-save-picker";
+import { inputCls, labelCls } from "../damage-calc/shared";
 
 const POOL: CandidateMon[] = buildCandidatePool();
 
@@ -16,6 +28,8 @@ interface Hole {
   type: string;
   weakMembers: CandidateMon[];
   has4x: boolean;
+  /** Ability notes for members the ability shielded from this type. */
+  shielded: string[];
 }
 
 interface ScoredPartner {
@@ -38,9 +52,44 @@ export default function CompleteMyCorePage() {
     null,
   ]);
   const [expandedId, setExpandedId] = useState<number | null>(null);
+  // Defensive ability per core slot ("None" = no-op). Applied to the
+  // hole analysis via abilityDefenseMult from lib/data/ability-effects.
+  const [abilities, setAbilities] = useState<string[]>([
+    "None",
+    "None",
+    "None",
+    "None",
+  ]);
 
   const setSlot = (i: number, m: CandidateMon | null) =>
     setSlots((prev) => prev.map((s, j) => (j === i ? m : s)));
+  const setAbility = (i: number, a: string) =>
+    setAbilities((prev) => prev.map((x, j) => (j === i ? a : x)));
+  const clearSlot = (i: number) => {
+    setSlot(i, null);
+    setAbility(i, "None");
+  };
+
+  /** Fill the core from a Team Builder save (abilities mapped honestly — unmodeled ones become "None"). */
+  const importTeam = (team: SavedTeam | null) => {
+    if (!team) return;
+    const picked = team.members.slice(0, 4).map(savedMemberToCandidate);
+    setSlots([
+      picked[0] ?? null,
+      picked[1] ?? null,
+      picked[2] ?? null,
+      picked[3] ?? null,
+    ]);
+    const mapped = team.members
+      .slice(0, 4)
+      .map((m) => getAbilityTypeEffect(m.ability)?.name ?? "None");
+    setAbilities([
+      mapped[0] ?? "None",
+      mapped[1] ?? "None",
+      mapped[2] ?? "None",
+      mapped[3] ?? "None",
+    ]);
+  };
   const excludeIds = useMemo(
     () => slots.filter((s): s is CandidateMon => s !== null).map((s) => s.id),
     [slots],
@@ -51,18 +100,36 @@ export default function CompleteMyCorePage() {
   );
 
   const holes: Hole[] = useMemo(() => {
-    if (filled.length < 2) return [];
+    const core = slots
+      .map((s, i) => (s ? { m: s, ability: abilities[i] ?? "None" } : null))
+      .filter((x): x is { m: CandidateMon; ability: string } => x !== null);
+    if (core.length < 2) return [];
     return TYPES.map((atk) => {
-      const weakMembers = filled.filter((m) => effectiveness(atk, m.types) > 1);
+      const effOf = (c: { m: CandidateMon; ability: string }) =>
+        abilityDefenseMult(c.ability, atk, effectiveness(atk, c.m.types));
+      const weak = core.filter((c) => effOf(c) > 1);
+      // Members whose ability shielded them from what would be a weakness.
+      const shielded = core
+        .filter((c) => effectiveness(atk, c.m.types) > 1 && effOf(c) <= 1)
+        .map((c) =>
+          abilityNote(c.ability, atk, effectiveness(atk, c.m.types)),
+        )
+        .filter((n): n is string => n !== null);
       return {
         type: atk,
-        weakMembers,
-        has4x: weakMembers.some((m) => effectiveness(atk, m.types) >= 4),
+        weakMembers: weak.map((w) => w.m),
+        has4x: weak.some((w) => effOf(w) >= 4),
+        shielded,
       };
     })
       .filter((h) => h.weakMembers.length >= 2)
       .sort((a, b) => b.weakMembers.length - a.weakMembers.length);
-  }, [filled]);
+  }, [slots, abilities]);
+
+  const shieldNotes: string[] = useMemo(
+    () => Array.from(new Set(holes.flatMap((h) => h.shielded))),
+    [holes],
+  );
 
   const stabUnion = useMemo(
     () => Array.from(new Set(filled.flatMap((m) => m.types))),
@@ -163,19 +230,47 @@ export default function CompleteMyCorePage() {
         partners that patch both.
       </p>
 
+      <div className="mt-6 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
+        <p className="text-sm font-bold text-slate-700 dark:text-slate-200">
+          📥 Import from Team Builder
+        </p>
+        <div className="mt-2">
+          <TeamSavePicker onSelect={importTeam} actionLabel="Fill core" />
+        </div>
+      </div>
+
       <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
         {slots.map((s, i) => (
-          <MonPicker
-            key={i}
-            label={`Core Pokémon ${i + 1}${i < 2 ? " *" : ""}`}
-            value={s}
-            excludeIds={excludeIds.filter((id) => s?.id !== id)}
-            onPick={(m) => setSlot(i, m)}
-            onClear={() => setSlot(i, null)}
-            placeholder={
-              i < 2 ? "Required — search…" : "Optional — search…"
-            }
-          />
+          <div key={i}>
+            <MonPicker
+              label={`Core Pokémon ${i + 1}${i < 2 ? " *" : ""}`}
+              value={s}
+              excludeIds={excludeIds.filter((id) => s?.id !== id)}
+              onPick={(m) => setSlot(i, m)}
+              onClear={() => clearSlot(i)}
+              placeholder={
+                i < 2 ? "Required — search…" : "Optional — search…"
+              }
+            />
+            {s && (
+              <div className="mt-2">
+                <span className={labelCls}>Defensive ability</span>
+                <select
+                  value={abilities[i]}
+                  onChange={(e) => setAbility(i, e.target.value)}
+                  className={`${inputCls} mt-1`}
+                  aria-label={`Defensive ability for core Pokémon ${i + 1}`}
+                >
+                  <option value="None">None</option>
+                  {ABILITY_TYPE_EFFECTS.map((a) => (
+                    <option key={a.name} value={a.name}>
+                      {a.name} — {a.desc}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+          </div>
         ))}
       </div>
 
@@ -216,6 +311,11 @@ export default function CompleteMyCorePage() {
                 </span>
               ))}
             </div>
+          )}
+          {shieldNotes.length > 0 && (
+            <p className="mt-3 text-sm text-sky-700 dark:text-sky-300">
+              🛡️ {shieldNotes.join(" · ")}
+            </p>
           )}
 
           <h2 className="mt-8 text-xl font-bold text-slate-800 dark:text-slate-100">
@@ -382,9 +482,11 @@ export default function CompleteMyCorePage() {
 
       <div className="mt-8 rounded-2xl bg-slate-50 p-4 text-xs leading-relaxed text-slate-500 ring-1 ring-slate-200 dark:bg-slate-900 dark:text-slate-400 dark:ring-slate-700">
         <span className="font-bold">Honest limitations:</span> type matchups
-        only — this doesn&apos;t account for movesets, abilities, items, Tera
-        types, stats, or speed. A partner that patches your holes on paper
-        still needs the right set. Use it as a starting point, then check the
+        only, plus the defensive abilities you select for your core (partner
+        suggestions assume no ability, since we won&apos;t guess their
+        sets). This doesn&apos;t account for movesets, items, Tera types,
+        stats, or speed. A partner that patches your holes on paper still
+        needs the right set. Use it as a starting point, then check the
         damage calc.
       </div>
     </main>

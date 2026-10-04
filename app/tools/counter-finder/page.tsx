@@ -6,7 +6,13 @@ import { effectiveness } from "@/lib/typechart";
 import { searchSpecies, type SpeciesIndex } from "@/lib/pokedex";
 import { getFormsForSpecies } from "@/lib/data/forms";
 import { META_PICKS } from "@/lib/data/champions";
+import {
+  abilityDefenseMult,
+  abilityNote,
+  getAbilityTypeEffect,
+} from "@/lib/data/ability-effects";
 import { SpeciesPicker, TypePill } from "../_components/species-picker";
+import { AbilitySelect } from "../_components/battle-selectors";
 
 interface Candidate {
   species: SpeciesIndex;
@@ -65,9 +71,15 @@ interface Scored {
   total: number;
   defNotes: string[];
   bestOffense: { type: string; mult: number } | null;
+  /** Ability explanation when the threat's ability changed the best answer. */
+  offenseAbilityNote: string | null;
 }
 
-function scoreCandidate(c: Candidate, threatTypes: string[]): Scored {
+function scoreCandidate(
+  c: Candidate,
+  threatTypes: string[],
+  threatAbility: string | null,
+): Scored {
   const defNotes: string[] = [];
   let def = 0;
   for (const t of threatTypes) {
@@ -90,9 +102,16 @@ function scoreCandidate(c: Candidate, threatTypes: string[]): Scored {
     }
   }
   let best: { type: string; mult: number } | null = null;
+  let bestAbilityNote: string | null = null;
   for (const s of c.species.types) {
-    const m = effectiveness(s, threatTypes);
-    if (!best || m > best.mult) best = { type: s, mult: m };
+    const base = effectiveness(s, threatTypes);
+    // The threat's defensive ability can blunt the answer's STAB —
+    // e.g. Levitate turns a Ground answer into a 0x.
+    const m = abilityDefenseMult(threatAbility, s, base);
+    if (!best || m > best.mult) {
+      best = { type: s, mult: m };
+      bestAbilityNote = abilityNote(threatAbility, s, base);
+    }
   }
   let off = 0;
   if (best) {
@@ -102,12 +121,13 @@ function scoreCandidate(c: Candidate, threatTypes: string[]): Scored {
     else if (best.mult === 0.5) off = -1;
     else off = -2;
   }
-  return { candidate: c, total: def + off, defNotes, bestOffense: best };
+  return { candidate: c, total: def + off, defNotes, bestOffense: best, offenseAbilityNote: bestAbilityNote };
 }
 
 export default function CounterFinderPage() {
   const [threat, setThreat] = useState<SpeciesIndex | null>(null);
   const [formName, setFormName] = useState<string | null>(null);
+  const [threatAbility, setThreatAbility] = useState("None");
 
   const threatForms = useMemo(
     () => (threat ? getFormsForSpecies(threat.id) : []),
@@ -130,9 +150,11 @@ export default function CounterFinderPage() {
   const ranked: Scored[] = useMemo(() => {
     if (!threat || threatTypes.length === 0) return [];
     return POOL.filter((c) => c.species.id !== threat.id)
-      .map((c) => scoreCandidate(c, threatTypes))
+      .map((c) => scoreCandidate(c, threatTypes, threatAbility))
       .sort((a, b) => b.total - a.total);
-  }, [threat, threatTypes]);
+  }, [threat, threatTypes, threatAbility]);
+
+  const threatAbilityDesc = getAbilityTypeEffect(threatAbility)?.desc ?? null;
 
   return (
     <main className="mx-auto max-w-4xl px-4 py-8">
@@ -185,6 +207,16 @@ export default function CounterFinderPage() {
         </div>
       )}
 
+      {threat && (
+        <div className="mt-3 max-w-xs">
+          <AbilitySelect
+            label="Threat's ability (blunts answers' STAB)"
+            value={threatAbility}
+            onChange={setThreatAbility}
+          />
+        </div>
+      )}
+
       {!threat ? (
         <div className="mt-8 rounded-2xl bg-white p-8 text-center shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
           <div className="text-4xl">🎯</div>
@@ -213,6 +245,11 @@ export default function CounterFinderPage() {
               </div>
               <p className="mt-1 text-xs text-slate-400">
                 STAB types evaluated: {threatTypes.join(" / ")}
+                {threatAbilityDesc && (
+                  <>
+                    {" · "}🛡️ {threatAbility}: {threatAbilityDesc}
+                  </>
+                )}
               </p>
             </div>
           </div>
@@ -264,10 +301,16 @@ export default function CounterFinderPage() {
                             Hits back SE with {s.bestOffense.type}
                             {s.bestOffense.mult >= 4 ? " (4x!)" : ""}
                           </span>
+                          {s.offenseAbilityNote && (
+                            <span className="text-slate-400"> ({s.offenseAbilityNote})</span>
+                          )}
                         </>
                       )}
                       {s.bestOffense && s.bestOffense.mult <= 1 && (
-                        <span className="text-slate-400"> · no SE STAB answer</span>
+                        <span className="text-slate-400">
+                          {" "}· no SE STAB answer
+                          {s.offenseAbilityNote ? ` (${s.offenseAbilityNote})` : ""}
+                        </span>
                       )}
                     </p>
                     {s.candidate.metaNote && (
@@ -284,10 +327,14 @@ export default function CounterFinderPage() {
       )}
 
       <div className="mt-8 rounded-2xl bg-slate-50 p-4 text-xs leading-relaxed text-slate-500 ring-1 ring-slate-200 dark:bg-slate-900 dark:text-slate-400 dark:ring-slate-700">
-        <span className="font-bold">Honest limitations:</span> type matchups only.
-        This doesn&apos;t account for movesets, abilities, items, Tera types,
+        <span className="font-bold">Honest limitations:</span> type matchups
+        only, plus the threat&apos;s selected defensive ability (18 modeled:
+        Levitate, Flash Fire, Thick Fat, Filter family, Wonder Guard, and
+        more). This doesn&apos;t account for movesets, items, Tera types,
         stats, or speed — a great answer on paper can still lose to the wrong
-        set. Use it as a starting point, then check the damage calc.
+        set. Category-based abilities (Fluffy, Ice Scales, Fur Coat) and
+        one-time ones (Sturdy, Disguise) aren&apos;t modeled. Use it as a
+        starting point, then check the damage calc.
       </div>
     </main>
   );

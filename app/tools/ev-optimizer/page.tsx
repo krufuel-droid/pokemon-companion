@@ -7,6 +7,12 @@ import { TYPES } from "@/lib/typechart";
 import { getSpeciesById, type SpeciesIndex } from "@/lib/pokedex";
 import { SpeciesPicker } from "../_components/species-picker";
 import { inputCls, labelCls, sectionCls } from "../damage-calc/shared";
+import {
+  TeamSavePicker,
+  savedMemberSpecies,
+  type SavedTeam,
+  type SavedTeamMember,
+} from "../_components/team-save-picker";
 
 const WEATHERS = ["None", "Harsh Sunlight", "Rain", "Sandstorm", "Snow"];
 const TERRAINS = ["None", "Electric", "Grassy", "Psychic", "Mist"];
@@ -81,6 +87,34 @@ export default function EVOptimizerPage() {
   const atkKey: StatKey = category === "physical" ? "atk" : "spa";
   const defLabel = category === "physical" ? "Def" : "SpD";
 
+  // --- Team Builder import ---
+  const [importTeam, setImportTeam] = useState<SavedTeam | null>(null);
+
+  const validNature = (n: string | undefined): string | undefined =>
+    n && NATURES.some((x) => x.name === n) ? n : undefined;
+
+  const fillDefender = (m: SavedTeamMember) => {
+    const s = savedMemberSpecies(m);
+    if (!s) return;
+    setDefender(s);
+    if (m.level) setDefLevel(clamp(m.level, 1, 100));
+    const nat = validNature(m.nature);
+    if (nat) setDefNature(nat);
+  };
+
+  const fillAttacker = (m: SavedTeamMember) => {
+    const s = savedMemberSpecies(m);
+    if (!s) return;
+    setAttacker(s);
+    if (m.level) setAtkLevel(clamp(m.level, 1, 100));
+    const nat = validNature(m.nature);
+    if (nat) setAtkNature(nat);
+    const offEV = category === "physical" ? m.evs?.atk : m.evs?.spa;
+    if (offEV !== undefined) setAtkEVs(clamp(offEV, 0, 252));
+    if (m.ability?.trim()) setAtkAbility(m.ability.trim());
+    if (m.item?.trim()) setAtkItem(m.item.trim());
+  };
+
   const search: SearchOutput | null = useMemo(() => {
     if (!attacker || !defender) return null;
     const atkEVNum = clamp(atkEVs, 0, 252);
@@ -149,6 +183,50 @@ export default function EVOptimizerPage() {
         split to find the cheapest spread that lives. Assumes 31 IVs and no
         other EVs invested.
       </p>
+
+      {/* Team Builder import */}
+      <div className={`${sectionCls} mt-5`}>
+        <h2 className="font-bold text-slate-800 dark:text-slate-100">
+          📥 Import from Team Builder
+        </h2>
+        <div className="mt-2">
+          <TeamSavePicker onSelect={setImportTeam} actionLabel="Show members" />
+        </div>
+        {importTeam && (
+          <div className="mt-3 space-y-2">
+            {importTeam.members.map((m, i) => {
+              const s = savedMemberSpecies(m);
+              const label = m.nickname?.trim()
+                ? `${m.nickname.trim()} (${s?.name ?? "?"})`
+                : (s?.name ?? "Unknown Pokémon");
+              return (
+                <div
+                  key={i}
+                  className="flex flex-wrap items-center gap-2 rounded-xl bg-slate-50 px-3 py-2 dark:bg-slate-800/60"
+                >
+                  <span className="min-w-0 flex-1 text-sm font-semibold text-slate-700 dark:text-slate-200">
+                    {label}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => fillDefender(m)}
+                    className="rounded-lg bg-sky-500 px-3 py-1.5 text-xs font-bold text-white hover:bg-sky-600"
+                  >
+                    → Defender
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => fillAttacker(m)}
+                    className="rounded-lg bg-orange-500 px-3 py-1.5 text-xs font-bold text-white hover:bg-orange-600"
+                  >
+                    → Attacker
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
 
       <div className="mt-6 grid gap-5 lg:grid-cols-2">
         {/* Defender */}

@@ -7,6 +7,10 @@ import { getFormsForSpecies } from "@/lib/data/forms";
 import { META_PICKS } from "@/lib/data/champions";
 import { combatantStats } from "@/lib/damage-calc";
 import { effectiveness } from "@/lib/typechart";
+import {
+  abilityDefenseMult,
+  abilityNote,
+} from "@/lib/data/ability-effects";
 import { SpeciesPicker, TypePill } from "./species-picker";
 
 const cap = (t: string) => t.charAt(0).toUpperCase() + t.slice(1);
@@ -108,10 +112,25 @@ export interface MatchupInfo {
   /** Best STAB multiplier b lands back on a. */
   back: number;
   backType: string;
+  /** When b's ability changed the incoming hit, else null. */
+  offAbilityNote?: string | null;
+  /** When a's ability changed the return hit, else null. */
+  backAbilityNote?: string | null;
+}
+
+export interface MatchupAbilityOpts {
+  /** a's defensive ability — dampens b's return STAB. "None"/undefined = no-op. */
+  aAbility?: string | null;
+  /** b's defensive ability — dampens a's incoming STAB. "None"/undefined = no-op. */
+  bAbility?: string | null;
 }
 
 /** Type-based verdict, same rule as the meta matchup matrix. */
-export function matchupInfo(a: CandidateMon, b: CandidateMon): MatchupInfo {
+export function matchupInfo(
+  a: CandidateMon,
+  b: CandidateMon,
+  opts?: MatchupAbilityOpts,
+): MatchupInfo {
   if (a.id === b.id && a.formName === b.formName) {
     return {
       verdict: "mirror",
@@ -119,30 +138,46 @@ export function matchupInfo(a: CandidateMon, b: CandidateMon): MatchupInfo {
       offType: a.types[0] ?? "Normal",
       back: 1,
       backType: b.types[0] ?? "Normal",
+      offAbilityNote: null,
+      backAbilityNote: null,
     };
   }
   let off = 0;
   let offType = a.types[0] ?? "Normal";
+  let offNote: string | null = null;
   for (const t of a.types) {
-    const m = effectiveness(t, b.types);
+    const base = effectiveness(t, b.types);
+    const m = abilityDefenseMult(opts?.bAbility, t, base);
     if (m > off) {
       off = m;
       offType = t;
+      offNote = abilityNote(opts?.bAbility, t, base);
     }
   }
   let back = 0;
   let backType = b.types[0] ?? "Normal";
+  let backNote: string | null = null;
   for (const t of b.types) {
-    const m = effectiveness(t, a.types);
+    const base = effectiveness(t, a.types);
+    const m = abilityDefenseMult(opts?.aAbility, t, base);
     if (m > back) {
       back = m;
       backType = t;
+      backNote = abilityNote(opts?.aAbility, t, base);
     }
   }
   let verdict: Verdict = "even";
   if (off > 1 && back <= 1) verdict = "favorable";
   else if (back > 1 && off <= 1) verdict = "unfavorable";
-  return { verdict, off, offType, back, backType };
+  return {
+    verdict,
+    off,
+    offType,
+    back,
+    backType,
+    offAbilityNote: offNote,
+    backAbilityNote: backNote,
+  };
 }
 
 /**

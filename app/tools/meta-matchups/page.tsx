@@ -6,6 +6,11 @@ import { searchSpecies, type SpeciesIndex } from "@/lib/pokedex";
 import { getFormsForSpecies } from "@/lib/data/forms";
 import { META_PICKS } from "@/lib/data/champions";
 import { TYPE_COLORS } from "@/lib/theme";
+import {
+  abilityDefenseMult,
+  abilityNote,
+} from "@/lib/data/ability-effects";
+import { AbilitySelect, TeraSelect } from "../_components/battle-selectors";
 
 const cap = (t: string) => t.charAt(0).toUpperCase() + t.slice(1);
 
@@ -49,31 +54,60 @@ interface CellInfo {
   /** Best STAB multiplier the column mon lands back. */
   back: number;
   backType: string;
+  /** When the defender's ability changed the incoming hit, else null. */
+  offAbilityNote?: string | null;
+  /** When the attacker's ability changed the return hit, else null. */
+  backAbilityNote?: string | null;
 }
 
-function cellInfo(a: MatrixMon, d: MatrixMon): CellInfo {
+interface CellOpts {
+  /** Row mon's defensive ability — dampens the column mon's return STAB. */
+  aAbility?: string | null;
+  /** Column mon's defensive ability — dampens the row mon's incoming STAB. */
+  dAbility?: string | null;
+  /** Assumed Tera for the column mon: defends as this single type. */
+  dTera?: string | null;
+}
+
+function cellInfo(a: MatrixMon, d: MatrixMon, opts?: CellOpts): CellInfo {
+  const dTypes =
+    opts?.dTera && opts.dTera !== "None" ? [opts.dTera] : d.types;
   let off = 0;
   let offType = a.types[0] ?? "Normal";
+  let offNote: string | null = null;
   for (const t of a.types) {
-    const m = effectiveness(t, d.types);
+    const base = effectiveness(t, dTypes);
+    const m = abilityDefenseMult(opts?.dAbility, t, base);
     if (m > off) {
       off = m;
       offType = t;
+      offNote = abilityNote(opts?.dAbility, t, base);
     }
   }
   let back = 0;
   let backType = d.types[0] ?? "Normal";
+  let backNote: string | null = null;
   for (const t of d.types) {
-    const m = effectiveness(t, a.types);
+    const base = effectiveness(t, a.types);
+    const m = abilityDefenseMult(opts?.aAbility, t, base);
     if (m > back) {
       back = m;
       backType = t;
+      backNote = abilityNote(opts?.aAbility, t, base);
     }
   }
   let verdict: Verdict = "even";
   if (off > 1 && back <= 1) verdict = "favorable";
   else if (back > 1 && off <= 1) verdict = "unfavorable";
-  return { verdict, off, offType, back, backType };
+  return {
+    verdict,
+    off,
+    offType,
+    back,
+    backType,
+    offAbilityNote: offNote,
+    backAbilityNote: backNote,
+  };
 }
 
 const CELL_STYLE: Record<Verdict, string> = {
@@ -93,14 +127,31 @@ const CELL_DOT: Record<Verdict, string> = {
 export default function MetaMatchupsPage() {
   const mons = useMemo(buildMatrix, []);
   const [sel, setSel] = useState<{ r: number; c: number } | null>(null);
+  const [showTuning, setShowTuning] = useState(false);
+  /** Defensive abilities, keyed by mon label. */
+  const [abilities, setAbilities] = useState<Record<string, string>>({});
+  /** Assumed Tera per defender (column), keyed by mon label. */
+  const [teras, setTeras] = useState<Record<string, string>>({});
+
+  const getAbility = (label: string) => abilities[label] ?? "None";
+  const getTera = (label: string) => {
+    const t = teras[label];
+    return t && t !== "None" ? t : null;
+  };
+  const optsFor = (a: MatrixMon, d: MatrixMon): CellOpts => ({
+    aAbility: getAbility(a.label),
+    dAbility: getAbility(d.label),
+    dTera: getTera(d.label),
+  });
 
   const detail = useMemo(() => {
     if (!sel) return null;
     const a = mons[sel.r];
     const d = mons[sel.c];
     if (!a || !d) return null;
-    return { a, d, info: cellInfo(a, d) };
-  }, [sel, mons]);
+    return { a, d, info: cellInfo(a, d, optsFor(a, d)), dTera: getTera(d.label) };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sel, mons, abilities, teras]);
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-10">
@@ -126,6 +177,54 @@ export default function MetaMatchupsPage() {
             {label}
           </span>
         ))}
+      </div>
+
+      <div className="mt-4">
+        <button
+          type="button"
+          onClick={() => setShowTuning((v) => !v)}
+          className="rounded-full bg-white px-4 py-1.5 text-xs font-bold text-slate-600 ring-1 ring-slate-200 transition hover:ring-slate-300 dark:bg-slate-900 dark:text-slate-300 dark:ring-slate-700"
+        >
+          ⚙️ Abilities & assumed Tera {showTuning ? "▾" : "▸"}
+        </button>
+        {showTuning && (
+          <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
+            {mons.map((m) => (
+              <div
+                key={m.label}
+                className="rounded-xl bg-white p-2.5 ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700"
+              >
+                <div className="mb-2 flex items-center gap-1.5">
+                  <img
+                    src={m.sprite}
+                    alt={m.label}
+                    loading="lazy"
+                    className="h-8 w-8 object-contain"
+                  />
+                  <span className="truncate text-xs font-bold text-slate-700 dark:text-slate-200">
+                    {m.label}
+                  </span>
+                </div>
+                <AbilitySelect
+                  label="Ability"
+                  value={getAbility(m.label)}
+                  onChange={(v) =>
+                    setAbilities((p) => ({ ...p, [m.label]: v }))
+                  }
+                />
+                <div className="mt-2">
+                  <TeraSelect
+                    label="Defends as Tera"
+                    value={teras[m.label] ?? "None"}
+                    onChange={(v) =>
+                      setTeras((p) => ({ ...p, [m.label]: v }))
+                    }
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="mt-6 overflow-x-auto rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
@@ -171,7 +270,7 @@ export default function MetaMatchupsPage() {
                   const info =
                     r === c
                       ? { verdict: "mirror" as Verdict, off: 1, offType: "", back: 1, backType: "" }
-                      : cellInfo(a, d);
+                      : cellInfo(a, d, optsFor(a, d));
                   const active = sel?.r === r && sel?.c === c;
                   return (
                     <td key={d.label} className="p-0.5">
@@ -227,6 +326,20 @@ export default function MetaMatchupsPage() {
               {detail.d.label} hits back with {detail.info.backType} for{" "}
               <strong>×{detail.info.back}</strong>.
             </li>
+            {detail.info.offAbilityNote && (
+              <li>🛡️ {detail.info.offAbilityNote}.</li>
+            )}
+            {detail.info.backAbilityNote && (
+              <li>🛡️ {detail.info.backAbilityNote}.</li>
+            )}
+            {detail.dTera && (
+              <li>
+                💎 Assumed Tera: {detail.d.label} defends as pure{" "}
+                {detail.dTera} — keeps ×1.5 STAB on{" "}
+                {detail.d.types.join(" / ")}, gains ×2 STAB on{" "}
+                {detail.dTera}-type moves.
+              </li>
+            )}
           </ul>
           <p className="mt-2 text-sm font-semibold text-slate-700 dark:text-slate-300">
             {detail.info.verdict === "favorable" &&
@@ -240,8 +353,12 @@ export default function MetaMatchupsPage() {
       )}
 
       <p className="mt-4 text-xs text-slate-400 dark:text-slate-500">
-        Type-based only — movesets, abilities, items, Tera types, and stats
-        aren't factored in. Typing comes from Pokédex + form data
+        Type-based, plus each Pokémon&apos;s selected defensive ability (18
+        modeled) and each defender&apos;s assumed Tera (defends as the single
+        Tera type; its Tera STAB is noted, not mathed). Movesets, items,
+        stats, and the opponent&apos;s real EVs/sets aren&apos;t factored in.
+        Category-based abilities (Fluffy, Ice Scales) aren&apos;t modeled.
+        Typing comes from Pokédex + form data
         {mons.some((m) => m.label === "Hisuian Arcanine")
           ? " (Hisuian Arcanine uses its Fire/Rock form typing)"
           : ""}

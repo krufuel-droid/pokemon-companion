@@ -5,14 +5,26 @@ import Link from "next/link";
 import { TYPES, effectiveness } from "@/lib/typechart";
 import { searchSpecies, type SpeciesIndex } from "@/lib/pokedex";
 import { getFormsForSpecies } from "@/lib/data/forms";
+import {
+  abilityDefenseMult,
+  getAbilityTypeEffect,
+} from "@/lib/data/ability-effects";
 import { SpeciesPicker, TypePill } from "../_components/species-picker";
+import { AbilitySelect } from "../_components/battle-selectors";
 
 const cap = (t: string) => t.charAt(0).toUpperCase() + t.slice(1);
 
-/** Defensive multiplier of each attacking type against a typing. */
-function defensiveProfile(types: string[]): Record<string, number> {
+/**
+ * Defensive multiplier of each attacking type against a typing, with the
+ * Pokémon's ability applied first (abilities persist through Terastallizing).
+ */
+function defensiveProfile(
+  types: string[],
+  ability: string | null | undefined,
+): Record<string, number> {
   const out: Record<string, number> = {};
-  for (const atk of TYPES) out[atk] = effectiveness(atk, types);
+  for (const atk of TYPES)
+    out[atk] = abilityDefenseMult(ability, atk, effectiveness(atk, types));
   return out;
 }
 
@@ -31,9 +43,13 @@ interface TeraEval {
   keepsStab: boolean;
 }
 
-function evaluateTera(natural: string[], tera: string): TeraEval {
-  const nat = defensiveProfile(natural);
-  const tr = defensiveProfile([tera]);
+function evaluateTera(
+  natural: string[],
+  tera: string,
+  ability: string | null | undefined,
+): TeraEval {
+  const nat = defensiveProfile(natural, ability);
+  const tr = defensiveProfile([tera], ability);
   const ev: TeraEval = {
     tera,
     score: 0,
@@ -109,6 +125,7 @@ export default function TeraAdvisorPage() {
   const [mon, setMon] = useState<SpeciesIndex | null>(null);
   const [formName, setFormName] = useState<string | null>(null);
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [ability, setAbility] = useState("None");
 
   const forms = useMemo(() => (mon ? getFormsForSpecies(mon.id) : []), [mon]);
   const activeForm = forms.find((f) => f.formName === formName) ?? null;
@@ -127,16 +144,18 @@ export default function TeraAdvisorPage() {
 
   const naturalWeak = useMemo(() => {
     if (naturalTypes.length === 0) return [];
-    const p = defensiveProfile(naturalTypes);
+    const p = defensiveProfile(naturalTypes, ability);
     return TYPES.filter((t) => p[t] > 1).map((t) => ({ type: t, mult: p[t] }));
-  }, [naturalTypes]);
+  }, [naturalTypes, ability]);
 
   const ranked: TeraEval[] = useMemo(() => {
     if (naturalTypes.length === 0) return [];
-    return TYPES.map((t) => evaluateTera(naturalTypes, t)).sort(
+    return TYPES.map((t) => evaluateTera(naturalTypes, t, ability)).sort(
       (a, b) => b.score - a.score,
     );
-  }, [naturalTypes]);
+  }, [naturalTypes, ability]);
+
+  const abilityDesc = getAbilityTypeEffect(ability)?.desc ?? null;
 
   return (
     <main className="mx-auto max-w-4xl px-4 py-8">
@@ -155,6 +174,16 @@ export default function TeraAdvisorPage() {
           label="Pokémon"
         />
       </div>
+
+      {mon && (
+        <div className="mt-3 max-w-xs">
+          <AbilitySelect
+            label="Ability (applies before Tera)"
+            value={ability}
+            onChange={setAbility}
+          />
+        </div>
+      )}
 
       {forms.length > 0 && (
         <div className="mt-3">
@@ -230,6 +259,11 @@ export default function TeraAdvisorPage() {
                   </>
                 ) : (
                   "No weaknesses — nice."
+                )}
+                {abilityDesc && (
+                  <>
+                    {" · "}🛡️ {ability}: {abilityDesc}
+                  </>
                 )}
               </p>
             </div>
@@ -366,11 +400,14 @@ export default function TeraAdvisorPage() {
       )}
 
       <div className="mt-8 rounded-2xl bg-slate-50 p-4 text-xs leading-relaxed text-slate-500 ring-1 ring-slate-200 dark:bg-slate-900 dark:text-slate-400 dark:ring-slate-700">
-        <span className="font-bold">Honest limitations:</span> type chart only.
-        This doesn&apos;t know the opponent&apos;s moves, sets, abilities, or
-        their own Tera — a great Tera on paper still needs a game plan. Score
-        weights removing 4x weaknesses and gaining immunities highest; treat
-        the ranking as a starting point, not a verdict.
+        <span className="font-bold">Honest limitations:</span> type chart +
+        the selected defensive ability only (abilities apply before Tera —
+        they persist through Terastallizing). This doesn&apos;t know the
+        opponent&apos;s moves, sets, their own ability, or their own Tera — a
+        great Tera on paper still needs a game plan. Score weights removing
+        4x weaknesses and gaining immunities highest; treat the ranking as a
+        starting point, not a verdict. Category-based abilities (Fluffy, Ice
+        Scales) aren&apos;t modeled.
       </div>
     </main>
   );
