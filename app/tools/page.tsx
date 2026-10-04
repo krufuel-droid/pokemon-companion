@@ -56,6 +56,16 @@ const TEAM_TOOLS: Tool[] = [
     desc: "The 12 most-used Regulation M-C Pokémon in a 12×12 grid — who holds the type edge, cell by cell.",
   },
   {
+    href: "/tools/complete-my-core",
+    title: "Complete My Core",
+    desc: "Give it 2–4 Pokémon you love — it finds your defensive holes and coverage gaps, then ranks partners that patch both.",
+  },
+  {
+    href: "/tools/lead-matchups",
+    title: "Lead Matchup Advisor",
+    desc: "Your 2 leads vs their 2 leads — type verdicts for every pairing, speed notes, and which lead to open with.",
+  },
+  {
     href: "/tools/ev-optimizer",
     title: "EV Survival Optimizer",
     desc: "How much bulk to survive that hit? Searches every HP/Def EV split for the cheapest spread that lives — 1 hit and 2 hits.",
@@ -64,6 +74,16 @@ const TEAM_TOOLS: Tool[] = [
     href: "/tools/speed-tiers",
     title: "Speed Tiers",
     desc: "Who outspeeds whom — the 12 meta staples sorted by real Speed stats, with Scarf, Tailwind, paralysis, and Swift Swim toggles.",
+  },
+  {
+    href: "/tools/tera-advisor",
+    title: "Tera Type Advisor",
+    desc: "Which Tera type for your Pokémon? All 19 ranked by weaknesses removed, resists gained, and STAB — with the full type-chart breakdown.",
+  },
+  {
+    href: "/tools/move-coverage",
+    title: "Move Coverage Ranker",
+    desc: "Every damaging move your Pokémon learns, ranked by super-effective coverage against the 12 meta staples — plus the best 4-move combo.",
   },
   {
     href: "/tools/breeding",
