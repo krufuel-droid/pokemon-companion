@@ -15,6 +15,8 @@ import {
   EVENT_FINDER_URL,
   FOLLOW_THE_SCENE,
   getSpeciesCard,
+  playerAnchor,
+  hasPlayerProfile,
   type SocialLinks,
   type TeamMon,
 } from "@/lib/data/champions";
@@ -383,7 +385,8 @@ export default function ChampionsPage() {
             {PLAYERS_TO_WATCH.map((player) => (
               <div
                 key={player.name}
-                className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700"
+                id={playerAnchor(player.name)}
+                className="scroll-mt-24 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700"
               >
                 <h3 className="text-base font-extrabold text-slate-900 dark:text-slate-100">
                   {player.name}
@@ -446,7 +449,20 @@ export default function ChampionsPage() {
                         <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Players to watch <span className="font-medium normal-case text-slate-400/80">(in form coming in)</span></p>
                         <ul className="mt-1.5 space-y-1">
                           {tourney.playersToWatch.map((p) => (
-                            <li key={p} className="text-sm text-slate-600 dark:text-slate-300">⭐ {p}</li>
+                            <li key={p.name} className="text-sm text-slate-600 dark:text-slate-300">
+                              ⭐{" "}
+                              {hasPlayerProfile(p.name) ? (
+                                <a
+                                  href={`/champions#${playerAnchor(p.name)}`}
+                                  className="font-semibold text-indigo-700 hover:underline dark:text-indigo-300"
+                                >
+                                  {p.name}
+                                </a>
+                              ) : (
+                                <span className="font-semibold">{p.name}</span>
+                              )}{" "}
+                              — {p.note}
+                            </li>
                           ))}
                         </ul>
                       </div>

@@ -485,12 +485,22 @@ export interface UpcomingTournament {
   name: string;
   dates: string;
   kind: "Regional" | "Special" | "International";
-  /** Notable players expected — verified names only. */
-  playersToWatch?: string[];
+  /** Notable players expected — names link to their profile when one exists. */
+  playersToWatch?: { name: string; note: string }[];
   /** Storyline angles for this event. */
   storylines?: string[];
   /** Where to watch the broadcast. */
   broadcast?: string;
+}
+
+/** Anchor id for a player's profile card on the Champions page. */
+export function playerAnchor(name: string): string {
+  return `player-${name.toLowerCase().replace(/[^a-z]+/g, "-").replace(/^-|-$/g, "")}`;
+}
+
+/** Names that have a full profile card in PLAYERS_TO_WATCH. */
+export function hasPlayerProfile(name: string): boolean {
+  return PLAYERS_TO_WATCH.some((p) => p.name === name);
 }
 
 export const EVENT_FINDER_URL = "https://championships.pokemon.com/en-us/events";
@@ -499,9 +509,12 @@ export const UPCOMING_TOURNAMENTS: UpcomingTournament[] = [
   { id: "tourn-recife", name: "Recife Regional Championships", dates: "Oct 3–4", kind: "Regional" },
   { id: "tourn-louisville", name: "Louisville Regional Championships", dates: "Oct 9–11", kind: "Regional",
     playersToWatch: [
-      "Joseph Ugarte — won Baltimore (Sept 2026, first M-C event) with Mega Salamence + Mega Tyranitar; 3x Regional Champion",
-      "Wolfe Glick — 2016 World Champion; Top 64 at Baltimore",
-      "Brady Smith, Blaik Thompson, Dorian Kang, Justin Tang — all Baltimore Top 16/Top 8",
+      { name: "Joseph Ugarte", note: "won Baltimore (Sept 2026, first M-C event) with Mega Salamence + Mega Tyranitar; 3x Regional Champion" },
+      { name: "Wolfe Glick", note: "2016 World Champion; Top 64 at Baltimore" },
+      { name: "Brady Smith", note: "Baltimore Top Cut" },
+      { name: "Blaik Thompson", note: "Baltimore Top Cut" },
+      { name: "Dorian Kang", note: "Baltimore Top Cut" },
+      { name: "Justin Tang", note: "Baltimore Top Cut" },
     ],
     storylines: [
       "Back-to-back? Louisville is the second NA regional of the M-C era — if Ugarte's Salamence/Tyranitar core wins again, it becomes the defining team of early M-C.",
@@ -511,9 +524,10 @@ export const UPCOMING_TOURNAMENTS: UpcomingTournament[] = [
   },
   { id: "tourn-nice", name: "Nice Regional Championships", dates: "Oct 17–18", kind: "Regional",
     playersToWatch: [
-      "Eric Rios — won Frankfurt (Sept 2026, Europe's first M-C event) with Mega Garchomp Z + Mega Raichu Y; 5x Regional Champion",
-      "Sebastian Liu Li — Frankfurt runner-up; Giuseppe Musicco — Frankfurt Top 8",
-      "Théotime Massaut — 2026 LAIC semifinalist; won the Victory Road September Challenge #2",
+      { name: "Eric Rios", note: "won Frankfurt (Sept 2026, Europe's first M-C event) with Mega Garchomp Z + Mega Raichu Y; 5x Regional Champion" },
+      { name: "Sebastian Liu Li", note: "Frankfurt runner-up" },
+      { name: "Giuseppe Musicco", note: "Frankfurt Top 8" },
+      { name: "Théotime Massaut", note: "2026 LAIC semifinalist; won the Victory Road September Challenge #2" },
     ],
     storylines: [
       "Rios's reign: five regional titles and a fresh Frankfurt win — Nice is where Europe finds out if anyone has an answer for his Garchomp Z + Raichu Y core.",
