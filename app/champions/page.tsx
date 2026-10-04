@@ -14,6 +14,7 @@ import {
   UPCOMING_TOURNAMENTS,
   EVENT_FINDER_URL,
   FOLLOW_THE_SCENE,
+  TOURNAMENT_RESULTS,
   getSpeciesCard,
   playerAnchor,
   hasPlayerProfile,
@@ -489,6 +490,40 @@ export default function ChampionsPage() {
                   {player.bio}
                 </p>
                 {player.socials && <SocialPills socials={player.socials} />}
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Recent results */}
+        <section className="mt-10">
+          <h2 className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100">
+            Recent results
+          </h2>
+          <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+            Who won the last stops — updated automatically after each event.
+          </p>
+          <div className="mt-4 space-y-3">
+            {TOURNAMENT_RESULTS.map((r) => (
+              <div
+                key={r.name}
+                className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700"
+              >
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-bold text-amber-800 dark:bg-amber-900 dark:text-amber-200">
+                    🏆 {r.winner}
+                  </span>
+                  <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">{r.name}</span>
+                  <span className="ml-auto text-xs text-slate-400">{r.dates} · {r.kind}</span>
+                </div>
+                {r.winningTeam && (
+                  <p className="mt-1.5 text-sm text-slate-500 dark:text-slate-400">
+                    Winning core: <span className="font-semibold text-slate-700 dark:text-slate-200">{r.winningTeam}</span>
+                  </p>
+                )}
+                {r.runnerUp && (
+                  <p className="mt-0.5 text-xs text-slate-400">Runner-up: {r.runnerUp}</p>
+                )}
               </div>
             ))}
           </div>

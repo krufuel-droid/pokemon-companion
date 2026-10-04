@@ -505,8 +505,7 @@ export function hasPlayerProfile(name: string): boolean {
 
 export const EVENT_FINDER_URL = "https://championships.pokemon.com/en-us/events";
 
-export const UPCOMING_TOURNAMENTS: UpcomingTournament[] = [
-  { id: "tourn-recife", name: "Recife Regional Championships", dates: "Oct 3–4", kind: "Regional" },
+export const UPCOMING_TOURNAMENTS: UpcomingTournament[] = [  { id: "tourn-recife", name: "Recife Regional Championships", dates: "Oct 3–4", kind: "Regional" },
   { id: "tourn-louisville", name: "Louisville Regional Championships", dates: "Oct 9–11", kind: "Regional",
     playersToWatch: [
       { name: "Joseph Ugarte", note: "won Baltimore (Sept 2026, first M-C event) with Mega Salamence + Mega Tyranitar; 3x Regional Champion" },
@@ -547,6 +546,34 @@ export const UPCOMING_TOURNAMENTS: UpcomingTournament[] = [
   { id: "tourn-laic", name: "Latin America International Championships", dates: "Nov 20–22", kind: "International" },
   { id: "tourn-stuttgart", name: "Stuttgart Regional Championships", dates: "Nov 28–29", kind: "Regional" },
   { id: "tourn-las-vegas", name: "Las Vegas Regional Championships", dates: "Dec 4–6", kind: "Regional" },
+];
+
+/** Completed tournament results — newest first. Populated by the weekly meta check. */
+export interface TournamentResult {
+  name: string;
+  dates: string;
+  kind: "Regional" | "Special" | "International";
+  winner: string;
+  /** Winner's key Pokémon, e.g. "Mega Salamence + Mega Tyranitar". */
+  winningTeam?: string;
+  runnerUp?: string;
+}
+
+export const TOURNAMENT_RESULTS: TournamentResult[] = [
+  {
+    name: "Frankfurt Regional Championships",
+    dates: "Sept 26–27, 2026",
+    kind: "Regional",
+    winner: "Eric Rios",
+    winningTeam: "Mega Garchomp Z + Mega Raichu Y",
+  },
+  {
+    name: "Baltimore Regional Championships",
+    dates: "Sept 19–20, 2026",
+    kind: "Regional",
+    winner: "Joseph Ugarte",
+    winningTeam: "Mega Salamence + Mega Tyranitar",
+  },
 ];
 
 export const FOLLOW_THE_SCENE: FollowLink[] = [
