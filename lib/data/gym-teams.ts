@@ -22,8 +22,7 @@
  */
 
 /** One Pokémon to catch before a gym/league battle that beats the specialty. */
-export interface CounterPick {
-  /** Display name, e.g. "Mankey". */
+export interface CounterPick {  /** Display name, e.g. "Mankey". */
   species: string;
   /** National Pokédex id — links to /pokedex/{id} and builds the sprite URL. */
   id: number;
@@ -50,6 +49,16 @@ export interface GymTeamMember {  /** Display name, e.g. "Miltank" or "Alolan Ra
   sprite?: string;
 }
 
+/** One Pokémon in a Team Star Barrage auto-battle pool. */
+export interface BarragePoolMember {
+  /** Display name, e.g. "Murkrow" or "Paldean Wooper". */
+  species: string;
+  /** National Pokédex id — links to /pokedex/{id} and builds the sprite URL. */
+  id: number;
+  /** Sprite override for alternate forms. */
+  sprite?: string;
+}
+
 export interface GymTeam {
   /**
    * Matches the guide path milestone / tracker challenge name exactly,
@@ -66,6 +75,8 @@ export interface GymTeam {
   note?: string;
   /** One catchable-before counter-pick for battle prep. */
   counterPick?: CounterPick;
+  /** Team Star Barrage pool — the crew Pokémon to KO (30 in 10 min). */
+  barragePool?: BarragePoolMember[];
 }
 
 /** All gym/trial teams, keyed by exact game title from POKEMON_GAMES. */
@@ -206,7 +217,12 @@ export const GYM_TEAMS: Record<string, GymTeam[]> = {
         { species: "Pawniard", id: 624, level: 21, moves: ["Metal Claw", "Fury Cutter", "Aerial Ace"], ability: "Defiant" },
         { species: "Segin Starmobile", id: 966, level: 20, moves: ["Wicked Torque", "Swift", "Spin Out", "Brick Break"], ability: "Intimidate" },
       ],
-      note: "Star Barrage first: KO 30 of the crew\u2019s Pokémon (Murkrow, Nymble, Pawniard, Sneasel, Sableye, Stunky, Zorua) in 10 minutes with Let\u2019s Go auto-battles (your first 3 party Pokémon). Vending machines and Clive at the entrance fully heal you.",
+      note: "Star Barrage first: KO 30 of the crew\u2019s Pokémon in 10 minutes with Let\u2019s Go auto-battles (your first 3 party Pokémon). Vending machines and Clive at the entrance fully heal you.",
+      barragePool: [
+        { species: "Murkrow", id: 198 }, { species: "Nymble", id: 941 }, { species: "Pawniard", id: 624 },
+        { species: "Sneasel", id: 215 }, { species: "Sableye", id: 302 }, { species: "Stunky", id: 434 },
+        { species: "Zorua", id: 570 },
+      ],
     },
     {
       gym: "Schedar Squad Base",
@@ -217,7 +233,11 @@ export const GYM_TEAMS: Record<string, GymTeam[]> = {
         { species: "Torkoal", id: 324, level: 27, moves: ["Flame Wheel", "Clear Smog"], ability: "Drought" },
         { species: "Schedar Starmobile", id: 966, level: 26, moves: ["Blazing Torque", "Overheat", "Swift", "Screech"], ability: "Speed Boost" },
       ],
-      note: "Star Barrage first: KO 30 of the crew\u2019s Pokémon (Houndour, Numel, Growlithe, Litleo, Torkoal, Charcadet) in 10 minutes with Let\u2019s Go auto-battles. Blazing Torque can burn \u2014 Water/Rock/Ground counters recommended.",
+      note: "Star Barrage first: KO 30 of the crew\u2019s Pokémon in 10 minutes with Let\u2019s Go auto-battles. Blazing Torque can burn \u2014 Water/Rock/Ground counters recommended.",
+      barragePool: [
+        { species: "Houndour", id: 228 }, { species: "Numel", id: 322 }, { species: "Growlithe", id: 58 },
+        { species: "Litleo", id: 667 }, { species: "Torkoal", id: 324 }, { species: "Charcadet", id: 935 },
+      ],
     },
     {
       gym: "Navi Squad Base",
@@ -230,7 +250,13 @@ export const GYM_TEAMS: Record<string, GymTeam[]> = {
         { species: "Muk", id: 89, level: 32, moves: ["Sludge Wave", "Mud-Slap"], ability: "Stench" },
         { species: "Navi Starmobile", id: 966, level: 32, moves: ["Noxious Torque", "Spin Out", "Flame Charge", "Smog"], ability: "Toxic Debris" },
       ],
-      note: "Star Barrage first: KO 30 of the crew\u2019s Pokémon (Ghastly, Grafaiai, Foongus, Amoonguss, Gulpin, Swalot, Venonat, Seviper, Paldean Wooper) in 10 minutes with Let\u2019s Go auto-battles. Heavy poison pressure \u2014 bring Antidotes and Ground/Psychic coverage.",
+      note: "Star Barrage first: KO 30 of the crew\u2019s Pokémon in 10 minutes with Let\u2019s Go auto-battles. Heavy poison pressure \u2014 bring Antidotes and Ground/Psychic coverage.",
+      barragePool: [
+        { species: "Ghastly", id: 92 }, { species: "Grafaiai", id: 945 }, { species: "Foongus", id: 590 },
+        { species: "Amoonguss", id: 591 }, { species: "Gulpin", id: 316 }, { species: "Swalot", id: 317 },
+        { species: "Venonat", id: 48 }, { species: "Seviper", id: 336 },
+        { species: "Paldean Wooper", id: 194, sprite: "https://play.pokemonshowdown.com/sprites/gen5/wooper-paldea.png" },
+      ],
     },
     {
       gym: "Ruchbah Squad Base",
@@ -243,7 +269,11 @@ export const GYM_TEAMS: Record<string, GymTeam[]> = {
         { species: "Dachsbun", id: 927, level: 51, moves: ["Crunch", "Play Rough", "Mud-Slap", "Baby-Doll Eyes"] },
         { species: "Ruchbah Starmobile", id: 966, level: 50, moves: ["Magical Torque", "Confuse Ray", "Steel Roller", "Spin Out"], ability: "Misty Surge" },
       ],
-      note: "Star Barrage first: KO 30 of the crew\u2019s Pokémon (Tinkatink, Tinkatuff, Kirlia, Gardevoir, Marill, Morgrem) in 10 minutes with Let\u2019s Go auto-battles. Ortega\u2019s Dachsbun is his only answer to Steel-types.",
+      note: "Star Barrage first: KO 30 of the crew\u2019s Pokémon in 10 minutes with Let\u2019s Go auto-battles. Ortega\u2019s Dachsbun is his only answer to Steel-types.",
+      barragePool: [
+        { species: "Tinkatink", id: 957 }, { species: "Tinkatuff", id: 958 }, { species: "Kirlia", id: 281 },
+        { species: "Gardevoir", id: 282 }, { species: "Marill", id: 183 }, { species: "Morgrem", id: 860 },
+      ],
     },
     {
       gym: "Caph Squad Base",
@@ -257,7 +287,14 @@ export const GYM_TEAMS: Record<string, GymTeam[]> = {
         { species: "Annihilape", id: 979, level: 56, moves: ["Rage Fist", "Close Combat", "Ice Punch", "Fire Punch"], ability: "Vital Spirit" },
         { species: "Caph Starmobile", id: 966, level: 56, moves: ["Combat Torque", "Spin Out", "Shift Gear", "High Horsepower"], ability: "Stamina" },
       ],
-      note: "Star Barrage first: KO 30 of the crew\u2019s Pokémon (Mankey, Primeape, Hariyama, Makuhita, Toxicroak, Hawlucha, Falinks, Flamigo, Gallade, Medicham, Crabominable, Passimian, Heracross, Breloom) in 10 minutes with Let\u2019s Go auto-battles. The Starmobile\u2019s Shift Gear + Combat Torque can sweep unprepared teams.",
+      note: "Star Barrage first: KO 30 of the crew\u2019s Pokémon in 10 minutes with Let\u2019s Go auto-battles. The Starmobile\u2019s Shift Gear + Combat Torque can sweep unprepared teams.",
+      barragePool: [
+        { species: "Mankey", id: 56 }, { species: "Primeape", id: 57 }, { species: "Hariyama", id: 297 },
+        { species: "Makuhita", id: 296 }, { species: "Toxicroak", id: 454 }, { species: "Hawlucha", id: 701 },
+        { species: "Falinks", id: 870 }, { species: "Flamigo", id: 973 }, { species: "Gallade", id: 475 },
+        { species: "Medicham", id: 308 }, { species: "Crabominable", id: 740 }, { species: "Passimian", id: 766 },
+        { species: "Heracross", id: 214 }, { species: "Breloom", id: 286 },
+      ],
     },
   ],
   "Pokémon Sword & Shield": [

@@ -188,6 +188,33 @@ export default function GymTeamPanel({
             )}
           </div>
           {team.counterPick && <CounterPickRow pick={team.counterPick} />}
+          {team.barragePool && team.barragePool.length > 0 && (
+            <div className="mb-2.5 rounded-xl bg-violet-50 p-2.5 ring-1 ring-violet-200/70 dark:bg-violet-950/30 dark:ring-violet-800/60">
+              <p className="text-xs font-bold uppercase tracking-wide text-violet-700 dark:text-violet-300">
+                ⭐ Star Barrage — KO 30 in 10 min
+              </p>
+              <div className="mt-1.5 flex flex-wrap gap-1">
+                {team.barragePool.map((p) => (
+                  <Link
+                    key={p.species}
+                    href={`/pokedex/${p.id}`}
+                    title={p.species}
+                    className="rounded-lg transition hover:ring-2 hover:ring-violet-400"
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={gymMemberSprite({ species: p.species, id: p.id, level: 0, moves: [], sprite: p.sprite })}
+                      alt={p.species}
+                      width={44}
+                      height={44}
+                      loading="lazy"
+                      className="h-11 w-11 object-contain"
+                    />
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
           <ul className="space-y-2">
             {team.team.map((member, i) => (
               <TeamMemberRow
