@@ -70,10 +70,12 @@ function CardSearch({
   onAdd,
   ownedIds,
   format,
+  showOwnedOnly,
 }: {
   onAdd: (card: TcgCard) => void;
   ownedIds: Set<string> | null;
   format: TcgFormat;
+  showOwnedOnly: boolean;
 }) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<TcgCard[]>([]);
@@ -93,11 +95,17 @@ function CardSearch({
       .map((s) => s.name);
   }, [query]);
 
-  // Format-legality filter for search results.
+  // Format-legality + owned-only filters for search results.
   const visibleResults = useMemo(() => {
-    if (!legalOnly || format === "Unlimited") return results;
-    return results.filter((c) => isLegalInFormat(c, format));
-  }, [results, legalOnly, format]);
+    let list = results;
+    if (legalOnly && format !== "Unlimited") {
+      list = list.filter((c) => isLegalInFormat(c, format));
+    }
+    if (showOwnedOnly && ownedIds) {
+      list = list.filter((c) => ownedIds.has(c.id));
+    }
+    return list;
+  }, [results, legalOnly, format, showOwnedOnly, ownedIds]);
   const hiddenCount = results.length - visibleResults.length;
 
   useEffect(() => {
@@ -175,9 +183,11 @@ function CardSearch({
       )}
       {!loading && !error && searched && visibleResults.length === 0 && (
         <p className="mt-4 text-center text-sm text-slate-500 dark:text-slate-400">
-          {hiddenCount > 0
-            ? `No ${format}-legal cards found for “${query.trim()}” — untick the filter to see all prints.`
-            : `No cards found for “${query.trim()}”.`}
+          {showOwnedOnly && ownedIds
+            ? `None of your owned cards match “${query.trim()}”.`
+            : hiddenCount > 0
+              ? `No ${format}-legal cards found for “${query.trim()}” — untick the filter to see all prints.`
+              : `No cards found for “${query.trim()}”.`}
         </p>
       )}
       <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
@@ -879,6 +889,7 @@ export default function DeckBuilderPage() {
                     onAdd={(c) => void addCard(c)}
                     ownedIds={ownedIds}
                     format={activeDeck.format}
+                    showOwnedOnly={showOwnedOnly}
                   />
                 </div>
               </section>
