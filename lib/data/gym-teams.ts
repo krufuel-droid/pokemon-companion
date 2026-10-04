@@ -197,6 +197,68 @@ export const GYM_TEAMS: Record<string, GymTeam[]> = {
       note: "Altaria Terastallizes into a pure Ice type.",
     
       counterPick: { species: "Capsakid", id: 951, location: "North Province (Area One/Two) on Glaseado Mountain — common", why: "Fire-type Capsakid resists Ice and its Fire moves melt Grusha's Ice team (evolves into Scovillain with a Fire Stone)." },},
+    {
+      gym: "Segin Squad Base",
+      leader: "Giacomo",
+      badge: "Dark Star Badge",
+      specialty: "Dark",
+      team: [
+        { species: "Pawniard", id: 624, level: 21, moves: ["Metal Claw", "Fury Cutter", "Aerial Ace"], ability: "Defiant" },
+        { species: "Segin Starmobile", id: 966, level: 20, moves: ["Wicked Torque", "Swift", "Spin Out", "Brick Break"], ability: "Intimidate" },
+      ],
+      note: "Star Barrage first: KO 30 of the crew's Pokémon in 10 minutes with Let's Go auto-battles (your first 3 party Pokémon). Vending machines and Clive at the entrance fully heal you.",
+    },
+    {
+      gym: "Schedar Squad Base",
+      leader: "Mela",
+      badge: "Fire Star Badge",
+      specialty: "Fire",
+      team: [
+        { species: "Torkoal", id: 324, level: 27, moves: ["Flame Wheel", "Clear Smog"], ability: "Drought" },
+        { species: "Schedar Starmobile", id: 966, level: 26, moves: ["Blazing Torque", "Overheat", "Swift", "Screech"], ability: "Speed Boost" },
+      ],
+      note: "Star Barrage first: KO 30 of the crew's Pokémon in 10 minutes with Let's Go auto-battles (your first 3 party Pokémon). Blazing Torque can burn — Water/Rock/Ground counters recommended.",
+    },
+    {
+      gym: "Navi Squad Base",
+      leader: "Atticus",
+      badge: "Poison Star Badge",
+      specialty: "Poison",
+      team: [
+        { species: "Skuntank", id: 435, level: 32, moves: ["Sucker Punch", "Toxic", "Venoshock"], ability: "Stench" },
+        { species: "Revavroom", id: 966, level: 33, moves: ["Iron Head", "Sludge", "Assurance", "Bulldoze"], ability: "Overcoat" },
+        { species: "Muk", id: 89, level: 32, moves: ["Sludge Wave", "Mud-Slap"], ability: "Stench" },
+        { species: "Navi Starmobile", id: 966, level: 32, moves: ["Noxious Torque", "Spin Out", "Flame Charge", "Smog"], ability: "Toxic Debris" },
+      ],
+      note: "Star Barrage first: KO 30 of the crew's Pokémon in 10 minutes with Let's Go auto-battles (your first 3 party Pokémon). Heavy poison pressure — bring Antidotes and Ground/Psychic coverage.",
+    },
+    {
+      gym: "Ruchbah Squad Base",
+      leader: "Ortega",
+      badge: "Fairy Star Badge",
+      specialty: "Fairy",
+      team: [
+        { species: "Azumarill", id: 184, level: 50, moves: ["Aqua Tail", "Play Rough", "Bounce", "Charm"] },
+        { species: "Wigglytuff", id: 40, level: 50, moves: ["Body Slam", "Play Rough", "Gyro Ball", "Charm"] },
+        { species: "Dachsbun", id: 927, level: 51, moves: ["Crunch", "Play Rough", "Mud-Slap", "Baby-Doll Eyes"] },
+        { species: "Ruchbah Starmobile", id: 966, level: 50, moves: ["Magical Torque", "Confuse Ray", "Steel Roller", "Spin Out"], ability: "Misty Surge" },
+      ],
+      note: "Star Barrage first: KO 30 of the crew's Pokémon in 10 minutes with Let's Go auto-battles (your first 3 party Pokémon). Ortega's Dachsbun is his only answer to Steel-types.",
+    },
+    {
+      gym: "Caph Squad Base",
+      leader: "Eri",
+      badge: "Fighting Star Badge",
+      specialty: "Fighting",
+      team: [
+        { species: "Toxicroak", id: 454, level: 55, moves: ["Poison Jab", "Brick Break", "Sucker Punch"], ability: "Anticipation" },
+        { species: "Passimian", id: 766, level: 55, moves: ["Close Combat", "Rock Tomb", "Seed Bomb"], ability: "Receiver" },
+        { species: "Lucario", id: 448, level: 55, moves: ["Dragon Pulse", "Aura Sphere", "Dark Pulse"], ability: "Steadfast" },
+        { species: "Annihilape", id: 979, level: 56, moves: ["Rage Fist", "Close Combat", "Ice Punch", "Fire Punch"], ability: "Vital Spirit" },
+        { species: "Caph Starmobile", id: 966, level: 56, moves: ["Combat Torque", "Spin Out", "Shift Gear", "High Horsepower"], ability: "Stamina" },
+      ],
+      note: "Star Barrage first: KO 30 of the crew's Pokémon in 10 minutes with Let's Go auto-battles (your first 3 party Pokémon). The Starmobile's Shift Gear + Combat Torque can sweep unprepared teams.",
+    },
   ],
   "Pokémon Sword & Shield": [
     {
