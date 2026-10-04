@@ -363,46 +363,6 @@ export default function ChampionsPage() {
           </div>
         </section>
 
-        {/* Players to watch */}
-        <section className="mt-10">
-          <h2 className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100">
-            Players to watch
-          </h2>
-          <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-            The gamers behind the teams — follow and support them. Rankings
-            from{" "}
-            <a
-              href={PLAYER_RANKINGS_SOURCE.url}
-              target="_blank"
-              rel="noreferrer"
-              className="font-semibold text-indigo-700 hover:underline dark:text-indigo-300"
-            >
-              {PLAYER_RANKINGS_SOURCE.label} ↗
-            </a>
-            ; only publicly listed accounts are linked, no private profiles.
-          </p>
-          <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-            {PLAYERS_TO_WATCH.map((player) => (
-              <div
-                key={player.name}
-                id={playerAnchor(player.name)}
-                className="scroll-mt-36 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700"
-              >
-                <h3 className="text-base font-extrabold text-slate-900 dark:text-slate-100">
-                  {player.name}
-                </h3>
-                <p className="mt-0.5 text-xs font-bold uppercase tracking-wide text-indigo-600 dark:text-indigo-400">
-                  {player.tagline}
-                </p>
-                <p className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
-                  {player.bio}
-                </p>
-                {player.socials && <SocialPills socials={player.socials} />}
-              </div>
-            ))}
-          </div>
-        </section>
-
         {/* Upcoming tournaments */}
         <section className="mt-10 scroll-mt-20" id="tournaments">
           <h2 className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100">
@@ -491,6 +451,46 @@ export default function ChampionsPage() {
                 </details>
               );
             })}
+          </div>
+        </section>
+
+        {/* Players to watch */}
+        <section className="mt-10">
+          <h2 className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100">
+            Players to watch
+          </h2>
+          <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+            The gamers behind the teams — follow and support them. Rankings
+            from{" "}
+            <a
+              href={PLAYER_RANKINGS_SOURCE.url}
+              target="_blank"
+              rel="noreferrer"
+              className="font-semibold text-indigo-700 hover:underline dark:text-indigo-300"
+            >
+              {PLAYER_RANKINGS_SOURCE.label} ↗
+            </a>
+            ; only publicly listed accounts are linked, no private profiles.
+          </p>
+          <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+            {PLAYERS_TO_WATCH.map((player) => (
+              <div
+                key={player.name}
+                id={playerAnchor(player.name)}
+                className="scroll-mt-36 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700"
+              >
+                <h3 className="text-base font-extrabold text-slate-900 dark:text-slate-100">
+                  {player.name}
+                </h3>
+                <p className="mt-0.5 text-xs font-bold uppercase tracking-wide text-indigo-600 dark:text-indigo-400">
+                  {player.tagline}
+                </p>
+                <p className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
+                  {player.bio}
+                </p>
+                {player.socials && <SocialPills socials={player.socials} />}
+              </div>
+            ))}
           </div>
         </section>
 
