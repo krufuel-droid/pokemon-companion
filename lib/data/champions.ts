@@ -195,66 +195,7 @@ export const TOP_ITEMS = [
 ];
 
 export const FEATURED_TEAMS: FeaturedTeam[] = [
-  {
-    event: "2026 Frankfurt Regional Championships — Masters",
-    date: "September 26–27, 2026 · Frankfurt",
-    player: "Eric Rios",
-    placement: "Regional Champion",
-    headline:
-      "A perfect 17-0 through 1,129 trainers — the first Regulation M-C European Regional — built around Mega Garchomp Z and Mega Raichu Y. Rios is also Limitless VGC's #2 all-time points leader.",
-    team: [
-      {
-        name: "Gholdengo",
-        ability: "Good as Gold",
-        item: "Life Orb",
-        nature: "Modest",
-        moves: ["Protect", "Shadow Ball", "Nasty Plot", "Make It Rain"],
-      },
-      {
-        name: "Volcarona",
-        ability: "Flame Body",
-        item: "Rocky Helmet",
-        nature: "Timid",
-        moves: ["Overheat", "Struggle Bug", "Rage Powder", "Tailwind"],
-      },
-      {
-        name: "Garchomp",
-        form: "Mega Garchomp Z",
-        ability: "Rough Skin",
-        item: "Garchompite Z",
-        nature: "Modest",
-        moves: ["Dragon Pulse", "Earth Power", "Power Gem", "Protect"],
-      },
-      {
-        name: "Incineroar",
-        ability: "Intimidate",
-        item: "Sitrus Berry",
-        nature: "Impish",
-        moves: ["Parting Shot", "Fake Out", "Flare Blitz", "Darkest Lariat"],
-      },
-      {
-        name: "Rillaboom",
-        ability: "Grassy Surge",
-        item: "Miracle Seed",
-        nature: "Adamant",
-        moves: ["Grassy Glide", "Wood Hammer", "Fake Out", "U-turn"],
-      },
-      {
-        name: "Raichu",
-        form: "Mega Raichu Y",
-        ability: "Lightning Rod",
-        item: "Raichunite Y",
-        nature: "Timid",
-        moves: ["Zap Cannon", "Focus Blast", "Fake Out", "Protect"],
-      },
-    ],
-    footnote:
-      "Mega Garchomp Z went back-to-back: it also won the Brisbane Regional the same weekend — three Mega Garchomp Z made Brisbane's top cut.",
-    source: {
-      label: "Limitless VGC: Eric Rios — Frankfurt Regional team list",
-      url: "https://standings.limitlessvgc.com/0039/player/1025/teamlist",
-    },
-  },
+
   {
     event: "2026 Pokémon World Championships — Masters",
     date: "August 28–30, 2026 · San Francisco",
@@ -319,66 +260,7 @@ export const FEATURED_TEAMS: FeaturedTeam[] = [
       url: "https://devoncorp.press/tournament-coverage/takuma-yamazaki-the-makings-of-a-world-champion",
     },
   },
-  {
-    event: "2026 Baltimore Regional Championships — Masters",
-    date: "September 19–20, 2026 · Baltimore",
-    player: "Joseph Ugarte",
-    placement: "Regional Champion",
-    headline:
-      "The first Regulation M-C official event (1,081 trainers) and Ugarte's third Regional title — a sand + Psychic Terrain statement that reset the new format's tier list.",
-    team: [
-      {
-        name: "Excadrill",
-        ability: "Sand Rush",
-        item: "Focus Sash",
-        nature: "Jolly",
-        moves: ["Iron Head", "High Horsepower", "Rock Slide", "Protect"],
-      },
-      {
-        name: "Salamence",
-        form: "Mega Salamence",
-        ability: "Intimidate → Aerilate",
-        item: "Salamencite",
-        nature: "Timid",
-        moves: ["Hyper Voice", "Draco Meteor", "Flamethrower", "Protect"],
-      },
-      {
-        name: "Indeedee",
-        ability: "Psychic Surge",
-        item: "Choice Scarf",
-        nature: "Modest",
-        moves: ["Expanding Force", "Mystical Fire", "Trick", "Protect"],
-      },
-      {
-        name: "Tyranitar",
-        form: "Mega Tyranitar",
-        ability: "Sand Stream",
-        item: "Tyranitarite",
-        nature: "Jolly",
-        moves: ["Rock Slide", "Knock Off", "Low Kick", "Protect"],
-      },
-      {
-        name: "Corviknight",
-        ability: "Mirror Armor",
-        item: "Psychic Seed",
-        nature: "Careful",
-        moves: ["Brave Bird", "Power Trip", "Bulk Up", "Roost"],
-      },
-      {
-        name: "Sneasler",
-        ability: "Unburden",
-        item: "White Herb",
-        nature: "Adamant",
-        moves: ["Close Combat", "Dire Claw", "Coaching", "Protect"],
-      },
-    ],
-    footnote:
-      "Finalist Aditya Subramanian answered with a creative Mega Golisopod rain Trick Room team — with a Charizard sun mode in the back.",
-    source: {
-      label: "OHKO Podcast Ep. 132: Joe Ugarte breaks down the Baltimore win",
-      url: "https://www.youtube.com/watch?v=Mug6dcq4AWQ",
-    },
-  },
+
   {
     event: "2026 Indianapolis Regional Championships — Masters",
     date: "May 30, 2026 · Indianapolis",
@@ -599,6 +481,8 @@ export interface TournamentResult {
    * The weekly meta check must set this when it moves an event here.
    */
   pickKey?: string;
+  /** Full winning team (abilities, items, natures, moves) — shown expandable. */
+  team?: TeamMon[];
 }
 
 export const TOURNAMENT_RESULTS: TournamentResult[] = [
@@ -608,6 +492,52 @@ export const TOURNAMENT_RESULTS: TournamentResult[] = [
     kind: "Regional",
     winner: "Eric Rios",
     winningTeam: "Mega Garchomp Z + Mega Raichu Y",
+    team: [
+      {
+        name: "Gholdengo",
+        ability: "Good as Gold",
+        item: "Life Orb",
+        nature: "Modest",
+        moves: ["Protect", "Shadow Ball", "Nasty Plot", "Make It Rain"],
+      },
+      {
+        name: "Volcarona",
+        ability: "Flame Body",
+        item: "Rocky Helmet",
+        nature: "Timid",
+        moves: ["Overheat", "Struggle Bug", "Rage Powder", "Tailwind"],
+      },
+      {
+        name: "Garchomp",
+        form: "Mega Garchomp Z",
+        ability: "Rough Skin",
+        item: "Garchompite Z",
+        nature: "Modest",
+        moves: ["Dragon Pulse", "Earth Power", "Power Gem", "Protect"],
+      },
+      {
+        name: "Incineroar",
+        ability: "Intimidate",
+        item: "Sitrus Berry",
+        nature: "Impish",
+        moves: ["Parting Shot", "Fake Out", "Flare Blitz", "Darkest Lariat"],
+      },
+      {
+        name: "Rillaboom",
+        ability: "Grassy Surge",
+        item: "Miracle Seed",
+        nature: "Adamant",
+        moves: ["Grassy Glide", "Wood Hammer", "Fake Out", "U-turn"],
+      },
+      {
+        name: "Raichu",
+        form: "Mega Raichu Y",
+        ability: "Lightning Rod",
+        item: "Raichunite Y",
+        nature: "Timid",
+        moves: ["Zap Cannon", "Focus Blast", "Fake Out", "Protect"],
+      },
+    ],
   },
   {
     name: "Baltimore Regional Championships",
@@ -615,6 +545,52 @@ export const TOURNAMENT_RESULTS: TournamentResult[] = [
     kind: "Regional",
     winner: "Joseph Ugarte",
     winningTeam: "Mega Salamence + Mega Tyranitar",
+    team: [
+      {
+        name: "Excadrill",
+        ability: "Sand Rush",
+        item: "Focus Sash",
+        nature: "Jolly",
+        moves: ["Iron Head", "High Horsepower", "Rock Slide", "Protect"],
+      },
+      {
+        name: "Salamence",
+        form: "Mega Salamence",
+        ability: "Intimidate → Aerilate",
+        item: "Salamencite",
+        nature: "Timid",
+        moves: ["Hyper Voice", "Draco Meteor", "Flamethrower", "Protect"],
+      },
+      {
+        name: "Indeedee",
+        ability: "Psychic Surge",
+        item: "Choice Scarf",
+        nature: "Modest",
+        moves: ["Expanding Force", "Mystical Fire", "Trick", "Protect"],
+      },
+      {
+        name: "Tyranitar",
+        form: "Mega Tyranitar",
+        ability: "Sand Stream",
+        item: "Tyranitarite",
+        nature: "Jolly",
+        moves: ["Rock Slide", "Knock Off", "Low Kick", "Protect"],
+      },
+      {
+        name: "Corviknight",
+        ability: "Mirror Armor",
+        item: "Psychic Seed",
+        nature: "Careful",
+        moves: ["Brave Bird", "Power Trip", "Bulk Up", "Roost"],
+      },
+      {
+        name: "Sneasler",
+        ability: "Unburden",
+        item: "White Herb",
+        nature: "Adamant",
+        moves: ["Close Combat", "Dire Claw", "Coaching", "Protect"],
+      },
+    ],
   },
 ];
 

@@ -175,7 +175,7 @@ export default function ChampionsPage() {
           </p>
           <div className="mt-4 space-y-3">
             {TOURNAMENT_RESULTS.map((r) => {
-              const featured = FEATURED_TEAMS.find((t) => t.player === r.winner);
+              const team = r.team;
               return (
                 <details
                   key={r.name}
@@ -188,7 +188,7 @@ export default function ChampionsPage() {
                       </span>
                       <span className="min-w-0 flex-1 text-sm font-semibold text-slate-700 dark:text-slate-200">{r.name}</span>
                       <span className="text-xs text-slate-400">{r.dates} · {r.kind}</span>
-                      {featured && (
+                      {team && (
                         <svg width="16" height="16" viewBox="0 0 20 20" aria-hidden="true" className="shrink-0 text-slate-400 transition-transform group-open:rotate-180">
                           <path d="M5 7l5 5 5-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                         </svg>
@@ -203,9 +203,9 @@ export default function ChampionsPage() {
                       <p className="mt-0.5 text-xs text-slate-400">Runner-up: {r.runnerUp}</p>
                     )}
                   </summary>
-                  {featured && (
+                  {team && (
                     <div className="border-t border-slate-100 p-4 dark:border-slate-800">
-                      <TeamGrid team={featured.team} />
+                      <TeamGrid team={team} />
                     </div>
                   )}
                 </details>
