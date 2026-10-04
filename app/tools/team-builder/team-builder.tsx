@@ -6,6 +6,9 @@ import { getRegionalForms } from "@/lib/data/forms";
 import { TYPES, effectiveness } from "@/lib/typechart";
 import { typeColor } from "@/lib/theme";
 import { TypePills } from "@/app/pokedex/type-pills";
+import { NATURES } from "@/lib/data/natures";
+import { ITEMS } from "@/lib/data/items";
+import { MOVES } from "@/lib/data/moves";
 
 const ALL = getAllSpecies();
 
@@ -60,12 +63,100 @@ function searchTeamBuilder(query: string): SpeciesIndex[] {
 const STORAGE_KEY = "pc-team-builder-teams";
 const MAX_TEAM = 6;
 
+// ---------------------------------------------------------------------------
+// Team member model: a full competitive set. Every field except speciesId is
+// optional so old species-only teams (and fresh picks) keep working.
+// ---------------------------------------------------------------------------
+export interface StatSpread {
+  hp: number;
+  atk: number;
+  def: number;
+  spa: number;
+  spd: number;
+  spe: number;
+}
+
+export interface TeamMember {
+  speciesId: number;
+  nickname?: string;
+  item?: string;
+  ability?: string;
+  nature?: string;
+  /** Defaults to 50 (VGC) when unset. */
+  level?: number;
+  evs?: StatSpread;
+  ivs?: StatSpread;
+  /** Up to 4 move names. */
+  moves?: string[];
+}
+
+const EV_KEYS = ["hp", "atk", "def", "spa", "spd", "spe"] as const;
+type EvKey = (typeof EV_KEYS)[number];
+const EV_LABELS: Record<EvKey, string> = {
+  hp: "HP",
+  atk: "Atk",
+  def: "Def",
+  spa: "SpA",
+  spd: "SpD",
+  spe: "Spe",
+};
+const ZERO_EVS: StatSpread = { hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0 };
+const FULL_IVS: StatSpread = { hp: 31, atk: 31, def: 31, spa: 31, spd: 31, spe: 31 };
+const MAX_EV_TOTAL = 510;
+const MAX_EV_STAT = 252;
+
+function displayName(m: TeamMember, species: SpeciesIndex): string {
+  const nick = m.nickname?.trim();
+  return nick ? nick : species.name;
+}
+
+// ---------------------------------------------------------------------------
+// Saved teams. Pre-upgrade entries stored `{ name, ids: number[] }` —
+// converted to full-set members (with empty sets) on load.
+// ---------------------------------------------------------------------------
 interface SavedTeam {
+  name: string;
+  members: TeamMember[];
+  savedAt: string;
+}
+
+interface LegacySavedTeam {
   name: string;
   ids: number[];
   savedAt: string;
 }
 
+function loadSaved(): SavedTeam[] {
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw) as Array<SavedTeam | LegacySavedTeam>;
+    if (!Array.isArray(parsed)) return [];
+    const out: SavedTeam[] = [];
+    for (const t of parsed) {
+      if (!t || typeof t.name !== "string") continue;
+      let members: TeamMember[] = [];
+      if (Array.isArray((t as SavedTeam).members)) {
+        members = (t as SavedTeam).members.filter((m) => m && BY_ID.has(m.speciesId));
+      } else if (Array.isArray((t as LegacySavedTeam).ids)) {
+        members = (t as LegacySavedTeam).ids
+          .filter((id) => BY_ID.has(id))
+          .map((id) => ({ speciesId: id }));
+      }
+      if (members.length === 0) continue;
+      out.push({
+        name: t.name,
+        members: members.slice(0, MAX_TEAM),
+        savedAt: typeof t.savedAt === "string" ? t.savedAt : "",
+      });
+    }
+    return out;
+  } catch {
+    return [];
+  }
+}
+
+/** Old-style ?team=1,25,94 links resolve to bare species ids, then wrapped. */
 function parseTeamParam(param: string | null): number[] {
   if (!param) return [];
   const ids: number[] = [];
@@ -114,43 +205,86 @@ function matchSpeciesId(raw: string): number | null {
   return null;
 }
 
+/** Forgiving stat-name lookup for "EVs:" / "IVs:" lines. */
+const STAT_ALIAS: Record<string, EvKey> = {
+  hp: "hp",
+  atk: "atk",
+  attack: "atk",
+  def: "def",
+  defense: "def",
+  spa: "spa",
+  spatk: "spa",
+  specialattack: "spa",
+  spd: "spd",
+  spdef: "spd",
+  specialdefense: "spd",
+  spe: "spe",
+  speed: "spe",
+};
+
+/** Parse "252 Atk / 4 SpD / 252 Spe" into a partial spread. */
+function parseSpread(text: string): Partial<StatSpread> {
+  const out: Partial<StatSpread> = {};
+  for (const part of text.split("/")) {
+    const mm = part.trim().match(/^(\d+)\s+([a-zA-Z.\s]+)$/);
+    if (!mm) continue;
+    const val = Number(mm[1]);
+    if (!Number.isFinite(val)) continue;
+    const stat = STAT_ALIAS[mm[2].toLowerCase().replace(/[^a-z]/g, "")];
+    if (stat) out[stat] = val;
+  }
+  return out;
+}
+
 /**
- * Parse PokéPaste / Showdown text into builder species ids.
- * Only species are imported — the builder doesn't store items, moves, EVs,
- * etc. Forgiving: handles "Nickname (Species) @ Item", "Species @ Item",
- * gender "(M)"/"(F)" tags, missing lines, and regional suffixes.
- * Unparseable entries are reported via `skipped`, never invented.
+ * Parse PokéPaste / Showdown text into full team members: nickname, item,
+ * ability, level, nature, EVs, IVs, and up to 4 moves. Forgiving: handles
+ * "Nickname (Species) @ Item", "Species @ Item", gender "(M)"/"(F)" tags,
+ * regional suffixes, and missing lines. Unparseable entries are reported
+ * via `skipped`, never invented; unrecognized lines inside a set (Tera
+ * Type, Shiny, Happiness, ...) are silently ignored.
  */
-function parsePokePaste(text: string): { ids: number[]; skipped: string[] } {
-  const ids: number[] = [];
+function parsePokePaste(text: string): { members: TeamMember[]; skipped: string[] } {
+  const members: TeamMember[] = [];
   const skipped: string[] = [];
   const seen = new Set<number>();
   for (const block of text.split(/\n\s*\n/)) {
-    const first = block
+    const lines = block
       .split("\n")
       .map((l) => l.trim())
-      .find((l) => l.length > 0);
-    if (!first || first.startsWith("-") || first.includes(":")) continue;
-    // Strip " @ Item".
+      .filter((l) => l.length > 0);
+    if (lines.length === 0) continue;
+    const first = lines[0];
+    if (first.startsWith("-") || first.includes(":")) continue;
+
+    // Head line: optional "Nickname (Species)", optional " @ Item".
     let head = first;
+    let item: string | undefined;
     const at = head.lastIndexOf(" @ ");
-    if (at > 0) head = head.slice(0, at).trim();
-    // Trailing "(...)" — gender tag, species-in-nickname, or form tag.
+    if (at > 0) {
+      const after = head.slice(at + 3).trim();
+      if (after) item = after;
+      head = head.slice(0, at).trim();
+    }
     let name = head;
+    let nickname: string | undefined;
     const paren = head.match(/^(.*)\(([^)]+)\)\s*$/);
     if (paren) {
-      const inner = paren[2].trim().toLowerCase();
+      const inner = paren[2].trim();
       const outer = paren[1].trim();
-      if (inner === "m" || inner === "f") {
+      const innerLower = inner.toLowerCase();
+      if (innerLower === "m" || innerLower === "f") {
         name = outer; // gender tag: "Incineroar (M)"
-      } else if (matchSpeciesId(paren[2]) !== null) {
-        name = paren[2].trim(); // "Nickname (Species)"
+      } else if (matchSpeciesId(inner) !== null) {
+        name = inner; // "Nickname (Species)"
+        if (outer) nickname = outer;
       } else if (outer) {
         name = outer; // unknown tag — try the outer text
       } else {
-        name = paren[2].trim();
+        name = inner;
       }
     }
+
     const id = matchSpeciesId(name);
     if (id === null) {
       skipped.push(first);
@@ -158,23 +292,93 @@ function parsePokePaste(text: string): { ids: number[]; skipped: string[] } {
     }
     if (seen.has(id)) continue;
     seen.add(id);
-    ids.push(id);
-    if (ids.length >= MAX_TEAM) break;
+
+    const member: TeamMember = { speciesId: id };
+    if (nickname) member.nickname = nickname;
+    if (item) member.item = item;
+    const moves: string[] = [];
+    for (const line of lines.slice(1)) {
+      if (line.startsWith("-")) {
+        if (moves.length < 4) {
+          const mv = line.slice(1).trim();
+          if (mv) moves.push(mv);
+        }
+        continue;
+      }
+      let mm = line.match(/^ability:\s*(.+)$/i);
+      if (mm) {
+        member.ability = mm[1].trim();
+        continue;
+      }
+      mm = line.match(/^level:\s*(\d+)/i);
+      if (mm) {
+        member.level = Math.min(100, Math.max(1, parseInt(mm[1], 10)));
+        continue;
+      }
+      mm = line.match(/^evs:\s*(.+)$/i);
+      if (mm) {
+        const parsed = parseSpread(mm[1]);
+        const evs = { ...ZERO_EVS };
+        for (const k of EV_KEYS) {
+          const v = parsed[k];
+          if (v !== undefined) evs[k] = Math.min(MAX_EV_STAT, Math.max(0, Math.round(v)));
+        }
+        member.evs = evs;
+        continue;
+      }
+      mm = line.match(/^ivs:\s*(.+)$/i);
+      if (mm) {
+        const parsed = parseSpread(mm[1]);
+        const ivs = { ...FULL_IVS };
+        for (const k of EV_KEYS) {
+          const v = parsed[k];
+          if (v !== undefined) ivs[k] = Math.min(31, Math.max(0, Math.round(v)));
+        }
+        member.ivs = ivs;
+        continue;
+      }
+      mm = line.match(/^([a-zA-Z]+)\s+nature$/i);
+      if (mm) {
+        const n = NATURES.find((x) => x.name.toLowerCase() === mm![1].toLowerCase());
+        if (n) member.nature = n.name;
+        continue;
+      }
+    }
+    if (moves.length > 0) member.moves = moves;
+    members.push(member);
+    if (members.length >= MAX_TEAM) break;
   }
-  return { ids, skipped };
+  return { members, skipped };
 }
 
-function loadSaved(): SavedTeam[] {
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw) as SavedTeam[];
-    return Array.isArray(parsed)
-      ? parsed.filter((t) => t && typeof t.name === "string" && Array.isArray(t.ids))
-      : [];
-  } catch {
-    return [];
+/** Serialize one member to valid PokéPaste / Showdown import text. */
+function memberToShowdown(m: TeamMember): string {
+  const speciesName = BY_ID.get(m.speciesId)?.name ?? "";
+  const lines: string[] = [];
+  const nickname = m.nickname?.trim();
+  const item = m.item?.trim();
+  lines.push(
+    `${nickname ? `${nickname} (${speciesName})` : speciesName}${item ? ` @ ${item}` : ""}`,
+  );
+  const ability = m.ability?.trim();
+  if (ability) lines.push(`Ability: ${ability}`);
+  // Showdown defaults to level 100, so always state it (our default is 50).
+  lines.push(`Level: ${m.level ?? 50}`);
+  const evs = { ...ZERO_EVS, ...m.evs };
+  const evParts = EV_KEYS.filter((k) => evs[k] > 0).map((k) => `${evs[k]} ${EV_LABELS[k]}`);
+  if (evParts.length > 0) lines.push(`EVs: ${evParts.join(" / ")}`);
+  if (m.nature) lines.push(`${m.nature} Nature`);
+  const ivs = { ...FULL_IVS, ...m.ivs };
+  if (EV_KEYS.some((k) => ivs[k] !== 31)) {
+    lines.push(`IVs: ${EV_KEYS.map((k) => `${ivs[k]} ${EV_LABELS[k]}`).join(" / ")}`);
   }
+  for (const mv of (m.moves ?? [])
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .slice(0, 4)) {
+    lines.push(`- ${mv}`);
+  }
+  return lines.join("\n");
 }
 
 function TypeChip({ type, dim }: { type: string; dim?: boolean }) {
@@ -190,11 +394,228 @@ function TypeChip({ type, dim }: { type: string; dim?: boolean }) {
   );
 }
 
+function shortStat(s: string): string {
+  return s
+    .replace("Sp. Atk", "SpA")
+    .replace("Sp. Def", "SpD")
+    .replace("Attack", "Atk")
+    .replace("Defense", "Def")
+    .replace("Speed", "Spe");
+}
+
+const inputClass =
+  "mt-1 w-full rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-sm text-slate-800 shadow-sm focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-200 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:focus:ring-emerald-800";
+const labelClass = "block text-xs font-medium text-slate-500 dark:text-slate-400";
+
+/** Collapsible per-member set editor: nickname, item, ability, nature, level, EVs, IVs, moves. */
+function SetEditor({
+  member,
+  species,
+  onChange,
+}: {
+  member: TeamMember;
+  species: SpeciesIndex;
+  onChange: (patch: Partial<TeamMember>) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const evs = { ...ZERO_EVS, ...member.evs };
+  const ivs = { ...FULL_IVS, ...member.ivs };
+  const moves = [0, 1, 2, 3].map((i) => member.moves?.[i] ?? "");
+  const evTotal = EV_KEYS.reduce((sum, k) => sum + evs[k], 0);
+  const evInvalid = evTotal > MAX_EV_TOTAL || EV_KEYS.some((k) => evs[k] > MAX_EV_STAT);
+
+  const summary = [
+    member.item?.trim() ? `@ ${member.item.trim()}` : null,
+    member.nature ?? null,
+    member.ability?.trim() || null,
+  ].filter(Boolean) as string[];
+
+  const setEv = (k: EvKey, v: number) =>
+    onChange({ evs: { ...evs, [k]: Math.max(0, Math.round(v) || 0) } });
+  const setIv = (k: EvKey, v: number) =>
+    onChange({ ivs: { ...ivs, [k]: Math.min(31, Math.max(0, Math.round(v) || 0)) } });
+  const setMove = (i: number, v: string) => {
+    const next = [...moves];
+    next[i] = v;
+    onChange({ moves: next });
+  };
+
+  return (
+    <div className="rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        className="flex w-full items-center gap-3 p-3 text-left"
+      >
+        <img src={species.sprites.regular} alt={species.name} loading="lazy" className="h-10 w-10 shrink-0" />
+        <span className="min-w-0 flex-1">
+          <span className="block truncate text-sm font-semibold text-slate-700 dark:text-slate-300">
+            {dexLabel(species)} {displayName(member, species)}
+          </span>
+          {summary.length > 0 && (
+            <span className="block truncate text-xs text-slate-400 dark:text-slate-500">
+              {summary.join(" · ")}
+            </span>
+          )}
+        </span>
+        <span className="shrink-0 text-sm text-slate-400 dark:text-slate-500">{open ? "▾" : "▸"}</span>
+      </button>
+
+      {open && (
+        <div className="space-y-4 border-t border-slate-100 px-4 pb-4 pt-3 dark:border-slate-800">
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+            <label className={labelClass}>
+              Nickname
+              <input
+                type="text"
+                value={member.nickname ?? ""}
+                maxLength={20}
+                onChange={(e) => onChange({ nickname: e.target.value || undefined })}
+                placeholder={species.name}
+                className={inputClass}
+              />
+            </label>
+            <label className={labelClass}>
+              Item
+              <input
+                type="text"
+                value={member.item ?? ""}
+                list="pc-builder-items"
+                onChange={(e) => onChange({ item: e.target.value || undefined })}
+                placeholder="Life Orb…"
+                className={inputClass}
+              />
+            </label>
+            <label className={labelClass}>
+              Ability
+              <input
+                type="text"
+                value={member.ability ?? ""}
+                onChange={(e) => onChange({ ability: e.target.value || undefined })}
+                placeholder="Intimidate…"
+                className={inputClass}
+              />
+            </label>
+            <label className={labelClass}>
+              Nature
+              <select
+                value={member.nature ?? ""}
+                onChange={(e) => onChange({ nature: e.target.value || undefined })}
+                className={inputClass}
+              >
+                <option value="">—</option>
+                {NATURES.map((n) => (
+                  <option key={n.name} value={n.name}>
+                    {n.name}
+                    {n.raises ? ` (+${shortStat(n.raises)} −${shortStat(n.lowers ?? "")})` : ""}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className={labelClass}>
+              Level
+              <input
+                type="number"
+                inputMode="numeric"
+                min={1}
+                max={100}
+                value={member.level ?? 50}
+                onChange={(e) =>
+                  onChange({
+                    level: Math.min(100, Math.max(1, Math.round(Number(e.target.value) || 50))),
+                  })
+                }
+                className={inputClass}
+              />
+            </label>
+          </div>
+
+          <div>
+            <div className="flex items-baseline justify-between">
+              <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">EVs</span>
+              <span
+                className={`text-xs ${evInvalid ? "font-semibold text-red-600 dark:text-red-400" : "text-slate-400 dark:text-slate-500"}`}
+              >
+                {evTotal} / {MAX_EV_TOTAL}
+              </span>
+            </div>
+            {evInvalid && (
+              <p className="mt-1 text-xs font-medium text-red-600 dark:text-red-400">
+                {evTotal > MAX_EV_TOTAL
+                  ? `EV total is ${evTotal} — the cap is 510.`
+                  : "A single stat can't hold more than 252 EVs."}
+              </p>
+            )}
+            <div className="mt-1 grid grid-cols-3 gap-2 sm:grid-cols-6">
+              {EV_KEYS.map((k) => (
+                <label key={k} className={labelClass}>
+                  {EV_LABELS[k]}
+                  <input
+                    type="number"
+                    inputMode="numeric"
+                    min={0}
+                    max={252}
+                    value={evs[k]}
+                    onChange={(e) => setEv(k, Number(e.target.value))}
+                    className={inputClass}
+                  />
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">IVs</span>
+            <div className="mt-1 grid grid-cols-3 gap-2 sm:grid-cols-6">
+              {EV_KEYS.map((k) => (
+                <label key={k} className={labelClass}>
+                  {EV_LABELS[k]}
+                  <input
+                    type="number"
+                    inputMode="numeric"
+                    min={0}
+                    max={31}
+                    value={ivs[k]}
+                    onChange={(e) => setIv(k, Number(e.target.value))}
+                    className={inputClass}
+                  />
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">Moves</span>
+            <div className="mt-1 grid grid-cols-1 gap-2 sm:grid-cols-2">
+              {moves.map((mv, i) => (
+                <input
+                  key={i}
+                  type="text"
+                  value={mv}
+                  list="pc-builder-moves"
+                  maxLength={40}
+                  onChange={(e) => setMove(i, e.target.value)}
+                  placeholder={`Move ${i + 1}`}
+                  aria-label={`Move ${i + 1}`}
+                  className="rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-sm text-slate-800 shadow-sm focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-200 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:focus:ring-emerald-800"
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function TeamBuilder() {
-  const [team, setTeam] = useState<number[]>(() => {
+  const [team, setTeam] = useState<TeamMember[]>(() => {
     // Client-only: honor a shared ?team=1,25,94 link without suspending SSR.
     if (typeof window === "undefined") return [];
-    return parseTeamParam(new URLSearchParams(window.location.search).get("team"));
+    return parseTeamParam(new URLSearchParams(window.location.search).get("team")).map(
+      (id) => ({ speciesId: id }),
+    );
   });
   const [query, setQuery] = useState("");
   const [teamName, setTeamName] = useState("");
@@ -215,7 +636,7 @@ export default function TeamBuilder() {
   const results = useMemo(() => searchTeamBuilder(query), [query]);
 
   const members = useMemo(
-    () => team.map((id) => BY_ID.get(id)).filter((s): s is SpeciesIndex => Boolean(s)),
+    () => team.map((m) => BY_ID.get(m.speciesId)).filter((s): s is SpeciesIndex => Boolean(s)),
     [team],
   );
 
@@ -258,7 +679,7 @@ export default function TeamBuilder() {
   const uncovered = useMemo(() => offense.filter((o) => !o.covered), [offense]);
 
   function addSpecies(id: number) {
-    if (team.includes(id)) {
+    if (team.some((m) => m.speciesId === id)) {
       setNotice("That Pokémon is already on the team.");
       return;
     }
@@ -266,12 +687,16 @@ export default function TeamBuilder() {
       setNotice("Team is full — remove someone first.");
       return;
     }
-    setTeam([...team, id]);
+    setTeam([...team, { speciesId: id }]);
     setQuery("");
   }
 
-  function removeSpecies(id: number) {
-    setTeam(team.filter((t) => t !== id));
+  function removeMember(index: number) {
+    setTeam(team.filter((_, i) => i !== index));
+  }
+
+  function updateMember(index: number, patch: Partial<TeamMember>) {
+    setTeam((prev) => prev.map((m, i) => (i === index ? { ...m, ...patch } : m)));
   }
 
   function saveTeam() {
@@ -284,7 +709,11 @@ export default function TeamBuilder() {
       setNotice("Add at least one Pokémon before saving.");
       return;
     }
-    const entry: SavedTeam = { name, ids: [...team], savedAt: new Date().toISOString() };
+    const entry: SavedTeam = {
+      name,
+      members: team.map((m) => ({ ...m })),
+      savedAt: new Date().toISOString(),
+    };
     const next = [entry, ...saved.filter((s) => s.name !== name)].slice(0, 12);
     setSaved(next);
     try {
@@ -312,7 +741,10 @@ export default function TeamBuilder() {
       setNotice("Add at least one Pokémon to share.");
       return;
     }
-    const url = `${window.location.origin}${window.location.pathname}?team=${team.join(",")}`;
+    // Share links stay species-id-only: full sets would bloat the URL and
+    // break compatibility with older links. Recipients get the species and
+    // fill in their own sets.
+    const url = `${window.location.origin}${window.location.pathname}?team=${team.map((m) => m.speciesId).join(",")}`;
     try {
       await navigator.clipboard.writeText(url);
       setCopied(true);
@@ -322,37 +754,34 @@ export default function TeamBuilder() {
     }
   }
 
-  /** Import a PokéPaste / Showdown team — species only. */
+  /** Import a PokéPaste / Showdown team with full sets. */
   function importPaste() {
-    const { ids, skipped } = parsePokePaste(importText);
-    if (ids.length === 0) {
+    const { members, skipped } = parsePokePaste(importText);
+    if (members.length === 0) {
       setNotice("Couldn't recognize any Pokémon in that paste.");
       return;
     }
-    setTeam(ids);
+    setTeam(members);
     setImportText("");
     setImportOpen(false);
     setNotice(
-      `Imported ${ids.length} Pokémon.` +
+      `Imported ${members.length} full set${members.length === 1 ? "" : "s"}.` +
         (skipped.length > 0
           ? ` Skipped: ${skipped.slice(0, 4).join("; ")}${skipped.length > 4 ? "…" : ""}`
           : ""),
     );
   }
 
-  /** Copy the team in Pokémon Showdown / PokéPaste import format. */
+  /** Copy the team (with full sets) in Pokémon Showdown / PokéPaste import format. */
   async function copyShowdown() {
     if (team.length === 0) {
       setNotice("Add at least one Pokémon to export.");
       return;
     }
-    const text = team
-      .map((id) => BY_ID.get(id)?.name ?? "")
-      .filter(Boolean)
-      .join("\n\n");
+    const text = team.map(memberToShowdown).join("\n\n");
     try {
       await navigator.clipboard.writeText(text);
-      setNotice("Showdown format copied — paste it into Showdown's teambuilder or PokéPaste!");
+      setNotice("Full team copied in Showdown format — paste it into Showdown's teambuilder or PokéPaste!");
       setTimeout(() => setNotice(null), 4000);
     } catch {
       setNotice("Copy failed — your browser blocked clipboard access.");
@@ -363,9 +792,21 @@ export default function TeamBuilder() {
     <div className="mx-auto w-full max-w-5xl px-4 py-10">
       <h1 className="text-3xl font-bold text-slate-800 dark:text-slate-100">Team Builder</h1>
       <p className="mt-2 text-slate-500 dark:text-slate-400">
-        Draft a team of up to 6 Pokémon, check its defensive weaknesses and offensive
-        coverage, save it, or share it with a link.
+        Draft a team of up to 6 Pokémon with full competitive sets, check its defensive
+        weaknesses and offensive coverage, save it, or share it with a link.
       </p>
+
+      {/* Shared suggestion lists for the set editors (free text still allowed). */}
+      <datalist id="pc-builder-items">
+        {ITEMS.map((i) => (
+          <option key={i.name} value={i.name} />
+        ))}
+      </datalist>
+      <datalist id="pc-builder-moves">
+        {MOVES.map((m) => (
+          <option key={m.name} value={m.name} />
+        ))}
+      </datalist>
 
       {notice && (
         <div className="mt-4 rounded-xl bg-emerald-100 px-4 py-2 text-sm font-medium text-emerald-900 dark:bg-emerald-900 dark:text-emerald-100">
@@ -408,33 +849,34 @@ export default function TeamBuilder() {
         </div>
         <div className="mt-3 grid grid-cols-3 gap-3 sm:grid-cols-6">
           {Array.from({ length: MAX_TEAM }, (_, i) => {
-            const member = members[i];
+            const entry = team[i];
+            const species = entry ? BY_ID.get(entry.speciesId) : undefined;
             return (
               <div
                 key={i}
                 className="relative flex min-h-36 flex-col items-center justify-center rounded-2xl bg-white p-3 text-center shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700"
               >
-                {member ? (
+                {species && entry ? (
                   <>
                     <button
                       type="button"
-                      aria-label={`Remove ${member.name}`}
-                      onClick={() => removeSpecies(member.id)}
+                      aria-label={`Remove ${displayName(entry, species)}`}
+                      onClick={() => removeMember(i)}
                       className="absolute right-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-slate-100 text-sm font-bold text-slate-500 transition hover:bg-red-100 hover:text-red-600 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-red-900 dark:hover:text-red-400"
                     >
                       ×
                     </button>
                     <img
-                      src={member.sprites.regular}
-                      alt={member.name}
+                      src={species.sprites.regular}
+                      alt={species.name}
                       loading="lazy"
                       className="h-16 w-16"
                     />
                     <span className="mt-1 text-xs font-semibold text-slate-700 dark:text-slate-300">
-                      {dexLabel(member)} {member.name}
+                      {dexLabel(species)} {displayName(entry, species)}
                     </span>
                     <div className="mt-1 scale-90">
-                      <TypePills types={member.types} />
+                      <TypePills types={species.types} />
                     </div>
                   </>
                 ) : (
@@ -445,6 +887,30 @@ export default function TeamBuilder() {
           })}
         </div>
       </section>
+
+      {/* Set details */}
+      {team.length > 0 && (
+        <section className="mt-8">
+          <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100">Set details</h2>
+          <p className="mt-1 text-sm text-slate-400 dark:text-slate-500">
+            Optional — expand a Pokémon to add its item, ability, nature, EVs, IVs, and moves.
+          </p>
+          <div className="mt-3 space-y-2">
+            {team.map((m, i) => {
+              const species = BY_ID.get(m.speciesId);
+              if (!species) return null;
+              return (
+                <SetEditor
+                  key={`${m.speciesId}-${i}`}
+                  member={m}
+                  species={species}
+                  onChange={(patch) => updateMember(i, patch)}
+                />
+              );
+            })}
+          </div>
+        </section>
+      )}
 
       {/* Search / picker */}
       <section className="mt-8">
@@ -463,7 +929,7 @@ export default function TeamBuilder() {
                 key={s.id}
                 type="button"
                 onClick={() => addSpecies(s.id)}
-                disabled={team.includes(s.id)}
+                disabled={team.some((m) => m.speciesId === s.id)}
                 className="flex items-center gap-3 rounded-xl bg-white p-2 text-left shadow-sm ring-1 ring-slate-200 transition hover:ring-emerald-300 disabled:opacity-50 dark:bg-slate-900 dark:ring-slate-700 dark:hover:ring-emerald-700"
               >
                 <img src={s.sprites.regular} alt={s.name} loading="lazy" className="h-12 w-12 shrink-0" />
@@ -511,7 +977,7 @@ export default function TeamBuilder() {
               value={importText}
               onChange={(e) => setImportText(e.target.value)}
               rows={8}
-              placeholder={"Paste a PokéPaste / Showdown team…\n\nGholdengo @ Life Orb\nAbility: Good as Gold\n\nIncineroar (M) @ Sitrus Berry\nAbility: Intimidate"}
+              placeholder={"Paste a PokéPaste / Showdown team…\n\nGholdengo @ Life Orb\nAbility: Good as Gold\nLevel: 50\nEVs: 252 HP / 252 SpA\nModest Nature\n- Make It Rain"}
               className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 font-mono text-sm text-slate-800 shadow-sm focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-200 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:focus:ring-emerald-800"
             />
             <div className="mt-2 flex items-center gap-3">
@@ -523,7 +989,7 @@ export default function TeamBuilder() {
                 Import team
               </button>
               <p className="text-xs text-slate-400 dark:text-slate-500">
-                Species only — items, moves, and EVs stay in your paste.
+                Imports full sets — nickname, item, ability, nature, level, EVs, IVs, and moves.
               </p>
             </div>
           </div>
@@ -646,14 +1112,14 @@ export default function TeamBuilder() {
                 className="flex items-center gap-3 rounded-xl bg-white p-3 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700"
               >
                 <div className="flex -space-x-2">
-                  {s.ids.slice(0, 6).map((id) => {
-                    const sp = BY_ID.get(id);
+                  {s.members.slice(0, 6).map((m, idx) => {
+                    const sp = BY_ID.get(m.speciesId);
                     return sp ? (
                       <img
-                        key={id}
+                        key={`${m.speciesId}-${idx}`}
                         src={sp.sprites.regular}
                         alt={sp.name}
-                        title={sp.name}
+                        title={m.nickname?.trim() || sp.name}
                         loading="lazy"
                         className="h-10 w-10 rounded-full bg-stone-100 ring-2 ring-white dark:bg-slate-800"
                       />
@@ -665,7 +1131,7 @@ export default function TeamBuilder() {
                 </span>
                 <button
                   type="button"
-                  onClick={() => setTeam(parseTeamParam(s.ids.join(",")))}
+                  onClick={() => setTeam(s.members.map((m) => ({ ...m })))}
                   className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800 transition hover:bg-emerald-200 dark:bg-emerald-900 dark:text-emerald-200 dark:hover:bg-emerald-800"
                 >
                   Load
