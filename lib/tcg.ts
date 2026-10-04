@@ -23,6 +23,12 @@ export interface TcgCard {
   setTotal: number | null;
   imageSmall: string;
   imageLarge: string;
+  /** Card supertype: "Pokémon" | "Trainer" | "Energy" (deck builder, legality). */
+  supertype: string | null;
+  /** Card subtypes, e.g. ["Basic"], ["Item"], ["Supporter"]. */
+  subtypes: string[];
+  /** Format legalities as reported by the API, e.g. { standard: "Legal" }. */
+  legalities: Record<string, string>;
 }
 
 interface ApiCard {
@@ -30,6 +36,9 @@ interface ApiCard {
   name: string;
   number?: string;
   rarity?: string | null;
+  supertype?: string | null;
+  subtypes?: string[];
+  legalities?: Record<string, string>;
   set?: {
     id?: string;
     name?: string;
@@ -41,7 +50,7 @@ interface ApiCard {
 }
 
 const BASE = "https://api.pokemontcg.io/v2";
-const SEARCH_SELECT = "id,name,number,rarity,set,images";
+const SEARCH_SELECT = "id,name,number,rarity,set,images,supertype,subtypes,legalities";
 const SET_IDS_SELECT = "id";
 const PAGE_SIZE = 250;
 /** Cache TTL: card data changes rarely; 1h keeps repeat visits cheap. */
@@ -74,6 +83,9 @@ function mapCard(c: ApiCard): TcgCard {
     setTotal: c.set?.total ?? c.set?.printedTotal ?? null,
     imageSmall: c.images?.small ?? "",
     imageLarge: c.images?.large ?? "",
+    supertype: c.supertype ?? null,
+    subtypes: c.subtypes ?? [],
+    legalities: c.legalities ?? {},
   };
 }
 

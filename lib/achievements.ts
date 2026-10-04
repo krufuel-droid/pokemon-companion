@@ -22,7 +22,7 @@ export interface AchievementDef {
 }
 
 /**
- * Hardcoded fallback catalog of all 42 achievements. Used by getAchievements()
+ * Hardcoded fallback catalog of all 44 achievements. Used by getAchievements()
  * whenever the `achievements` table is missing or unreadable, so the UI works
  * before Amanda runs the migration.
  */
@@ -75,6 +75,8 @@ const FALLBACK_ACHIEVEMENTS: AchievementDef[] = [
   { id: "matchmaker", name: "Matchmaker", description: "Find your first trade match", icon: "💘", category: "Community" },
   { id: "coverage-pro", name: "Coverage Pro", description: "Analyze a full team's offensive coverage", icon: "⚔️", category: "Tools" },
   { id: "show-off", name: "Binder Showcase", description: "Publish your binder page", icon: "📸", category: "TCG" },
+  { id: "deck-builder", name: "Deck Architect", description: "Build your first 60-card deck", icon: "🃏", category: "TCG" },
+  { id: "trainer-card", name: "Card-Carrying Trainer", description: "Create your trainer card", icon: "🏅", category: "Community" },
   { id: "first-mark", name: "Marked!", description: "Catch your first marked Pokémon", icon: "🎖️", category: "Collection" },
   { id: "first-sandwich", name: "Sandwich Chef", description: "Save your first sandwich recipe", icon: "🥪", category: "Fun" },
   { id: "spooky-week-catch-2026", name: "Ghostly Greetings", description: "Log a Pokémon of the Day catch during Spooky Week", icon: "👻", category: "Seasonal" },

@@ -119,6 +119,11 @@ const TRACKERS: Tool[] = [
     title: "TCG Collection Tracker",
     desc: "Search every Pokémon TCG card, track your collection and want list by set, and watch sets fill up.",
   },
+  {
+    href: "/tools/deck-builder",
+    title: "TCG Deck Builder",
+    desc: "Build 60-card decks with format legality checks, cross-reference your collection, export lists, and share them.",
+  },
 ];
 
 function ToolCard({ tool }: { tool: Tool }) {

@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import SupabaseNeeded from "@/components/SupabaseNeeded";
 import Avatar from "@/components/Avatar";
+import TrainerCard from "@/components/TrainerCard";
 import { timeAgo } from "@/lib/community";
 import { getSpeciesById } from "@/lib/pokedex";
 import { computeTradeMatches } from "@/lib/trades";
@@ -109,7 +110,7 @@ export default async function TrainerProfilePage({
   const supabase = await createClient();
 
   const fullCols =
-    "id, username, avatar_url, bio, favorite_pokemon, buddy_species_id, buddy_nickname, last_seen, is_private, show_binder, created_at";
+    "id, username, avatar_url, bio, favorite_pokemon, buddy_species_id, buddy_nickname, last_seen, is_private, show_binder, show_trainer_card, created_at";
   const minimalCols = "id, username, avatar_url, bio, favorite_pokemon, created_at";
   let { data: profileData } = await supabase
     .from("profiles")
@@ -232,6 +233,53 @@ export default async function TrainerProfilePage({
     month: "long",
   });
 
+  // Trainer card data (public-safe: RLS only exposes these when the trainer's
+  // card is public; everything degrades to empty when the SQL isn't run yet).
+  const showTrainerCard =
+    (profile as { show_trainer_card?: boolean }).show_trainer_card !== false && !isPrivate;
+  const [favsRes, shinyRes, tcgRes, masterRes] = showTrainerCard
+    ? await Promise.all([
+        supabase
+          .from("trainer_card_favorites")
+          .select("species_id, species_name, position")
+          .eq("user_id", profile.id)
+          .order("position", { ascending: true }),
+        supabase
+          .from("shiny_hunts")
+          .select("id", { count: "exact", head: true })
+          .eq("user_id", profile.id)
+          .eq("status", "completed"),
+        supabase
+          .from("tcg_collection")
+          .select("id", { count: "exact", head: true })
+          .eq("user_id", profile.id)
+          .eq("list", "collection"),
+        supabase
+          .from("tcg_master_set")
+          .select("id", { count: "exact", head: true })
+          .eq("user_id", profile.id),
+      ])
+    : [{ data: null }, { count: 0 }, { count: 0 }, { count: 0 }];
+
+  const cardFavorites = (
+    ((favsRes.data as { species_id: number; species_name: string; position: number }[] | null) ?? [])
+  ).map((f) => {
+    const species = getSpeciesById(f.species_id);
+    return {
+      species_id: f.species_id,
+      species_name: f.species_name,
+      sprite_url: species?.sprites.regular ?? null,
+    };
+  });
+  const cardAchievements = recent
+    .filter((a) => a.kind === "achievement")
+    .slice(0, 8)
+    .map((a) => ({
+      id: a.key,
+      name: a.kind === "achievement" ? a.name : "",
+      icon: a.kind === "achievement" ? a.icon : "🏆",
+    }));
+
   const cardClass =
     "rounded-2xl border border-stone-200 bg-white p-6 shadow-sm sm:p-8 dark:border-slate-700 dark:bg-slate-900";
 
@@ -259,6 +307,22 @@ export default async function TrainerProfilePage({
         </div>
       ) : (
         <>
+      {/* Shareable trainer card */}
+      {showTrainerCard && (
+        <div className="mb-6">
+          <TrainerCard
+            username={profile.username}
+            avatarUrl={profile.avatar_url}
+            bio={profile.bio}
+            favorites={cardFavorites}
+            shinyCount={shinyRes.count ?? 0}
+            achievements={cardAchievements}
+            tcgCards={tcgRes.count ?? 0}
+            masterSetPrints={masterRes.count ?? 0}
+            memberSince={memberSince}
+          />
+        </div>
+      )}
       {/* Header */}
       <div className={cardClass}>
         <div className="flex items-start gap-5">

@@ -13,6 +13,7 @@ import { fetchTradeLists, type TradeEntry, type TradeTable } from "@/lib/trades"
 import { POKEMON_GAMES } from "@/lib/data/games";
 import { useEffect, useMemo } from "react";
 import { getAchievements, getUserAchievements, unlockAchievement, type AchievementDef } from "@/lib/achievements";
+import speciesIndex from "@/data/pokedex-index.json";
 
 const inputClass =
   "w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-mint focus:outline-none focus:ring-2 focus:ring-mint/40 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500";
@@ -781,6 +782,279 @@ function ProfileHighlights({ userId }: { userId: string }) {
   );
 }
 
+interface SpeciesLite {
+  id: number;
+  name: string;
+  sprites: { regular: string };
+}
+
+interface FavoriteRow {
+  species_id: number;
+  species_name: string;
+  position: number;
+  sprite_url: string | null;
+}
+
+function spriteFor(speciesId: number): string | null {
+  const s = (speciesIndex as SpeciesLite[]).find((x) => x.id === speciesId);
+  return s?.sprites.regular ?? null;
+}
+
+/** Trainer card editor: favorite Pokémon picker + public-card toggle. Nested in the profile editor. */
+function TrainerCardEditor({ profile }: { profile: Profile }) {
+  const [favorites, setFavorites] = useState<FavoriteRow[]>([]);
+  const [query, setQuery] = useState("");
+  const [showCard, setShowCard] = useState(profile.show_trainer_card ?? true);
+  const [busy, setBusy] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [msg, setMsg] = useState<string | null>(null);
+  const [setupNeeded, setSetupNeeded] = useState(false);
+
+  useEffect(() => {
+    const sb = createClient();
+    sb.from("trainer_card_favorites")
+      .select("species_id, species_name, position")
+      .eq("user_id", profile.id)
+      .order("position", { ascending: true })
+      .then(({ data, error }: { data: unknown; error: { code?: string } | null }) => {
+        if (error) {
+          if (error.code === "42P01") setSetupNeeded(true);
+          return;
+        }
+        const rows = ((data as Omit<FavoriteRow, "sprite_url">[] | null) ?? []).map((r) => ({
+          ...r,
+          sprite_url: spriteFor(r.species_id),
+        }));
+        setFavorites(rows);
+      })
+      .catch(() => {});
+  }, [profile.id]);
+
+  const matches = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (q.length < 2) return [];
+    return (speciesIndex as SpeciesLite[])
+      .filter((s) => s.name.toLowerCase().startsWith(q))
+      .slice(0, 12);
+  }, [query]);
+
+  async function addFavorite(s: SpeciesLite) {
+    if (busy || favorites.length >= 6) return;
+    if (favorites.some((f) => f.species_id === s.id)) {
+      setQuery("");
+      return;
+    }
+    setBusy(true);
+    try {
+      const sb = createClient();
+      const { error } = await sb.from("trainer_card_favorites").insert({
+        user_id: profile.id,
+        species_id: s.id,
+        species_name: s.name,
+        position: favorites.length,
+      });
+      if (error) {
+        if ((error as { code?: string }).code === "42P01") setSetupNeeded(true);
+        return;
+      }
+      setFavorites((fs) => [
+        ...fs,
+        { species_id: s.id, species_name: s.name, position: fs.length, sprite_url: s.sprites.regular },
+      ]);
+      setQuery("");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function removeFavorite(speciesId: number) {
+    if (busy) return;
+    setBusy(true);
+    try {
+      const sb = createClient();
+      const { error } = await sb
+        .from("trainer_card_favorites")
+        .delete()
+        .eq("user_id", profile.id)
+        .eq("species_id", speciesId);
+      if (error) return;
+      // Compact positions so they stay 0..n-1.
+      const rest = favorites
+        .filter((f) => f.species_id !== speciesId)
+        .map((f, i) => ({ ...f, position: i }));
+      setFavorites(rest);
+      await Promise.all(
+        rest.map((f) =>
+          sb
+            .from("trainer_card_favorites")
+            .update({ position: f.position })
+            .eq("user_id", profile.id)
+            .eq("species_id", f.species_id)
+        )
+      );
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function onToggleCard(next: boolean) {
+    if (busy) return;
+    setBusy(true);
+    setMsg(null);
+    try {
+      const sb = createClient();
+      const wasPublic = showCard;
+      const { error } = await sb
+        .from("profiles")
+        .update({ show_trainer_card: next })
+        .eq("id", profile.id);
+      if (error) {
+        if ((error as { code?: string }).code === "42703") setSetupNeeded(true);
+        else setMsg("Couldn't update the setting — try again.");
+        return;
+      }
+      setShowCard(next);
+      if (next && !wasPublic) {
+        try {
+          const ok = await unlockAchievement(profile.id, "trainer-card");
+          if (ok) setMsg("🏅 Achievement unlocked: Card-Carrying Trainer!");
+        } catch {
+          /* never let the achievement break the toggle */
+        }
+      }
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  function copyTrainerLink() {
+    const url = `${window.location.origin}/trainer/${encodeURIComponent(profile.username)}`;
+    const done = () => {
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 2000);
+    };
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(url).then(done).catch(done);
+    } else {
+      done();
+    }
+  }
+
+  return (
+    <div className="mt-4 rounded-lg border border-stone-200 bg-stone-50 px-4 py-3 dark:border-slate-700 dark:bg-slate-800">
+      <div className="flex cursor-pointer items-start gap-3">
+        <input
+          type="checkbox"
+          checked={showCard}
+          disabled={busy}
+          onChange={(e) => void onToggleCard(e.target.checked)}
+          className="mt-1 h-4 w-4 accent-emerald-600"
+          aria-label="Show my trainer card"
+        />
+        <span className="flex-1">
+          <span className="block text-sm font-semibold text-slate-900 dark:text-slate-100">
+            🏅 Show my trainer card
+          </span>
+          <span className="mt-0.5 block text-xs text-slate-500 dark:text-slate-400">
+            Anyone visiting your public trainer page sees your shareable card: favorite
+            Pokémon, shiny count, TCG totals, and latest honors.
+          </span>
+          {showCard && (
+            <span className="mt-2 flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={copyTrainerLink}
+                className="rounded-full bg-emerald-600 px-4 py-1.5 text-xs font-bold text-white hover:bg-emerald-700"
+              >
+                {copied ? "✓ Copied!" : "🔗 Copy trainer link"}
+              </button>
+              <Link
+                href={`/trainer/${encodeURIComponent(profile.username)}`}
+                className="rounded-full border border-stone-300 px-4 py-1.5 text-xs font-semibold text-slate-700 hover:border-mint dark:border-slate-600 dark:text-slate-300"
+              >
+                View trainer page
+              </Link>
+            </span>
+          )}
+        </span>
+      </div>
+
+      {setupNeeded ? (
+        <p className="mt-3 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800 dark:bg-amber-950/30 dark:text-amber-300">
+          One-time setup needed: run supabase/migration-trainer-card.sql in the Supabase SQL
+          Editor, then refresh.
+        </p>
+      ) : (
+        <div className="mt-3 border-t border-stone-200 pt-3 dark:border-slate-700">
+          <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+            Favorite Pokémon <span className="font-normal text-slate-400">({favorites.length}/6)</span>
+          </p>
+          {favorites.length > 0 && (
+            <div className="mt-2 flex flex-wrap gap-2">
+              {favorites.map((f) => (
+                <div
+                  key={f.species_id}
+                  className="relative flex h-14 w-14 items-center justify-center rounded-xl bg-white ring-1 ring-stone-200 dark:bg-slate-900 dark:ring-slate-700"
+                  title={f.species_name}
+                >
+                  {f.sprite_url ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={f.sprite_url} alt={f.species_name} width={48} height={48} className="h-12 w-12 object-contain" loading="lazy" />
+                  ) : (
+                    <span className="text-xs font-bold text-slate-500">{f.species_name.slice(0, 2)}</span>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => void removeFavorite(f.species_id)}
+                    aria-label={`Remove ${f.species_name}`}
+                    className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-slate-700 text-[10px] font-bold text-white hover:bg-red-500"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+          {favorites.length < 6 && (
+            <div className="mt-2">
+              <input
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search Pokémon to add…"
+                autoComplete="off"
+                aria-label="Search Pokémon for trainer card"
+                className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-mint focus:outline-none dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100"
+              />
+              {matches.length > 0 && (
+                <ul className="mt-1 grid max-h-40 grid-cols-6 gap-1 overflow-auto rounded-lg border border-stone-200 bg-white p-2 dark:border-slate-700 dark:bg-slate-900">
+                  {matches.map((m) => (
+                    <li key={m.id}>
+                      <button
+                        type="button"
+                        onClick={() => void addFavorite(m)}
+                        title={m.name}
+                        className="rounded-lg p-1 transition hover:bg-stone-100 dark:hover:bg-slate-800"
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={m.sprites.regular} alt={m.name} width={48} height={48} className="h-12 w-12 object-contain" loading="lazy" />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+      {msg && (
+        <p role="status" className="mt-2 rounded-lg bg-violet-50 px-3 py-2 text-xs text-violet-700 dark:bg-violet-950/30 dark:text-violet-300">
+          {msg}
+        </p>
+      )}
+    </div>
+  );
+}
+
 function ProfileEditor({ profile, onSaved }: { profile: Profile; onSaved: () => void }) {
   const [username, setUsername] = useState(profile.username);
   const [avatarUrl, setAvatarUrl] = useState(profile.avatar_url ?? "");
@@ -1063,6 +1337,7 @@ function ProfileEditor({ profile, onSaved }: { profile: Profile; onSaved: () => 
               {binderMsg}
             </p>
           )}
+          <TrainerCardEditor profile={profile} />
           <button
             type="submit"
             disabled={busy}

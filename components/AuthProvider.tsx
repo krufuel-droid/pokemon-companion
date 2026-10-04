@@ -29,6 +29,8 @@ export interface Profile {
   is_private: boolean;
   /** Binder Showcase: when true, /binder/[username] is publicly visible. */
   show_binder: boolean;
+  /** Trainer Card: when true, /trainer/[username] shows the shareable card extras. */
+  show_trainer_card: boolean;
   created_at: string;
 }
 
@@ -98,7 +100,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const fetchProfile = useCallback(async (userId: string) => {
     try {
       const supabase = createClient();
-      const full = "id, username, avatar_url, bio, favorite_pokemon, buddy_species_id, buddy_nickname, trainer_code, is_private, show_binder, created_at";
+      const full = "id, username, avatar_url, bio, favorite_pokemon, buddy_species_id, buddy_nickname, trainer_code, is_private, show_binder, show_trainer_card, created_at";
       const minimal = "id, username, avatar_url, bio, favorite_pokemon, created_at";
       let { data } = await supabase
         .from("profiles")
