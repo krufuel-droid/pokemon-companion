@@ -386,7 +386,7 @@ export default function ChampionsPage() {
               <div
                 key={player.name}
                 id={playerAnchor(player.name)}
-                className="scroll-mt-24 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700"
+                className="scroll-mt-36 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700"
               >
                 <h3 className="text-base font-extrabold text-slate-900 dark:text-slate-100">
                   {player.name}
@@ -429,7 +429,7 @@ export default function ChampionsPage() {
                 <details
                   key={tourney.name}
                   id={anchor}
-                  className="scroll-mt-24 overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 open:ring-emerald-300 dark:bg-slate-900 dark:ring-slate-700 dark:open:ring-emerald-700"
+                  className="scroll-mt-36 overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 open:ring-emerald-300 dark:bg-slate-900 dark:ring-slate-700 dark:open:ring-emerald-700"
                 >
                   <summary className="flex cursor-pointer list-none items-center gap-3 px-4 py-3 [&::-webkit-details-marker]:hidden">
                     <span className="w-28 shrink-0 rounded-full bg-mint px-2.5 py-1 text-center text-xs font-bold text-slate-900 dark:text-slate-100">
