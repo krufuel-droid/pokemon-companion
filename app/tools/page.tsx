@@ -51,6 +51,21 @@ const TEAM_TOOLS: Tool[] = [
     desc: "Pick a meta threat (forms included) and get ranked type-based answers — who resists it and hits back super-effectively.",
   },
   {
+    href: "/tools/meta-matchups",
+    title: "Meta Matchup Matrix",
+    desc: "The 12 most-used Regulation M-C Pokémon in a 12×12 grid — who holds the type edge, cell by cell.",
+  },
+  {
+    href: "/tools/ev-optimizer",
+    title: "EV Survival Optimizer",
+    desc: "How much bulk to survive that hit? Searches every HP/Def EV split for the cheapest spread that lives — 1 hit and 2 hits.",
+  },
+  {
+    href: "/tools/speed-tiers",
+    title: "Speed Tiers",
+    desc: "Who outspeeds whom — the 12 meta staples sorted by real Speed stats, with Scarf, Tailwind, paralysis, and Swift Swim toggles.",
+  },
+  {
     href: "/tools/breeding",
     title: "Breeding Compatibility",
     desc: "Check whether two Pokémon can breed by egg group — and see the egg moves their offspring could inherit.",

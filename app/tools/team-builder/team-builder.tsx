@@ -76,6 +76,94 @@ function parseTeamParam(param: string | null): number[] {
   return ids.slice(0, MAX_TEAM);
 }
 
+/** Normalized name → species/variant id, for forgiving PokéPaste matching. */
+const NAME_TO_ID = new Map<string, number>();
+for (const s of SEARCHABLE) {
+  const key = s.name.toLowerCase().replace(/[^a-z0-9]/g, "");
+  if (!NAME_TO_ID.has(key)) NAME_TO_ID.set(key, s.id);
+}
+
+/** Showdown regional suffixes → builder variant name prefixes. */
+const REGION_ALIAS: Array<[RegExp, string]> = [
+  [/-alola$/, "alolan "],
+  [/-galar$/, "galarian "],
+  [/-hisui$/, "hisuian "],
+  [/-paldea$/, "paldean "],
+];
+
+function matchSpeciesId(raw: string): number | null {
+  const q = raw.trim().toLowerCase();
+  if (!q) return null;
+  for (const [re, prefix] of REGION_ALIAS) {
+    if (re.test(q)) {
+      const id = NAME_TO_ID.get(
+        (prefix + q.replace(re, "")).replace(/[^a-z0-9]/g, ""),
+      );
+      if (id !== undefined) return id;
+    }
+  }
+  const direct = NAME_TO_ID.get(q.replace(/[^a-z0-9]/g, ""));
+  if (direct !== undefined) return direct;
+  // Fall back to the base species for forms the builder can't represent
+  // (e.g. "charizard-mega-x" → Charizard).
+  const dash = q.indexOf("-");
+  if (dash > 0) {
+    const fallback = NAME_TO_ID.get(q.slice(0, dash).replace(/[^a-z0-9]/g, ""));
+    if (fallback !== undefined) return fallback;
+  }
+  return null;
+}
+
+/**
+ * Parse PokéPaste / Showdown text into builder species ids.
+ * Only species are imported — the builder doesn't store items, moves, EVs,
+ * etc. Forgiving: handles "Nickname (Species) @ Item", "Species @ Item",
+ * gender "(M)"/"(F)" tags, missing lines, and regional suffixes.
+ * Unparseable entries are reported via `skipped`, never invented.
+ */
+function parsePokePaste(text: string): { ids: number[]; skipped: string[] } {
+  const ids: number[] = [];
+  const skipped: string[] = [];
+  const seen = new Set<number>();
+  for (const block of text.split(/\n\s*\n/)) {
+    const first = block
+      .split("\n")
+      .map((l) => l.trim())
+      .find((l) => l.length > 0);
+    if (!first || first.startsWith("-") || first.includes(":")) continue;
+    // Strip " @ Item".
+    let head = first;
+    const at = head.lastIndexOf(" @ ");
+    if (at > 0) head = head.slice(0, at).trim();
+    // Trailing "(...)" — gender tag, species-in-nickname, or form tag.
+    let name = head;
+    const paren = head.match(/^(.*)\(([^)]+)\)\s*$/);
+    if (paren) {
+      const inner = paren[2].trim().toLowerCase();
+      const outer = paren[1].trim();
+      if (inner === "m" || inner === "f") {
+        name = outer; // gender tag: "Incineroar (M)"
+      } else if (matchSpeciesId(paren[2]) !== null) {
+        name = paren[2].trim(); // "Nickname (Species)"
+      } else if (outer) {
+        name = outer; // unknown tag — try the outer text
+      } else {
+        name = paren[2].trim();
+      }
+    }
+    const id = matchSpeciesId(name);
+    if (id === null) {
+      skipped.push(first);
+      continue;
+    }
+    if (seen.has(id)) continue;
+    seen.add(id);
+    ids.push(id);
+    if (ids.length >= MAX_TEAM) break;
+  }
+  return { ids, skipped };
+}
+
 function loadSaved(): SavedTeam[] {
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
@@ -115,6 +203,8 @@ export default function TeamBuilder() {
   );
   const [notice, setNotice] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [importText, setImportText] = useState("");
+  const [importOpen, setImportOpen] = useState(false);
 
   useEffect(() => {
     if (!notice) return;
@@ -230,6 +320,24 @@ export default function TeamBuilder() {
     } catch {
       setNotice("Copy failed — your browser blocked clipboard access.");
     }
+  }
+
+  /** Import a PokéPaste / Showdown team — species only. */
+  function importPaste() {
+    const { ids, skipped } = parsePokePaste(importText);
+    if (ids.length === 0) {
+      setNotice("Couldn't recognize any Pokémon in that paste.");
+      return;
+    }
+    setTeam(ids);
+    setImportText("");
+    setImportOpen(false);
+    setNotice(
+      `Imported ${ids.length} Pokémon.` +
+        (skipped.length > 0
+          ? ` Skipped: ${skipped.slice(0, 4).join("; ")}${skipped.length > 4 ? "…" : ""}`
+          : ""),
+    );
   }
 
   /** Copy the team in Pokémon Showdown / PokéPaste import format. */
@@ -382,6 +490,43 @@ export default function TeamBuilder() {
           <p className="mt-2 text-sm text-slate-400 dark:text-slate-500">
             Type at least 2 letters to search the full Pokédex.
           </p>
+        )}
+      </section>
+
+      {/* Import PokéPaste */}
+      <section className="mt-8">
+        <button
+          type="button"
+          onClick={() => setImportOpen((v) => !v)}
+          className="text-lg font-semibold text-slate-800 dark:text-slate-100"
+        >
+          Import PokéPaste{" "}
+          <span className="text-sm font-normal text-slate-400 dark:text-slate-500">
+            {importOpen ? "▾" : "▸"}
+          </span>
+        </button>
+        {importOpen && (
+          <div className="mt-3">
+            <textarea
+              value={importText}
+              onChange={(e) => setImportText(e.target.value)}
+              rows={8}
+              placeholder={"Paste a PokéPaste / Showdown team…\n\nGholdengo @ Life Orb\nAbility: Good as Gold\n\nIncineroar (M) @ Sitrus Berry\nAbility: Intimidate"}
+              className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 font-mono text-sm text-slate-800 shadow-sm focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-200 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:focus:ring-emerald-800"
+            />
+            <div className="mt-2 flex items-center gap-3">
+              <button
+                type="button"
+                onClick={importPaste}
+                className="rounded-full bg-emerald-500 px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-600"
+              >
+                Import team
+              </button>
+              <p className="text-xs text-slate-400 dark:text-slate-500">
+                Species only — items, moves, and EVs stay in your paste.
+              </p>
+            </div>
+          </div>
         )}
       </section>
 
