@@ -116,7 +116,7 @@ const FEATURES = [
   },
 ] as const;
 
-const COMING_SOON = ["Collections & favorites"] as const;
+const COMING_SOON = ["Tournament results & top-cut teams"] as const;
 
 export default function HomePage() {
   return (
