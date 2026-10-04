@@ -280,7 +280,7 @@ export default async function TrainerProfilePage({
         supabase
           .from("shiny_hunts")
           .select("id", { count: "exact", head: true })
-          .eq("user_id", profile.id)
+          .eq("owner_id", profile.id)
           .eq("status", "completed"),
         supabase
           .from("tcg_collection")

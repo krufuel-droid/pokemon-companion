@@ -88,7 +88,7 @@ create policy shiny_hunts_trainer_public_read on shiny_hunts
     status = 'completed'
     and exists (
       select 1 from profiles p
-      where p.id = shiny_hunts.user_id
+      where p.id = shiny_hunts.owner_id
         and p.show_trainer_card
     )
   );
