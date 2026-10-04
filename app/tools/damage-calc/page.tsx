@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { TYPES, effectiveness } from "@/lib/typechart";
-import { TYPE_COLORS } from "@/lib/theme";
 import {
   searchSpecies,
   getSpeciesById,
@@ -11,13 +10,17 @@ import {
 } from "@/lib/pokedex";
 import { createClient } from "@/lib/supabase/client";
 import { unlockAchievement } from "@/lib/achievements";
-
-const inputCls =
-  "w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-800 shadow-sm focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-200 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:focus:ring-emerald-800";
-const labelCls = "block text-sm font-medium text-slate-600 dark:text-slate-400";
-const sectionCls =
-  "rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700";
-const NONE = "—";
+import { NATURES } from "@/lib/data/natures";
+import { MOVES } from "@/lib/data/moves";
+import {
+  inputCls,
+  labelCls,
+  sectionCls,
+  NONE,
+  TypePill,
+  SpeciesPicker,
+} from "./shared";
+import AdvancedCalc from "./advanced";
 
 const EFF_OPTIONS = ["auto", "0", "0.25", "0.5", "1", "2", "4"] as const;
 
@@ -31,6 +34,45 @@ function baseOf(full: SpeciesFull | undefined, key: string): number {
   return full?.baseStats.find((s) => s.key === key)?.value ?? 100;
 }
 
+/**
+ * Sensible default nature per species: boost the higher attacking stat.
+ * Sp. Atk > Attack → Modest, Attack > Sp. Atk → Adamant, tie → Hardy.
+ */
+function suggestNature(s: SpeciesIndex | null): string {
+  const full = s ? getSpeciesById(s.id) : undefined;
+  if (!full) return "Hardy";
+  const atk = baseOf(full, "attack");
+  const spa = baseOf(full, "special-attack");
+  if (spa > atk) return "Modest";
+  if (atk > spa) return "Adamant";
+  return "Hardy";
+}
+
+/** Defensive default nature: Bold (+Def) when Defense ≥ Sp. Def, else Calm (+SpD). */
+function suggestDefNature(s: SpeciesIndex | null): string {
+  const full = s ? getSpeciesById(s.id) : undefined;
+  if (!full) return "Bold";
+  return baseOf(full, "defense") >= baseOf(full, "special-defense")
+    ? "Bold"
+    : "Calm";
+}
+
+/** ±10% nature multiplier for a display stat name ("Attack", "Sp. Def", …). */
+function natureMultFor(natureName: string, statDisplay: string): number {
+  const n = NATURES.find((x) => x.name === natureName);
+  if (n?.raises === statDisplay) return 1.1;
+  if (n?.lowers === statDisplay) return 0.9;
+  return 1;
+}
+
+/** "+10% X, −10% Y" / "Neutral" hint for a nature name. */
+function natureHint(natureName: string): string {
+  const n = NATURES.find((x) => x.name === natureName);
+  return n && n.raises && n.lowers
+    ? `+10% ${n.raises}, −10% ${n.lowers} — applied in the calc.`
+    : "Neutral — no stat changes.";
+}
+
 function effLabel(eff: number): string {
   if (eff === 0) return "no effect";
   if (eff < 1) return "not very effective";
@@ -38,105 +80,6 @@ function effLabel(eff: number): string {
   return "neutral";
 }
 
-function TypePill({ type }: { type: string }) {
-  return (
-    <span
-      className="rounded-full px-2.5 py-0.5 text-xs font-semibold text-white"
-      style={{ backgroundColor: TYPE_COLORS[type] ?? "#A8A77A" }}
-    >
-      {type}
-    </span>
-  );
-}
-
-function SpeciesPicker({
-  label,
-  species,
-  onPick,
-}: {
-  label: string;
-  species: SpeciesIndex | null;
-  onPick: (s: SpeciesIndex | null) => void;
-}) {
-  const [query, setQuery] = useState("");
-  const [open, setOpen] = useState(false);
-  const results = useMemo(() => searchSpecies(query), [query]);
-
-  return (
-    <div className="relative">
-      <span className={labelCls}>{label}</span>
-      {species ? (
-        <div className="mt-1 flex items-center gap-3 rounded-xl border border-slate-300 px-3 py-2 dark:border-slate-600">
-          <img
-            src={species.sprites.regular}
-            alt={species.name}
-            className="h-10 w-10 object-contain"
-          />
-          <div className="min-w-0 flex-1">
-            <div className="truncate font-semibold text-slate-800 dark:text-slate-100">
-              {species.name}
-            </div>
-            <div className="flex gap-1">
-              {species.types.map((t) => (
-                <TypePill key={t} type={t} />
-              ))}
-            </div>
-          </div>
-          <button
-            type="button"
-            onClick={() => {
-              setQuery("");
-              setOpen(false);
-              onPick(null);
-            }}
-            className="rounded-lg px-2 py-1 text-sm text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-800"
-            aria-label={`Clear ${label}`}
-          >
-            ✕
-          </button>
-        </div>
-      ) : (
-        <input
-          className={`${inputCls} mt-1`}
-          placeholder="Search a Pokémon…"
-          value={query}
-          onChange={(e) => {
-            setQuery(e.target.value);
-            setOpen(true);
-          }}
-          onFocus={() => setOpen(true)}
-          onBlur={() => setTimeout(() => setOpen(false), 150)}
-        />
-      )}
-      {open && !species && results.length > 0 && (
-        <ul className="absolute z-20 mt-1 max-h-56 w-full overflow-y-auto rounded-xl border border-slate-200 bg-white shadow-lg dark:border-slate-700 dark:bg-slate-900">
-          {results.map((s) => (
-            <li key={s.id}>
-              <button
-                type="button"
-                onMouseDown={() => {
-                  onPick(s);
-                  setQuery("");
-                  setOpen(false);
-                }}
-                className="flex w-full items-center gap-2 px-3 py-1.5 text-left hover:bg-slate-100 dark:hover:bg-slate-800"
-              >
-                <img
-                  src={s.sprites.regular}
-                  alt=""
-                  className="h-8 w-8 object-contain"
-                />
-                <span className="text-sm text-slate-800 dark:text-slate-100">
-                  {s.name}
-                </span>
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
-}
 
 export default function DamageCalcPage() {
   // Default matchup: Charizard vs Venusaur.
@@ -183,6 +126,12 @@ export default function DamageCalcPage() {
   const [moveType, setMoveType] = useState("Fire");
   const [category, setCategory] = useState<"physical" | "special">("special");
   const [stabMode, setStabMode] = useState<"auto" | "on" | "off">("auto");
+  const [movePick, setMovePick] = useState("");
+
+  // --- Attacker nature (auto-suggested per species, ±10% in the calc) ---
+  const [atkNature, setAtkNature] = useState(() => suggestNature(defaultAttacker));
+  // --- Defender nature (Bold/Calm auto-suggested, ±10% in the calc) ---
+  const [defNature, setDefNature] = useState(() => suggestDefNature(defaultDefender));
 
   // --- Effectiveness ---
   const [effOverride, setEffOverride] = useState<(typeof EFF_OPTIONS)[number]>(
@@ -190,6 +139,7 @@ export default function DamageCalcPage() {
   );
 
   const [hasCalculated, setHasCalculated] = useState(false);
+  const [mode, setMode] = useState<"simple" | "advanced">("simple");
   const firedRef = useRef(false);
   const userIdRef = useRef<string | null>(null);
 
@@ -201,26 +151,100 @@ export default function DamageCalcPage() {
     );
   }, []);
 
-  function pickAttacker(s: SpeciesIndex | null) {
-    setAttacker(s);
+  function prefillAttackerStats(s: SpeciesIndex | null, lvl: number) {
     const full = s ? getSpeciesById(s.id) : undefined;
     if (s && full) {
-      setAttack(statFromBase(baseOf(full, "attack"), level, false));
-      setSpAtk(statFromBase(baseOf(full, "special-attack"), level, false));
+      setAttack(statFromBase(baseOf(full, "attack"), lvl, false));
+      setSpAtk(statFromBase(baseOf(full, "special-attack"), lvl, false));
     }
+  }
+
+  function prefillDefenderStats(s: SpeciesIndex | null, lvl: number) {
+    const full = s ? getSpeciesById(s.id) : undefined;
+    if (s && full) {
+      const maxHp = statFromBase(baseOf(full, "hp"), lvl, true);
+      setHp(maxHp);
+      setCurrentHp(maxHp);
+      setDefense(statFromBase(baseOf(full, "defense"), lvl, false));
+      setSpDef(statFromBase(baseOf(full, "special-defense"), lvl, false));
+      setDefType1(full.types[0] ?? "Grass");
+      setDefType2(full.types[1] ?? NONE);
+    }
+  }
+
+  function pickAttacker(s: SpeciesIndex | null) {
+    setAttacker(s);
+    prefillAttackerStats(s, level);
+    setAtkNature(suggestNature(s));
+    setMovePick("");
   }
 
   function pickDefender(s: SpeciesIndex | null) {
     setDefender(s);
-    const full = s ? getSpeciesById(s.id) : undefined;
-    if (s && full) {
-      const maxHp = statFromBase(baseOf(full, "hp"), level, true);
-      setHp(maxHp);
-      setCurrentHp(maxHp);
-      setDefense(statFromBase(baseOf(full, "defense"), level, false));
-      setSpDef(statFromBase(baseOf(full, "special-defense"), level, false));
-      setDefType1(full.types[0] ?? "Grass");
-      setDefType2(full.types[1] ?? NONE);
+    prefillDefenderStats(s, level);
+    setDefNature(suggestDefNature(s));
+  }
+
+  function handleLevel(v: number) {
+    const lvl = Math.min(100, Math.max(1, v || 1));
+    setLevel(lvl);
+    prefillAttackerStats(attacker, lvl);
+    prefillDefenderStats(defender, lvl);
+  }
+
+  /** Nature dropdown with +/− labels and an applied-in-calc hint. */
+function NatureSelect({
+  id,
+  value,
+  onChange,
+}: {
+  id: string;
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  return (
+    <div>
+      <label className={labelCls} htmlFor={id}>
+        Nature
+      </label>
+      <select
+        id={id}
+        className={inputCls}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+      >
+        {NATURES.map((n) => (
+          <option key={n.name} value={n.name}>
+            {n.name}
+            {n.raises && n.lowers
+              ? ` (+${n.raises.replace("Sp. ", "Sp")}, −${n.lowers.replace("Sp. ", "Sp")})`
+              : " (neutral)"}
+          </option>
+        ))}
+      </select>
+      <p className="mt-1.5 text-xs text-slate-400 dark:text-slate-500">
+        {natureHint(value)}
+      </p>
+    </div>
+  );
+}
+
+/** Damaging moves the attacker can actually learn, alphabetical. */
+  const learnableMoves = useMemo(() => {
+    if (!attacker) return [];
+    return MOVES.filter(
+      (m) => m.power != null && m.learnedBy.includes(attacker.id),
+    ).sort((a, b) => a.name.localeCompare(b.name));
+  }, [attacker]);
+
+  function pickMove(name: string) {
+    setMovePick(name);
+    if (!name) return;
+    const m = learnableMoves.find((x) => x.name === name);
+    if (m && m.power != null) {
+      setPower(m.power);
+      setMoveType(m.type);
+      setCategory(m.category === "Special" ? "special" : "physical");
     }
   }
 
@@ -231,13 +255,23 @@ export default function DamageCalcPage() {
   const calc = useMemo(() => {
     const lvl = Math.min(100, Math.max(1, Math.round(Number(level) || 50)));
     const pwr = Math.max(0, Math.round(Number(power) || 0));
+    // Natures: ±10% on the relevant stats.
+    const atkNatureStat = category === "physical" ? "Attack" : "Sp. Atk";
+    const atkNatureMult = natureMultFor(atkNature, atkNatureStat);
     const atkStat = Math.max(
       1,
-      Math.round(Number(category === "physical" ? attack : spAtk) || 1),
+      Math.round(
+        (Number(category === "physical" ? attack : spAtk) || 1) * atkNatureMult,
+      ),
     );
+    const defNatureStat = category === "physical" ? "Defense" : "Sp. Def";
+    const defNatureMult = natureMultFor(defNature, defNatureStat);
     const defStat = Math.max(
       1,
-      Math.round(Number(category === "physical" ? defense : spDef) || 1),
+      Math.round(
+        (Number(category === "physical" ? defense : spDef) || 1) *
+          defNatureMult,
+      ),
     );
     const targetHp = Math.max(1, Math.round(Number(currentHp) || 1));
 
@@ -287,6 +321,10 @@ export default function DamageCalcPage() {
     const mods: string[] = [];
     if (stabApplied) mods.push("STAB ×1.5");
     if (eff !== 1) mods.push(`effectiveness ×${eff}`);
+    if (atkNatureMult !== 1)
+      mods.push(`${atkNature} nature ×${atkNatureMult} (Atk)`);
+    if (defNatureMult !== 1)
+      mods.push(`${defNature} nature ×${defNatureMult} (Def)`);
 
     return {
       lvl,
@@ -307,8 +345,10 @@ export default function DamageCalcPage() {
     power,
     attack,
     spAtk,
+    atkNature,
     defense,
     spDef,
+    defNature,
     currentHp,
     category,
     moveType,
@@ -345,6 +385,34 @@ export default function DamageCalcPage() {
         formula with all 16 random rolls (85–100%).
       </p>
 
+      {/* Simple / Advanced mode toggle */}
+      <div className="mt-4 inline-flex rounded-xl border border-slate-300 p-1 dark:border-slate-600">
+        {(
+          [
+            { v: "simple", label: "Simple" },
+            { v: "advanced", label: "Advanced ⚙️" },
+          ] as const
+        ).map((o) => (
+          <button
+            key={o.v}
+            type="button"
+            onClick={() => setMode(o.v)}
+            className={`rounded-lg px-4 py-1.5 text-sm font-semibold transition ${
+              mode === o.v
+                ? "bg-emerald-300 text-slate-800 dark:bg-emerald-600 dark:text-slate-100"
+                : "text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
+            }`}
+          >
+            {o.label}
+          </button>
+        ))}
+      </div>
+
+      {mode === "advanced" ? (
+        <AdvancedCalc />
+      ) : (
+        <>
+
       <div className="mt-6 grid gap-5 lg:grid-cols-2">
         {/* Attacker */}
         <div className={sectionCls}>
@@ -369,11 +437,7 @@ export default function DamageCalcPage() {
                   max={100}
                   className={inputCls}
                   value={level}
-                  onChange={(e) =>
-                    setLevel(
-                      Math.min(100, Math.max(1, e.target.valueAsNumber || 1)),
-                    )
-                  }
+                  onChange={(e) => handleLevel(e.target.valueAsNumber || 1)}
                 />
               </div>
               <div>
@@ -403,9 +467,14 @@ export default function DamageCalcPage() {
                 />
               </div>
             </div>
+            <NatureSelect
+              id="dc-nature"
+              value={atkNature}
+              onChange={setAtkNature}
+            />
             <p className="text-xs text-slate-400 dark:text-slate-500">
-              Stats prefill from the base stats at the chosen level — tweak them
-              freely.
+              Stats auto-fill from base stats when you pick a Pokémon or change
+              the level — tweak them freely.
             </p>
           </div>
         </div>
@@ -479,6 +548,11 @@ export default function DamageCalcPage() {
                 />
               </div>
             </div>
+            <NatureSelect
+              id="dc-def-nature"
+              value={defNature}
+              onChange={setDefNature}
+            />
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className={labelCls} htmlFor="dc-deft1">
@@ -524,6 +598,34 @@ export default function DamageCalcPage() {
           <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100">
             💥 Move
           </h2>
+          <div className="mt-4">
+            <label className={labelCls} htmlFor="dc-move-pick">
+              Move from {attacker ? `${attacker.name}'s` : "the attacker's"}{" "}
+              learnset
+            </label>
+            <select
+              id="dc-move-pick"
+              className={inputCls}
+              value={movePick}
+              disabled={!attacker || learnableMoves.length === 0}
+              onChange={(e) => pickMove(e.target.value)}
+            >
+              <option value="">
+                {attacker
+                  ? `Choose one of ${learnableMoves.length} moves…`
+                  : "Pick an attacker first"}
+              </option>
+              {learnableMoves.map((m) => (
+                <option key={m.id} value={m.name}>
+                  {m.name} — {m.power} power, {m.type}
+                </option>
+              ))}
+            </select>
+            <p className="mt-1.5 text-xs text-slate-400 dark:text-slate-500">
+              Picking a move fills power, type, and category below — tweak them
+              freely after.
+            </p>
+          </div>
           <div className="mt-4 grid grid-cols-2 gap-4">
             <div>
               <label className={labelCls} htmlFor="dc-power">
@@ -535,7 +637,10 @@ export default function DamageCalcPage() {
                 min={0}
                 className={inputCls}
                 value={power}
-                onChange={(e) => setPower(e.target.valueAsNumber)}
+                onChange={(e) => {
+                  setPower(e.target.valueAsNumber);
+                  setMovePick("");
+                }}
               />
             </div>
             <div>
@@ -546,7 +651,10 @@ export default function DamageCalcPage() {
                 id="dc-mtype"
                 className={inputCls}
                 value={moveType}
-                onChange={(e) => setMoveType(e.target.value)}
+                onChange={(e) => {
+                  setMoveType(e.target.value);
+                  setMovePick("");
+                }}
               >
                 {TYPES.map((t) => (
                   <option key={t} value={t}>
@@ -563,7 +671,10 @@ export default function DamageCalcPage() {
                 <button
                   key={c}
                   type="button"
-                  onClick={() => setCategory(c)}
+                  onClick={() => {
+                    setCategory(c);
+                    setMovePick("");
+                  }}
                   className={`flex-1 rounded-lg px-2 py-1.5 text-sm font-medium capitalize transition ${
                     category === c
                       ? "bg-emerald-300 text-slate-800 dark:bg-emerald-600 dark:text-slate-100"
@@ -761,6 +872,7 @@ export default function DamageCalcPage() {
           </div>
         )}
       </div>
+        </>)}
     </div>
   );
 }
