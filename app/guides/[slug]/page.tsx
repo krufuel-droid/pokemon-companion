@@ -4,6 +4,7 @@ import { GUIDES, type GuideMilestone } from "@/lib/data/guides";
 import GuideCaughtChecklist from "@/components/GuideCaughtChecklist";
 import GymTeamPanel from "@/components/GymTeamPanel";
 import EliteFourPanel from "@/components/EliteFourPanel";
+import DungeonMapSection from "@/components/DungeonMap";
 
 /** Guide pages are server-rendered on demand (not pre-built) to keep deployments lean. */
 export const dynamic = "force-dynamic";
@@ -105,6 +106,9 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
           ))}
         </ol>
       </section>
+
+      {/* Dungeon Maps */}
+      <DungeonMapSection game={guide.title} />
 
       {/* Story */}
       <section className="mt-12">

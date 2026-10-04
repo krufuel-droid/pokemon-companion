@@ -1,6 +1,7 @@
 /** Community Nuzlocke variants, shown as a badge on runs. */
 export const NUZLOCKE_TYPES = [
   { value: "standard", label: "Standard" },
+  { value: "hardcore", label: "Hardcore" },
   { value: "soul-link", label: "Soul Link" },
   { value: "wedlocke", label: "Wedlocke" },
   { value: "egglocke", label: "Egglocke" },

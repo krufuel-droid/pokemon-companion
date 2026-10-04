@@ -22,6 +22,19 @@ const STANDARD_RULES =
   "3. Nickname every Pokémon you catch.\n" +
   "4. No items in battle (optional).";
 
+const HARDCORE_RULES =
+  "1. Catch only the first Pokémon encountered in each area.\n" +
+  "2. If a Pokémon faints, it is dead — box or release it permanently.\n" +
+  "3. Nickname every Pokémon you catch.\n" +
+  "4. No items in battle (held items are OK).\n" +
+  "5. No overleveling — no Pokémon may exceed the next boss's highest level.\n" +
+  "6. Battle style must be SET (no free switch after a KO).";
+
+const RULE_PRESETS: Record<string, string> = {
+  standard: STANDARD_RULES,
+  hardcore: HARDCORE_RULES,
+};
+
 interface Run {
   id: string;
   owner_id: string;
@@ -297,7 +310,17 @@ export default function NuzlockePage() {
               <select
                 id="run-type"
                 value={runType}
-                onChange={(e) => setRunType(e.target.value)}
+                onChange={(e) => {
+                  const next = e.target.value;
+                  // Auto-fill the rules text when switching between preset
+                  // types, unless the user already customized their rules.
+                  const prevPreset = RULE_PRESETS[runType];
+                  const nextPreset = RULE_PRESETS[next];
+                  if (nextPreset && (!rules.trim() || rules === prevPreset)) {
+                    setRules(nextPreset);
+                  }
+                  setRunType(next);
+                }}
                 className={inputClass}
               >
                 {NUZLOCKE_TYPES.map((t) => (

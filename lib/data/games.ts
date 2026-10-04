@@ -70,6 +70,20 @@ function prettyLabel(key: string, loc: MapLocation): string {
     .join(" ");
 }
 
+/** Professor's lab (or equivalent starter-gift location) per region, for Nuzlocke "Met at". */
+const LAB_BY_REGION = new Map<Record<string, MapLocation>, string>([
+  [KANTO_LOCATIONS, "Oak's Lab"],
+  [JOHTO_LOCATIONS, "Elm's Lab"],
+  [HOENN_LOCATIONS, "Birch's Lab"],
+  [SINNOH_LOCATIONS, "Rowan's Lab"],
+  [UNOVA_LOCATIONS, "Juniper's Lab"],
+  [KALOS_LOCATIONS, "Sycamore's Lab"],
+  [ALOLA_LOCATIONS, "Kukui's Lab"],
+  [GALAR_LOCATIONS, "Magnolia's Lab"],
+  [HISUI_LOCATIONS, "Galaxy Hall"],
+  [PALDEA_LOCATIONS, "Naranja Academy"],
+]);
+
 /** Sorted, deduplicated human-readable location names for a game.
  *  Matching is fuzzy: "Scarlet" matches "Pokémon Scarlet & Violet". */
 export function getLocationsForGame(game: string | null): string[] {
@@ -98,5 +112,7 @@ export function getLocationsForGame(game: string | null): string[] {
   for (const [key, loc] of Object.entries(region)) {
     names.add(prettyLabel(key, loc));
   }
+  const lab = LAB_BY_REGION.get(region);
+  if (lab) names.add(lab);
   return [...names].sort((a, b) => a.localeCompare(b));
 }

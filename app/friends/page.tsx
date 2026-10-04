@@ -1306,7 +1306,7 @@ export default function FriendsPage() {
             type="button"
             onClick={() => setTab(t.id)}
             aria-current={tab === t.id ? "page" : undefined}
-            className={`flex-1 whitespace-nowrap rounded-lg px-3 py-2 text-center text-xs font-semibold transition-colors sm:px-4 sm:text-sm ${
+            className={`shrink-0 whitespace-nowrap rounded-lg px-3 py-2 text-center text-xs font-semibold transition-colors sm:px-4 sm:text-sm ${
               tab === t.id
                 ? "bg-white text-slate-900 shadow-sm dark:bg-slate-900 dark:text-slate-100"
                 : "text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-100"
