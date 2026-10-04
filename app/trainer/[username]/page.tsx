@@ -127,7 +127,40 @@ export default async function TrainerProfilePage({
     profileData = retry.data as typeof profileData;
   }
 
-  if (!profileData) notFound();
+  if (!profileData) {
+    // Username-only existence check so private profiles keep their locked
+    // card instead of 404ing now that RLS hides private rows from strangers.
+    const { data: usernameExists } = await supabase.rpc(
+      "profile_username_exists",
+      { p_username: decodeURIComponent(username) }
+    );
+    if (usernameExists) {
+      const lockedName = decodeURIComponent(username);
+      return (
+        <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6">
+          <div className="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm sm:p-8 dark:border-slate-700 dark:bg-slate-900">
+            <div className="flex items-start gap-5">
+              <Avatar
+                username={lockedName}
+                avatarUrl={null}
+                size={80}
+                online={false}
+              />
+              <div className="min-w-0 flex-1">
+                <h1 className="truncate text-2xl font-bold text-slate-900 dark:text-slate-100">
+                  {lockedName}
+                </h1>
+                <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+                  🔒 This trainer has a private profile. Add them as a friend to see more.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+    notFound();
+  }
   const profile = profileData as FriendProfileRow;
 
   const {
@@ -141,7 +174,7 @@ export default async function TrainerProfilePage({
     const { data: friendship } = await supabase
       .from("friendships")
       .select("id")
-      .or(`and(user_id.eq.${me.id},friend_id.eq.${profile.id}),and(user_id.eq.${profile.id},friend_id.eq.${me.id})`)
+      .or(`and(requester_id.eq.${me.id},addressee_id.eq.${profile.id}),and(requester_id.eq.${profile.id},addressee_id.eq.${me.id})`)
       .eq("status", "accepted")
       .maybeSingle();
     isFriend = !!friendship;

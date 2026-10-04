@@ -14,8 +14,8 @@ const ZA_GIFTS: Gift[] = [
   { code: "PREPAR1NG", method: "Code", reward: "5 Max Revives, 10 Full Restores, 10 Ultra Balls", expires: "Mar 31, 2027" },
   { code: null, method: "Via Internet", reward: "Mewtwonite X + Mewtwonite Y, Exp. Candy XL, “Project M” side mission (catch Mewtwo) — complete the main campaign", expires: "No expiry announced" },
   { code: null, method: "Via Internet", reward: "Diancite, Exp. Candy XL, “Shine Bright like a Gemstone” side mission (catch Diancie) — complete the main campaign", expires: "No expiry announced" },
-  { code: null, method: "Via Internet", reward: "Garchompite Z + “Special Distortion Detected” mission (catch Mega Garchomp Z) — complete a hyperspace adventure in the Mega Dimension DLC", expires: "Mar 31, 2027" },
-  { code: null, method: "In person", reward: "Cherish Ball Audino — visit a Pokémon Center (Japan, Singapore, Taiwan) during your birthday month with ID + Switch", expires: "Jan 31, 2027" },
+  { code: null, method: "Via Internet", reward: "Garchompite Z + “Special Distortion Detected” mission (catch Mega Garchomp Z) — complete a hyperspace adventure in the Mega Dimension DLC", expires: "No expiry announced" },
+  { code: null, method: "In person", reward: "Cherish Ball Audino — visit a Pokémon Center (Japan, Singapore, Taiwan) during your birthday month with ID + Switch", expires: "Oct 31, 2026" },
 ];
 
 const SV_GIFTS: Gift[] = [
@@ -30,6 +30,7 @@ const SV_GIFTS: Gift[] = [
 
 const CHAMPIONS_GIFTS: Gift[] = [
   { code: "10M1NTRNR", method: "Code", reward: "100 Quick Coupons — collect from the Mailbox", expires: "Dec 31, 2026" },
+  { code: "W0R1DCHAMP10NS26", method: "Code", reward: "5,000 Victory Points", expires: "No expiry announced" },
 ];
 
 function GiftCard({ gift }: { gift: Gift }) {

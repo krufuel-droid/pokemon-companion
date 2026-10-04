@@ -1,0 +1,510 @@
+/**
+ * Shared Pokémon damage calculator — the same Gen 7+ math behind the
+ * Advanced damage calculator UI (`app/tools/damage-calc/advanced.tsx`).
+ *
+ * This module is UI-free so it can run on the server (API routes, scripts).
+ * If you change the formula here, the UI picks it up automatically since it
+ * calls `calculateDamage` too — keep the two in sync by keeping the logic here.
+ */
+
+import { effectiveness } from "@/lib/typechart";
+import { getSpeciesById, searchSpecies, type SpeciesIndex } from "@/lib/pokedex";
+import { NATURES } from "@/lib/data/natures";
+import { PINCH_ABILITY_TYPE } from "@/lib/data/damage-mods";
+
+export type StatKey = "hp" | "atk" | "def" | "spa" | "spd" | "spe";
+export const STAT_KEYS: StatKey[] = ["hp", "atk", "def", "spa", "spd", "spe"];
+
+const BASE_KEYS: Record<StatKey, string> = {
+  hp: "hp",
+  atk: "attack",
+  def: "defense",
+  spa: "special-attack",
+  spd: "special-defense",
+  spe: "speed",
+};
+
+// lib/data/natures.ts uses display names like "Attack", "Sp. Atk".
+const NATURE_TO_KEY: Record<string, StatKey> = {
+  Attack: "atk",
+  Defense: "def",
+  "Sp. Atk": "spa",
+  "Sp. Def": "spd",
+  Speed: "spe",
+};
+
+export interface CombatantInput {
+  /** Pokédex number, species name (case-insensitive), or null for "no Pokémon picked". */
+  species: string | number | null;
+  level?: number;
+  nature?: string;
+  ability?: string;
+  item?: string;
+  /** e.g. "Healthy", "Burned", "Paralyzed", "Poisoned", "Asleep", "Frozen" */
+  status?: string;
+  evs?: Partial<Record<StatKey, number>>;
+  ivs?: Partial<Record<StatKey, number>>;
+  /** Attacker: is its pinch ability (Overgrow etc.) active? */
+  pinchActive?: boolean;
+  /** Defender: not fully evolved (Eviolite check). */
+  notFullyEvolved?: boolean;
+  /** Defender: current HP for KO math (defaults to full). */
+  currentHp?: number | null;
+}
+
+export interface MoveInput {
+  power: number;
+  /** e.g. "Fire" */
+  type: string;
+  category: "physical" | "special";
+}
+
+export interface FieldInput {
+  weather?: string;
+  terrain?: string;
+  reflect?: boolean;
+  lightScreen?: boolean;
+  crit?: boolean;
+  stab?: "auto" | "on" | "off";
+  /** "auto" or an explicit multiplier (0, 0.25, 0.5, 1, 2, 4). */
+  effectiveness?: "auto" | number;
+}
+
+export interface DamageCalcInput {
+  attacker: CombatantInput;
+  defender: CombatantInput;
+  move: MoveInput;
+  field?: FieldInput;
+}
+
+export interface DamageCalcResult {
+  attacker: string;
+  defender: string;
+  attackStat: number;
+  defenseStat: number;
+  baseDamage: number;
+  effectiveness: number;
+  /** Effectiveness before any manual override — shown next to "Auto". */
+  autoEffectiveness: number;
+  stab: boolean;
+  rolls: number[];
+  minRoll: number;
+  maxRoll: number;
+  minPct: string;
+  maxPct: string;
+  targetHp: number;
+  maxHp: number;
+  koSummary: string;
+  modifiers: string[];
+  echo: string;
+}
+
+export function clamp(v: number, lo: number, hi: number): number {
+  if (Number.isNaN(v)) return lo;
+  return Math.min(hi, Math.max(lo, Math.round(v)));
+}
+
+/** Gen 7+ stat formula. */
+export function calcStat(
+  base: number,
+  iv: number,
+  ev: number,
+  level: number,
+  natureMult: number,
+  isHp: boolean,
+): number {
+  const ev4 = Math.floor(clamp(ev, 0, 252) / 4);
+  const ivc = clamp(iv, 0, 31);
+  if (isHp) {
+    return Math.floor(((2 * base + ivc + ev4) * level) / 100) + level + 10;
+  }
+  return Math.floor(
+    (Math.floor(((2 * base + ivc + ev4) * level) / 100) + 5) * natureMult,
+  );
+}
+
+export function natureMultFor(natureName: string, key: StatKey): number {
+  const n = NATURES.find((x) => x.name === natureName);
+  if (!n || !n.raises || !n.lowers) return 1;
+  if (NATURE_TO_KEY[n.raises] === key) return 1.1;
+  if (NATURE_TO_KEY[n.lowers] === key) return 0.9;
+  return 1;
+}
+
+export function baseOf(species: SpeciesIndex | null, key: StatKey): number {
+  const full = species ? getSpeciesById(species.id) : undefined;
+  return full?.baseStats.find((s) => s.key === BASE_KEYS[key])?.value ?? 100;
+}
+
+function fullStats(
+  species: SpeciesIndex | null,
+  level: number,
+  nature: string,
+  evs: Partial<Record<StatKey, number>>,
+  ivs: Partial<Record<StatKey, number>>,
+): Record<StatKey, number> {
+  const out = {} as Record<StatKey, number>;
+  for (const k of STAT_KEYS) {
+    out[k] = calcStat(
+      baseOf(species, k),
+      ivs[k] ?? 31,
+      evs[k] ?? 0,
+      clamp(level, 1, 100),
+      natureMultFor(nature, k),
+      k === "hp",
+    );
+  }
+  return out;
+}
+
+/** Full 6-stat spread for a combatant (UI stat displays). */
+export function combatantStats(
+  species: SpeciesIndex | null,
+  level: number,
+  nature: string,
+  evs: Partial<Record<StatKey, number>>,
+  ivs: Partial<Record<StatKey, number>>,
+): Record<StatKey, number> {
+  return fullStats(species, level, nature, evs, ivs);
+}
+
+/** Probability that `hits` rolls (each equally likely) KO a target with `hp`. */
+function koChance(rolls: number[], hp: number, hits: number): number {
+  let dist = new Map<number, number>([[0, 1]]);
+  for (let h = 0; h < hits; h++) {
+    const next = new Map<number, number>();
+    for (const [total, count] of dist) {
+      for (const r of rolls) {
+        const t = total + r;
+        next.set(t, (next.get(t) ?? 0) + count);
+      }
+    }
+    dist = next;
+  }
+  const combos = Math.pow(rolls.length, hits);
+  let ko = 0;
+  for (const [total, count] of dist) {
+    if (total >= hp) ko += count;
+  }
+  return ko / combos;
+}
+
+const fmtPct = (p: number) =>
+  `${(p * 100).toFixed(p * 100 < 10 && p > 0 ? 1 : 0)}%`;
+
+/** Resolve a species id or name to a SpeciesIndex; null/blank → null; throws on no match. */
+export function resolveSpecies(ref: string | number | null | undefined): SpeciesIndex | null {
+  if (ref === null || ref === undefined) return null;
+  if (typeof ref === "number" || /^\d+$/.test(String(ref).trim())) {
+    const s = getSpeciesById(Number(ref));
+    if (s) return s;
+    throw new Error(`Unknown species id: ${ref}`);
+  }
+  const q = String(ref).trim().toLowerCase();
+  if (!q) return null;
+  const hits = searchSpecies(q);
+  const exact =
+    hits.find((h) => h.name.toLowerCase() === q) ?? hits[0];
+  if (!exact) throw new Error(`Unknown species: ${ref}`);
+  const full = getSpeciesById(exact.id);
+  if (!full) throw new Error(`Unknown species: ${ref}`);
+  return full;
+}
+
+export function calculateDamage(input: DamageCalcInput): DamageCalcResult {
+  const attacker = resolveSpecies(input.attacker.species);
+  const defender = resolveSpecies(input.defender.species);
+  const atkTypes = attacker?.types ?? [];
+  const defTypesAll = defender?.types ?? [];
+  const atkName = attacker?.name ?? "Attacker";
+  const defName = defender?.name ?? "Defender";
+
+  const atkLevel = clamp(input.attacker.level ?? 50, 1, 100);
+  const defLevel = clamp(input.defender.level ?? 50, 1, 100);
+  const atkNature = input.attacker.nature ?? "Hardy";
+  const defNature = input.defender.nature ?? "Hardy";
+  const atkAbility = input.attacker.ability ?? "None";
+  const defAbility = input.defender.ability ?? "None";
+  const atkItem = input.attacker.item ?? "None";
+  const defItem = input.defender.item ?? "None";
+  const atkStatus = input.attacker.status ?? "Healthy";
+  const defStatus = input.defender.status ?? "Healthy";
+  const pinchActive = input.attacker.pinchActive ?? false;
+  const nfu = input.defender.notFullyEvolved ?? false;
+
+  const field = input.field ?? {};
+  const weather = field.weather ?? "None";
+  const terrain = field.terrain ?? "None";
+  const reflect = field.reflect ?? false;
+  const lightScreen = field.lightScreen ?? false;
+  const crit = field.crit ?? false;
+  const stabMode = field.stab ?? "auto";
+  const effOverride = field.effectiveness ?? "auto";
+
+  const pwr = Math.max(0, Math.round(Number(input.move.power) || 0));
+  const moveType = input.move.type;
+  const physical = input.move.category === "physical";
+
+  const atkStats = fullStats(
+    attacker,
+    atkLevel,
+    atkNature,
+    input.attacker.evs ?? {},
+    input.attacker.ivs ?? {},
+  );
+  const defStats = fullStats(
+    defender,
+    defLevel,
+    defNature,
+    input.defender.evs ?? {},
+    input.defender.ivs ?? {},
+  );
+  const maxHp = defStats.hp;
+  const targetHp = Math.max(1, input.defender.currentHp ?? maxHp);
+
+  // --- Attack stat with ability/item/status modifiers ---
+  let A = atkStats[physical ? "atk" : "spa"];
+  const statMods: string[] = [];
+  if ((atkAbility === "Huge Power" || atkAbility === "Pure Power") && physical) {
+    A = Math.floor(A * 2);
+    statMods.push(`${atkAbility} ×2`);
+  }
+  if (atkAbility === "Hustle" && physical) {
+    A = Math.floor(A * 1.5);
+    statMods.push("Hustle ×1.5");
+  }
+  if (atkAbility === "Guts" && atkStatus !== "Healthy" && physical) {
+    A = Math.floor(A * 1.5);
+    statMods.push("Guts ×1.5");
+  }
+  if (atkItem === "Choice Band" && physical) {
+    A = Math.floor(A * 1.5);
+    statMods.push("Choice Band ×1.5");
+  }
+  if (atkItem === "Choice Specs" && !physical) {
+    A = Math.floor(A * 1.5);
+    statMods.push("Choice Specs ×1.5");
+  }
+  if (physical && atkStatus === "Burned" && atkAbility !== "Guts") {
+    A = Math.floor(A * 0.5);
+    statMods.push("Burn ×0.5");
+  }
+
+  // --- Defense stat with ability/item/weather modifiers ---
+  let D = defStats[physical ? "def" : "spd"];
+  if (defItem === "Eviolite" && nfu) {
+    D = Math.floor(D * 1.5);
+    statMods.push("Eviolite ×1.5");
+  }
+  if (defItem === "Assault Vest" && !physical) {
+    D = Math.floor(D * 1.5);
+    statMods.push("Assault Vest ×1.5");
+  }
+  if (defAbility === "Fur Coat" && physical) {
+    D = D * 2;
+    statMods.push("Fur Coat ×2");
+  }
+  if (defAbility === "Marvel Scale" && defStatus !== "Healthy" && physical) {
+    D = Math.floor(D * 1.5);
+    statMods.push("Marvel Scale ×1.5");
+  }
+  if (weather === "Sandstorm" && !physical && defTypesAll.includes("Rock")) {
+    D = Math.floor(D * 1.5);
+    statMods.push("Sandstorm SpD ×1.5");
+  }
+  if (weather === "Snow" && physical && defTypesAll.includes("Ice")) {
+    D = Math.floor(D * 1.5);
+    statMods.push("Snow Def ×1.5");
+  }
+  A = Math.max(1, A);
+  D = Math.max(1, D);
+
+  // --- Base damage (Gen 5+ formula) ---
+  let dmg = Math.floor((2 * atkLevel) / 5 + 2);
+  dmg = Math.floor((dmg * pwr * A) / D);
+  dmg = Math.floor(dmg / 50) + 2;
+
+  const mods: string[] = [...statMods];
+
+  // Weather
+  if (weather === "Harsh Sunlight") {
+    if (moveType === "Fire") {
+      dmg = Math.floor(dmg * 1.5);
+      mods.push("Sun ×1.5");
+    } else if (moveType === "Water") {
+      dmg = Math.floor(dmg * 0.5);
+      mods.push("Sun ×0.5");
+    }
+  } else if (weather === "Rain") {
+    if (moveType === "Water") {
+      dmg = Math.floor(dmg * 1.5);
+      mods.push("Rain ×1.5");
+    } else if (moveType === "Fire") {
+      dmg = Math.floor(dmg * 0.5);
+      mods.push("Rain ×0.5");
+    }
+  }
+  // Crit (Gen 6+: ×1.5)
+  if (crit) {
+    dmg = Math.floor(dmg * 1.5);
+    mods.push("Crit ×1.5");
+  }
+  // STAB
+  const stab =
+    stabMode === "on" ||
+    (stabMode === "auto" && atkTypes.includes(moveType));
+  if (stab) {
+    const mult = atkAbility === "Adaptability" ? 2 : 1.5;
+    dmg = Math.floor(dmg * mult);
+    mods.push(`STAB ×${mult}`);
+  }
+  // Type effectiveness
+  const defTypes = [defTypesAll[0], defTypesAll[1]].filter(
+    (t): t is string => !!t,
+  );
+  const autoEff = defTypes.length > 0 ? effectiveness(moveType, defTypes) : 1;
+  const eff = effOverride === "auto" ? autoEff : Number(effOverride);
+  dmg = Math.floor(dmg * eff);
+  if (eff !== 1) mods.push(`Effectiveness ×${eff}`);
+
+  // Attacker ability damage modifiers
+  const pinchType = PINCH_ABILITY_TYPE[atkAbility];
+  if (pinchType && pinchActive && moveType === pinchType) {
+    dmg = Math.floor(dmg * 1.5);
+    mods.push(`${atkAbility} ×1.5`);
+  }
+  if (atkAbility === "Technician" && pwr <= 60) {
+    dmg = Math.floor(dmg * 1.5);
+    mods.push("Technician ×1.5");
+  }
+  if (atkAbility === "Sheer Force") {
+    dmg = Math.floor(dmg * 1.3);
+    mods.push("Sheer Force ×1.3");
+  }
+  if (atkAbility === "Tough Claws") {
+    dmg = Math.floor(dmg * 1.3);
+    mods.push("Tough Claws ×1.3");
+  }
+  // Attacker item damage modifiers
+  if (atkItem === "Life Orb") {
+    dmg = Math.floor(dmg * 1.3);
+    mods.push("Life Orb ×1.3");
+  }
+  if (atkItem === "Expert Belt" && eff > 1) {
+    dmg = Math.floor(dmg * 1.2);
+    mods.push("Expert Belt ×1.2");
+  }
+  if (atkItem === "Muscle Band" && physical) {
+    dmg = Math.floor(dmg * 1.1);
+    mods.push("Muscle Band ×1.1");
+  }
+  if (atkItem === "Wise Glasses" && !physical) {
+    dmg = Math.floor(dmg * 1.1);
+    mods.push("Wise Glasses ×1.1");
+  }
+  if (atkItem === "Type-boosting item" && atkTypes.includes(moveType)) {
+    dmg = Math.floor(dmg * 1.2);
+    mods.push("Type item ×1.2");
+  }
+  // Terrain (grounded = defender isn't Flying-type; simplification noted)
+  const grounded = !defTypesAll.includes("Flying");
+  if (grounded) {
+    if (terrain === "Electric" && moveType === "Electric") {
+      dmg = Math.floor(dmg * 1.3);
+      mods.push("Electric Terrain ×1.3");
+    } else if (terrain === "Grassy" && moveType === "Grass") {
+      dmg = Math.floor(dmg * 1.3);
+      mods.push("Grassy Terrain ×1.3");
+    } else if (terrain === "Psychic" && moveType === "Psychic") {
+      dmg = Math.floor(dmg * 1.3);
+      mods.push("Psychic Terrain ×1.3");
+    } else if (terrain === "Misty" && moveType === "Dragon") {
+      dmg = Math.floor(dmg * 0.5);
+      mods.push("Misty Terrain ×0.5");
+    }
+  }
+  // Screens
+  if (physical && reflect) {
+    dmg = Math.floor(dmg * 0.5);
+    mods.push("Reflect ×0.5");
+  }
+  if (!physical && lightScreen) {
+    dmg = Math.floor(dmg * 0.5);
+    mods.push("Light Screen ×0.5");
+  }
+  // Defender abilities
+  const atFullHp = targetHp >= maxHp;
+  if ((defAbility === "Multiscale" || defAbility === "Shadow Shield") && atFullHp) {
+    dmg = Math.floor(dmg * 0.5);
+    mods.push(`${defAbility} ×0.5`);
+  }
+  if (
+    (defAbility === "Filter" ||
+      defAbility === "Solid Rock" ||
+      defAbility === "Prism Armor") &&
+    eff > 1
+  ) {
+    dmg = Math.floor(dmg * 0.75);
+    mods.push(`${defAbility} ×0.75`);
+  }
+  if (defAbility === "Thick Fat" && (moveType === "Fire" || moveType === "Ice")) {
+    dmg = Math.floor(dmg * 0.5);
+    mods.push("Thick Fat ×0.5");
+  }
+
+  // 16 random rolls: 85%–100%.
+  const rolls: number[] = [];
+  for (let r = 85; r <= 100; r++) {
+    rolls.push(Math.floor((dmg * r) / 100));
+  }
+  const min = Math.min(...rolls);
+  const max = Math.max(...rolls);
+  const toPct = (d: number) => ((d / targetHp) * 100).toFixed(1);
+
+  // KO summary (Showdown-style).
+  const sash = defItem === "Focus Sash" && atFullHp;
+  let koSummary: string;
+  if (max <= 0) {
+    koSummary = `No effect — ${moveType} can't damage ${defName}.`;
+  } else if (sash && max >= targetHp) {
+    koSummary = `Focus Sash blocks the OHKO — best roll ${max} (${toPct(max)}%) leaves 1 HP.`;
+  } else {
+    const p1 = koChance(rolls, targetHp, 1);
+    if (p1 === 1) {
+      koSummary = "Guaranteed OHKO 🎯";
+    } else if (p1 > 0) {
+      koSummary = `${fmtPct(p1)} chance to OHKO`;
+    } else {
+      const p2 = koChance(rolls, targetHp, 2);
+      if (p2 === 1) koSummary = "Guaranteed 2HKO";
+      else if (p2 > 0) koSummary = `${fmtPct(p2)} chance to 2HKO`;
+      else {
+        const p3 = koChance(rolls, targetHp, 3);
+        if (p3 === 1) koSummary = "Guaranteed 3HKO";
+        else if (p3 > 0) koSummary = `${fmtPct(p3)} chance to 3HKO`;
+        else koSummary = `${Math.ceil(targetHp / max)} hits to KO at max rolls`;
+      }
+    }
+  }
+
+  return {
+    attacker: atkName,
+    defender: defName,
+    attackStat: A,
+    defenseStat: D,
+    baseDamage: dmg,
+    effectiveness: eff,
+    autoEffectiveness: autoEff,
+    stab,
+    rolls,
+    minRoll: min,
+    maxRoll: max,
+    minPct: toPct(min),
+    maxPct: toPct(max),
+    targetHp,
+    maxHp,
+    koSummary,
+    modifiers: mods,
+    echo: `${atkName} Lv ${atkLevel} (${atkNature}) → ${defName} Lv ${defLevel} (${defNature}) · ${pwr} power ${moveType} (${input.move.category}) · Atk ${A} / Def ${D}`,
+  };
+}

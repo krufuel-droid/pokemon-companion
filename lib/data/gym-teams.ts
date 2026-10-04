@@ -486,7 +486,7 @@ export const GYM_TEAMS: Record<string, GymTeam[]> = {
         { species: "Bastiodon", id: 411, level: 39, moves: ["Iron Defense", "Thunderbolt", "Stone Edge", "Flash Cannon"], item: "Sitrus Berry" },
       ],
     
-      counterPick: { species: "Ponyta", id: 77, location: "Route 211 (east of Eterna)", why: "Fire hits Steel super-effectively; Rapidash's Fire STAB beats Byron's Magneton, Steelix and Bastiodon." },},
+      counterPick: { species: "Ponyta", id: 77, location: "Route 211 (east of Eterna)", why: "Fire hits Steel super-effectively; Rapidash's Fire STAB beats Byron's Bronzor, Steelix and Bastiodon." },},
     {
       gym: "Snowpoint Gym",
       leader: "Candice",
@@ -582,7 +582,7 @@ export const GYM_TEAMS: Record<string, GymTeam[]> = {
       team: [
         { species: "Mr. Mime", id: 122, level: 43, moves: ["Psychic", "Reflect", "Light Screen", "Double Slap"] },
         { species: "Slowbro", id: 80, level: 43, moves: ["Psychic", "Yawn", "Surf", "Calm Mind"] },
-        { species: "Jynx", id: 124, level: 34, moves: ["Psychic", "Lovely Kiss", "Ice Punch"] },
+        { species: "Jynx", id: 124, level: 43, moves: ["Psychic", "Lovely Kiss", "Ice Punch"] },
         { species: "Alakazam", id: 65, level: 44, moves: ["Psychic", "Night Shade"] },
       ],
     
@@ -663,7 +663,7 @@ export const GYM_TEAMS: Record<string, GymTeam[]> = {
       ],
       note: "Defense +1 aura; calls Wishiwashi or Alomomola as allies.",
     
-      counterPick: { species: "Charjabug", id: 737, location: "Route 1 (as Grubbin)", why: "Electric-type Spark hits Totem Araquanid (Water/Bug) super-effectively" },},
+      counterPick: { species: "Charjabug", id: 737, location: "Route 1 (as Grubbin)", why: "Electric-type Spark hits Totem Wishiwashi (Water) super-effectively" },},
     {
       gym: "Wela Volcano Park Trial",
       leader: "Kiawe",
@@ -836,7 +836,7 @@ export const GYM_TEAMS: Record<string, GymTeam[]> = {
           species: "Totem Araquanid",
           id: 752,
           level: 20,
-          moves: ["Bubble Beam", "Aurora Beam"],
+          moves: ["Bubble", "Aurora Beam"],
           ability: "Water Bubble",
           item: "Wacan Berry",
         },
@@ -855,14 +855,14 @@ export const GYM_TEAMS: Record<string, GymTeam[]> = {
           id: 105,
           level: 22,
           moves: ["Hex", "Flame Wheel", "Brick Break", "Detect"],
-          ability: "Rock Head",
+          ability: "Lightning Rod",
           item: "Thick Club",
           sprite: showdownSprite("marowak-alola"),
         },
       ],
       note: "Speed +2 aura; calls Salazzle as allies.",
     
-      counterPick: { species: "Rockruff", id: 744, location: "Route 1", why: "Rock-type Rock Throw hits Totem Salazzle (Poison/Fire) super-effectively" },},
+      counterPick: { species: "Rockruff", id: 744, location: "Route 1", why: "Rock-type Rock Throw hits Totem Alolan Marowak (Fire/Ghost) super-effectively" },},
     {
       gym: "Lush Jungle Trial",
       leader: "Mallow",
@@ -912,13 +912,13 @@ export const GYM_TEAMS: Record<string, GymTeam[]> = {
           id: 777,
           level: 33,
           moves: ["Zing Zap", "Iron Head", "Spiky Shield", "Bounce"],
-          ability: "Sturdy",
+          ability: "Lightning Rod",
           item: "Sitrus Berry",
         },
       ],
       note: "Defense +2 aura; calls Skarmory or Dedenne as allies.",
     
-      counterPick: { species: "Lycanroc", id: 745, location: "Route 1 (as Rockruff)", why: "Rock-type Rock Throw hits Totem Vikavolt (Bug/Electric) super-effectively" },},
+      counterPick: { species: "Lycanroc", id: 745, location: "Route 1 (as Rockruff)", why: "Rock-type Rock Throw hits Totem Togedemaru (Electric/Steel) super-effectively" },},
     {
       gym: "Thrifty Megamart Trial",
       leader: "Acerola",
@@ -968,7 +968,7 @@ export const GYM_TEAMS: Record<string, GymTeam[]> = {
           id: 784,
           level: 49,
           moves: ["Dragon Claw", "Drain Punch", "Thunder Punch", "Poison Jab"],
-          ability: "Overcoat",
+          ability: "Soundproof",
           item: "Roseli Berry",
         },
       ],
@@ -1057,7 +1057,7 @@ export const GYM_TEAMS: Record<string, GymTeam[]> = {
       specialty: "Fairy",
       team: [
         { species: "Mawile", id: 303, level: 38, moves: ["Iron Defense", "Feint Attack", "Crunch"], ability: "Hyper Cutter" },
-        { species: "Mr. Mime", id: 122, level: 38, moves: ["Psychic", "Light Screen", "Reflect", "Dazzling Gleam"], ability: "Soundproof" },
+        { species: "Mr. Mime", id: 122, level: 39, moves: ["Psychic", "Light Screen", "Reflect", "Dazzling Gleam"], ability: "Soundproof" },
         { species: "Sylveon", id: 700, level: 42, moves: ["Charm", "Swift", "Quick Attack", "Dazzling Gleam"], ability: "Cute Charm" },
       ],
     
@@ -1185,7 +1185,7 @@ export const GYM_TEAMS: Record<string, GymTeam[]> = {
         { species: "Milotic", id: 350, level: 46, moves: ["Hydro Pump", "Disarming Voice", "Recover", "Ice Beam"], ability: "Marvel Scale" },
       ],
     
-      counterPick: { species: "Tropius", id: 357, location: "Route 119", why: "Grass hits Water super-effectively and resists Water; covers Juan's Water team (Wallace is champion in ORAS)." },},
+      counterPick: { species: "Tropius", id: 357, location: "Route 119", why: "Grass hits Water super-effectively and resists Water; covers Wallace's Water team." },},
   ],
   "Pokémon Black & White": [
     {
@@ -1847,6 +1847,7 @@ export const GYM_TEAMS: Record<string, GymTeam[]> = {
         { species: "Vigoroth", id: 288, level: 30, moves: ["Slash", "Feint Attack", "Facade", "Encore"] },
         { species: "Slaking", id: 289, level: 31, moves: ["Focus Punch", "Slack Off", "Facade", "Feint Attack"] },
       ],
+      note: "Emerald: Spinda 27, Vigoroth 27, Linoone 29, Slaking 31.",
     
       counterPick: { species: "Makuhita", id: 296, location: "Route 112", why: "Fighting hits Normal super-effectively; Makuhita's Fighting STAB breaks through Norman's Slaking line." },},
     {
@@ -1872,7 +1873,7 @@ export const GYM_TEAMS: Record<string, GymTeam[]> = {
         { species: "Lunatone", id: 337, level: 42, moves: ["Light Screen", "Psychic", "Hypnosis", "Calm Mind"] },
         { species: "Solrock", id: 338, level: 42, moves: ["Sunny Day", "Solar Beam", "Psychic", "Flamethrower"] },
       ],
-      note: "Double battle.",
+      note: "Double battle. Emerald: Claydol 41, Xatu 41, Lunatone 42 (Sitrus Berry), Solrock 42 (Sitrus Berry).",
     
       counterPick: { species: "Mightyena", id: 262, location: "Route 102 (as Poochyena)", why: "Dark hits Psychic super-effectively; Bite/Crunch from Mightyena beats Tate & Liza's Solrock and Lunatone." },},
     {
@@ -2097,7 +2098,7 @@ export const GYM_TEAMS: Record<string, GymTeam[]> = {
       specialty: "Rock",
       team: [
         { species: "Geodude", id: 74, level: 12, moves: ["Tackle", "Defense Curl"] },
-        { species: "Onix", id: 95, level: 14, moves: ["Tackle", "Bide", "Screech", "Bind"] },
+        { species: "Onix", id: 95, level: 14, moves: ["Tackle", "Bide", "Screech"] },
       ],
       note: "Yellow: Geodude 10, Onix 12.",
     
@@ -2108,7 +2109,7 @@ export const GYM_TEAMS: Record<string, GymTeam[]> = {
       badge: "Cascade Badge",
       specialty: "Water",
       team: [
-        { species: "Staryu", id: 120, level: 18, moves: ["Tackle", "Harden", "Water Gun"] },
+        { species: "Staryu", id: 120, level: 18, moves: ["Tackle", "Water Gun"] },
         { species: "Starmie", id: 121, level: 21, moves: ["Tackle", "Harden", "Water Gun", "Bubble Beam"] },
       ],
     
@@ -2160,8 +2161,8 @@ export const GYM_TEAMS: Record<string, GymTeam[]> = {
       specialty: "Psychic",
       team: [
         { species: "Kadabra", id: 64, level: 38, moves: ["Disable", "Psybeam", "Recover", "Psychic"] },
-        { species: "Venomoth", id: 49, level: 37, moves: ["Poison Powder", "Leech Life", "Stun Spore", "Psybeam"] },
-        { species: "Mr. Mime", id: 122, level: 38, moves: ["Confusion", "Barrier", "Light Screen", "Double Slap"] },
+        { species: "Venomoth", id: 49, level: 38, moves: ["Poison Powder", "Leech Life", "Stun Spore", "Psybeam"] },
+        { species: "Mr. Mime", id: 122, level: 37, moves: ["Confusion", "Barrier", "Light Screen", "Double Slap"] },
         { species: "Alakazam", id: 65, level: 43, moves: ["Psybeam", "Recover", "Psywave", "Reflect"] },
       ],
       note: "Yellow: Abra 50, Kadabra 50, Alakazam 50.",

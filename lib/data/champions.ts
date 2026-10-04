@@ -469,6 +469,41 @@ export const PLAYERS_TO_WATCH: PlayerToWatch[] = [
     tagline: "#2 all-time earnings · $80,750",
     bio: "The second-highest earner in VGC history (497 all-time points) — a threat at every International he enters.",
   },
+  {
+    name: "Brady Smith",
+    tagline: "Baltimore 3rd · 2x Regional Champion",
+    bio: "Took 3rd at Baltimore (Sept 2026), the first Regulation M-C event, and owns Regional titles from Memphis 2017 and Daytona Beach 2019 — 262 career points and $18,250 earned on Limitless VGC.",
+  },
+  {
+    name: "Justin Tang",
+    tagline: "3x Regional Champion · 434 pts",
+    bio: "Won Knoxville on his tournament debut in 2023, then Fort Wayne the same year and San Antonio in 2025. 14th at Worlds 2026 and a fixture of North American top cuts ever since.",
+  },
+  {
+    name: "Giuseppe Musicco",
+    tagline: "Frankfurt Top 8 · EUIC 9th",
+    bio: "One of Europe's most consistent top-cut players — 8th at Frankfurt (Sept 2026), 9th at EUIC 2026, Top 4 at Lille 2025, and Top 16 at the 2025 World Championships.",
+  },
+  {
+    name: "Théotime Massaut",
+    tagline: "LAIC semifinalist · Gdańsk finalist",
+    bio: "France's rising star — 4th at the 2026 Latin America International, 2nd at Gdańsk, Top 16 at the 2025 Worlds, and winner of the Victory Road September Challenge #2 heading into the fall season.",
+  },
+  {
+    name: "Blaik Thompson",
+    tagline: "Baltimore Top 4",
+    bio: "Broke out with 4th at Baltimore (Sept 2026), the first Regulation M-C event — falling to eventual champion Joseph Ugarte in the semifinals.",
+  },
+  {
+    name: "Dorian Kang",
+    tagline: "Baltimore Top 16",
+    bio: "Canada's Dorian Kang finished 9th at Baltimore (Sept 2026) and Top 8 at the Victory Road September Challenge — one of the new faces of the M-C format.",
+  },
+  {
+    name: "Sebastian Liu Li",
+    tagline: "Frankfurt finalist",
+    bio: "The Netherlands' Sebastian Liu Li took 2nd at Frankfurt (Sept 2026), pushing Eric Rios to three games in the final of Europe's first Regulation M-C event.",
+  },
 ];
 
 /** Hand-verified ranking snapshot behind PLAYERS_TO_WATCH (Limitless VGC). */

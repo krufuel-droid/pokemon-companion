@@ -17,9 +17,9 @@ export const SECTIONS: {
           "Defeat specific Pokémon that yield the EVs you want (e.g. Zubats for Speed). Each KO gives 1–3 EVs in a stat; 4 EVs = 1 stat point at Lv. 100.",
       },
       {
-        title: "Power items",
+        title: "Power items (Gen 4+)",
         detail:
-          "Power Bracer, Belt, Lens, Band, Anklet, and Weight each add +4 EVs in their stat per battle. Stack with Pokérus (doubles all EV gains) for +10 per KO.",
+          "Power items debuted in Diamond/Pearl — there are none in Gen 3. In Gen 4, each adds +4 EVs per battle in its stat (1 + 4 = 5 per KO, doubled to 10 with Pokérus). From Gen 5 on, Power items add +8 EVs instead.",
       },
       {
         title: "Vitamins (capped)",
@@ -96,9 +96,9 @@ export const SECTIONS: {
           "Health Feather, Muscle Feather, Resist Feather, Genius Feather, Clever Feather, Swift Feather — 1 EV each, farmable from raids.",
       },
       {
-        title: "Let's Go auto-battles",
+        title: "Manual outbreak battles",
         detail:
-          "Send your lead Pokémon out with R to auto-battle outbreaks of the species that gives the EVs you want. Power items still work.",
+          "Head to a mass outbreak of the species that yields the EVs you want and battle them yourself — auto-battles (R button) grant EXP but zero EVs. Hold the matching Power item for +8 EVs per KO.",
       },
     ],
   },

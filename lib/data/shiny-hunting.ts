@@ -95,7 +95,8 @@ export const SHINY_SECTIONS: {
       },
       {
         title: "Dynamax Adventures",
-        detail: "Endless Dynamax Adventures — legendaries have boosted shiny odds here.",
+        detail:
+          "Endless Dynamax Adventures — legendaries have boosted shiny odds here: 1/100, or 1/50 with the Shiny Charm.",
       },
     ],
   },
@@ -126,12 +127,12 @@ export const SHINY_SECTIONS: {
       {
         title: "Sparkling Power Donuts (Mega Dimension DLC)",
         detail:
-          "Cook donuts maxing out Sweetness (pink stat) with 8 ingredients including Hyperspace Butter. Like S/V sandwiches but donuts — boost shiny odds for 30 minutes.",
+          "Cook donuts maxing out Sweetness (pink stat) with 8 ingredients including Hyperspace Butter. Like S/V sandwiches but donuts — the effect lasts for your Hyperspace visit (duration is calorie-based, not a fixed timer).",
       },
       {
-        title: "Mass outbreaks",
+        title: "Shiny Charm + spawn resetting",
         detail:
-          "Same concept as S/V and Arceus — clear outbreaks to boost odds. Pair with donuts for the best rates.",
+          "Z-A has no mass outbreaks or breeding — the Shiny Charm (~1/1,365) is the only base-game odds booster. In the Mega Dimension DLC, pair it with Sparkling Power donuts (~1/585 with Charm + Sparkling Power 3) and reset grouped Hyperspace spawns.",
       },
     ],
   },

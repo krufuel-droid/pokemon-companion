@@ -184,7 +184,7 @@ export const ELITE_FOUR_TEAMS: Record<string, LeagueData> = {
       { species: "Drapion", id: 452, level: 57, moves: ["Cross Poison", "Earthquake"] }
     ],
     
-      counterPick: { species: "Rapidash", id: 78, location: "Route 215 (as Ponyta)", why: "Fire hits Bug super-effectively (4x vs Scizor); Rapidash handles Aaron's Yanmega, Scizor, Vespiquen and Heracross." },},
+      counterPick: { species: "Rapidash", id: 78, location: "Route 215 (as Ponyta)", why: "Fire hits Bug super-effectively and Rapidash resists Bug; Rapidash handles Aaron's Dustox, Beautifly, Vespiquen and Heracross." },},
     {
       name: "Bertha", specialty: "Ground",
       team: [
@@ -195,7 +195,7 @@ export const ELITE_FOUR_TEAMS: Record<string, LeagueData> = {
       { species: "Hippowdon", id: 450, level: 59, moves: ["Earthquake", "Ice Fang"], item: "Chesto Berry" }
     ],
     
-      counterPick: { species: "Roserade", id: 407, location: "Route 212 (as Roselia; evolves with a Shiny Stone from Iron Island)", why: "Grass hits Ground super-effectively (4x vs Quagsire, Whiscash, Golem, Rhyperior); Roserade sweeps Bertha." },},
+      counterPick: { species: "Roserade", id: 407, location: "Route 212 (as Roselia; evolves with a Shiny Stone from Iron Island)", why: "Grass hits Ground super-effectively (4x vs Quagsire, Whiscash and Golem); Roserade sweeps Bertha." },},
     {
       name: "Flint", specialty: "Fire",
       team: [
@@ -333,9 +333,9 @@ export const ELITE_FOUR_TEAMS: Record<string, LeagueData> = {
       name: "Kahili", specialty: "Flying",
       team: [
       { species: "Skarmory", id: 227, level: 54, moves: ["Steel Wing", "Slash"], ability: "Sturdy" },
-      { species: "Crobat", id: 169, level: 56, moves: ["Air Slash", "Poison Fang"] },
+      { species: "Crobat", id: 169, level: 54, moves: ["Air Slash", "Poison Fang"] },
       { species: "Oricorio", id: 741, level: 54, moves: ["Revelation Dance", "Air Slash"], ability: "Dancer" },
-      { species: "Mandibuzz", id: 630, level: 56, moves: ["Brave Bird", "Bone Rush"] },
+      { species: "Mandibuzz", id: 630, level: 54, moves: ["Brave Bird", "Bone Rush"] },
       { species: "Toucannon", id: 733, level: 55, moves: ["Beak Blast", "Rock Blast", "Bullet Seed"], ability: "Skill Link", item: "Flyinium Z" }
     ],
     
@@ -468,8 +468,8 @@ export const ELITE_FOUR_TEAMS: Record<string, LeagueData> = {
       { species: "Tyrantrum", id: 697, level: 65, moves: ["Head Smash", "Dragon Claw", "Earthquake"], ability: "Strong Jaw" },
       { species: "Aurorus", id: 699, level: 65, moves: ["Blizzard", "Thunder"], ability: "Refrigerate" },
       { species: "Gourgeist", id: 711, level: 65, moves: ["Phantom Force", "Seed Bomb", "Shadow Sneak"] },
-      { species: "Goodra", id: 706, level: 66, moves: ["Dragon Pulse", "Fire Blast", "Thunderbolt"] },
-      { species: "Gardevoir", id: 282, level: 68, moves: ["Moonblast", "Psychic", "Focus Blast", "Shadow Ball"], ability: "Trace", item: "Gardevoirite" }
+      { species: "Goodra", id: 706, level: 66, moves: ["Dragon Pulse", "Fire Blast", "Focus Blast"] },
+      { species: "Gardevoir", id: 282, level: 68, moves: ["Moonblast", "Psychic", "Thunderbolt", "Shadow Ball"], ability: "Trace", item: "Gardevoirite" }
     ],
     
       counterPick: { species: "Klefki", id: 707, location: "Route 16", why: "Steel-type Flash Cannon hits Tyrantrum, Aurorus and Mega Gardevoir super-effectively; Fairy is immune to Goodra's Dragon moves" },},
@@ -509,7 +509,7 @@ export const ELITE_FOUR_TEAMS: Record<string, LeagueData> = {
       { species: "Walrein", id: 365, level: 54, moves: ["Blizzard", "Sheer Cold"], ability: "Thick Fat" }
     ],
     
-      counterPick: { species: "Hariyama", id: 297, location: "Victory Road", why: "Fighting hits Ice super-effectively; Hariyama's bulk and Fighting STAB beat Sealeo, Glalie and Walrein." },},
+      counterPick: { species: "Hariyama", id: 297, location: "Victory Road", why: "Fighting hits Ice super-effectively; Hariyama's bulk and Fighting STAB beat Glalie, Froslass and Walrein." },},
     {
       name: "Drake", specialty: "Dragon",
       team: [
@@ -520,7 +520,7 @@ export const ELITE_FOUR_TEAMS: Record<string, LeagueData> = {
       { species: "Salamence", id: 373, level: 55, moves: ["Dragon Rush", "Thunder Fang"] }
     ],
     
-      counterPick: { species: "Altaria", id: 334, location: "Route 114 (as Swablu; evolves at Lv. 35)", why: "Dragon hits Dragon super-effectively; Altaria's DragonBreath punishes Drake's Shelgon, Flygon and Salamence." },}
+      counterPick: { species: "Altaria", id: 334, location: "Route 114 (as Swablu; evolves at Lv. 35)", why: "Dragon hits Dragon super-effectively; Altaria's DragonBreath punishes Drake's Flygon, Kingdra and Salamence." },}
     ],
     champion:     {
       name: "Steven",
@@ -588,10 +588,10 @@ export const ELITE_FOUR_TEAMS: Record<string, LeagueData> = {
       { species: "Vanilluxe", id: 584, level: 50, moves: ["Blizzard", "Frost Breath"], ability: "Ice Body" },
       { species: "Archeops", id: 567, level: 50, moves: ["Acrobatics", "Stone Edge", "Dragon Claw"], ability: "Defeatist" },
       { species: "Zoroark", id: 571, level: 50, moves: ["Night Slash", "Focus Blast", "Flamethrower"], ability: "Illusion" },
-      { species: "Klinklang", id: 601, level: 50, moves: ["Thunderbolt", "Hyper Beam"], ability: "Sturdy" }
+      { species: "Klinklang", id: 601, level: 50, moves: ["Thunderbolt", "Hyper Beam"], ability: "Plus" }
     ],
     
-      counterPick: { species: "Conkeldurr", id: 534, location: "Pinwheel Forest (as Timburr)", why: "Fighting hits 5 of N's 7 super-effectively: Carracosta, Archeops, Vanilluxe, Klinklang, Zoroark" },},
+      counterPick: { species: "Conkeldurr", id: 534, location: "Pinwheel Forest (as Timburr)", why: "Fighting hits 5 of N's 6 super-effectively: Carracosta, Archeops, Vanilluxe, Klinklang, Zoroark" },},
     note: "BW has no traditional Champion battle: N defeats Champion Alder off-screen, then you face N at N's Castle, followed immediately by Ghetsis as the true final boss. Ghetsis's team: Cofagrigus 52 (Toxic, Protect, Psychic, Shadow Ball), Bouffalant 52 (Head Charge, Wild Charge, Poison Jab, Earthquake), Seismitoad 52 (Rain Dance, Sludge Wave, Muddy Water, Earthquake), Bisharp 52 (Stone Edge, Night Slash, Metal Burst, X-Scissor), Eelektross 52 (Wild Charge, Crunch, Flamethrower, Acrobatics), Hydreigon 54 (Fire Blast, Surf, Focus Blast, Dragon Pulse).",
   },
   "Pokémon Black 2 & White 2": {
@@ -602,7 +602,7 @@ export const ELITE_FOUR_TEAMS: Record<string, LeagueData> = {
       { species: "Cofagrigus", id: 563, level: 56, moves: ["Shadow Ball", "Will-O-Wisp"], ability: "Mummy" },
       { species: "Drifblim", id: 426, level: 56, moves: ["Shadow Ball", "Acrobatics", "Thunderbolt"] },
       { species: "Golurk", id: 623, level: 56, moves: ["Earthquake", "Shadow Punch", "Heavy Slam"], ability: "Iron Fist" },
-      { species: "Chandelure", id: 609, level: 58, moves: ["Shadow Ball", "Fire Blast"], ability: "Flame Body", item: "Sitrus Berry" }
+      { species: "Chandelure", id: 609, level: 58, moves: ["Shadow Ball", "Fire Blast"], ability: "Flash Fire", item: "Sitrus Berry" }
     ],
     
       counterPick: { species: "Liepard", id: 510, location: "Route 2 (as Purrloin)", why: "Dark-type Night Slash hits her Ghost-types super-effectively" },},
@@ -610,7 +610,7 @@ export const ELITE_FOUR_TEAMS: Record<string, LeagueData> = {
       name: "Grimsley", specialty: "Dark",
       team: [
       { species: "Liepard", id: 510, level: 56, moves: ["Night Slash", "Fake Out"] },
-      { species: "Scrafty", id: 560, level: 56, moves: ["Crunch", "Brick Break"], ability: "Moxie" },
+      { species: "Scrafty", id: 560, level: 56, moves: ["Crunch", "Brick Break"], ability: "Shed Skin" },
       { species: "Krookodile", id: 553, level: 56, moves: ["Crunch", "Earthquake"], ability: "Intimidate" },
       { species: "Bisharp", id: 625, level: 58, moves: ["Night Slash", "X-Scissor"], ability: "Defiant", item: "Sitrus Berry" }
     ],
@@ -619,9 +619,9 @@ export const ELITE_FOUR_TEAMS: Record<string, LeagueData> = {
     {
       name: "Caitlin", specialty: "Psychic",
       team: [
-      { species: "Musharna", id: 518, level: 56, moves: ["Psychic", "Dream Eater"] },
+      { species: "Musharna", id: 518, level: 56, moves: ["Charge Beam", "Dream Eater"] },
       { species: "Sigilyph", id: 561, level: 56, moves: ["Psychic", "Shadow Ball", "Air Slash"], ability: "Wonder Skin" },
-      { species: "Reuniclus", id: 579, level: 56, moves: ["Psychic", "Focus Blast", "Recover"], ability: "Magic Guard" },
+      { species: "Reuniclus", id: 579, level: 56, moves: ["Psychic", "Focus Blast", "Recover"], ability: "Overcoat" },
       { species: "Gothitelle", id: 576, level: 58, moves: ["Psychic", "Shadow Ball", "Calm Mind"], item: "Sitrus Berry" }
     ],
     
@@ -631,8 +631,8 @@ export const ELITE_FOUR_TEAMS: Record<string, LeagueData> = {
       team: [
       { species: "Throh", id: 538, level: 56, moves: ["Storm Throw", "Bulldoze"], ability: "Guts" },
       { species: "Sawk", id: 539, level: 56, moves: ["Brick Break", "Retaliate"], ability: "Sturdy" },
-      { species: "Mienshao", id: 620, level: 56, moves: ["Hi Jump Kick", "U-turn"], ability: "Regenerator" },
-      { species: "Conkeldurr", id: 534, level: 58, moves: ["Hammer Arm", "Stone Edge", "Bulk Up"], ability: "Sheer Force", item: "Sitrus Berry" }
+      { species: "Mienshao", id: 620, level: 56, moves: ["Hi Jump Kick", "U-turn"], ability: "Inner Focus" },
+      { species: "Conkeldurr", id: 534, level: 58, moves: ["Hammer Arm", "Stone Edge", "Bulk Up"], ability: "Guts", item: "Sitrus Berry" }
     ],
     
       counterPick: { species: "Sigilyph", id: 561, location: "Desert Resort", why: "Psychic/Flying hits his Fighting-types super-effectively and resists Fighting" },}
@@ -663,7 +663,7 @@ export const ELITE_FOUR_TEAMS: Record<string, LeagueData> = {
       { species: "Drapion", id: 452, level: 57, moves: ["Cross Poison", "X-Scissor"], item: "Sitrus Berry" }
     ],
     
-      counterPick: { species: "Rapidash", id: 78, location: "Route 215 (as Ponyta)", why: "Fire hits Bug super-effectively (4x vs Scizor); Rapidash's speed and Fire STAB handle Aaron's Yanmega, Scizor, Vespiquen and Heracross." },},
+      counterPick: { species: "Rapidash", id: 78, location: "Route 215 (as Ponyta)", why: "Fire hits Bug super-effectively; Rapidash's speed and Fire STAB handle Aaron's Dustox, Beautifly, Vespiquen and Heracross." },},
     {
       name: "Bertha", specialty: "Ground",
       team: [
@@ -674,7 +674,7 @@ export const ELITE_FOUR_TEAMS: Record<string, LeagueData> = {
       { species: "Hippowdon", id: 450, level: 59, moves: ["Earthquake", "Crunch"] }
     ],
     
-      counterPick: { species: "Roserade", id: 407, location: "Route 212 (as Roselia; evolves with a Shiny Stone from Iron Island)", why: "Grass hits Ground super-effectively (4x vs Quagsire, Whiscash, Golem, Rhyperior); Roserade sweeps Bertha." },},
+      counterPick: { species: "Roserade", id: 407, location: "Route 212 (as Roselia; evolves with a Shiny Stone from Iron Island)", why: "Grass hits Ground super-effectively (4x vs Quagsire, Whiscash and Golem); Roserade sweeps Bertha." },},
     {
       name: "Flint", specialty: "Fire",
       team: [
@@ -696,7 +696,7 @@ export const ELITE_FOUR_TEAMS: Record<string, LeagueData> = {
       { species: "Bronzong", id: 437, level: 63, moves: ["Gyro Ball", "Earthquake"] }
     ],
     
-      counterPick: { species: "Drapion", id: 452, location: "Route 214/215 (as Skorupi; evolves at Lv. 40)", why: "Dark hits Psychic super-effectively and resists Psychic; Drapion's Crunch beats Lucian's Mr. Mime, Espeon, Bronzong, Alakazam and Gallade." },}
+      counterPick: { species: "Drapion", id: 452, location: "Route 214/215 (as Skorupi; evolves at Lv. 40)", why: "Dark hits Psychic super-effectively and resists Psychic; Drapion's Crunch beats Lucian's Mr. Mime, Girafarig, Medicham, Alakazam and Bronzong." },}
     ],
     champion:     {
       name: "Cynthia",
@@ -853,6 +853,7 @@ export const ELITE_FOUR_TEAMS: Record<string, LeagueData> = {
     eliteFour: [
     {
       name: "Sidney", specialty: "Dark",
+      note: "Emerald: Crawdaunt 48 (Hyper Cutter; Surf, Swords Dance, Strength, Facade) replaces Sharpedo.",
       team: [
       { species: "Mightyena", id: 262, level: 46, moves: ["Crunch", "Take Down"], ability: "Intimidate" },
       { species: "Shiftry", id: 275, level: 48, moves: ["Extrasensory", "Fake Out"] },
@@ -886,6 +887,7 @@ export const ELITE_FOUR_TEAMS: Record<string, LeagueData> = {
       counterPick: { species: "Hariyama", id: 297, location: "Victory Road", why: "Fighting hits Ice super-effectively; Hariyama's bulk and Fighting STAB beat Sealeo, Glalie and Walrein." },},
     {
       name: "Drake", specialty: "Dragon",
+      note: "Emerald: Kingdra 53 (Swift Swim; SmokeScreen, Dragon Dance, Surf, Body Slam) replaces the second Flygon.",
       team: [
       { species: "Shelgon", id: 372, level: 52, moves: ["Dragon Claw", "Protect"] },
       { species: "Altaria", id: 334, level: 54, moves: ["Dragon Dance", "Dragon Breath"] },
@@ -921,7 +923,7 @@ export const ELITE_FOUR_TEAMS: Record<string, LeagueData> = {
     ],
     
       counterPick: { species: "Tropius", id: 357, location: "Route 119", why: "Grass hits Water super-effectively (4x vs Whiscash) and resists Water; Tropius walls most of Wallace's team." },},
-    note: "Elite Four teams are identical in Ruby, Sapphire and Emerald. Champion is Steven in Ruby & Sapphire, Wallace in Emerald (water specialist). Wallace's Milotic holds a Sitrus Berry; no other notable held items on first-challenge teams.",
+    note: "Teams shown are Ruby & Sapphire. In Emerald, Sidney's Sharpedo 48 becomes Crawdaunt 48 and Drake's second Flygon 53 becomes Kingdra 53 (see member notes), and each Elite Four ace holds a Sitrus Berry (Absol 49, Dusclops 51, Walrein 53, Salamence 55). Champion is Steven in Ruby & Sapphire, Wallace in Emerald (water specialist).",
   },
   "Pokémon FireRed & LeafGreen": {
     eliteFour: [
@@ -943,7 +945,7 @@ export const ELITE_FOUR_TEAMS: Record<string, LeagueData> = {
       { species: "Hitmonchan", id: 107, level: 53, moves: ["Sky Uppercut", "Mach Punch", "Counter"] },
       { species: "Hitmonlee", id: 106, level: 53, moves: ["Mega Kick", "Brick Break", "Foresight"] },
       { species: "Onix", id: 95, level: 54, moves: ["Earthquake", "Iron Tail", "Sand Tomb"] },
-      { species: "Machamp", id: 68, level: 56, moves: ["Cross Chop", "Bulk Up", "Rock Tomb"] }
+      { species: "Machamp", id: 68, level: 56, moves: ["Cross Chop", "Bulk Up", "Rock Tomb"], item: "Sitrus Berry" }
     ],
     
       counterPick: { species: "Alakazam", id: 65, location: "Routes 24-25 (catch Abra, evolves to Kadabra at Lv. 16)", why: "Psychic STAB shreds Bruno's Fighting team." },},
@@ -992,7 +994,7 @@ export const ELITE_FOUR_TEAMS: Record<string, LeagueData> = {
       { species: "Xatu", id: 178, level: 40, moves: ["Psychic", "Confuse Ray", "Future Sight"] },
       { species: "Jynx", id: 124, level: 41, moves: ["Lovely Kiss", "Psychic", "Ice Punch"] },
       { species: "Slowbro", id: 80, level: 41, moves: ["Psychic", "Amnesia", "Curse"] },
-      { species: "Exeggutor", id: 103, level: 42, moves: ["Psychic", "Leech Seed", "Egg Bomb"] },
+      { species: "Exeggutor", id: 103, level: 41, moves: ["Psychic", "Leech Seed", "Egg Bomb"] },
       { species: "Xatu", id: 178, level: 42, moves: ["Psychic", "Confuse Ray", "Quick Attack"] }
     ],
     

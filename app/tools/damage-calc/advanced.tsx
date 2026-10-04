@@ -18,6 +18,13 @@ import {
   PINCH_ABILITY_TYPE,
   type DamageMod,
 } from "@/lib/data/damage-mods";
+import {
+  calculateDamage,
+  combatantStats,
+  clamp,
+  STAT_KEYS,
+  type StatKey,
+} from "@/lib/damage-calc";
 import { createClient } from "@/lib/supabase/client";
 import { unlockAchievement } from "@/lib/achievements";
 import {
@@ -29,8 +36,6 @@ import {
   SpeciesPicker,
 } from "./shared";
 
-type StatKey = "hp" | "atk" | "def" | "spa" | "spd" | "spe";
-const STAT_KEYS: StatKey[] = ["hp", "atk", "def", "spa", "spd", "spe"];
 const STAT_LABELS: Record<StatKey, string> = {
   hp: "HP",
   atk: "Atk",
@@ -39,61 +44,7 @@ const STAT_LABELS: Record<StatKey, string> = {
   spd: "SpD",
   spe: "Spe",
 };
-const BASE_KEYS: Record<StatKey, string> = {
-  hp: "hp",
-  atk: "attack",
-  def: "defense",
-  spa: "special-attack",
-  spd: "special-defense",
-  spe: "speed",
-};
-// lib/data/natures.ts uses display names like "Attack", "Sp. Atk".
-const NATURE_TO_KEY: Record<string, StatKey> = {
-  Attack: "atk",
-  Defense: "def",
-  "Sp. Atk": "spa",
-  "Sp. Def": "spd",
-  Speed: "spe",
-};
-
 const EFF_OPTIONS = ["auto", "0", "0.25", "0.5", "1", "2", "4"] as const;
-
-function clamp(v: number, lo: number, hi: number): number {
-  if (Number.isNaN(v)) return lo;
-  return Math.min(hi, Math.max(lo, Math.round(v)));
-}
-
-/** Gen 7+ stat formula. */
-function calcStat(
-  base: number,
-  iv: number,
-  ev: number,
-  level: number,
-  natureMult: number,
-  isHp: boolean,
-): number {
-  const ev4 = Math.floor(clamp(ev, 0, 252) / 4);
-  const ivc = clamp(iv, 0, 31);
-  if (isHp) {
-    return Math.floor(((2 * base + ivc + ev4) * level) / 100) + level + 10;
-  }
-  return Math.floor(
-    (Math.floor(((2 * base + ivc + ev4) * level) / 100) + 5) * natureMult,
-  );
-}
-
-function natureMultFor(natureName: string, key: StatKey): number {
-  const n = NATURES.find((x) => x.name === natureName);
-  if (!n || !n.raises || !n.lowers) return 1;
-  if (NATURE_TO_KEY[n.raises] === key) return 1.1;
-  if (NATURE_TO_KEY[n.lowers] === key) return 0.9;
-  return 1;
-}
-
-function baseOf(species: SpeciesIndex | null, key: StatKey): number {
-  const full = species ? getSpeciesById(species.id) : undefined;
-  return full?.baseStats.find((s) => s.key === BASE_KEYS[key])?.value ?? 100;
-}
 
 function emptyEvs(): Record<StatKey, number> {
   return { hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0 };
@@ -325,36 +276,16 @@ export default function AdvancedCalc() {
     );
   }, []);
 
-  // Derived stats (Gen 7+ formula).
-  const atkStats = useMemo(() => {
-    const out = {} as Record<StatKey, number>;
-    for (const k of STAT_KEYS) {
-      out[k] = calcStat(
-        baseOf(attacker, k),
-        atkIvs[k],
-        atkEvs[k],
-        clamp(atkLevel, 1, 100),
-        natureMultFor(atkNature, k),
-        k === "hp",
-      );
-    }
-    return out;
-  }, [attacker, atkLevel, atkNature, atkEvs, atkIvs]);
+  // Derived stats (Gen 7+ formula) — shared with the API.
+  const atkStats = useMemo(
+    () => combatantStats(attacker, atkLevel, atkNature, atkEvs, atkIvs),
+    [attacker, atkLevel, atkNature, atkEvs, atkIvs],
+  );
 
-  const defStats = useMemo(() => {
-    const out = {} as Record<StatKey, number>;
-    for (const k of STAT_KEYS) {
-      out[k] = calcStat(
-        baseOf(defender, k),
-        defIvs[k],
-        defEvs[k],
-        clamp(defLevel, 1, 100),
-        natureMultFor(defNature, k),
-        k === "hp",
-      );
-    }
-    return out;
-  }, [defender, defLevel, defNature, defEvs, defIvs]);
+  const defStats = useMemo(
+    () => combatantStats(defender, defLevel, defNature, defEvs, defIvs),
+    [defender, defLevel, defNature, defEvs, defIvs],
+  );
 
   const maxHp = defStats.hp;
   const targetHp = Math.max(1, currentHp ?? maxHp);
@@ -381,296 +312,75 @@ export default function AdvancedCalc() {
     set((prev) => ({ ...prev, [k]: v }));
   };
 
-  const calc = useMemo(() => {
-    const lvl = clamp(atkLevel, 1, 100);
-    const pwr = Math.max(0, Math.round(Number(power) || 0));
-    const physical = category === "physical";
-
-    // --- Attack stat with ability/item/status modifiers ---
-    let A = atkStats[physical ? "atk" : "spa"];
-    const statMods: string[] = [];
-    if (
-      (atkAbility === "Huge Power" || atkAbility === "Pure Power") &&
-      physical
-    ) {
-      A = Math.floor(A * 2);
-      statMods.push(`${atkAbility} ×2`);
-    }
-    if (atkAbility === "Hustle" && physical) {
-      A = Math.floor(A * 1.5);
-      statMods.push("Hustle ×1.5");
-    }
-    if (atkAbility === "Guts" && atkStatus !== "Healthy" && physical) {
-      A = Math.floor(A * 1.5);
-      statMods.push("Guts ×1.5");
-    }
-    if (atkItem === "Choice Band" && physical) {
-      A = Math.floor(A * 1.5);
-      statMods.push("Choice Band ×1.5");
-    }
-    if (atkItem === "Choice Specs" && !physical) {
-      A = Math.floor(A * 1.5);
-      statMods.push("Choice Specs ×1.5");
-    }
-    if (physical && atkStatus === "Burned" && atkAbility !== "Guts") {
-      A = Math.floor(A * 0.5);
-      statMods.push("Burn ×0.5");
-    }
-
-    // --- Defense stat with ability/item/weather modifiers ---
-    let D = defStats[physical ? "def" : "spd"];
-    if (defItem === "Eviolite" && nfu) {
-      D = Math.floor(D * 1.5);
-      statMods.push("Eviolite ×1.5");
-    }
-    if (defItem === "Assault Vest" && !physical) {
-      D = Math.floor(D * 1.5);
-      statMods.push("Assault Vest ×1.5");
-    }
-    if (defAbility === "Fur Coat" && physical) {
-      D = D * 2;
-      statMods.push("Fur Coat ×2");
-    }
-    if (defAbility === "Marvel Scale" && defStatus !== "Healthy" && physical) {
-      D = Math.floor(D * 1.5);
-      statMods.push("Marvel Scale ×1.5");
-    }
-    if (
-      weather === "Sandstorm" &&
-      !physical &&
-      defender?.types.includes("Rock")
-    ) {
-      D = Math.floor(D * 1.5);
-      statMods.push("Sandstorm SpD ×1.5");
-    }
-    if (weather === "Snow" && physical && defender?.types.includes("Ice")) {
-      D = Math.floor(D * 1.5);
-      statMods.push("Snow Def ×1.5");
-    }
-    A = Math.max(1, A);
-    D = Math.max(1, D);
-
-    // --- Base damage (Gen 5+ formula) ---
-    let dmg = Math.floor((2 * lvl) / 5 + 2);
-    dmg = Math.floor((dmg * pwr * A) / D);
-    dmg = Math.floor(dmg / 50) + 2;
-
-    const mods: string[] = [...statMods];
-
-    // Weather
-    if (weather === "Harsh Sunlight") {
-      if (moveType === "Fire") {
-        dmg = Math.floor(dmg * 1.5);
-        mods.push("Sun ×1.5");
-      } else if (moveType === "Water") {
-        dmg = Math.floor(dmg * 0.5);
-        mods.push("Sun ×0.5");
-      }
-    } else if (weather === "Rain") {
-      if (moveType === "Water") {
-        dmg = Math.floor(dmg * 1.5);
-        mods.push("Rain ×1.5");
-      } else if (moveType === "Fire") {
-        dmg = Math.floor(dmg * 0.5);
-        mods.push("Rain ×0.5");
-      }
-    }
-    // Crit (Gen 6+: ×1.5)
-    if (crit) {
-      dmg = Math.floor(dmg * 1.5);
-      mods.push("Crit ×1.5");
-    }
-    // STAB
-    const stab =
-      stabMode === "on" ||
-      (stabMode === "auto" && (attacker?.types.includes(moveType) ?? false));
-    if (stab) {
-      const mult = atkAbility === "Adaptability" ? 2 : 1.5;
-      dmg = Math.floor(dmg * mult);
-      mods.push(`STAB ×${mult}`);
-    }
-    // Type effectiveness
-    const defTypes = [defender?.types[0], defender?.types[1]].filter(
-      (t): t is string => !!t,
-    );
-    const autoEff = defTypes.length > 0 ? effectiveness(moveType, defTypes) : 1;
-    const eff = effOverride === "auto" ? autoEff : Number(effOverride);
-    dmg = Math.floor(dmg * eff);
-    if (eff !== 1) mods.push(`Effectiveness ×${eff}`);
-    // Burn (already applied to the stat above; listed here for clarity is
-    // handled via statMods — no double application.)
-
-    // Ability damage modifiers
-    const pinchType = PINCH_ABILITY_TYPE[atkAbility];
-    if (pinchType && pinchActive && moveType === pinchType) {
-      dmg = Math.floor(dmg * 1.5);
-      mods.push(`${atkAbility} ×1.5`);
-    }
-    if (atkAbility === "Technician" && pwr <= 60) {
-      dmg = Math.floor(dmg * 1.5);
-      mods.push("Technician ×1.5");
-    }
-    if (atkAbility === "Sheer Force") {
-      dmg = Math.floor(dmg * 1.3);
-      mods.push("Sheer Force ×1.3");
-    }
-    if (atkAbility === "Tough Claws") {
-      dmg = Math.floor(dmg * 1.3);
-      mods.push("Tough Claws ×1.3");
-    }
-    // Item damage modifiers
-    if (atkItem === "Life Orb") {
-      dmg = Math.floor(dmg * 1.3);
-      mods.push("Life Orb ×1.3");
-    }
-    if (atkItem === "Expert Belt" && eff > 1) {
-      dmg = Math.floor(dmg * 1.2);
-      mods.push("Expert Belt ×1.2");
-    }
-    if (atkItem === "Muscle Band" && physical) {
-      dmg = Math.floor(dmg * 1.1);
-      mods.push("Muscle Band ×1.1");
-    }
-    if (atkItem === "Wise Glasses" && !physical) {
-      dmg = Math.floor(dmg * 1.1);
-      mods.push("Wise Glasses ×1.1");
-    }
-    if (atkItem === "Type-boosting item" && attacker?.types.includes(moveType)) {
-      dmg = Math.floor(dmg * 1.2);
-      mods.push("Type item ×1.2");
-    }
-    // Terrain (grounded = defender isn't Flying-type; simplification noted)
-    const grounded = !(defender?.types.includes("Flying") ?? false);
-    if (grounded) {
-      if (terrain === "Electric" && moveType === "Electric") {
-        dmg = Math.floor(dmg * 1.3);
-        mods.push("Electric Terrain ×1.3");
-      } else if (terrain === "Grassy" && moveType === "Grass") {
-        dmg = Math.floor(dmg * 1.3);
-        mods.push("Grassy Terrain ×1.3");
-      } else if (terrain === "Psychic" && moveType === "Psychic") {
-        dmg = Math.floor(dmg * 1.3);
-        mods.push("Psychic Terrain ×1.3");
-      } else if (terrain === "Misty" && moveType === "Dragon") {
-        dmg = Math.floor(dmg * 0.5);
-        mods.push("Misty Terrain ×0.5");
-      }
-    }
-    // Screens
-    if (physical && reflect) {
-      dmg = Math.floor(dmg * 0.5);
-      mods.push("Reflect ×0.5");
-    }
-    if (!physical && lightScreen) {
-      dmg = Math.floor(dmg * 0.5);
-      mods.push("Light Screen ×0.5");
-    }
-    // Defender abilities
-    const atFullHp = targetHp >= maxHp;
-    if (
-      (defAbility === "Multiscale" || defAbility === "Shadow Shield") &&
-      atFullHp
-    ) {
-      dmg = Math.floor(dmg * 0.5);
-      mods.push(`${defAbility} ×0.5`);
-    }
-    if (
-      (defAbility === "Filter" ||
-        defAbility === "Solid Rock" ||
-        defAbility === "Prism Armor") &&
-      eff > 1
-    ) {
-      dmg = Math.floor(dmg * 0.75);
-      mods.push(`${defAbility} ×0.75`);
-    }
-    if (
-      defAbility === "Thick Fat" &&
-      (moveType === "Fire" || moveType === "Ice")
-    ) {
-      dmg = Math.floor(dmg * 0.5);
-      mods.push("Thick Fat ×0.5");
-    }
-
-    // 16 random rolls: 85%–100%.
-    const rolls: number[] = [];
-    for (let r = 85; r <= 100; r++) {
-      rolls.push(Math.floor((dmg * r) / 100));
-    }
-    const min = Math.min(...rolls);
-    const max = Math.max(...rolls);
-    const toPct = (d: number) => ((d / targetHp) * 100).toFixed(1);
-
-    // KO summary (Showdown-style).
-    const sash = defItem === "Focus Sash" && atFullHp;
-    let koSummary: string;
-    if (max <= 0) {
-      koSummary = `No effect — ${moveType} can't damage ${defender?.name ?? "the defender"}.`;
-    } else if (sash && max >= targetHp) {
-      koSummary = `Focus Sash blocks the OHKO — best roll ${max} (${toPct(max)}%) leaves 1 HP.`;
-    } else {
-      const p1 = koChance(rolls, targetHp, 1);
-      if (p1 === 1) {
-        koSummary = "Guaranteed OHKO 🎯";
-      } else if (p1 > 0) {
-        koSummary = `${fmtPct(p1)} chance to OHKO`;
-      } else {
-        const p2 = koChance(rolls, targetHp, 2);
-        if (p2 === 1) koSummary = "Guaranteed 2HKO";
-        else if (p2 > 0) koSummary = `${fmtPct(p2)} chance to 2HKO`;
-        else {
-          const p3 = koChance(rolls, targetHp, 3);
-          if (p3 === 1) koSummary = "Guaranteed 3HKO";
-          else if (p3 > 0) koSummary = `${fmtPct(p3)} chance to 3HKO`;
-          else koSummary = `${Math.ceil(targetHp / max)} hits to KO at max rolls`;
-        }
-      }
-    }
-
-    return {
-      A,
-      D,
-      base: dmg,
-      autoEff,
-      eff,
-      rolls,
-      min,
-      max,
-      minPct: toPct(min),
-      maxPct: toPct(max),
-      targetHp,
-      maxHp,
-      koSummary,
-      mods,
-      stab,
-      echo: `${attacker?.name ?? "Attacker"} Lv ${lvl} (${atkNature}) → ${defender?.name ?? "Defender"} Lv ${clamp(defLevel, 1, 100)} (${defNature}) · ${pwr} power ${moveType} (${category}) · Atk ${A} / Def ${D}`,
-    };
-  }, [
-    atkLevel,
-    power,
-    category,
-    moveType,
-    stabMode,
-    crit,
-    effOverride,
-    weather,
-    terrain,
-    reflect,
-    lightScreen,
-    atkAbility,
-    atkItem,
-    atkStatus,
-    pinchActive,
-    defAbility,
-    defItem,
-    defStatus,
-    nfu,
-    atkStats,
-    defStats,
-    targetHp,
-    maxHp,
-    attacker,
-    defender,
-  ]);
+  const calc = useMemo(
+    () =>
+      calculateDamage({
+        attacker: {
+          species: attacker?.id ?? null,
+          level: atkLevel,
+          nature: atkNature,
+          ability: atkAbility,
+          item: atkItem,
+          status: atkStatus,
+          evs: atkEvs,
+          ivs: atkIvs,
+          pinchActive,
+        },
+        defender: {
+          species: defender?.id ?? null,
+          level: defLevel,
+          nature: defNature,
+          ability: defAbility,
+          item: defItem,
+          status: defStatus,
+          evs: defEvs,
+          ivs: defIvs,
+          notFullyEvolved: nfu,
+          currentHp,
+        },
+        move: { power, type: moveType, category },
+        field: {
+          weather,
+          terrain,
+          reflect,
+          lightScreen,
+          crit,
+          stab: stabMode,
+          effectiveness: effOverride === "auto" ? "auto" : Number(effOverride),
+        },
+      }),
+    [
+      attacker,
+      defender,
+      atkLevel,
+      atkNature,
+      atkAbility,
+      atkItem,
+      atkStatus,
+      atkEvs,
+      atkIvs,
+      pinchActive,
+      defLevel,
+      defNature,
+      defAbility,
+      defItem,
+      defStatus,
+      defEvs,
+      defIvs,
+      nfu,
+      currentHp,
+      power,
+      moveType,
+      category,
+      weather,
+      terrain,
+      reflect,
+      lightScreen,
+      crit,
+      stabMode,
+      effOverride,
+    ],
+  );
 
   function handleCalculate() {
     setHasCalculated(true);
@@ -1090,7 +800,7 @@ export default function AdvancedCalc() {
                 <TypePill key={t} type={t} />
               ))}
               <span className="ml-auto text-lg font-bold text-slate-800 dark:text-slate-100">
-                {hasCalculated ? `${calc.eff}×` : "—"}
+                {hasCalculated ? `${calc.effectiveness}×` : "—"}
               </span>
             </div>
             <select
@@ -1104,7 +814,7 @@ export default function AdvancedCalc() {
               {EFF_OPTIONS.map((o) => (
                 <option key={o} value={o}>
                   {o === "auto"
-                    ? `Auto${hasCalculated ? ` (×${calc.autoEff})` : ""}`
+                    ? `Auto${hasCalculated ? ` (×${calc.autoEffectiveness})` : ""}`
                     : `×${o}`}
                 </option>
               ))}
@@ -1140,7 +850,7 @@ export default function AdvancedCalc() {
             <div className="mt-3 flex flex-wrap items-baseline gap-x-6 gap-y-2">
               <div>
                 <div className="text-3xl font-extrabold text-slate-800 dark:text-slate-100">
-                  {calc.min} – {calc.max}
+                  {calc.minRoll} – {calc.maxRoll}
                 </div>
                 <div className="text-sm text-slate-500 dark:text-slate-400">
                   damage
@@ -1182,20 +892,20 @@ export default function AdvancedCalc() {
                 <div
                   className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-emerald-300 to-emerald-500 dark:from-emerald-700 dark:to-emerald-500"
                   style={{
-                    width: `${Math.min(100, (calc.max / calc.targetHp) * 100)}%`,
+                    width: `${Math.min(100, (calc.maxRoll / calc.targetHp) * 100)}%`,
                   }}
                 />
                 <div
                   className="absolute inset-y-0 w-0.5 bg-slate-400 dark:bg-slate-300"
                   style={{
-                    left: `${Math.min(100, (calc.min / calc.targetHp) * 100)}%`,
+                    left: `${Math.min(100, (calc.minRoll / calc.targetHp) * 100)}%`,
                   }}
-                  title={`Min: ${calc.min}`}
+                  title={`Min: ${calc.minRoll}`}
                 />
               </div>
               <div className="mt-1 flex justify-between text-xs text-slate-400 dark:text-slate-500">
-                <span>Min {calc.min}</span>
-                <span>Max {calc.max}</span>
+                <span>Min {calc.minRoll}</span>
+                <span>Max {calc.maxRoll}</span>
                 <span>KO at {calc.targetHp}</span>
               </div>
             </div>
@@ -1204,9 +914,9 @@ export default function AdvancedCalc() {
               {calc.koSummary}
             </div>
 
-            {calc.mods.length > 0 && (
+            {calc.modifiers.length > 0 && (
               <div className="mt-3 flex flex-wrap gap-2">
-                {calc.mods.map((m) => (
+                {calc.modifiers.map((m) => (
                   <span
                     key={m}
                     className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300"

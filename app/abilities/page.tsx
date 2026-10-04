@@ -99,8 +99,9 @@ export default function AbilitiesPage() {
         </summary>
         <div className="mt-3 space-y-2 text-sm text-slate-700 dark:text-slate-300">
           <p>
-            Most Pokémon have 1–2 regular abilities, plus a rarer <strong>Hidden Ability</strong> that
-            can&apos;t be found on wild Pokémon or hatched from eggs normally.
+            Most Pokémon have 1–2 regular abilities, plus a rarer <strong>Hidden Ability</strong>.
+            You usually won&apos;t find it on wild Pokémon — it shows up in special encounters
+            (Tera raids, SOS calls, Max Raids) and can be passed down through breeding once you have one.
           </p>
           <ul className="list-disc space-y-1 pl-5">
             <li>

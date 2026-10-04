@@ -53,9 +53,9 @@ export const GAME_EVENTS: GameEvent[] = [
     title: "Cherish Ball Audino (birthday event)",
     game: "Legends: Z-A",
     kind: "distribution",
-    startDate: null,
-    endDate: "2027-01-31",
-    detail: "Visit a Pokémon Center (Japan, Singapore, Taiwan) during your birthday month.",
+    startDate: "2025-11-01",
+    endDate: "2026-10-31",
+    detail: "Visit a Pokémon Center (Japan, Singapore, Taiwan) during your birthday month. Ends Oct 31, 2026!",
     href: "/tools/mystery-gifts",
   },
   {
@@ -74,8 +74,8 @@ export const GAME_EVENTS: GameEvent[] = [
     game: "Legends: Z-A",
     kind: "gift",
     startDate: null,
-    endDate: "2027-03-31",
-    detail: "Via Internet after one hyperspace adventure in the Mega Dimension DLC.",
+    endDate: null,
+    detail: "Via Internet after one hyperspace adventure in the Mega Dimension DLC. No expiry announced.",
     href: "/tools/mystery-gifts",
   },
   {
@@ -85,7 +85,7 @@ export const GAME_EVENTS: GameEvent[] = [
     kind: "gift",
     startDate: null,
     endDate: null,
-    detail: "Via Internet after completing the main campaign. No expiry announced.",
+    detail: "Via Internet after completing the main campaign. No expiry announced. (An earlier launch-window Diancite distribution expired Feb 28, 2026 — this is the separate post-campaign one.)",
     href: "/tools/mystery-gifts",
   },
   {

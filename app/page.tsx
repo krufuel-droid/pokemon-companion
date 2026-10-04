@@ -8,6 +8,12 @@ import { applySeasonalFilter } from "@/lib/seasonal-potd";
 import { TYPE_COLORS } from "@/lib/theme";
 import { TOURNAMENT_RESULTS } from "@/lib/data/champions";
 
+/** The Pokémon-of-the-Day pick uses `new Date()` at render time, so this
+ *  page must not be statically generated — otherwise the pick (and the
+ *  seasonal-event check) would freeze at build time instead of changing
+ *  at midnight UTC. */
+export const dynamic = "force-dynamic";
+
 /** Deterministic daily pick — same Pokémon for everyone, changes at midnight. */
 function PokemonOfTheDay() {
   const all = applySeasonalFilter(getAllSpecies());
@@ -117,7 +123,7 @@ const FEATURES = [
   },
 ] as const;
 
-const COMING_SOON = ["Tournament results & top-cut teams"] as const;
+const COMING_SOON = ["More player profiles & scene coverage"] as const;
 
 export default function HomePage() {
   return (
