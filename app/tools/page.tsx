@@ -86,6 +86,11 @@ const TEAM_TOOLS: Tool[] = [
     desc: "Every damaging move your Pokémon learns, ranked by super-effective coverage against the 12 meta staples — plus the best 4-move combo.",
   },
   {
+    href: "/tools/tournament-prep",
+    title: "Tournament Prep Mode",
+    desc: "Pick your event, import your team, get a threat report against the meta — and print a cheat sheet for the venue.",
+  },
+  {
     href: "/tools/breeding",
     title: "Breeding Compatibility",
     desc: "Check whether two Pokémon can breed by egg group — and see the egg moves their offspring could inherit.",

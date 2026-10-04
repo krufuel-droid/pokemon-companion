@@ -20,10 +20,14 @@ import {
 } from "@/lib/data/damage-mods";
 import {
   calculateDamage,
+  calculateDoublesTurn,
   combatantStats,
   clamp,
   STAT_KEYS,
   type StatKey,
+  type CombatantInput,
+  type DamageCalcResult,
+  type DoublesTarget,
 } from "@/lib/damage-calc";
 import { createClient } from "@/lib/supabase/client";
 import { unlockAchievement } from "@/lib/achievements";
@@ -221,6 +225,363 @@ function Check({
   );
 }
 
+/** All editable state for one defending Pokémon (singles defender or a doubles foe). */
+export interface DefenderConfig {
+  species: SpeciesIndex | null;
+  pickSpecies: (s: SpeciesIndex | null) => void;
+  level: number;
+  setLevel: (n: number) => void;
+  nature: string;
+  setNature: (n: string) => void;
+  ability: string;
+  setAbility: (n: string) => void;
+  item: string;
+  setItem: (n: string) => void;
+  status: string;
+  setStatus: (s: string) => void;
+  evs: Record<StatKey, number>;
+  setEv: (k: StatKey, v: number) => void;
+  ivs: Record<StatKey, number>;
+  setIv: (k: StatKey, v: number) => void;
+  nfu: boolean;
+  setNfu: (b: boolean) => void;
+  currentHp: number | null;
+  setCurrentHp: (n: number | null) => void;
+  stats: Record<StatKey, number>;
+  maxHp: number;
+  targetHp: number;
+}
+
+function useDefenderConfig(
+  defaultSpecies: SpeciesIndex | null,
+  defaultNature = "Hardy",
+): DefenderConfig {
+  const [species, setSpecies] = useState<SpeciesIndex | null>(defaultSpecies);
+  const [level, setLevel] = useState(50);
+  const [nature, setNature] = useState(defaultNature);
+  const [ability, setAbility] = useState("None");
+  const [item, setItem] = useState("None");
+  const [status, setStatus] = useState<string>("Healthy");
+  const [evs, setEvs] = useState<Record<StatKey, number>>(emptyEvs);
+  const [ivs, setIvs] = useState<Record<StatKey, number>>(fullIvs);
+  const [nfu, setNfu] = useState(false);
+  const [currentHp, setCurrentHp] = useState<number | null>(null);
+
+  const stats = useMemo(
+    () => combatantStats(species, level, nature, evs, ivs),
+    [species, level, nature, evs, ivs],
+  );
+  const maxHp = stats.hp;
+  const targetHp = Math.max(1, currentHp ?? maxHp);
+
+  function pickSpecies(s: SpeciesIndex | null) {
+    setSpecies(s);
+    setCurrentHp(null); // reset to full for the new defender
+  }
+
+  return useMemo(
+    () => ({
+      species,
+      pickSpecies,
+      level,
+      setLevel: (n: number) => setLevel(clamp(n, 1, 100)),
+      nature,
+      setNature,
+      ability,
+      setAbility,
+      item,
+      setItem,
+      status,
+      setStatus,
+      evs,
+      setEv: (k: StatKey, v: number) =>
+        setEvs((prev) => ({ ...prev, [k]: v })),
+      ivs,
+      setIv: (k: StatKey, v: number) =>
+        setIvs((prev) => ({ ...prev, [k]: v })),
+      nfu,
+      setNfu,
+      currentHp,
+      setCurrentHp,
+      stats,
+      maxHp,
+      targetHp,
+    }),
+    [
+      species,
+      level,
+      nature,
+      ability,
+      item,
+      status,
+      evs,
+      ivs,
+      nfu,
+      currentHp,
+      stats,
+      maxHp,
+      targetHp,
+    ],
+  );
+}
+
+function defenderCombatant(cfg: DefenderConfig): CombatantInput {
+  return {
+    species: cfg.species?.id ?? null,
+    level: cfg.level,
+    nature: cfg.nature,
+    ability: cfg.ability,
+    item: cfg.item,
+    status: cfg.status,
+    evs: cfg.evs,
+    ivs: cfg.ivs,
+    notFullyEvolved: cfg.nfu,
+    currentHp: cfg.currentHp,
+  };
+}
+
+/** Full defender card (level, nature, ability, item, status, HP, EVs/IVs). */
+function DefenderPanel({
+  cfg,
+  title,
+  idPrefix,
+}: {
+  cfg: DefenderConfig;
+  title: string;
+  idPrefix: string;
+}) {
+  return (
+    <div className={sectionCls}>
+      <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100">
+        {title}
+      </h2>
+      <div className="mt-4 space-y-4">
+        <SpeciesPicker
+          label="Defending Pokémon"
+          species={cfg.species}
+          onPick={cfg.pickSpecies}
+        />
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className={labelCls} htmlFor={`${idPrefix}-level`}>
+              Level
+            </label>
+            <input
+              id={`${idPrefix}-level`}
+              type="number"
+              min={1}
+              max={100}
+              className={inputCls}
+              value={cfg.level}
+              onChange={(e) => cfg.setLevel(e.target.valueAsNumber)}
+            />
+          </div>
+          <div>
+            <label className={labelCls} htmlFor={`${idPrefix}-nature`}>
+              Nature
+            </label>
+            <select
+              id={`${idPrefix}-nature`}
+              className={inputCls}
+              value={cfg.nature}
+              onChange={(e) => cfg.setNature(e.target.value)}
+            >
+              {NATURES.map((n) => (
+                <option key={n.name} value={n.name}>
+                  {n.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <ModSelect
+            id={`${idPrefix}-ability`}
+            label="Ability"
+            value={cfg.ability}
+            options={DEFENDER_ABILITIES}
+            onChange={cfg.setAbility}
+          />
+          <ModSelect
+            id={`${idPrefix}-item`}
+            label="Item"
+            value={cfg.item}
+            options={DEFENDER_ITEMS}
+            onChange={cfg.setItem}
+          />
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className={labelCls} htmlFor={`${idPrefix}-status`}>
+              Status
+            </label>
+            <select
+              id={`${idPrefix}-status`}
+              className={inputCls}
+              value={cfg.status}
+              onChange={(e) => cfg.setStatus(e.target.value)}
+            >
+              {STATUSES.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className={labelCls} htmlFor={`${idPrefix}-hp`}>
+              Current HP
+            </label>
+            <div className="flex gap-2">
+              <input
+                id={`${idPrefix}-hp`}
+                type="number"
+                min={1}
+                max={cfg.maxHp}
+                className={inputCls}
+                value={cfg.currentHp ?? cfg.maxHp}
+                onChange={(e) =>
+                  cfg.setCurrentHp(clamp(e.target.valueAsNumber, 1, cfg.maxHp))
+                }
+              />
+              <button
+                type="button"
+                onClick={() => cfg.setCurrentHp(null)}
+                title="Reset to full HP"
+                className="shrink-0 rounded-xl border border-slate-300 px-3 text-sm text-slate-500 hover:bg-slate-100 dark:border-slate-600 dark:text-slate-400 dark:hover:bg-slate-800"
+              >
+                ↺
+              </button>
+            </div>
+          </div>
+        </div>
+        {cfg.item === "Eviolite" && (
+          <Check
+            id={`${idPrefix}-nfu`}
+            label="Not fully evolved (Eviolite applies)"
+            checked={cfg.nfu}
+            onChange={cfg.setNfu}
+          />
+        )}
+        <div>
+          <span className={labelCls}>EVs / IVs</span>
+          <div className="mt-1">
+            <EvIvGrid
+              evs={cfg.evs}
+              ivs={cfg.ivs}
+              onEv={cfg.setEv}
+              onIv={cfg.setIv}
+            />
+          </div>
+        </div>
+        <p className="rounded-lg bg-slate-50 px-3 py-2 text-xs tabular-nums text-slate-500 dark:bg-slate-800/60 dark:text-slate-400">
+          HP {cfg.stats.hp} · Atk {cfg.stats.atk} · Def {cfg.stats.def} · SpA{" "}
+          {cfg.stats.spa} · SpD {cfg.stats.spd} · Spe {cfg.stats.spe}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+/** Rolls, range bar, KO summary, and modifiers for one calc result. */
+function ResultBlock({ result }: { result: DamageCalcResult }) {
+  return (
+    <div className="mt-3">
+      <p className="text-xs text-slate-400 dark:text-slate-500">
+        {result.echo}
+      </p>
+      <div className="mt-3 flex flex-wrap items-baseline gap-x-6 gap-y-2">
+        <div>
+          <div className="text-3xl font-extrabold text-slate-800 dark:text-slate-100">
+            {result.minRoll} – {result.maxRoll}
+          </div>
+          <div className="text-sm text-slate-500 dark:text-slate-400">
+            damage
+          </div>
+        </div>
+        <div>
+          <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+            {result.minPct}% – {result.maxPct}%
+          </div>
+          <div className="text-sm text-slate-500 dark:text-slate-400">
+            of {result.targetHp} HP
+          </div>
+        </div>
+      </div>
+
+      {/* All 16 rolls */}
+      <div className="mt-4">
+        <span className={labelCls}>All 16 rolls</span>
+        <div className="mt-1.5 flex flex-wrap gap-1.5">
+          {result.rolls.map((r, i) => (
+            <span
+              key={i}
+              className={`rounded-lg px-2 py-1 text-xs font-semibold tabular-nums ${
+                r >= result.targetHp
+                  ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"
+                  : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300"
+              }`}
+              title={`Roll ${85 + i}%`}
+            >
+              {r}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {/* Range bar */}
+      <div className="mt-4">
+        <div className="relative h-3 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+          <div
+            className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-emerald-300 to-emerald-500 dark:from-emerald-700 dark:to-emerald-500"
+            style={{
+              width: `${Math.min(100, (result.maxRoll / result.targetHp) * 100)}%`,
+            }}
+          />
+          <div
+            className="absolute inset-y-0 w-0.5 bg-slate-400 dark:bg-slate-300"
+            style={{
+              left: `${Math.min(100, (result.minRoll / result.targetHp) * 100)}%`,
+            }}
+            title={`Min: ${result.minRoll}`}
+          />
+        </div>
+        <div className="mt-1 flex justify-between text-xs text-slate-400 dark:text-slate-500">
+          <span>Min {result.minRoll}</span>
+          <span>Max {result.maxRoll}</span>
+          <span>KO at {result.targetHp}</span>
+        </div>
+      </div>
+
+      <div className="mt-4 rounded-xl bg-emerald-50 px-4 py-3 text-center text-lg font-bold text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+        {result.koSummary}
+      </div>
+
+      {result.modifiers.length > 0 && (
+        <div className="mt-3 flex flex-wrap gap-2">
+          {result.modifiers.map((m) => (
+            <span
+              key={m}
+              className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300"
+            >
+              {m}
+            </span>
+          ))}
+        </div>
+      )}
+
+      <p className="mt-4 text-[11px] leading-relaxed text-slate-400 dark:text-slate-500">
+        Gen 7+ stat &amp; damage formulas. Simplifications vs Pokémon
+        Showdown&apos;s calc: no stat stages, no accuracy, terrain assumes a
+        grounded defender (non-Flying), pinch abilities need the toggle, and
+        move effects like Sheer Force / Tough Claws are assumed to apply. In
+        doubles, spread moves deal ×0.75 per target; redirect moves (Follow Me,
+        Rage Powder) and ally abilities (Friend Guard) aren&apos;t modeled.
+      </p>
+    </div>
+  );
+}
+
 export default function AdvancedCalc() {
   const defaultAttacker = getSpeciesById(6) ?? null;
   const defaultDefender = getSpeciesById(3) ?? null;
@@ -236,17 +597,15 @@ export default function AdvancedCalc() {
   const [atkIvs, setAtkIvs] = useState<Record<StatKey, number>>(fullIvs);
   const [pinchActive, setPinchActive] = useState(false);
 
-  // --- Defender ---
-  const [defender, setDefender] = useState<SpeciesIndex | null>(defaultDefender);
-  const [defLevel, setDefLevel] = useState(50);
-  const [defNature, setDefNature] = useState("Calm");
-  const [defAbility, setDefAbility] = useState("None");
-  const [defItem, setDefItem] = useState("None");
-  const [defStatus, setDefStatus] = useState<string>("Healthy");
-  const [defEvs, setDefEvs] = useState<Record<StatKey, number>>(emptyEvs);
-  const [defIvs, setDefIvs] = useState<Record<StatKey, number>>(fullIvs);
-  const [nfu, setNfu] = useState(false); // not fully evolved (Eviolite)
-  const [currentHp, setCurrentHp] = useState<number | null>(null);
+  // --- Format ---
+  const [format, setFormat] = useState<"singles" | "doubles">("singles");
+
+  // --- Defender (singles) / foes (doubles) ---
+  const def = useDefenderConfig(defaultDefender, "Calm");
+  const foe1 = useDefenderConfig(null);
+  const foe2 = useDefenderConfig(null);
+  const [ally, setAlly] = useState<SpeciesIndex | null>(null);
+  const [dblTarget, setDblTarget] = useState<DoublesTarget>("both-foes");
 
   // --- Move ---
   const [power, setPower] = useState(90);
@@ -282,76 +641,56 @@ export default function AdvancedCalc() {
     [attacker, atkLevel, atkNature, atkEvs, atkIvs],
   );
 
-  const defStats = useMemo(
-    () => combatantStats(defender, defLevel, defNature, defEvs, defIvs),
-    [defender, defLevel, defNature, defEvs, defIvs],
-  );
+  const setAtkEv = (k: StatKey, v: number) =>
+    setAtkEvs((prev) => ({ ...prev, [k]: v }));
+  const setAtkIv = (k: StatKey, v: number) =>
+    setAtkIvs((prev) => ({ ...prev, [k]: v }));
 
-  const maxHp = defStats.hp;
-  const targetHp = Math.max(1, currentHp ?? maxHp);
-
-  function pickDefender(s: SpeciesIndex | null) {
-    setDefender(s);
-    setCurrentHp(null); // reset to full for the new defender
+  function attackerCombatant(): CombatantInput {
+    return {
+      species: attacker?.id ?? null,
+      level: atkLevel,
+      nature: atkNature,
+      ability: atkAbility,
+      item: atkItem,
+      status: atkStatus,
+      evs: atkEvs,
+      ivs: atkIvs,
+      pinchActive,
+    };
   }
 
-  const setEv = (
-    which: "atk" | "def",
-    k: StatKey,
-    v: number,
-  ) => {
-    const set = which === "atk" ? setAtkEvs : setDefEvs;
-    set((prev) => ({ ...prev, [k]: v }));
-  };
-  const setIv = (
-    which: "atk" | "def",
-    k: StatKey,
-    v: number,
-  ) => {
-    const set = which === "atk" ? setAtkIvs : setDefIvs;
-    set((prev) => ({ ...prev, [k]: v }));
-  };
+  function fieldInput(): {
+    weather: string;
+    terrain: string;
+    reflect: boolean;
+    lightScreen: boolean;
+    crit: boolean;
+    stab: "auto" | "on" | "off";
+    effectiveness: "auto" | number;
+  } {
+    return {
+      weather,
+      terrain,
+      reflect,
+      lightScreen,
+      crit,
+      stab: stabMode,
+      effectiveness: effOverride === "auto" ? "auto" : Number(effOverride),
+    };
+  }
 
   const calc = useMemo(
     () =>
       calculateDamage({
-        attacker: {
-          species: attacker?.id ?? null,
-          level: atkLevel,
-          nature: atkNature,
-          ability: atkAbility,
-          item: atkItem,
-          status: atkStatus,
-          evs: atkEvs,
-          ivs: atkIvs,
-          pinchActive,
-        },
-        defender: {
-          species: defender?.id ?? null,
-          level: defLevel,
-          nature: defNature,
-          ability: defAbility,
-          item: defItem,
-          status: defStatus,
-          evs: defEvs,
-          ivs: defIvs,
-          notFullyEvolved: nfu,
-          currentHp,
-        },
+        attacker: attackerCombatant(),
+        defender: defenderCombatant(def),
         move: { power, type: moveType, category },
-        field: {
-          weather,
-          terrain,
-          reflect,
-          lightScreen,
-          crit,
-          stab: stabMode,
-          effectiveness: effOverride === "auto" ? "auto" : Number(effOverride),
-        },
+        field: { ...fieldInput() },
       }),
     [
       attacker,
-      defender,
+      def,
       atkLevel,
       atkNature,
       atkAbility,
@@ -360,15 +699,6 @@ export default function AdvancedCalc() {
       atkEvs,
       atkIvs,
       pinchActive,
-      defLevel,
-      defNature,
-      defAbility,
-      defItem,
-      defStatus,
-      defEvs,
-      defIvs,
-      nfu,
-      currentHp,
       power,
       moveType,
       category,
@@ -381,6 +711,45 @@ export default function AdvancedCalc() {
       effOverride,
     ],
   );
+
+  const dblCalc = useMemo(() => {
+    try {
+      return calculateDoublesTurn({
+        attacker: attackerCombatant(),
+        ally: ally ? { species: ally.id, level: 50 } : null,
+        defenders: [defenderCombatant(foe1), defenderCombatant(foe2)],
+        move: { power, type: moveType, category },
+        target: dblTarget,
+        field: { ...fieldInput() },
+      });
+    } catch {
+      return null;
+    }
+  }, [
+    attacker,
+    ally,
+    foe1,
+    foe2,
+    dblTarget,
+    atkLevel,
+    atkNature,
+    atkAbility,
+    atkItem,
+    atkStatus,
+    atkEvs,
+    atkIvs,
+    pinchActive,
+    power,
+    moveType,
+    category,
+    weather,
+    terrain,
+    reflect,
+    lightScreen,
+    crit,
+    stabMode,
+    effOverride,
+  ]);
 
   function handleCalculate() {
     setHasCalculated(true);
@@ -404,7 +773,62 @@ export default function AdvancedCalc() {
       <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
         Showdown-style: natures, EVs/IVs, abilities, items, status, weather,
         terrain, and screens — all wired into the Gen 7+ damage formula.
+        Doubles mode adds an ally, two foes, and the ×0.75 spread modifier.
       </p>
+
+      {/* Singles / Doubles toggle */}
+      <div className="mt-4 inline-flex rounded-xl border border-slate-300 p-1 dark:border-slate-600">
+        {(
+          [
+            { v: "singles", label: "Singles" },
+            { v: "doubles", label: "Doubles 👥" },
+          ] as const
+        ).map((o) => (
+          <button
+            key={o.v}
+            type="button"
+            onClick={() => setFormat(o.v)}
+            className={`rounded-lg px-4 py-1.5 text-sm font-semibold transition ${
+              format === o.v
+                ? "bg-emerald-300 text-slate-800 dark:bg-emerald-600 dark:text-slate-100"
+                : "text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
+            }`}
+          >
+            {o.label}
+          </button>
+        ))}
+      </div>
+
+      {format === "doubles" && (
+        <div className="mt-3">
+          <span className={labelCls}>Target</span>
+          <div className="mt-1 inline-flex flex-wrap gap-1 rounded-xl border border-slate-300 p-1 dark:border-slate-600">
+            {(
+              [
+                { v: "foe1", label: "Foe 1" },
+                { v: "foe2", label: "Foe 2" },
+                { v: "both-foes", label: "Both foes (spread ×0.75)" },
+                { v: "ally", label: "Ally", disabled: !ally },
+              ] as Array<{ v: DoublesTarget; label: string; disabled?: boolean }>
+            ).map((o) => (
+              <button
+                key={o.v}
+                type="button"
+                disabled={o.disabled}
+                title={o.disabled ? "Pick an ally first" : undefined}
+                onClick={() => setDblTarget(o.v)}
+                className={`rounded-lg px-3 py-1.5 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-40 ${
+                  dblTarget === o.v
+                    ? "bg-emerald-300 text-slate-800 dark:bg-emerald-600 dark:text-slate-100"
+                    : "text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
+                }`}
+              >
+                {o.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="mt-6 grid gap-5 lg:grid-cols-2">
         {/* Attacker */}
@@ -500,8 +924,8 @@ export default function AdvancedCalc() {
                 <EvIvGrid
                   evs={atkEvs}
                   ivs={atkIvs}
-                  onEv={(k, v) => setEv("atk", k, v)}
-                  onIv={(k, v) => setIv("atk", k, v)}
+                  onEv={setAtkEv}
+                  onIv={setAtkIv}
                 />
               </div>
             </div>
@@ -512,138 +936,33 @@ export default function AdvancedCalc() {
           </div>
         </div>
 
-        {/* Defender */}
-        <div className={sectionCls}>
-          <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100">
-            🛡️ Defender
-          </h2>
-          <div className="mt-4 space-y-4">
-            <SpeciesPicker
-              label="Defending Pokémon"
-              species={defender}
-              onPick={pickDefender}
-            />
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className={labelCls} htmlFor="adv-def-level">
-                  Level
-                </label>
-                <input
-                  id="adv-def-level"
-                  type="number"
-                  min={1}
-                  max={100}
-                  className={inputCls}
-                  value={defLevel}
-                  onChange={(e) =>
-                    setDefLevel(clamp(e.target.valueAsNumber, 1, 100))
-                  }
+        {format === "singles" ? (
+          <DefenderPanel cfg={def} title="🛡️ Defender" idPrefix="adv-def" />
+        ) : (
+          <>
+            <div className={sectionCls}>
+              <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100">
+                🤝 Ally{" "}
+                <span className="text-sm font-normal text-slate-400 dark:text-slate-500">
+                  (optional)
+                </span>
+              </h2>
+              <div className="mt-4">
+                <SpeciesPicker
+                  label="Attacker's ally"
+                  species={ally}
+                  onPick={setAlly}
                 />
-              </div>
-              <div>
-                <label className={labelCls} htmlFor="adv-def-nature">
-                  Nature
-                </label>
-                <select
-                  id="adv-def-nature"
-                  className={inputCls}
-                  value={defNature}
-                  onChange={(e) => setDefNature(e.target.value)}
-                >
-                  {NATURES.map((n) => (
-                    <option key={n.name} value={n.name}>
-                      {n.name}
-                    </option>
-                  ))}
-                </select>
+                <p className="mt-2 text-xs text-slate-400 dark:text-slate-500">
+                  Targeting context only — ally abilities like Friend Guard
+                  aren&apos;t modeled.
+                </p>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <ModSelect
-                id="adv-def-ability"
-                label="Ability"
-                value={defAbility}
-                options={DEFENDER_ABILITIES}
-                onChange={setDefAbility}
-              />
-              <ModSelect
-                id="adv-def-item"
-                label="Item"
-                value={defItem}
-                options={DEFENDER_ITEMS}
-                onChange={setDefItem}
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className={labelCls} htmlFor="adv-def-status">
-                  Status
-                </label>
-                <select
-                  id="adv-def-status"
-                  className={inputCls}
-                  value={defStatus}
-                  onChange={(e) => setDefStatus(e.target.value)}
-                >
-                  {STATUSES.map((s) => (
-                    <option key={s} value={s}>
-                      {s}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className={labelCls} htmlFor="adv-def-hp">
-                  Current HP
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    id="adv-def-hp"
-                    type="number"
-                    min={1}
-                    max={maxHp}
-                    className={inputCls}
-                    value={currentHp ?? maxHp}
-                    onChange={(e) =>
-                      setCurrentHp(clamp(e.target.valueAsNumber, 1, maxHp))
-                    }
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setCurrentHp(null)}
-                    title="Reset to full HP"
-                    className="shrink-0 rounded-xl border border-slate-300 px-3 text-sm text-slate-500 hover:bg-slate-100 dark:border-slate-600 dark:text-slate-400 dark:hover:bg-slate-800"
-                  >
-                    ↺
-                  </button>
-                </div>
-              </div>
-            </div>
-            {defItem === "Eviolite" && (
-              <Check
-                id="adv-nfu"
-                label="Not fully evolved (Eviolite applies)"
-                checked={nfu}
-                onChange={setNfu}
-              />
-            )}
-            <div>
-              <span className={labelCls}>EVs / IVs</span>
-              <div className="mt-1">
-                <EvIvGrid
-                  evs={defEvs}
-                  ivs={defIvs}
-                  onEv={(k, v) => setEv("def", k, v)}
-                  onIv={(k, v) => setIv("def", k, v)}
-                />
-              </div>
-            </div>
-            <p className="rounded-lg bg-slate-50 px-3 py-2 text-xs tabular-nums text-slate-500 dark:bg-slate-800/60 dark:text-slate-400">
-              HP {defStats.hp} · Atk {defStats.atk} · Def {defStats.def} · SpA{" "}
-              {defStats.spa} · SpD {defStats.spd} · Spe {defStats.spe}
-            </p>
-          </div>
-        </div>
+            <DefenderPanel cfg={foe1} title="🛡️ Foe 1" idPrefix="dbl-foe1" />
+            <DefenderPanel cfg={foe2} title="🛡️ Foe 2" idPrefix="dbl-foe2" />
+          </>
+        )}
 
         {/* Move */}
         <div className={sectionCls}>
@@ -793,16 +1112,43 @@ export default function AdvancedCalc() {
           </div>
           <div className="mt-4">
             <span className={labelCls}>Effectiveness</span>
-            <div className="mt-1 flex flex-wrap items-center gap-2">
-              <TypePill type={moveType} />
-              <span className="text-slate-400">vs</span>
-              {(defender?.types ?? []).map((t) => (
-                <TypePill key={t} type={t} />
-              ))}
-              <span className="ml-auto text-lg font-bold text-slate-800 dark:text-slate-100">
-                {hasCalculated ? `${calc.effectiveness}×` : "—"}
-              </span>
-            </div>
+            {format === "singles" ? (
+              <div className="mt-1 flex flex-wrap items-center gap-2">
+                <TypePill type={moveType} />
+                <span className="text-slate-400">vs</span>
+                {(def.species?.types ?? []).map((t) => (
+                  <TypePill key={t} type={t} />
+                ))}
+                <span className="ml-auto text-lg font-bold text-slate-800 dark:text-slate-100">
+                  {hasCalculated ? `${calc.effectiveness}×` : "—"}
+                </span>
+              </div>
+            ) : (
+              <div className="mt-1 space-y-1.5">
+                {[foe1, foe2].map((f, i) => {
+                  const slot: "foe1" | "foe2" = i === 0 ? "foe1" : "foe2";
+                  const t = dblCalc?.targets.find((x) => x.slot === slot);
+                  return (
+                    <div
+                      key={slot}
+                      className="flex flex-wrap items-center gap-2"
+                    >
+                      <span className="w-10 text-xs font-bold text-slate-500 dark:text-slate-400">
+                        Foe {i + 1}
+                      </span>
+                      <TypePill type={moveType} />
+                      <span className="text-slate-400">vs</span>
+                      {(f.species?.types ?? []).map((ty) => (
+                        <TypePill key={ty} type={ty} />
+                      ))}
+                      <span className="ml-auto text-lg font-bold text-slate-800 dark:text-slate-100">
+                        {hasCalculated && t ? `${t.result.effectiveness}×` : "—"}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
             <select
               aria-label="Effectiveness override"
               className={`${inputCls} mt-2`}
@@ -842,99 +1188,45 @@ export default function AdvancedCalc() {
             <span className="font-semibold">Calculate damage</span> to see all
             16 rolls and KO odds.
           </p>
-        ) : (
-          <div className="mt-3">
-            <p className="text-xs text-slate-400 dark:text-slate-500">
-              {calc.echo}
-            </p>
-            <div className="mt-3 flex flex-wrap items-baseline gap-x-6 gap-y-2">
-              <div>
-                <div className="text-3xl font-extrabold text-slate-800 dark:text-slate-100">
-                  {calc.minRoll} – {calc.maxRoll}
-                </div>
-                <div className="text-sm text-slate-500 dark:text-slate-400">
-                  damage
-                </div>
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
-                  {calc.minPct}% – {calc.maxPct}%
-                </div>
-                <div className="text-sm text-slate-500 dark:text-slate-400">
-                  of {calc.targetHp} HP
-                </div>
-              </div>
-            </div>
-
-            {/* All 16 rolls */}
-            <div className="mt-4">
-              <span className={labelCls}>All 16 rolls</span>
-              <div className="mt-1.5 flex flex-wrap gap-1.5">
-                {calc.rolls.map((r, i) => (
-                  <span
-                    key={i}
-                    className={`rounded-lg px-2 py-1 text-xs font-semibold tabular-nums ${
-                      r >= calc.targetHp
-                        ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"
-                        : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300"
-                    }`}
-                    title={`Roll ${85 + i}%`}
-                  >
-                    {r}
+        ) : format === "singles" ? (
+          <ResultBlock result={calc} />
+        ) : dblCalc ? (
+          <div className="mt-3 space-y-8">
+            {dblCalc.targets.map((t) => (
+              <div key={t.slot}>
+                <h3 className="flex flex-wrap items-center gap-2 text-base font-bold text-slate-800 dark:text-slate-100">
+                  <span>
+                    {t.slot === "ally"
+                      ? "🤝 Ally"
+                      : t.slot === "foe1"
+                        ? "🛡️ Foe 1"
+                        : "🛡️ Foe 2"}
+                    : {t.result.defender}
                   </span>
-                ))}
+                  {t.spreadApplied && (
+                    <span className="rounded-full bg-sky-100 px-2.5 py-0.5 text-xs font-semibold text-sky-700 dark:bg-sky-950 dark:text-sky-300">
+                      spread ×0.75
+                    </span>
+                  )}
+                </h3>
+                <ResultBlock result={t.result} />
               </div>
+            ))}
+            <div className="flex flex-wrap gap-2">
+              {dblCalc.notes.map((n) => (
+                <span
+                  key={n}
+                  className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300"
+                >
+                  {n}
+                </span>
+              ))}
             </div>
-
-            {/* Range bar */}
-            <div className="mt-4">
-              <div className="relative h-3 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
-                <div
-                  className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-emerald-300 to-emerald-500 dark:from-emerald-700 dark:to-emerald-500"
-                  style={{
-                    width: `${Math.min(100, (calc.maxRoll / calc.targetHp) * 100)}%`,
-                  }}
-                />
-                <div
-                  className="absolute inset-y-0 w-0.5 bg-slate-400 dark:bg-slate-300"
-                  style={{
-                    left: `${Math.min(100, (calc.minRoll / calc.targetHp) * 100)}%`,
-                  }}
-                  title={`Min: ${calc.minRoll}`}
-                />
-              </div>
-              <div className="mt-1 flex justify-between text-xs text-slate-400 dark:text-slate-500">
-                <span>Min {calc.minRoll}</span>
-                <span>Max {calc.maxRoll}</span>
-                <span>KO at {calc.targetHp}</span>
-              </div>
-            </div>
-
-            <div className="mt-4 rounded-xl bg-emerald-50 px-4 py-3 text-center text-lg font-bold text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
-              {calc.koSummary}
-            </div>
-
-            {calc.modifiers.length > 0 && (
-              <div className="mt-3 flex flex-wrap gap-2">
-                {calc.modifiers.map((m) => (
-                  <span
-                    key={m}
-                    className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300"
-                  >
-                    {m}
-                  </span>
-                ))}
-              </div>
-            )}
-
-            <p className="mt-4 text-[11px] leading-relaxed text-slate-400 dark:text-slate-500">
-              Gen 7+ stat &amp; damage formulas. Simplifications vs Pokémon
-              Showdown&apos;s calc: no stat stages, no spread moves, no
-              accuracy, terrain assumes a grounded defender (non-Flying),
-              pinch abilities need the toggle, and move effects like Sheer
-              Force / Tough Claws are assumed to apply.
-            </p>
           </div>
+        ) : (
+          <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">
+            Pick an ally Pokémon to target it.
+          </p>
         )}
       </div>
     </div>

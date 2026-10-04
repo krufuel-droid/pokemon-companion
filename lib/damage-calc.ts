@@ -68,6 +68,12 @@ export interface FieldInput {
   stab?: "auto" | "on" | "off";
   /** "auto" or an explicit multiplier (0, 0.25, 0.5, 1, 2, 4). */
   effectiveness?: "auto" | number;
+  /**
+   * Doubles spread modifier (Targets, Gen 7+: ×0.75 per target when a move
+   * hits multiple targets). Set automatically by `calculateDoublesTurn`;
+   * never on by default, so existing singles callers are unaffected.
+   */
+  spread?: boolean;
 }
 
 export interface DamageCalcInput {
@@ -326,6 +332,13 @@ export function calculateDamage(input: DamageCalcInput): DamageCalcResult {
 
   const mods: string[] = [...statMods];
 
+  // Doubles spread (Targets modifier — Gen 7+: ×0.75 per target when a move
+  // hits multiple targets). Only set via calculateDoublesTurn.
+  if (field.spread) {
+    dmg = Math.floor(dmg * 0.75);
+    mods.push("Spread ×0.75");
+  }
+
   // Weather
   if (weather === "Harsh Sunlight") {
     if (moveType === "Fire") {
@@ -506,5 +519,117 @@ export function calculateDamage(input: DamageCalcInput): DamageCalcResult {
     koSummary,
     modifiers: mods,
     echo: `${atkName} Lv ${atkLevel} (${atkNature}) → ${defName} Lv ${defLevel} (${defNature}) · ${pwr} power ${moveType} (${input.move.category}) · Atk ${A} / Def ${D}`,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Doubles
+// ---------------------------------------------------------------------------
+
+/** Which slot(s) a doubles move hits. "both-foes" applies the ×0.75 spread modifier. */
+export type DoublesTarget = "foe1" | "foe2" | "both-foes" | "ally";
+
+export interface DoublesCalcInput {
+  attacker: CombatantInput;
+  /**
+   * Optional ally next to the attacker. Accepted for targeting context
+   * (target: "ally"); ally abilities such as Friend Guard are NOT modeled.
+   */
+  ally?: CombatantInput | null;
+  /** Exactly two defenders: [foe1, foe2]. */
+  defenders: CombatantInput[];
+  move: MoveInput;
+  /** Which slot(s) the move hits. */
+  target: DoublesTarget;
+  /** Weather/terrain/screens apply battle-wide, exactly as in singles. */
+  field?: FieldInput;
+}
+
+export interface DoublesTargetResult {
+  slot: "foe1" | "foe2" | "ally";
+  /** Full single-target result (rolls, percentages, KO summary) for this slot. */
+  result: DamageCalcResult;
+  spreadApplied: boolean;
+}
+
+export interface DoublesCalcResult {
+  format: "doubles";
+  attacker: string;
+  move: MoveInput;
+  target: DoublesTarget;
+  spreadApplied: boolean;
+  targets: DoublesTargetResult[];
+  notes: string[];
+}
+
+/**
+ * Doubles turn damage: runs the standard singles math once per targeted
+ * slot (reusing `calculateDamage` — the formula is never reimplemented),
+ * applying the Gen 7+ ×0.75 spread modifier when the move hits both foes.
+ *
+ * Honest limitations: no redirect moves (Follow Me / Rage Powder always
+ * send every hit to one target in-game), no ally abilities (Friend Guard),
+ * no spread onto the ally's slot.
+ */
+export function calculateDoublesTurn(input: DoublesCalcInput): DoublesCalcResult {
+  const defs = input.defenders;
+  if (!Array.isArray(defs) || defs.length !== 2) {
+    throw new Error("Doubles calc needs exactly two defenders: [foe1, foe2].");
+  }
+  const target = input.target;
+  if (
+    target !== "foe1" &&
+    target !== "foe2" &&
+    target !== "both-foes" &&
+    target !== "ally"
+  ) {
+    throw new Error(
+      `Doubles target must be "foe1", "foe2", "both-foes", or "ally". Got: ${String(target)}`,
+    );
+  }
+  if (target === "ally" && !input.ally?.species) {
+    throw new Error('Target "ally" needs an ally Pokémon.');
+  }
+
+  const spreadApplied = target === "both-foes";
+  const field: FieldInput = { ...(input.field ?? {}), spread: spreadApplied };
+
+  const slots: Array<{ slot: "foe1" | "foe2" | "ally"; combatant: CombatantInput }> = [];
+  if (target === "foe1") slots.push({ slot: "foe1", combatant: defs[0] });
+  else if (target === "foe2") slots.push({ slot: "foe2", combatant: defs[1] });
+  else if (target === "both-foes") {
+    slots.push({ slot: "foe1", combatant: defs[0] });
+    slots.push({ slot: "foe2", combatant: defs[1] });
+  } else {
+    slots.push({ slot: "ally", combatant: input.ally as CombatantInput });
+  }
+
+  const targets: DoublesTargetResult[] = slots.map(({ slot, combatant }) => ({
+    slot,
+    spreadApplied,
+    result: calculateDamage({
+      attacker: input.attacker,
+      defender: combatant,
+      move: input.move,
+      field,
+    }),
+  }));
+
+  const notes: string[] = [];
+  if (spreadApplied) {
+    notes.push("Spread move: ×0.75 damage to each target (Gen 7+).");
+  }
+  notes.push(
+    "No redirect moves modeled — in-game, Follow Me / Rage Powder send every hit to one target.",
+  );
+
+  return {
+    format: "doubles",
+    attacker: resolveSpecies(input.attacker.species)?.name ?? "Attacker",
+    move: input.move,
+    target,
+    spreadApplied,
+    targets,
+    notes,
   };
 }
