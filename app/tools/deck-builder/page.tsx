@@ -5,6 +5,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { unlockAchievement } from "@/lib/achievements";
 import { searchCards, type TcgCard } from "@/lib/tcg";
+import speciesIndex from "@/data/pokedex-index.json";
 import {
   TCG_FORMATS,
   isBasicEnergy,
@@ -79,6 +80,16 @@ function CardSearch({
   const [searched, setSearched] = useState(false);
   const runId = useRef(0);
 
+  // Species autocomplete (local, instant): type 2+ letters, pick a Pokémon.
+  const speciesSuggestions = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (q.length < 2) return [];
+    return (speciesIndex as { name: string }[])
+      .filter((s) => s.name.toLowerCase().startsWith(q))
+      .slice(0, 12)
+      .map((s) => s.name);
+  }, [query]);
+
   useEffect(() => {
     const q = query.trim();
     if (q.length < 2) {
@@ -117,8 +128,15 @@ function CardSearch({
         onChange={(e) => setQuery(e.target.value)}
         placeholder="Search cards to add — e.g. Charizard"
         aria-label="Search cards"
+        list="deck-builder-species"
+        autoComplete="off"
         className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-800 placeholder:text-slate-400 focus:border-emerald-500 focus:outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
       />
+      <datalist id="deck-builder-species">
+        {speciesSuggestions.map((name) => (
+          <option key={name} value={name} />
+        ))}
+      </datalist>
       {loading && (
         <p className="mt-4 text-center text-sm text-slate-500 dark:text-slate-400">
           Searching cards…
