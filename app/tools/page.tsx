@@ -292,7 +292,7 @@ export default function ToolsIndex() {
         Quick calculators for the games — no account needed.
       </p>
       <div className="mt-8 space-y-4">
-        <ToolDropdown id="calculators" title="Calculators" tools={CALCULATORS} defaultOpen />
+        <ToolDropdown id="calculators" title="Calculators" tools={CALCULATORS} />
         <ToolDropdown id="team-tools" title="Team Tools" tools={TEAM_TOOLS} />
         <ToolDropdown id="reference" title="Reference" tools={REFERENCE} />
         <ToolDropdown id="trackers" title="Trackers" tools={TRACKERS} />
