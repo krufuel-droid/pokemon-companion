@@ -21,6 +21,11 @@ import {
   SpeciesPicker,
 } from "./shared";
 import AdvancedCalc from "./advanced";
+import SaveSetupForm from "./save-setup";
+import {
+  consumeCalcHandoff,
+  type SavedCalcSnapshot,
+} from "@/lib/saved-calcs";
 
 const EFF_OPTIONS = ["auto", "0", "0.25", "0.5", "1", "2", "4"] as const;
 
@@ -149,6 +154,46 @@ export default function DamageCalcPage() {
         userIdRef.current = data.user?.id ?? null;
       },
     );
+  }, []);
+
+  // One-shot restore of a setup staged from the Saved Calculations page.
+  useEffect(() => {
+    const pending = consumeCalcHandoff();
+    if (!pending) return;
+    setMode("simple");
+    const a = pending.attacker;
+    setAttacker(
+      a.speciesId != null ? (getSpeciesById(a.speciesId) ?? null) : null,
+    );
+    setLevel(Math.min(100, Math.max(1, a.level || 50)));
+    setAttack(a.attack);
+    setSpAtk(a.spAtk);
+    setAtkNature(a.nature);
+    const d = pending.defenders[0];
+    if (d) {
+      setDefender(
+        d.speciesId != null ? (getSpeciesById(d.speciesId) ?? null) : null,
+      );
+      setHp(d.hp);
+      setCurrentHp(d.currentHp);
+      setDefense(d.defense);
+      setSpDef(d.spDef);
+      setDefType1(d.type1);
+      setDefType2(d.type2);
+      setDefNature(d.nature);
+    }
+    const m = pending.move;
+    setPower(m.power);
+    setMoveType(m.moveType);
+    setCategory(m.category);
+    setStabMode(m.stabMode);
+    setMovePick(m.movePick);
+    setEffOverride(
+      (EFF_OPTIONS as readonly string[]).includes(m.effOverride)
+        ? (m.effOverride as (typeof EFF_OPTIONS)[number])
+        : "auto",
+    );
+    setHasCalculated(false);
   }, []);
 
   function prefillAttackerStats(s: SpeciesIndex | null, lvl: number) {
@@ -373,6 +418,35 @@ function NatureSelect({
         }
       }
     }
+  }
+
+  /** Current simple-mode inputs as a savable snapshot. */
+  function buildSnapshot(): SavedCalcSnapshot {
+    return {
+      attacker: {
+        speciesId: attacker?.id ?? null,
+        speciesName: attacker?.name ?? "—",
+        level,
+        attack,
+        spAtk,
+        nature: atkNature,
+      },
+      defenders: [
+        {
+          speciesId: defender?.id ?? null,
+          speciesName: defender?.name ?? "—",
+          hp,
+          currentHp,
+          defense,
+          spDef,
+          type1: defType1,
+          type2: defType2,
+          nature: defNature,
+        },
+      ],
+      move: { power, moveType, category, stabMode, movePick, effOverride },
+      field: {},
+    };
   }
 
   return (
@@ -793,6 +867,8 @@ function NatureSelect({
       >
         Calculate damage 🧮
       </button>
+
+      <SaveSetupForm getSnapshot={buildSnapshot} />
 
       {/* Results */}
       <div className="mt-5 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">

@@ -9,6 +9,7 @@ import { TypePills } from "@/app/pokedex/type-pills";
 import { NATURES } from "@/lib/data/natures";
 import { ITEMS } from "@/lib/data/items";
 import { MOVES } from "@/lib/data/moves";
+import { buildRentalUrl, decodeSharedTeam } from "@/lib/rental-teams";
 
 const ALL = getAllSpecies();
 
@@ -38,6 +39,11 @@ const VARIANTS: SpeciesIndex[] = getRegionalForms().map((f, i) => ({
 
 const SEARCHABLE: SpeciesIndex[] = [...ALL, ...VARIANTS];
 const BY_ID = new Map<number, SpeciesIndex>(SEARCHABLE.map((s) => [s.id, s]));
+
+/** Species/variant lookup shared with the rental-teams page. */
+export function lookupSpecies(id: number): SpeciesIndex | undefined {
+  return BY_ID.get(id);
+}
 
 /** Display label: base dex number for variants (e.g. "#38"), own id otherwise. */
 function dexLabel(s: SpeciesIndex): string {
@@ -611,11 +617,16 @@ function SetEditor({
 
 export default function TeamBuilder() {
   const [team, setTeam] = useState<TeamMember[]>(() => {
-    // Client-only: honor a shared ?team=1,25,94 link without suspending SSR.
+    // Client-only: honor shared links without suspending SSR. ?fullteam=
+    // carries full rental sets (base64url JSON); legacy ?team=1,25,94 is
+    // species-id-only and still works.
     if (typeof window === "undefined") return [];
-    return parseTeamParam(new URLSearchParams(window.location.search).get("team")).map(
-      (id) => ({ speciesId: id }),
+    const params = new URLSearchParams(window.location.search);
+    const full = (decodeSharedTeam(params.get("fullteam")) ?? []).filter((m) =>
+      BY_ID.has(m.speciesId),
     );
+    if (full.length > 0) return full;
+    return parseTeamParam(params.get("team")).map((id) => ({ speciesId: id }));
   });
   const [query, setQuery] = useState("");
   const [teamName, setTeamName] = useState("");
@@ -624,6 +635,7 @@ export default function TeamBuilder() {
   );
   const [notice, setNotice] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [rentalCopied, setRentalCopied] = useState(false);
   const [importText, setImportText] = useState("");
   const [importOpen, setImportOpen] = useState(false);
 
@@ -754,6 +766,22 @@ export default function TeamBuilder() {
     }
   }
 
+  /** Copy a rental-team link with FULL sets (items, moves, EVs) — opens at /tools/rental-teams. */
+  async function copyRentalLink() {
+    if (team.length === 0) {
+      setNotice("Add at least one Pokémon to share.");
+      return;
+    }
+    const url = buildRentalUrl(window.location.origin, team);
+    try {
+      await navigator.clipboard.writeText(url);
+      setRentalCopied(true);
+      setTimeout(() => setRentalCopied(false), 2500);
+    } catch {
+      setNotice("Copy failed — your browser blocked clipboard access.");
+    }
+  }
+
   /** Import a PokéPaste / Showdown team with full sets. */
   function importPaste() {
     const { members, skipped } = parsePokePaste(importText);
@@ -827,6 +855,14 @@ export default function TeamBuilder() {
               className="rounded-full bg-emerald-500 px-4 py-1.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-600"
             >
               {copied ? "Copied!" : "Copy share link"}
+            </button>
+            <button
+              type="button"
+              onClick={copyRentalLink}
+              title="Copy a rental-team link with full sets (items, moves, EVs)"
+              className="rounded-full bg-emerald-500 px-4 py-1.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-600"
+            >
+              {rentalCopied ? "Copied!" : "Share as link"}
             </button>
             <button
               type="button"

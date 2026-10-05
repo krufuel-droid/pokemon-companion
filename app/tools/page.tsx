@@ -27,6 +27,11 @@ const CALCULATORS: Tool[] = [
     title: "Shiny Odds Calculator",
     desc: "Combine a Pokémon's spawn rate with your hunting method for the true shiny odds per encounter.",
   },
+  {
+    href: "/tools/saved-calcs",
+    title: "Saved Calculations",
+    desc: "Save your damage-calc setups under a name and reload them anytime — no re-entering everything.",
+  },
 ];
 
 const TEAM_TOOLS: Tool[] = [
@@ -86,6 +91,16 @@ const TEAM_TOOLS: Tool[] = [
     desc: "Every damaging move your Pokémon learns, ranked by super-effective coverage against the 12 meta staples — plus the best 4-move combo.",
   },
   {
+    href: "/tools/popular-sets",
+    title: "Popular Sets Explorer",
+    desc: "Search any Pokémon and see the items, moves, abilities, and natures real tournament teams run — with usage percentages.",
+  },
+  {
+    href: "/tools/meta-trends",
+    title: "Meta Trends",
+    desc: "Which Pokémon are rising and falling across tournaments — usage swings from the earliest to the latest archived event.",
+  },
+  {
     href: "/tools/tournament-prep",
     title: "Tournament Prep Mode",
     desc: "Pick your event, import your team, get a threat report against the meta — and print a cheat sheet for the venue.",
@@ -109,6 +124,11 @@ const TEAM_TOOLS: Tool[] = [
     href: "/tools/team-builder",
     title: "Team Builder",
     desc: "Draft a 6-Pokémon team, check defensive weaknesses and offensive coverage, save teams, and share them with a link.",
+  },
+  {
+    href: "/tools/rental-teams",
+    title: "Rental Team Sharing",
+    desc: "Turn a team-builder team into a shareable rental link — anyone opening it sees the full team, ready to view or import.",
   },
   {
     href: "/tools/nuzlocke-encounters",
@@ -161,6 +181,11 @@ const FUN: Tool[] = [
     title: "Cry Quiz",
     desc: "Hear a cry and name that Pokémon — the audio sequel to Who's That Pokémon?",
   },
+  {
+    href: "/tools/potd-archive",
+    title: "Pokémon of the Day Archive",
+    desc: "A calendar of past Pokémon-of-the-Day picks — browse by month, tap any day to visit that Pokémon's page.",
+  },
 ];
 
 const TRACKERS: Tool[] = [
@@ -178,6 +203,11 @@ const TRACKERS: Tool[] = [
     href: "/tools/deck-builder",
     title: "TCG Deck Builder",
     desc: "Build 60-card decks with format legality checks, cross-reference your collection, export lists, and share them.",
+  },
+  {
+    href: "/tools/player-tracker",
+    title: "Player Tracker",
+    desc: "Search a player's name and see every archived tournament run — placements, records, and the full teams they brought.",
   },
 ];
 

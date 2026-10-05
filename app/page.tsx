@@ -3,8 +3,7 @@ import { AuthDebugPanel } from "@/components/AuthDebugPanel";
 import DailyCatchLogger from "@/components/daily-catch-logger";
 import SeasonalSpotlight from "@/components/SeasonalSpotlight";
 import StreakWidget from "@/components/StreakWidget";
-import { getAllSpecies } from "@/lib/pokedex";
-import { applySeasonalFilter } from "@/lib/seasonal-potd";
+import { getPokemonOfTheDay } from "@/lib/potd";
 import { TYPE_COLORS } from "@/lib/theme";
 import { TOURNAMENT_RESULTS } from "@/lib/data/champions";
 
@@ -16,11 +15,8 @@ export const dynamic = "force-dynamic";
 
 /** Deterministic daily pick — same Pokémon for everyone, changes at midnight. */
 function PokemonOfTheDay() {
-  const all = applySeasonalFilter(getAllSpecies());
+  const mon = getPokemonOfTheDay();
   const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
-  let hash = 0;
-  for (let i = 0; i < today.length; i++) hash = (hash * 31 + today.charCodeAt(i)) >>> 0;
-  const mon = all[hash % all.length];
 
   return (
     <div className="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
@@ -49,12 +45,20 @@ function PokemonOfTheDay() {
               </span>
             ))}
           </div>
-          <Link
-            href={`/pokedex/${mon.slug}`}
-            className="mt-4 inline-block rounded-full bg-emerald-500 px-5 py-2 text-sm font-bold text-white shadow-sm transition hover:bg-emerald-600"
-          >
-            Meet {mon.name} →
-          </Link>
+          <div className="mt-4 flex flex-wrap justify-center gap-2 sm:justify-start">
+            <Link
+              href={`/pokedex/${mon.slug}`}
+              className="inline-block rounded-full bg-emerald-500 px-5 py-2 text-sm font-bold text-white shadow-sm transition hover:bg-emerald-600"
+            >
+              Meet {mon.name} →
+            </Link>
+            <Link
+              href="/tools/potd-archive"
+              className="inline-block rounded-full border-2 border-emerald-300 px-5 py-2 text-sm font-bold text-emerald-700 transition hover:bg-emerald-50 dark:text-emerald-300 dark:hover:bg-emerald-950"
+            >
+              Past picks →
+            </Link>
+          </div>
           <div>
             <DailyCatchLogger speciesId={mon.id} speciesName={mon.name} potdDate={today} />
           </div>
