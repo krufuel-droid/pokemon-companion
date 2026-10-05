@@ -20,7 +20,7 @@ import {
   TOURNAMENT_RESULTS,
   type TeamMon,
 } from "@/lib/data/champions";
-import { resolveSpecies } from "@/lib/damage-calc";
+import { resolveCombatant } from "@/lib/damage-calc";
 
 export interface MovesetSource {
   event: string;
@@ -63,10 +63,11 @@ interface RawObservation {
   sourceUrl?: string;
 }
 
-/** resolveSpecies throws on no match; for aggregation we just skip those. */
+/** resolveCombatant throws on no match; for aggregation we just skip those.
+ *  Mega form names ("Mega Lucario") resolve to their base species. */
 function tryResolve(ref: string | number | null | undefined) {
   try {
-    return resolveSpecies(ref);
+    return resolveCombatant(ref)?.species ?? null;
   } catch {
     return null;
   }

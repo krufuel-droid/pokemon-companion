@@ -5,12 +5,20 @@
  * This module is UI-free so it can run on the server (API routes, scripts).
  * If you change the formula here, the UI picks it up automatically since it
  * calls `calculateDamage` too — keep the two in sync by keeping the logic here.
+ *
+ * Mega Evolutions: combatant species accept Mega form names
+ * ("Mega Lucario", case-insensitive) via `resolveCombatant`. Mega base
+ * stats come from `FORM_STATS` (`@/lib/data/form-stats`) and Mega type
+ * changes from `@/lib/data/forms`. Mega abilities are NOT modeled —
+ * pass the ability explicitly (e.g. "Adaptability" for Mega Lucario).
  */
 
 import { effectiveness } from "@/lib/typechart";
 import { getSpeciesById, searchSpecies, type SpeciesIndex } from "@/lib/pokedex";
 import { NATURES } from "@/lib/data/natures";
 import { PINCH_ABILITY_TYPE } from "@/lib/data/damage-mods";
+import { FORM_STATS } from "@/lib/data/form-stats";
+import { getFormsForSpecies } from "@/lib/data/forms";
 
 export type StatKey = "hp" | "atk" | "def" | "spa" | "spd" | "spe";
 export const STAT_KEYS: StatKey[] = ["hp", "atk", "def", "spa", "spd", "spe"];
@@ -149,7 +157,16 @@ export function natureMultFor(natureName: string, key: StatKey): number {
   return 1;
 }
 
-export function baseOf(species: SpeciesIndex | null, key: StatKey): number {
+export function baseOf(
+  species: SpeciesIndex | null,
+  key: StatKey,
+  formName?: string | null,
+): number {
+  if (formName) {
+    const mega = FORM_STATS[formName];
+    // FORM_STATS order: [HP, Attack, Defense, Sp. Atk, Sp. Def, Speed].
+    if (mega) return mega[STAT_KEYS.indexOf(key)];
+  }
   const full = species ? getSpeciesById(species.id) : undefined;
   return full?.baseStats.find((s) => s.key === BASE_KEYS[key])?.value ?? 100;
 }
@@ -160,11 +177,12 @@ function fullStats(
   nature: string,
   evs: Partial<Record<StatKey, number>>,
   ivs: Partial<Record<StatKey, number>>,
+  formName?: string | null,
 ): Record<StatKey, number> {
   const out = {} as Record<StatKey, number>;
   for (const k of STAT_KEYS) {
     out[k] = calcStat(
-      baseOf(species, k),
+      baseOf(species, k, formName),
       ivs[k] ?? 31,
       evs[k] ?? 0,
       clamp(level, 1, 100),
@@ -182,8 +200,9 @@ export function combatantStats(
   nature: string,
   evs: Partial<Record<StatKey, number>>,
   ivs: Partial<Record<StatKey, number>>,
+  formName?: string | null,
 ): Record<StatKey, number> {
-  return fullStats(species, level, nature, evs, ivs);
+  return fullStats(species, level, nature, evs, ivs, formName);
 }
 
 /** Stat-stage multiplier for stages -6..+6 (Gen 7+). */
@@ -235,13 +254,82 @@ export function resolveSpecies(ref: string | number | null | undefined): Species
   return full;
 }
 
+/**
+ * Mega form names ("Mega Lucario", case-insensitive) mapped to their base
+ * species id. Only forms with real stats in FORM_STATS resolve — currently
+ * the 47 classic Mega Evolutions (Champions-original Megas have no modeled
+ * stats yet).
+ */
+const MEGA_FORM_TO_ID = new Map<string, number>();
+for (let id = 1; id <= 1025; id++) {
+  for (const form of getFormsForSpecies(id)) {
+    if (form.kind === "mega" && FORM_STATS[form.formName] !== undefined) {
+      MEGA_FORM_TO_ID.set(form.formName.toLowerCase(), id);
+    }
+  }
+}
+
+export interface ResolvedCombatant {
+  /** Base species (e.g. Lucario for "Mega Lucario"). */
+  species: SpeciesIndex;
+  /** Canonical Mega form name (e.g. "Mega Lucario"), or null for base form. */
+  formName: string | null;
+}
+
+/**
+ * Like `resolveSpecies`, but also accepts Mega form names ("Mega Lucario",
+ * case-insensitive). Null/blank → null; throws on no match.
+ */
+export function resolveCombatant(
+  ref: string | number | null | undefined,
+): ResolvedCombatant | null {
+  if (ref === null || ref === undefined) return null;
+  if (typeof ref !== "number") {
+    const q = String(ref).trim().toLowerCase();
+    if (q) {
+      const megaId = MEGA_FORM_TO_ID.get(q);
+      if (megaId !== undefined) {
+        const species = getSpeciesById(megaId);
+        if (!species) throw new Error(`Unknown species: ${ref}`);
+        const form = getFormsForSpecies(megaId).find(
+          (f) => f.kind === "mega" && f.formName.toLowerCase() === q,
+        );
+        return { species, formName: form?.formName ?? String(ref).trim() };
+      }
+    }
+  }
+  const species = resolveSpecies(ref);
+  return species ? { species, formName: null } : null;
+}
+
+/** Capitalize a lowercase type name ("fire" → "Fire"). */
+const capType = (t: string) =>
+  t.length > 0 ? t[0].toUpperCase() + t.slice(1).toLowerCase() : t;
+
+/**
+ * A combatant's types, with Mega type changes applied
+ * (e.g. Mega Charizard X → Fire/Dragon). Falls back to base species types.
+ */
+export function combatantTypes(combatant: ResolvedCombatant | null): string[] {
+  if (!combatant) return [];
+  if (combatant.formName) {
+    const form = getFormsForSpecies(combatant.species.id).find(
+      (f) => f.formName === combatant.formName,
+    );
+    if (form?.types) return form.types.map(capType);
+  }
+  return combatant.species.types ?? [];
+}
+
 export function calculateDamage(input: DamageCalcInput): DamageCalcResult {
-  const attacker = resolveSpecies(input.attacker.species);
-  const defender = resolveSpecies(input.defender.species);
-  const atkTypes = attacker?.types ?? [];
-  const defTypesAll = defender?.types ?? [];
-  const atkName = attacker?.name ?? "Attacker";
-  const defName = defender?.name ?? "Defender";
+  const atk = resolveCombatant(input.attacker.species);
+  const def = resolveCombatant(input.defender.species);
+  const attacker = atk?.species ?? null;
+  const defender = def?.species ?? null;
+  const atkTypes = combatantTypes(atk);
+  const defTypesAll = combatantTypes(def);
+  const atkName = atk?.formName ?? attacker?.name ?? "Attacker";
+  const defName = def?.formName ?? defender?.name ?? "Defender";
 
   const atkLevel = clamp(input.attacker.level ?? 50, 1, 100);
   const defLevel = clamp(input.defender.level ?? 50, 1, 100);
@@ -275,6 +363,7 @@ export function calculateDamage(input: DamageCalcInput): DamageCalcResult {
     atkNature,
     input.attacker.evs ?? {},
     input.attacker.ivs ?? {},
+    atk?.formName,
   );
   const defStats = fullStats(
     defender,
@@ -282,6 +371,7 @@ export function calculateDamage(input: DamageCalcInput): DamageCalcResult {
     defNature,
     input.defender.evs ?? {},
     input.defender.ivs ?? {},
+    def?.formName,
   );
   const maxHp = defStats.hp;
   const targetHp = Math.max(1, input.defender.currentHp ?? maxHp);
@@ -676,9 +766,12 @@ export function calculateDoublesTurn(input: DoublesCalcInput): DoublesCalcResult
     "No redirect moves modeled — in-game, Follow Me / Rage Powder send every hit to one target.",
   );
 
+  const doublesAttacker = resolveCombatant(input.attacker.species);
+
   return {
     format: "doubles",
-    attacker: resolveSpecies(input.attacker.species)?.name ?? "Attacker",
+    attacker:
+      doublesAttacker?.formName ?? doublesAttacker?.species.name ?? "Attacker",
     move: input.move,
     target,
     spreadApplied,

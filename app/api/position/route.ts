@@ -49,7 +49,7 @@
 import {
   calculateDamage,
   combatantStats,
-  resolveSpecies,
+  resolveCombatant,
   stageMult,
   type StatKey,
 } from "@/lib/damage-calc";
@@ -254,8 +254,8 @@ function asCombatant(raw: unknown, label: string): PositionCombatantInput {
   if (c.species === undefined || c.species === null || String(c.species).trim() === "") {
     throw new Error(`${label}.species is required.`);
   }
-  // resolveSpecies throws on unknown species/names.
-  resolveSpecies(c.species as string | number);
+  // resolveCombatant throws on unknown species/names (incl. Mega form names).
+  resolveCombatant(c.species as string | number);
 
   const boosts: Partial<Record<BoostKey, number>> = {};
   if (c.boosts !== undefined) {
@@ -360,7 +360,8 @@ function resolveMon(
   slot: 0 | 1,
   field: PositionFieldInput,
 ): ResolvedMon {
-  const species = resolveSpecies(c.species)!;
+  const combatant = resolveCombatant(c.species)!;
+  const species = combatant.species;
   const level = c.level ?? 50;
   const stats = combatantStats(
     species,
@@ -368,6 +369,7 @@ function resolveMon(
     c.nature ?? "Hardy",
     c.evs ?? {},
     c.ivs ?? {},
+    combatant.formName,
   );
   const maxHp = Math.max(1, stats.hp);
   const currentHp = Math.max(

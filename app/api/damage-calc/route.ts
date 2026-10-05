@@ -7,7 +7,8 @@
  *
  * Request body (JSON):
  * {
- *   "attacker": { "species": "Charizard" | 6, "level": 50, "nature": "Modest",
+ *   "attacker": { "species": "Charizard" | 6 | "Mega Lucario", "level": 50,
+ *                 "nature": "Modest",
  *                 "ability": "Blaze", "item": "Life Orb", "status": "Healthy",
  *                 "evs": { "spa": 252 }, "ivs": { "atk": 31 }, "pinchActive": false,
  *                 "boosts": { "spa": 2 }, "teraType": "Fire" },
@@ -23,6 +24,11 @@
  * Only `attacker.species`, `defender.species`, and `move` are required;
  * everything else falls back to sensible defaults (Lv 50, neutral natures,
  * 31 IVs, 0 EVs, no ability/item/weather).
+ *
+ * Mega Evolutions: species also accepts Mega form names ("Mega Lucario",
+ * case-insensitive) — the 47 classic Megas use their real Mega base stats
+ * and type changes. Mega abilities are NOT auto-applied; pass the ability
+ * explicitly (e.g. "Adaptability" for Mega Lucario).
  *
  * Doubles: POST with `"format": "doubles"` instead of `defender`:
  * {
