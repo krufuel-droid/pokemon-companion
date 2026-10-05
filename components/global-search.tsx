@@ -117,7 +117,8 @@ function scoreEntry(e: SearchEntry, q: string, raw: string): number {
   }
   if (e.key === q) return 1;
   if (e.key.startsWith(q)) return 2;
-  if (e.key.includes(q)) return 3;
+  // No substring ("contains") tier: per Amanda's QA (Oct 5, 2026), searching
+  // "ri" should not surface Altaria, Barrier, etc. Prefix matches only.
   return 99;
 }
 
