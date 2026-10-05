@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { getAllSpecies, searchSpecies } from "@/lib/pokedex";
 import type { SpeciesIndex } from "@/lib/pokedex";
@@ -15,6 +15,37 @@ import { TypePills } from "./type-pills";
 import FavoriteButton from "@/components/FavoriteButton";
 
 const TOTAL_COUNT = 1025;
+
+// Wolf's QA find (Oct 5, 2026): tapping a Pokémon and going back used to
+// dump you at the top of the list with filters cleared. We persist the
+// list state per-tab in sessionStorage and restore it on mount.
+const LIST_STATE_KEY = "pokedex:list-state-v1";
+
+interface ListState {
+  query?: string;
+  region?: string;
+  favoritesOnly?: boolean;
+  scrollY?: number;
+}
+
+function loadListState(): ListState | null {
+  try {
+    if (typeof window === "undefined") return null;
+    const raw = sessionStorage.getItem(LIST_STATE_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw) as ListState;
+  } catch {
+    return null;
+  }
+}
+
+function saveListState(state: ListState) {
+  try {
+    sessionStorage.setItem(LIST_STATE_KEY, JSON.stringify(state));
+  } catch {
+    // storage may be unavailable — non-fatal
+  }
+}
 
 const REGION_ADJECTIVE: Record<string, string> = {
   Alola: "Alolan",
@@ -82,6 +113,53 @@ export default function PokedexPage() {
   const [region, setRegion] = useState<string>("all");
   const [favoritesOnly, setFavoritesOnly] = useState(false);
   const [favoriteIds, setFavoriteIds] = useState<Set<number>>(new Set());
+  const restoredRef = useRef(false);
+
+  // Restore list position + filters when returning (e.g. back from a detail page).
+  useEffect(() => {
+    if (restoredRef.current) return;
+    restoredRef.current = true;
+    const saved = loadListState();
+    if (!saved) return;
+    if (saved.query) setQuery(saved.query);
+    if (saved.region) setRegion(saved.region);
+    if (saved.favoritesOnly) setFavoritesOnly(true);
+    const y = saved.scrollY ?? 0;
+    if (y > 0) {
+      // Restore after paint; retry briefly in case lazy content shifts layout.
+      let attempts = 0;
+      const tryScroll = () => {
+        window.scrollTo(0, y);
+        if (Math.abs(window.scrollY - y) > 2 && attempts < 5) {
+          attempts += 1;
+          requestAnimationFrame(tryScroll);
+        }
+      };
+      requestAnimationFrame(tryScroll);
+    }
+  }, []);
+
+  // Persist list state as the user scrolls / filters, so "back" lands where they were.
+  useEffect(() => {
+    let ticking = false;
+    const save = () => {
+      ticking = false;
+      saveListState({ query, region, favoritesOnly, scrollY: window.scrollY });
+    };
+    const onScroll = () => {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(save);
+      }
+    };
+    const onHide = () => save();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("pagehide", onHide);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("pagehide", onHide);
+    };
+  }, [query, region, favoritesOnly]);
 
   useEffect(() => {
     if (!user) {
