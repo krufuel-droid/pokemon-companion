@@ -159,11 +159,20 @@ export default function PokedexPage() {
   const [favoritesOnly, setFavoritesOnly] = useState(false);
   const [favoriteIds, setFavoriteIds] = useState<Set<number>>(new Set());
   const restoredRef = useRef(false);
-  const userInterruptedRestoreRef = useRef(false);
-  // The Y we last scrolled to ourselves during restore. Scroll events that
-  // land exactly there are ours — not the user grabbing the page — so they
-  // must not trip the interrupt flag (that bug cancelled all retries after
-  // the first attempt). Reset to null when the restore finishes.
+  // True from the moment the list mounts with a saved state until the restore
+  // finishes. While true, scroll events are ignored for saving and for
+  // interrupt detection: they come from our own scrollTo calls or the
+  // router's scroll management (Next.js scrolls to top on Link navigation),
+  // never from the user. Without this, the router's scroll-to-top trips the
+  // "user interrupted" flag and the restore bails before its first tick —
+  // which is exactly the "lands at #1" bug Wolf reproduced.
+  const restoringRef = useRef(false);
+  // Set by real user input (wheel / touch / keys) during a restore: the user
+  // grabbed the page, so stop fighting them. This is the ONLY thing that
+  // stops the retry loop — scroll events alone can't be trusted.
+  const userGrabbedRef = useRef(false);
+  // The Y we last scrolled to ourselves during restore (extra guard so our
+  // own scrolls are never treated as user input).
   const lastSetYRef = useRef<number | null>(null);
 
   // Restore list position + filters when returning (e.g. back from a detail page).
@@ -171,17 +180,40 @@ export default function PokedexPage() {
     if (restoredRef.current) return;
     restoredRef.current = true;
     const saved = loadListState();
-    if (!saved) return;
+    if (!saved) {
+      // No saved state (e.g. landed here directly): start at the top.
+      window.scrollTo(0, 0);
+      return;
+    }
     if (saved.query) setQuery(saved.query);
     if (saved.region) setRegion(saved.region);
     if (saved.favoritesOnly) setFavoritesOnly(true);
 
+    // Block saves + interrupt detection for the whole restore window,
+    // starting NOW — the router may scroll (to top) before run() begins.
+    restoringRef.current = true;
+    userGrabbedRef.current = false;
+
+    const onGrab = () => {
+      userGrabbedRef.current = true;
+    };
+    const finish = () => {
+      restoringRef.current = false;
+      lastSetYRef.current = null;
+      window.removeEventListener("wheel", onGrab);
+      window.removeEventListener("touchmove", onGrab);
+      window.removeEventListener("keydown", onGrab);
+    };
+
     const run = () => {
+      window.addEventListener("wheel", onGrab, { passive: true });
+      window.addEventListener("touchmove", onGrab, { passive: true });
+      window.addEventListener("keydown", onGrab);
       let attempts = 0;
       const tick = () => {
-        // If the user started scrolling, stop fighting them.
-        if (userInterruptedRestoreRef.current) {
-          lastSetYRef.current = null;
+        // The user grabbed the page mid-restore: stop fighting them.
+        if (userGrabbedRef.current) {
+          finish();
           return;
         }
         attempts += 1;
@@ -205,19 +237,30 @@ export default function PokedexPage() {
         // async favorites fetch). The anchor check makes retries cheap and
         // converges instead of drifting.
         if (settled || attempts >= 90) {
-          lastSetYRef.current = null;
+          finish();
           return;
         }
         requestAnimationFrame(tick);
       };
       requestAnimationFrame(tick);
     };
-    // Fonts change card heights, so wait for them before anchoring.
+    // Fonts change card heights, so wait for them before anchoring. The
+    // timeout is a safety net in case fonts.ready hangs.
+    let ran = false;
+    const runOnce = () => {
+      if (!ran) {
+        ran = true;
+        run();
+      }
+    };
     if (typeof document !== "undefined" && document.fonts?.ready) {
-      document.fonts.ready.then(run).catch(run);
-    } else {
-      run();
+      document.fonts.ready.then(runOnce).catch(runOnce);
     }
+    const fallback = setTimeout(runOnce, 1500);
+    return () => {
+      clearTimeout(fallback);
+      finish();
+    };
   }, []);
 
   // Persist list state as the user scrolls / filters, so "back" lands where they were.
@@ -236,15 +279,17 @@ export default function PokedexPage() {
       });
     };
     const onScroll = () => {
-      // Our own restore scrolls land exactly on lastSetY — don't mistake
-      // them for the user interrupting the restore.
+      // During a restore, scrolls come from our own scrollTo or the router —
+      // never save them (they'd clobber the good anchor) and never treat
+      // them as the user interrupting.
+      if (restoringRef.current) return;
+      // Our own restore scrolls land exactly on lastSetY — same guard.
       if (
         lastSetYRef.current !== null &&
         Math.abs(window.scrollY - lastSetYRef.current) <= 1
       ) {
         return;
       }
-      userInterruptedRestoreRef.current = true;
       if (!ticking) {
         ticking = true;
         requestAnimationFrame(save);

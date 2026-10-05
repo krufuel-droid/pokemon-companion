@@ -110,6 +110,7 @@ export default async function SpeciesPage({
       <div className="mx-auto max-w-4xl px-4 py-8">
         <Link
           href="/pokedex"
+          scroll={false}
           className="inline-block text-sm font-semibold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-100"
         >
           ← Pokédex
