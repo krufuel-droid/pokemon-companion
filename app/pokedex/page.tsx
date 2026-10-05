@@ -71,22 +71,23 @@ function currentAnchor(): { anchorId?: string; anchorOffset?: number } {
   return {};
 }
 
-// Scroll so the anchor card sits exactly where it was. Returns true when
-// the post-scroll offset matches (within a few px) — false means layout
-// is still settling or the card isn't in the DOM yet, so the caller should
-// retry.
-function scrollToAnchor(anchorId: string, anchorOffset: number): boolean {
+// Scroll so the anchor card sits exactly where it was. Returns the target
+// scroll Y, or null when the card isn't in the DOM yet (caller should retry).
+function anchorTargetY(anchorId: string, anchorOffset: number): number | null {
+  const el = document.querySelector<HTMLElement>(
+    `[data-card-id="${CSS.escape(anchorId)}"]`
+  );
+  if (!el) return null;
+  return Math.max(0, el.getBoundingClientRect().top + window.scrollY - anchorOffset);
+}
+
+// True when the anchor card is sitting where it was, within a few px.
+function anchorSettled(anchorId: string, anchorOffset: number): boolean {
   const el = document.querySelector<HTMLElement>(
     `[data-card-id="${CSS.escape(anchorId)}"]`
   );
   if (!el) return false;
-  const y = el.getBoundingClientRect().top + window.scrollY - anchorOffset;
-  window.scrollTo(0, Math.max(0, y));
-  const check = document.querySelector<HTMLElement>(
-    `[data-card-id="${CSS.escape(anchorId)}"]`
-  );
-  if (!check) return false;
-  return Math.abs(check.getBoundingClientRect().top - anchorOffset) <= 3;
+  return Math.abs(el.getBoundingClientRect().top - anchorOffset) <= 3;
 }
 
 const REGION_ADJECTIVE: Record<string, string> = {
@@ -159,6 +160,11 @@ export default function PokedexPage() {
   const [favoriteIds, setFavoriteIds] = useState<Set<number>>(new Set());
   const restoredRef = useRef(false);
   const userInterruptedRestoreRef = useRef(false);
+  // The Y we last scrolled to ourselves during restore. Scroll events that
+  // land exactly there are ours — not the user grabbing the page — so they
+  // must not trip the interrupt flag (that bug cancelled all retries after
+  // the first attempt). Reset to null when the restore finishes.
+  const lastSetYRef = useRef<number | null>(null);
 
   // Restore list position + filters when returning (e.g. back from a detail page).
   useEffect(() => {
@@ -174,22 +180,35 @@ export default function PokedexPage() {
       let attempts = 0;
       const tick = () => {
         // If the user started scrolling, stop fighting them.
-        if (userInterruptedRestoreRef.current) return;
+        if (userInterruptedRestoreRef.current) {
+          lastSetYRef.current = null;
+          return;
+        }
         attempts += 1;
         let settled = false;
         if (saved.anchorId && typeof saved.anchorOffset === "number") {
-          settled = scrollToAnchor(saved.anchorId, saved.anchorOffset);
+          const y = anchorTargetY(saved.anchorId, saved.anchorOffset);
+          if (y !== null) {
+            lastSetYRef.current = y;
+            window.scrollTo(0, y);
+            settled = anchorSettled(saved.anchorId, saved.anchorOffset);
+          }
         }
         if (!settled && (saved.scrollY ?? 0) > 0) {
           // Fallback for states saved before anchors existed, or when the
           // anchor card isn't in this view (e.g. filters changed since).
+          lastSetYRef.current = saved.scrollY as number;
           window.scrollTo(0, saved.scrollY as number);
           settled = Math.abs(window.scrollY - (saved.scrollY as number)) <= 2;
         }
         // Retry while layout is still settling (lazy cards, fonts, the
         // async favorites fetch). The anchor check makes retries cheap and
         // converges instead of drifting.
-        if (!settled && attempts < 90) requestAnimationFrame(tick);
+        if (settled || attempts >= 90) {
+          lastSetYRef.current = null;
+          return;
+        }
+        requestAnimationFrame(tick);
       };
       requestAnimationFrame(tick);
     };
@@ -217,6 +236,14 @@ export default function PokedexPage() {
       });
     };
     const onScroll = () => {
+      // Our own restore scrolls land exactly on lastSetY — don't mistake
+      // them for the user interrupting the restore.
+      if (
+        lastSetYRef.current !== null &&
+        Math.abs(window.scrollY - lastSetYRef.current) <= 1
+      ) {
+        return;
+      }
       userInterruptedRestoreRef.current = true;
       if (!ticking) {
         ticking = true;
