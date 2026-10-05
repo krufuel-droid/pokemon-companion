@@ -18,7 +18,17 @@ const LINKS = [
       { href: "/abilities", label: "Abilities" },
     ],
   },
-  { href: "/tools", label: "Tools" },
+  {
+    label: "Tools",
+    children: [
+      { href: "/tools", label: "All Tools" },
+      { href: "/tools#calculators", label: "Calculators" },
+      { href: "/tools#team-tools", label: "Team Tools" },
+      { href: "/tools#reference", label: "Reference" },
+      { href: "/tools#trackers", label: "Trackers" },
+      { href: "/tools#fun", label: "Fun" },
+    ],
+  },
   { href: "/guides", label: "Guides" },
   { href: "/community", label: "Community" },
   { href: "/champions", label: "Champions" },
@@ -49,7 +59,7 @@ function isActive(pathname: string, href: string): boolean {
 export default function Nav() {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
-  const [mobileDbOpen, setMobileDbOpen] = useState(false);
+  const [mobileOpenMenu, setMobileOpenMenu] = useState<string | null>(null);
 
   // Close the mobile menu whenever the route changes (render-time
   // adjustment, not an effect, so no cascading renders).
@@ -180,12 +190,13 @@ export default function Nav() {
               {LINKS.map((link) => {
                 if ("children" in link) {
                   const childActive = link.children.some((c) => isActive(pathname, c.href));
+                  const expanded = mobileOpenMenu === link.label;
                   return (
                     <div key={link.label} className="py-1">
                       <button
                         type="button"
-                        onClick={() => setMobileDbOpen((v) => !v)}
-                        aria-expanded={mobileDbOpen}
+                        onClick={() => setMobileOpenMenu(expanded ? null : link.label)}
+                        aria-expanded={expanded}
                         className={`flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-base font-medium transition-colors ${
                           childActive
                             ? "bg-emerald-50 font-semibold text-slate-900 dark:bg-emerald-950 dark:text-slate-100"
@@ -198,12 +209,12 @@ export default function Nav() {
                           height="16"
                           viewBox="0 0 16 16"
                           aria-hidden="true"
-                          className={`transition-transform ${mobileDbOpen ? "rotate-180" : ""}`}
+                          className={`transition-transform ${expanded ? "rotate-180" : ""}`}
                         >
                           <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" fill="none" />
                         </svg>
                       </button>
-                      {mobileDbOpen && (
+                      {expanded && (
                         <div className="mt-1">
                           {link.children.map((child) => {
                             const active = isActive(pathname, child.href);

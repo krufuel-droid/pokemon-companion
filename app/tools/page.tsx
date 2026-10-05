@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect } from "react";
 import Link from "next/link";
 
 interface Tool {
@@ -239,11 +242,12 @@ function ToolCard({ tool }: { tool: Tool }) {
   );
 }
 
-function ToolDropdown({ title, tools, defaultOpen = false }: { title: string; tools: Tool[]; defaultOpen?: boolean }) {
+function ToolDropdown({ id, title, tools, defaultOpen = false }: { id: string; title: string; tools: Tool[]; defaultOpen?: boolean }) {
   return (
     <details
+      id={id}
       open={defaultOpen || undefined}
-      className="rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700"
+      className="scroll-mt-24 rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700"
     >
       <summary className="cursor-pointer list-none px-6 py-4 text-xl font-bold text-slate-700 marker:hidden dark:text-slate-200 [&::-webkit-details-marker]:hidden">
         <span className="mr-2 inline-block transition-transform duration-200 [details[open]_&]:rotate-90">▸</span>
@@ -262,6 +266,25 @@ function ToolDropdown({ title, tools, defaultOpen = false }: { title: string; to
 }
 
 export default function ToolsIndex() {
+  // Deep links from the nav Tools dropdown (e.g. /tools#team-tools): open
+  // the matching section and scroll it into view, below the sticky header.
+  useEffect(() => {
+    const applyHash = () => {
+      const hash = window.location.hash.replace(/^#/, "");
+      if (!hash) return;
+      const el = document.getElementById(hash);
+      if (el instanceof HTMLDetailsElement) {
+        el.open = true;
+        requestAnimationFrame(() => {
+          el.scrollIntoView({ block: "start" });
+        });
+      }
+    };
+    applyHash();
+    window.addEventListener("hashchange", applyHash);
+    return () => window.removeEventListener("hashchange", applyHash);
+  }, []);
+
   return (
     <div className="mx-auto w-full max-w-4xl px-4 py-10">
       <h1 className="text-3xl font-bold text-slate-800 dark:text-slate-100">Battle &amp; Breeding Tools</h1>
@@ -269,11 +292,11 @@ export default function ToolsIndex() {
         Quick calculators for the games — no account needed.
       </p>
       <div className="mt-8 space-y-4">
-        <ToolDropdown title="Calculators" tools={CALCULATORS} defaultOpen />
-        <ToolDropdown title="Team Tools" tools={TEAM_TOOLS} />
-        <ToolDropdown title="Reference" tools={REFERENCE} />
-        <ToolDropdown title="Trackers" tools={TRACKERS} />
-        <ToolDropdown title="Fun" tools={FUN} />
+        <ToolDropdown id="calculators" title="Calculators" tools={CALCULATORS} defaultOpen />
+        <ToolDropdown id="team-tools" title="Team Tools" tools={TEAM_TOOLS} />
+        <ToolDropdown id="reference" title="Reference" tools={REFERENCE} />
+        <ToolDropdown id="trackers" title="Trackers" tools={TRACKERS} />
+        <ToolDropdown id="fun" title="Fun" tools={FUN} />
       </div>
     </div>
   );
