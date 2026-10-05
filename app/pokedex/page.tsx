@@ -19,13 +19,21 @@ const TOTAL_COUNT = 1025;
 // Wolf's QA find (Oct 5, 2026): tapping a Pokémon and going back used to
 // dump you at the top of the list with filters cleared. We persist the
 // list state per-tab in sessionStorage and restore it on mount.
-const LIST_STATE_KEY = "pokedex:list-state-v1";
+// Follow-up (same day): restoring by raw scrollY still landed in a
+// *different spot* — card heights vary (wrapped names, two-line type
+// pills), and content-visibility's estimated sizes shift layout while the
+// list re-renders, so a saved pixel value points at the wrong card. We now
+// save the topmost visible card as an anchor and re-anchor to that exact
+// card on return, which survives layout shifts. scrollY is kept as fallback.
+const LIST_STATE_KEY = "pokedex:list-state-v2";
 
 interface ListState {
   query?: string;
   region?: string;
   favoritesOnly?: boolean;
-  scrollY?: number;
+  anchorId?: string;
+  anchorOffset?: number;
+  scrollY?: number; // fallback when the anchor card can't be found
 }
 
 function loadListState(): ListState | null {
@@ -47,6 +55,40 @@ function saveListState(state: ListState) {
   }
 }
 
+// The topmost visible card: the first card with any part below the top
+// edge of the viewport. We record its id and where its top sits relative
+// to the viewport (negative = partially scrolled past), so the exact view
+// can be rebuilt even if the layout shifts between save and restore.
+function currentAnchor(): { anchorId?: string; anchorOffset?: number } {
+  if (typeof window === "undefined") return {};
+  const cards = document.querySelectorAll<HTMLElement>("[data-card-id]");
+  for (const card of cards) {
+    const rect = card.getBoundingClientRect();
+    if (rect.bottom > 0) {
+      return { anchorId: card.dataset.cardId, anchorOffset: rect.top };
+    }
+  }
+  return {};
+}
+
+// Scroll so the anchor card sits exactly where it was. Returns true when
+// the post-scroll offset matches (within a few px) — false means layout
+// is still settling or the card isn't in the DOM yet, so the caller should
+// retry.
+function scrollToAnchor(anchorId: string, anchorOffset: number): boolean {
+  const el = document.querySelector<HTMLElement>(
+    `[data-card-id="${CSS.escape(anchorId)}"]`
+  );
+  if (!el) return false;
+  const y = el.getBoundingClientRect().top + window.scrollY - anchorOffset;
+  window.scrollTo(0, Math.max(0, y));
+  const check = document.querySelector<HTMLElement>(
+    `[data-card-id="${CSS.escape(anchorId)}"]`
+  );
+  if (!check) return false;
+  return Math.abs(check.getBoundingClientRect().top - anchorOffset) <= 3;
+}
+
 const REGION_ADJECTIVE: Record<string, string> = {
   Alola: "Alolan",
   Galar: "Galarian",
@@ -64,6 +106,7 @@ function SpeciesCard({
   return (
     <Link
       href={`/pokedex/${species.id}`}
+      data-card-id={`mon-${species.id}`}
       className="relative flex flex-col items-center gap-1.5 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:shadow-md dark:bg-slate-900 dark:ring-slate-700"
       style={{ contentVisibility: "auto", containIntrinsicSize: "auto 220px" }}
     >
@@ -87,6 +130,7 @@ function RegionalFormCard({ form }: { form: RegionalForm }) {
   return (
     <Link
       href={`/pokedex/${form.speciesId}`}
+      data-card-id={`form-${form.speciesId}-${form.region}`}
       className="flex flex-col items-center gap-1.5 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:shadow-md dark:bg-slate-900 dark:ring-slate-700"
       style={{ contentVisibility: "auto", containIntrinsicSize: "auto 220px" }}
     >
@@ -114,6 +158,7 @@ export default function PokedexPage() {
   const [favoritesOnly, setFavoritesOnly] = useState(false);
   const [favoriteIds, setFavoriteIds] = useState<Set<number>>(new Set());
   const restoredRef = useRef(false);
+  const userInterruptedRestoreRef = useRef(false);
 
   // Restore list position + filters when returning (e.g. back from a detail page).
   useEffect(() => {
@@ -124,18 +169,35 @@ export default function PokedexPage() {
     if (saved.query) setQuery(saved.query);
     if (saved.region) setRegion(saved.region);
     if (saved.favoritesOnly) setFavoritesOnly(true);
-    const y = saved.scrollY ?? 0;
-    if (y > 0) {
-      // Restore after paint; retry briefly in case lazy content shifts layout.
+
+    const run = () => {
       let attempts = 0;
-      const tryScroll = () => {
-        window.scrollTo(0, y);
-        if (Math.abs(window.scrollY - y) > 2 && attempts < 5) {
-          attempts += 1;
-          requestAnimationFrame(tryScroll);
+      const tick = () => {
+        // If the user started scrolling, stop fighting them.
+        if (userInterruptedRestoreRef.current) return;
+        attempts += 1;
+        let settled = false;
+        if (saved.anchorId && typeof saved.anchorOffset === "number") {
+          settled = scrollToAnchor(saved.anchorId, saved.anchorOffset);
         }
+        if (!settled && (saved.scrollY ?? 0) > 0) {
+          // Fallback for states saved before anchors existed, or when the
+          // anchor card isn't in this view (e.g. filters changed since).
+          window.scrollTo(0, saved.scrollY as number);
+          settled = Math.abs(window.scrollY - (saved.scrollY as number)) <= 2;
+        }
+        // Retry while layout is still settling (lazy cards, fonts, the
+        // async favorites fetch). The anchor check makes retries cheap and
+        // converges instead of drifting.
+        if (!settled && attempts < 90) requestAnimationFrame(tick);
       };
-      requestAnimationFrame(tryScroll);
+      requestAnimationFrame(tick);
+    };
+    // Fonts change card heights, so wait for them before anchoring.
+    if (typeof document !== "undefined" && document.fonts?.ready) {
+      document.fonts.ready.then(run).catch(run);
+    } else {
+      run();
     }
   }, []);
 
@@ -144,9 +206,18 @@ export default function PokedexPage() {
     let ticking = false;
     const save = () => {
       ticking = false;
-      saveListState({ query, region, favoritesOnly, scrollY: window.scrollY });
+      const { anchorId, anchorOffset } = currentAnchor();
+      saveListState({
+        query,
+        region,
+        favoritesOnly,
+        anchorId,
+        anchorOffset,
+        scrollY: window.scrollY,
+      });
     };
     const onScroll = () => {
+      userInterruptedRestoreRef.current = true;
       if (!ticking) {
         ticking = true;
         requestAnimationFrame(save);
