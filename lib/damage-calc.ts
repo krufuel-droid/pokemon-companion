@@ -285,8 +285,13 @@ export function resolveCombatant(
 ): ResolvedCombatant | null {
   if (ref === null || ref === undefined) return null;
   if (typeof ref !== "number") {
-    const q = String(ref).trim().toLowerCase();
+    let q = String(ref).trim().toLowerCase();
     if (q) {
+      // Accept Pikalytics-style "Salamence-Mega" / "Raichu-Mega-Y" too.
+      const pika = q.match(/^(.+)-mega(?:-([xyz]))?$/);
+      if (pika && !MEGA_FORM_TO_ID.has(q)) {
+        q = `mega ${pika[1]}${pika[2] ? ` ${pika[2]}` : ""}`;
+      }
       const megaId = MEGA_FORM_TO_ID.get(q);
       if (megaId !== undefined) {
         const species = getSpeciesById(megaId);

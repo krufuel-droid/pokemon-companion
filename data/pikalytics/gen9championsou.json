@@ -1,0 +1,5776 @@
+{
+ "format": "gen9championsou",
+ "formatLabel": "Pokemon Champions OU",
+ "source": {
+  "label": "Pikalytics",
+  "url": "https://pikalytics.com",
+  "license": "CC BY-NC 4.0",
+  "note": "Usage data aggregated by Pikalytics from ranked battles. Ability aggregates validated against PokéAPI; impossible entries dropped (see droppedAbilities in scraper log)."
+ },
+ "dataDate": "2026-05",
+ "fetchedAt": "2026-10-05T20:23:37.495Z",
+ "roster": [
+  "Garchomp",
+  "Corviknight",
+  "Samurott-Hisui",
+  "Slowking-Galar",
+  "Kingambit",
+  "Dragapult",
+  "Aegislash",
+  "Ceruledge",
+  "Glimmora",
+  "Excadrill",
+  "Meganium-Mega",
+  "Sneasler",
+  "Volcarona",
+  "Quaquaval",
+  "Dragonite",
+  "Lopunny-Mega",
+  "Floette-Mega",
+  "Glimmora-Mega",
+  "Rotom-Wash",
+  "Hatterene",
+  "Meowscarada",
+  "Archaludon",
+  "Araquanid",
+  "Primarina",
+  "Toxapex",
+  "Pelipper",
+  "Hydreigon",
+  "Clefable",
+  "Scizor-Mega",
+  "Scizor",
+  "Greninja",
+  "Clefable-Mega",
+  "Ditto",
+  "Rotom-Heat",
+  "Empoleon",
+  "Delphox-Mega",
+  "Froslass-Mega",
+  "Basculegion",
+  "Skeledirge",
+  "Scovillain-Mega",
+  "Charizard-Mega-X",
+  "Hippowdon",
+  "Charizard-Mega-Y",
+  "Tyranitar",
+  "Arcanine-Hisui",
+  "Ninetales-Alola",
+  "Espathra",
+  "Greninja-Mega",
+  "Skarmory",
+  "Feraligatr-Mega"
+ ],
+ "pokemon": {
+  "Garchomp": {
+   "name": "Garchomp",
+   "ourFormLabel": null,
+   "usage": 53,
+   "winRate": null,
+   "record": "N/A",
+   "moves": [
+    {
+     "name": "Earthquake",
+     "pct": 97.915
+    },
+    {
+     "name": "Stealth Rock",
+     "pct": 56.66
+    },
+    {
+     "name": "Dragon Tail",
+     "pct": 40.786
+    },
+    {
+     "name": "Swords Dance",
+     "pct": 34.554
+    },
+    {
+     "name": "Scale Shot",
+     "pct": 32.771
+    },
+    {
+     "name": "Fire Fang",
+     "pct": 28.572
+    },
+    {
+     "name": "Spikes",
+     "pct": 22.745
+    },
+    {
+     "name": "Poison Jab",
+     "pct": 20.465
+    },
+    {
+     "name": "Stone Edge",
+     "pct": 13.508
+    },
+    {
+     "name": "Outrage",
+     "pct": 13.341
+    }
+   ],
+   "items": [
+    {
+     "name": "Sitrus Berry",
+     "pct": 20.845
+    },
+    {
+     "name": "Lum Berry",
+     "pct": 17.619
+    },
+    {
+     "name": "Choice Scarf",
+     "pct": 12.581
+    },
+    {
+     "name": "Leftovers",
+     "pct": 11.51
+    },
+    {
+     "name": "Soft Sand",
+     "pct": 10.391
+    },
+    {
+     "name": "Haban Berry",
+     "pct": 9.847
+    },
+    {
+     "name": "Nothing",
+     "pct": 5.14
+    },
+    {
+     "name": "Focus Sash",
+     "pct": 3.368
+    }
+   ],
+   "abilities": [
+    {
+     "name": "Rough Skin",
+     "pct": 99.412
+    },
+    {
+     "name": "Sand Veil",
+     "pct": 0.588
+    }
+   ],
+   "abilitiesValidated": true,
+   "teammates": [
+    {
+     "name": "Corviknight",
+     "pct": 54.835
+    },
+    {
+     "name": "Samurott-Hisui",
+     "pct": 32.746
+    },
+    {
+     "name": "Slowking-Galar",
+     "pct": 25.693
+    },
+    {
+     "name": "Ceruledge",
+     "pct": 23.99
+    },
+    {
+     "name": "Aegislash",
+     "pct": 23.689
+    },
+    {
+     "name": "Kingambit",
+     "pct": 22.091
+    }
+   ],
+   "recommendedSet": {
+    "ability": "Rough Skin",
+    "item": "Sitrus Berry",
+    "moves": [
+     "Earthquake",
+     "Stealth Rock",
+     "Dragon Tail",
+     "Swords Dance"
+    ],
+    "observations": 0,
+    "sources": [],
+    "note": "Derived from aggregate usage (no featured teams published)."
+   },
+   "featuredTeams": []
+  },
+  "Corviknight": {
+   "name": "Corviknight",
+   "ourFormLabel": null,
+   "usage": 48,
+   "winRate": null,
+   "record": "N/A",
+   "moves": [
+    {
+     "name": "Roost",
+     "pct": 99.265
+    },
+    {
+     "name": "Defog",
+     "pct": 89.409
+    },
+    {
+     "name": "U-turn",
+     "pct": 79.506
+    },
+    {
+     "name": "Brave Bird",
+     "pct": 59.986
+    },
+    {
+     "name": "Body Press",
+     "pct": 47.706
+    },
+    {
+     "name": "Iron Defense",
+     "pct": 15.818
+    },
+    {
+     "name": "Other",
+     "pct": 8.31
+    }
+   ],
+   "items": [
+    {
+     "name": "Leftovers",
+     "pct": 54.202
+    },
+    {
+     "name": "Sitrus Berry",
+     "pct": 23.433
+    },
+    {
+     "name": "Occa Berry",
+     "pct": 15.621
+    },
+    {
+     "name": "Mental Herb",
+     "pct": 2.188
+    },
+    {
+     "name": "Other",
+     "pct": 4.556
+    }
+   ],
+   "abilities": [
+    {
+     "name": "Pressure",
+     "pct": 86.798
+    },
+    {
+     "name": "Mirror Armor",
+     "pct": 7.691
+    },
+    {
+     "name": "Unnerve",
+     "pct": 5.511
+    }
+   ],
+   "abilitiesValidated": true,
+   "teammates": [
+    {
+     "name": "Garchomp",
+     "pct": 60.109
+    },
+    {
+     "name": "Samurott-Hisui",
+     "pct": 44.314
+    },
+    {
+     "name": "Slowking-Galar",
+     "pct": 38.101
+    },
+    {
+     "name": "Dragapult",
+     "pct": 29.021
+    },
+    {
+     "name": "Glimmora-Mega",
+     "pct": 18.896
+    },
+    {
+     "name": "Ceruledge",
+     "pct": 17.83
+    }
+   ],
+   "recommendedSet": {
+    "ability": "Pressure",
+    "item": "Leftovers",
+    "moves": [
+     "Roost",
+     "Defog",
+     "U-turn",
+     "Brave Bird"
+    ],
+    "observations": 0,
+    "sources": [],
+    "note": "Derived from aggregate usage (no featured teams published)."
+   },
+   "featuredTeams": []
+  },
+  "Samurott-Hisui": {
+   "name": "Samurott-Hisui",
+   "ourFormLabel": null,
+   "usage": 31,
+   "winRate": null,
+   "record": "N/A",
+   "moves": [
+    {
+     "name": "Ceaseless Edge",
+     "pct": 99.996
+    },
+    {
+     "name": "Sacred Sword",
+     "pct": 64.857
+    },
+    {
+     "name": "Razor Shell",
+     "pct": 64.056
+    },
+    {
+     "name": "Flip Turn",
+     "pct": 51.786
+    },
+    {
+     "name": "Sucker Punch",
+     "pct": 48.769
+    },
+    {
+     "name": "Aqua Cutter",
+     "pct": 16.537
+    },
+    {
+     "name": "Encore",
+     "pct": 16.289
+    },
+    {
+     "name": "Aqua Jet",
+     "pct": 11.669
+    },
+    {
+     "name": "Swords Dance",
+     "pct": 8.119
+    },
+    {
+     "name": "Other",
+     "pct": 17.923
+    }
+   ],
+   "items": [
+    {
+     "name": "Choice Scarf",
+     "pct": 46.734
+    },
+    {
+     "name": "Black Glasses",
+     "pct": 42.94
+    },
+    {
+     "name": "Focus Sash",
+     "pct": 6.891
+    },
+    {
+     "name": "Other",
+     "pct": 3.436
+    }
+   ],
+   "abilities": [
+    {
+     "name": "Sharpness",
+     "pct": 98.775
+    },
+    {
+     "name": "Torrent",
+     "pct": 1.225
+    }
+   ],
+   "abilitiesValidated": true,
+   "teammates": [
+    {
+     "name": "Corviknight",
+     "pct": 69.409
+    },
+    {
+     "name": "Garchomp",
+     "pct": 56.222
+    },
+    {
+     "name": "Slowking-Galar",
+     "pct": 38.147
+    },
+    {
+     "name": "Dragapult",
+     "pct": 26.346
+    },
+    {
+     "name": "Ceruledge",
+     "pct": 21.025
+    },
+    {
+     "name": "Floette-Mega",
+     "pct": 18.386
+    }
+   ],
+   "recommendedSet": {
+    "ability": "Sharpness",
+    "item": "Choice Scarf",
+    "moves": [
+     "Ceaseless Edge",
+     "Sacred Sword",
+     "Razor Shell",
+     "Flip Turn"
+    ],
+    "observations": 0,
+    "sources": [],
+    "note": "Derived from aggregate usage (no featured teams published)."
+   },
+   "featuredTeams": []
+  },
+  "Slowking-Galar": {
+   "name": "Slowking-Galar",
+   "ourFormLabel": null,
+   "usage": 24,
+   "winRate": null,
+   "record": "N/A",
+   "moves": [
+    {
+     "name": "Sludge Bomb",
+     "pct": 91.382
+    },
+    {
+     "name": "Chilly Reception",
+     "pct": 91.328
+    },
+    {
+     "name": "Future Sight",
+     "pct": 51.226
+    },
+    {
+     "name": "Thunder Wave",
+     "pct": 37.198
+    },
+    {
+     "name": "Flamethrower",
+     "pct": 30.232
+    },
+    {
+     "name": "Psyshock",
+     "pct": 21.08
+    },
+    {
+     "name": "Slack Off",
+     "pct": 20.022
+    },
+    {
+     "name": "Psychic Noise",
+     "pct": 18.616
+    },
+    {
+     "name": "Ice Beam",
+     "pct": 12.621
+    },
+    {
+     "name": "Toxic",
+     "pct": 10.033
+    }
+   ],
+   "items": [
+    {
+     "name": "Colbur Berry",
+     "pct": 57.501
+    },
+    {
+     "name": "Shuca Berry",
+     "pct": 11.866
+    },
+    {
+     "name": "Kasib Berry",
+     "pct": 10.618
+    },
+    {
+     "name": "Sitrus Berry",
+     "pct": 7.322
+    },
+    {
+     "name": "Nothing",
+     "pct": 5.598
+    },
+    {
+     "name": "Leftovers",
+     "pct": 4.868
+    },
+    {
+     "name": "Other",
+     "pct": 2.227
+    }
+   ],
+   "abilities": [
+    {
+     "name": "Regenerator",
+     "pct": 99.883
+    },
+    {
+     "name": "Curious Medicine",
+     "pct": 0.115
+    },
+    {
+     "name": "Own Tempo",
+     "pct": 0.002
+    }
+   ],
+   "abilitiesValidated": true,
+   "teammates": [
+    {
+     "name": "Corviknight",
+     "pct": 76.684
+    },
+    {
+     "name": "Garchomp",
+     "pct": 56.686
+    },
+    {
+     "name": "Samurott-Hisui",
+     "pct": 49.018
+    },
+    {
+     "name": "Lopunny-Mega",
+     "pct": 20.76
+    },
+    {
+     "name": "Dragapult",
+     "pct": 15.128
+    },
+    {
+     "name": "Clefable-Mega",
+     "pct": 14.59
+    }
+   ],
+   "recommendedSet": {
+    "ability": "Regenerator",
+    "item": "Colbur Berry",
+    "moves": [
+     "Sludge Bomb",
+     "Chilly Reception",
+     "Future Sight",
+     "Thunder Wave"
+    ],
+    "observations": 0,
+    "sources": [],
+    "note": "Derived from aggregate usage (no featured teams published)."
+   },
+   "featuredTeams": []
+  },
+  "Kingambit": {
+   "name": "Kingambit",
+   "ourFormLabel": null,
+   "usage": 24,
+   "winRate": null,
+   "record": "N/A",
+   "moves": [
+    {
+     "name": "Sucker Punch",
+     "pct": 99.5
+    },
+    {
+     "name": "Swords Dance",
+     "pct": 95.117
+    },
+    {
+     "name": "Kowtow Cleave",
+     "pct": 92.911
+    },
+    {
+     "name": "Iron Head",
+     "pct": 75.625
+    },
+    {
+     "name": "Low Kick",
+     "pct": 33.082
+    },
+    {
+     "name": "Other",
+     "pct": 3.765
+    }
+   ],
+   "items": [
+    {
+     "name": "Black Glasses",
+     "pct": 66.515
+    },
+    {
+     "name": "Lum Berry",
+     "pct": 12.03
+    },
+    {
+     "name": "Chople Berry",
+     "pct": 8.874
+    },
+    {
+     "name": "Shuca Berry",
+     "pct": 4.323
+    },
+    {
+     "name": "Leftovers",
+     "pct": 4.108
+    },
+    {
+     "name": "Other",
+     "pct": 4.15
+    }
+   ],
+   "abilities": [
+    {
+     "name": "Supreme Overlord",
+     "pct": 92.519
+    },
+    {
+     "name": "Defiant",
+     "pct": 7.127
+    },
+    {
+     "name": "Pressure",
+     "pct": 0.354
+    }
+   ],
+   "abilitiesValidated": true,
+   "teammates": [
+    {
+     "name": "Garchomp",
+     "pct": 48.695
+    },
+    {
+     "name": "Corviknight",
+     "pct": 34.052
+    },
+    {
+     "name": "Araquanid",
+     "pct": 25.279
+    },
+    {
+     "name": "Glimmora",
+     "pct": 24.234
+    },
+    {
+     "name": "Dragapult",
+     "pct": 23.424
+    },
+    {
+     "name": "Aegislash",
+     "pct": 15.333
+    }
+   ],
+   "recommendedSet": {
+    "ability": "Supreme Overlord",
+    "item": "Black Glasses",
+    "moves": [
+     "Sucker Punch",
+     "Swords Dance",
+     "Kowtow Cleave",
+     "Iron Head"
+    ],
+    "observations": 0,
+    "sources": [],
+    "note": "Derived from aggregate usage (no featured teams published)."
+   },
+   "featuredTeams": []
+  },
+  "Dragapult": {
+   "name": "Dragapult",
+   "ourFormLabel": null,
+   "usage": 23,
+   "winRate": null,
+   "record": "N/A",
+   "moves": [
+    {
+     "name": "Hex",
+     "pct": 73.089
+    },
+    {
+     "name": "Will-O-Wisp",
+     "pct": 72.491
+    },
+    {
+     "name": "U-turn",
+     "pct": 68.028
+    },
+    {
+     "name": "Draco Meteor",
+     "pct": 67.179
+    },
+    {
+     "name": "Shadow Ball",
+     "pct": 25.338
+    },
+    {
+     "name": "Dragon Darts",
+     "pct": 22.053
+    },
+    {
+     "name": "Flamethrower",
+     "pct": 11.19
+    },
+    {
+     "name": "Phantom Force",
+     "pct": 10.15
+    },
+    {
+     "name": "Dragon Pulse",
+     "pct": 9.58
+    },
+    {
+     "name": "Dragon Dance",
+     "pct": 9.518
+    }
+   ],
+   "items": [
+    {
+     "name": "Dragon Fang",
+     "pct": 34.835
+    },
+    {
+     "name": "Spell Tag",
+     "pct": 26.613
+    },
+    {
+     "name": "Colbur Berry",
+     "pct": 10.233
+    },
+    {
+     "name": "Choice Scarf",
+     "pct": 9.784
+    },
+    {
+     "name": "Focus Sash",
+     "pct": 7.289
+    },
+    {
+     "name": "Leftovers",
+     "pct": 5.022
+    },
+    {
+     "name": "Kasib Berry",
+     "pct": 2.297
+    },
+    {
+     "name": "Other",
+     "pct": 3.927
+    }
+   ],
+   "abilities": [
+    {
+     "name": "Infiltrator",
+     "pct": 45.675
+    },
+    {
+     "name": "Clear Body",
+     "pct": 44.77
+    },
+    {
+     "name": "Cursed Body",
+     "pct": 9.555
+    }
+   ],
+   "abilitiesValidated": true,
+   "teammates": [
+    {
+     "name": "Corviknight",
+     "pct": 61.629
+    },
+    {
+     "name": "Garchomp",
+     "pct": 48.338
+    },
+    {
+     "name": "Samurott-Hisui",
+     "pct": 35.72
+    },
+    {
+     "name": "Kingambit",
+     "pct": 24.737
+    },
+    {
+     "name": "Glimmora",
+     "pct": 24.426
+    },
+    {
+     "name": "Glimmora-Mega",
+     "pct": 21.943
+    }
+   ],
+   "recommendedSet": {
+    "ability": "Infiltrator",
+    "item": "Dragon Fang",
+    "moves": [
+     "Hex",
+     "Will-O-Wisp",
+     "U-turn",
+     "Draco Meteor"
+    ],
+    "observations": 0,
+    "sources": [],
+    "note": "Derived from aggregate usage (no featured teams published)."
+   },
+   "featuredTeams": []
+  },
+  "Aegislash": {
+   "name": "Aegislash",
+   "ourFormLabel": null,
+   "usage": 20,
+   "winRate": null,
+   "record": "N/A",
+   "moves": [
+    {
+     "name": "Shadow Sneak",
+     "pct": 95.577
+    },
+    {
+     "name": "Poltergeist",
+     "pct": 67.576
+    },
+    {
+     "name": "King's Shield",
+     "pct": 65.173
+    },
+    {
+     "name": "Close Combat",
+     "pct": 52.561
+    },
+    {
+     "name": "Swords Dance",
+     "pct": 50.124
+    },
+    {
+     "name": "Shadow Ball",
+     "pct": 31.666
+    },
+    {
+     "name": "Iron Head",
+     "pct": 14.709
+    },
+    {
+     "name": "Sacred Sword",
+     "pct": 9.159
+    },
+    {
+     "name": "Other",
+     "pct": 13.455
+    }
+   ],
+   "items": [
+    {
+     "name": "Colbur Berry",
+     "pct": 36.47
+    },
+    {
+     "name": "Spell Tag",
+     "pct": 33.055
+    },
+    {
+     "name": "Shuca Berry",
+     "pct": 11.13
+    },
+    {
+     "name": "Leftovers",
+     "pct": 10.659
+    },
+    {
+     "name": "Nothing",
+     "pct": 3.111
+    },
+    {
+     "name": "Focus Sash",
+     "pct": 1.421
+    },
+    {
+     "name": "Other",
+     "pct": 4.154
+    }
+   ],
+   "abilities": [
+    {
+     "name": "Stance Change",
+     "pct": 100
+    }
+   ],
+   "abilitiesValidated": false,
+   "teammates": [
+    {
+     "name": "Garchomp",
+     "pct": 62.396
+    },
+    {
+     "name": "Corviknight",
+     "pct": 27.17
+    },
+    {
+     "name": "Meganium-Mega",
+     "pct": 25.396
+    },
+    {
+     "name": "Quaquaval",
+     "pct": 24.387
+    },
+    {
+     "name": "Ceruledge",
+     "pct": 19.19
+    },
+    {
+     "name": "Glimmora",
+     "pct": 19.172
+    }
+   ],
+   "recommendedSet": {
+    "ability": "Stance Change",
+    "item": "Colbur Berry",
+    "moves": [
+     "Shadow Sneak",
+     "Poltergeist",
+     "King's Shield",
+     "Close Combat"
+    ],
+    "observations": 0,
+    "sources": [],
+    "note": "Derived from aggregate usage (no featured teams published)."
+   },
+   "featuredTeams": []
+  },
+  "Ceruledge": {
+   "name": "Ceruledge",
+   "ourFormLabel": null,
+   "usage": 20,
+   "winRate": null,
+   "record": "N/A",
+   "moves": [
+    {
+     "name": "Bitter Blade",
+     "pct": 99.91
+    },
+    {
+     "name": "Shadow Sneak",
+     "pct": 96.092
+    },
+    {
+     "name": "Poltergeist",
+     "pct": 94.035
+    },
+    {
+     "name": "Swords Dance",
+     "pct": 77.64
+    },
+    {
+     "name": "Close Combat",
+     "pct": 25.591
+    },
+    {
+     "name": "Other",
+     "pct": 6.732
+    }
+   ],
+   "items": [
+    {
+     "name": "Focus Sash",
+     "pct": 51.363
+    },
+    {
+     "name": "Shuca Berry",
+     "pct": 38.479
+    },
+    {
+     "name": "Colbur Berry",
+     "pct": 5.174
+    },
+    {
+     "name": "Other",
+     "pct": 4.985
+    }
+   ],
+   "abilities": [
+    {
+     "name": "Weak Armor",
+     "pct": 94.827
+    },
+    {
+     "name": "Flash Fire",
+     "pct": 5.173
+    }
+   ],
+   "abilitiesValidated": true,
+   "teammates": [
+    {
+     "name": "Garchomp",
+     "pct": 65.237
+    },
+    {
+     "name": "Corviknight",
+     "pct": 44.233
+    },
+    {
+     "name": "Samurott-Hisui",
+     "pct": 33.301
+    },
+    {
+     "name": "Meganium-Mega",
+     "pct": 26.117
+    },
+    {
+     "name": "Quaquaval",
+     "pct": 23.319
+    },
+    {
+     "name": "Glimmora",
+     "pct": 21.483
+    }
+   ],
+   "recommendedSet": {
+    "ability": "Weak Armor",
+    "item": "Focus Sash",
+    "moves": [
+     "Bitter Blade",
+     "Shadow Sneak",
+     "Poltergeist",
+     "Swords Dance"
+    ],
+    "observations": 0,
+    "sources": [],
+    "note": "Derived from aggregate usage (no featured teams published)."
+   },
+   "featuredTeams": []
+  },
+  "Glimmora": {
+   "name": "Glimmora",
+   "ourFormLabel": null,
+   "usage": 18,
+   "winRate": null,
+   "record": "N/A",
+   "moves": [
+    {
+     "name": "Stealth Rock",
+     "pct": 91.733
+    },
+    {
+     "name": "Power Gem",
+     "pct": 78.362
+    },
+    {
+     "name": "Mortal Spin",
+     "pct": 70.063
+    },
+    {
+     "name": "Earth Power",
+     "pct": 57.162
+    },
+    {
+     "name": "Mud Shot",
+     "pct": 30.596
+    },
+    {
+     "name": "Sludge Wave",
+     "pct": 26.987
+    },
+    {
+     "name": "Sludge Bomb",
+     "pct": 10.821
+    },
+    {
+     "name": "Memento",
+     "pct": 6.42
+    },
+    {
+     "name": "Spikes",
+     "pct": 5.922
+    },
+    {
+     "name": "Meteor Beam",
+     "pct": 5.5
+    }
+   ],
+   "items": [
+    {
+     "name": "Focus Sash",
+     "pct": 87.918
+    },
+    {
+     "name": "Leftovers",
+     "pct": 3.412
+    },
+    {
+     "name": "Shuca Berry",
+     "pct": 2.114
+    },
+    {
+     "name": "Choice Scarf",
+     "pct": 1.989
+    },
+    {
+     "name": "Other",
+     "pct": 4.568
+    }
+   ],
+   "abilities": [
+    {
+     "name": "Toxic Debris",
+     "pct": 95.286
+    },
+    {
+     "name": "Corrosion",
+     "pct": 4.714
+    }
+   ],
+   "abilitiesValidated": true,
+   "teammates": [
+    {
+     "name": "Garchomp",
+     "pct": 44.15
+    },
+    {
+     "name": "Kingambit",
+     "pct": 32.157
+    },
+    {
+     "name": "Dragapult",
+     "pct": 30.691
+    },
+    {
+     "name": "Volcarona",
+     "pct": 29.327
+    },
+    {
+     "name": "Quaquaval",
+     "pct": 23.6
+    },
+    {
+     "name": "Dragonite",
+     "pct": 23.329
+    }
+   ],
+   "recommendedSet": {
+    "ability": "Toxic Debris",
+    "item": "Focus Sash",
+    "moves": [
+     "Stealth Rock",
+     "Power Gem",
+     "Mortal Spin",
+     "Earth Power"
+    ],
+    "observations": 0,
+    "sources": [],
+    "note": "Derived from aggregate usage (no featured teams published)."
+   },
+   "featuredTeams": []
+  },
+  "Excadrill": {
+   "name": "Excadrill",
+   "ourFormLabel": null,
+   "usage": 15,
+   "winRate": null,
+   "record": "N/A",
+   "moves": [
+    {
+     "name": "Earthquake",
+     "pct": 99.933
+    },
+    {
+     "name": "Rapid Spin",
+     "pct": 92.813
+    },
+    {
+     "name": "Iron Head",
+     "pct": 87.073
+    },
+    {
+     "name": "Stealth Rock",
+     "pct": 64.815
+    },
+    {
+     "name": "Swords Dance",
+     "pct": 22.842
+    },
+    {
+     "name": "Rock Slide",
+     "pct": 19.971
+    },
+    {
+     "name": "Other",
+     "pct": 12.553
+    }
+   ],
+   "items": [
+    {
+     "name": "Focus Sash",
+     "pct": 33.276
+    },
+    {
+     "name": "Shuca Berry",
+     "pct": 14.64
+    },
+    {
+     "name": "Leftovers",
+     "pct": 12.997
+    },
+    {
+     "name": "Choice Scarf",
+     "pct": 11.565
+    },
+    {
+     "name": "Soft Sand",
+     "pct": 10.566
+    },
+    {
+     "name": "Sitrus Berry",
+     "pct": 4.086
+    },
+    {
+     "name": "Occa Berry",
+     "pct": 2.913
+    },
+    {
+     "name": "Lum Berry",
+     "pct": 2.428
+    }
+   ],
+   "abilities": [
+    {
+     "name": "Mold Breaker",
+     "pct": 84.892
+    },
+    {
+     "name": "Sand Rush",
+     "pct": 14.939
+    },
+    {
+     "name": "Sand Force",
+     "pct": 0.169
+    }
+   ],
+   "abilitiesValidated": true,
+   "teammates": [
+    {
+     "name": "Corviknight",
+     "pct": 30.892
+    },
+    {
+     "name": "Dragapult",
+     "pct": 23.106
+    },
+    {
+     "name": "Samurott-Hisui",
+     "pct": 22.786
+    },
+    {
+     "name": "Archaludon",
+     "pct": 19.576
+    },
+    {
+     "name": "Kingambit",
+     "pct": 18.687
+    },
+    {
+     "name": "Pelipper",
+     "pct": 18.225
+    }
+   ],
+   "recommendedSet": {
+    "ability": "Mold Breaker",
+    "item": "Focus Sash",
+    "moves": [
+     "Earthquake",
+     "Rapid Spin",
+     "Iron Head",
+     "Stealth Rock"
+    ],
+    "observations": 0,
+    "sources": [],
+    "note": "Derived from aggregate usage (no featured teams published)."
+   },
+   "featuredTeams": []
+  },
+  "Meganium-Mega": {
+   "name": "Meganium-Mega",
+   "ourFormLabel": "Mega Meganium",
+   "usage": 14,
+   "winRate": null,
+   "record": "N/A",
+   "moves": [
+    {
+     "name": "Weather Ball",
+     "pct": 99.49
+    },
+    {
+     "name": "Solar Beam",
+     "pct": 99.105
+    },
+    {
+     "name": "Synthesis",
+     "pct": 63.446
+    },
+    {
+     "name": "Dazzling Gleam",
+     "pct": 61.685
+    },
+    {
+     "name": "Earth Power",
+     "pct": 42.522
+    },
+    {
+     "name": "Substitute",
+     "pct": 30.373
+    },
+    {
+     "name": "Other",
+     "pct": 3.379
+    }
+   ],
+   "items": [
+    {
+     "name": "Meganiumite",
+     "pct": 100
+    }
+   ],
+   "abilities": [
+    {
+     "name": "Mega Sol",
+     "pct": 100
+    }
+   ],
+   "abilitiesValidated": true,
+   "teammates": [
+    {
+     "name": "Garchomp",
+     "pct": 66.952
+    },
+    {
+     "name": "Aegislash",
+     "pct": 35.935
+    },
+    {
+     "name": "Ceruledge",
+     "pct": 35.795
+    },
+    {
+     "name": "Quaquaval",
+     "pct": 35.354
+    },
+    {
+     "name": "Corviknight",
+     "pct": 30.742
+    },
+    {
+     "name": "Greninja",
+     "pct": 27.227
+    }
+   ],
+   "recommendedSet": {
+    "ability": "Mega Sol",
+    "item": "Meganiumite",
+    "moves": [
+     "Weather Ball",
+     "Solar Beam",
+     "Synthesis",
+     "Dazzling Gleam"
+    ],
+    "observations": 0,
+    "sources": [],
+    "note": "Derived from aggregate usage (no featured teams published)."
+   },
+   "featuredTeams": []
+  },
+  "Sneasler": {
+   "name": "Sneasler",
+   "ourFormLabel": null,
+   "usage": 12,
+   "winRate": null,
+   "record": "N/A",
+   "moves": [
+    {
+     "name": "Close Combat",
+     "pct": 99.849
+    },
+    {
+     "name": "Dire Claw",
+     "pct": 84.038
+    },
+    {
+     "name": "Swords Dance",
+     "pct": 65.956
+    },
+    {
+     "name": "Throat Chop",
+     "pct": 58.262
+    },
+    {
+     "name": "Acrobatics",
+     "pct": 24.093
+    },
+    {
+     "name": "U-turn",
+     "pct": 21.844
+    },
+    {
+     "name": "Gunk Shot",
+     "pct": 15.323
+    },
+    {
+     "name": "Fake Out",
+     "pct": 9.908
+    },
+    {
+     "name": "Night Slash",
+     "pct": 4.807
+    },
+    {
+     "name": "Other",
+     "pct": 15.921
+    }
+   ],
+   "items": [
+    {
+     "name": "White Herb",
+     "pct": 72.561
+    },
+    {
+     "name": "Choice Scarf",
+     "pct": 15.1
+    },
+    {
+     "name": "Focus Sash",
+     "pct": 5.358
+    },
+    {
+     "name": "Sitrus Berry",
+     "pct": 2.439
+    },
+    {
+     "name": "Other",
+     "pct": 4.542
+    }
+   ],
+   "abilities": [
+    {
+     "name": "Unburden",
+     "pct": 79.45
+    },
+    {
+     "name": "Poison Touch",
+     "pct": 19.927
+    },
+    {
+     "name": "Pressure",
+     "pct": 0.623
+    }
+   ],
+   "abilitiesValidated": true,
+   "teammates": [
+    {
+     "name": "Garchomp",
+     "pct": 57.444
+    },
+    {
+     "name": "Corviknight",
+     "pct": 35.59
+    },
+    {
+     "name": "Kingambit",
+     "pct": 29.485
+    },
+    {
+     "name": "Samurott-Hisui",
+     "pct": 26.912
+    },
+    {
+     "name": "Ceruledge",
+     "pct": 22.948
+    },
+    {
+     "name": "Floette-Mega",
+     "pct": 22.441
+    }
+   ],
+   "recommendedSet": {
+    "ability": "Unburden",
+    "item": "White Herb",
+    "moves": [
+     "Close Combat",
+     "Dire Claw",
+     "Swords Dance",
+     "Throat Chop"
+    ],
+    "observations": 0,
+    "sources": [],
+    "note": "Derived from aggregate usage (no featured teams published)."
+   },
+   "featuredTeams": []
+  },
+  "Volcarona": {
+   "name": "Volcarona",
+   "ourFormLabel": null,
+   "usage": 12,
+   "winRate": null,
+   "record": "N/A",
+   "moves": [
+    {
+     "name": "Quiver Dance",
+     "pct": 99.731
+    },
+    {
+     "name": "Bug Buzz",
+     "pct": 69.578
+    },
+    {
+     "name": "Fiery Dance",
+     "pct": 49.751
+    },
+    {
+     "name": "Psychic",
+     "pct": 46.725
+    },
+    {
+     "name": "Flamethrower",
+     "pct": 46.301
+    },
+    {
+     "name": "Giga Drain",
+     "pct": 35.616
+    },
+    {
+     "name": "Morning Sun",
+     "pct": 31.683
+    },
+    {
+     "name": "Will-O-Wisp",
+     "pct": 7.673
+    },
+    {
+     "name": "Other",
+     "pct": 12.941
+    }
+   ],
+   "items": [
+    {
+     "name": "Silver Powder",
+     "pct": 29.254
+    },
+    {
+     "name": "Sitrus Berry",
+     "pct": 24.646
+    },
+    {
+     "name": "Leftovers",
+     "pct": 22.376
+    },
+    {
+     "name": "Charcoal",
+     "pct": 5.846
+    },
+    {
+     "name": "Passho Berry",
+     "pct": 4.066
+    },
+    {
+     "name": "Nothing",
+     "pct": 2.815
+    },
+    {
+     "name": "Lum Berry",
+     "pct": 2.785
+    },
+    {
+     "name": "Twisted Spoon",
+     "pct": 2.715
+    }
+   ],
+   "abilities": [
+    {
+     "name": "Flame Body",
+     "pct": 95.8
+    },
+    {
+     "name": "Swarm",
+     "pct": 4.2
+    }
+   ],
+   "abilitiesValidated": true,
+   "teammates": [
+    {
+     "name": "Garchomp",
+     "pct": 55.274
+    },
+    {
+     "name": "Glimmora",
+     "pct": 43.369
+    },
+    {
+     "name": "Dragapult",
+     "pct": 36.872
+    },
+    {
+     "name": "Quaquaval",
+     "pct": 31.562
+    },
+    {
+     "name": "Froslass-Mega",
+     "pct": 27.034
+    },
+    {
+     "name": "Kingambit",
+     "pct": 24.187
+    }
+   ],
+   "recommendedSet": {
+    "ability": "Flame Body",
+    "item": "Silver Powder",
+    "moves": [
+     "Quiver Dance",
+     "Bug Buzz",
+     "Fiery Dance",
+     "Psychic"
+    ],
+    "observations": 0,
+    "sources": [],
+    "note": "Derived from aggregate usage (no featured teams published)."
+   },
+   "featuredTeams": []
+  },
+  "Quaquaval": {
+   "name": "Quaquaval",
+   "ourFormLabel": null,
+   "usage": 12,
+   "winRate": null,
+   "record": "N/A",
+   "moves": [
+    {
+     "name": "Aqua Step",
+     "pct": 98.347
+    },
+    {
+     "name": "Rapid Spin",
+     "pct": 85.929
+    },
+    {
+     "name": "Close Combat",
+     "pct": 50.474
+    },
+    {
+     "name": "Roost",
+     "pct": 48.66
+    },
+    {
+     "name": "Triple Axel",
+     "pct": 48.235
+    },
+    {
+     "name": "Ice Spinner",
+     "pct": 36.194
+    },
+    {
+     "name": "Swords Dance",
+     "pct": 8.495
+    },
+    {
+     "name": "Knock Off",
+     "pct": 5.886
+    },
+    {
+     "name": "Other",
+     "pct": 17.78
+    }
+   ],
+   "items": [
+    {
+     "name": "Sitrus Berry",
+     "pct": 43.975
+    },
+    {
+     "name": "Mystic Water",
+     "pct": 24.953
+    },
+    {
+     "name": "Black Belt",
+     "pct": 14.251
+    },
+    {
+     "name": "Lum Berry",
+     "pct": 4.992
+    },
+    {
+     "name": "Leftovers",
+     "pct": 3.654
+    },
+    {
+     "name": "Choice Scarf",
+     "pct": 2.185
+    },
+    {
+     "name": "Roseli Berry",
+     "pct": 1.051
+    },
+    {
+     "name": "Other",
+     "pct": 4.94
+    }
+   ],
+   "abilities": [
+    {
+     "name": "Moxie",
+     "pct": 99.532
+    },
+    {
+     "name": "Torrent",
+     "pct": 0.468
+    }
+   ],
+   "abilitiesValidated": true,
+   "teammates": [
+    {
+     "name": "Garchomp",
+     "pct": 82.683
+    },
+    {
+     "name": "Meganium-Mega",
+     "pct": 43.492
+    },
+    {
+     "name": "Aegislash",
+     "pct": 42.45
+    },
+    {
+     "name": "Ceruledge",
+     "pct": 39.318
+    },
+    {
+     "name": "Glimmora",
+     "pct": 36.995
+    },
+    {
+     "name": "Dragapult",
+     "pct": 35.064
+    }
+   ],
+   "recommendedSet": {
+    "ability": "Moxie",
+    "item": "Sitrus Berry",
+    "moves": [
+     "Aqua Step",
+     "Rapid Spin",
+     "Close Combat",
+     "Roost"
+    ],
+    "observations": 0,
+    "sources": [],
+    "note": "Derived from aggregate usage (no featured teams published)."
+   },
+   "featuredTeams": []
+  },
+  "Dragonite": {
+   "name": "Dragonite",
+   "ourFormLabel": null,
+   "usage": 11,
+   "winRate": null,
+   "record": "N/A",
+   "moves": [
+    {
+     "name": "Dragon Dance",
+     "pct": 98.594
+    },
+    {
+     "name": "Earthquake",
+     "pct": 85.634
+    },
+    {
+     "name": "Extreme Speed",
+     "pct": 79.73
+    },
+    {
+     "name": "Roost",
+     "pct": 36.588
+    },
+    {
+     "name": "Ice Spinner",
+     "pct": 23.345
+    },
+    {
+     "name": "Outrage",
+     "pct": 22.955
+    },
+    {
+     "name": "Fire Punch",
+     "pct": 20.536
+    },
+    {
+     "name": "Facade",
+     "pct": 14.613
+    },
+    {
+     "name": "Other",
+     "pct": 18.005
+    }
+   ],
+   "items": [
+    {
+     "name": "Lum Berry",
+     "pct": 57.653
+    },
+    {
+     "name": "Leftovers",
+     "pct": 16.603
+    },
+    {
+     "name": "Silk Scarf",
+     "pct": 14.137
+    },
+    {
+     "name": "Dragon Fang",
+     "pct": 6.426
+    },
+    {
+     "name": "Yache Berry",
+     "pct": 1.197
+    },
+    {
+     "name": "Other",
+     "pct": 3.983
+    }
+   ],
+   "abilities": [
+    {
+     "name": "Multiscale",
+     "pct": 99.669
+    },
+    {
+     "name": "Inner Focus",
+     "pct": 0.331
+    }
+   ],
+   "abilitiesValidated": true,
+   "teammates": [
+    {
+     "name": "Glimmora",
+     "pct": 37.152
+    },
+    {
+     "name": "Kingambit",
+     "pct": 29.445
+    },
+    {
+     "name": "Ceruledge",
+     "pct": 25.561
+    },
+    {
+     "name": "Aegislash",
+     "pct": 23.313
+    },
+    {
+     "name": "Scizor-Mega",
+     "pct": 21.118
+    },
+    {
+     "name": "Samurott-Hisui",
+     "pct": 18.92
+    }
+   ],
+   "recommendedSet": {
+    "ability": "Multiscale",
+    "item": "Lum Berry",
+    "moves": [
+     "Dragon Dance",
+     "Earthquake",
+     "Extreme Speed",
+     "Roost"
+    ],
+    "observations": 0,
+    "sources": [],
+    "note": "Derived from aggregate usage (no featured teams published)."
+   },
+   "featuredTeams": []
+  },
+  "Lopunny-Mega": {
+   "name": "Lopunny-Mega",
+   "ourFormLabel": "Mega Lopunny",
+   "usage": 11,
+   "winRate": null,
+   "record": "N/A",
+   "moves": [
+    {
+     "name": "Close Combat",
+     "pct": 92.146
+    },
+    {
+     "name": "Mach Punch",
+     "pct": 73.636
+    },
+    {
+     "name": "Fake Out",
+     "pct": 57.624
+    },
+    {
+     "name": "Swords Dance",
+     "pct": 43.758
+    },
+    {
+     "name": "Triple Axel",
+     "pct": 43.179
+    },
+    {
+     "name": "U-turn",
+     "pct": 33.705
+    },
+    {
+     "name": "Facade",
+     "pct": 15.074
+    },
+    {
+     "name": "Mega Kick",
+     "pct": 14.468
+    },
+    {
+     "name": "Quick Attack",
+     "pct": 7.66
+    },
+    {
+     "name": "Other",
+     "pct": 18.75
+    }
+   ],
+   "items": [
+    {
+     "name": "Lopunnite",
+     "pct": 100
+    }
+   ],
+   "abilities": [
+    {
+     "name": "Scrappy",
+     "pct": 100
+    }
+   ],
+   "abilitiesValidated": true,
+   "teammates": [
+    {
+     "name": "Corviknight",
+     "pct": 60.768
+    },
+    {
+     "name": "Garchomp",
+     "pct": 47.729
+    },
+    {
+     "name": "Slowking-Galar",
+     "pct": 44.215
+    },
+    {
+     "name": "Samurott-Hisui",
+     "pct": 33.322
+    },
+    {
+     "name": "Dragapult",
+     "pct": 21.589
+    },
+    {
+     "name": "Kingambit",
+     "pct": 19.199
+    }
+   ],
+   "recommendedSet": {
+    "ability": "Scrappy",
+    "item": "Lopunnite",
+    "moves": [
+     "Close Combat",
+     "Mach Punch",
+     "Fake Out",
+     "Swords Dance"
+    ],
+    "observations": 0,
+    "sources": [],
+    "note": "Derived from aggregate usage (no featured teams published)."
+   },
+   "featuredTeams": []
+  },
+  "Floette-Mega": {
+   "name": "Floette-Mega",
+   "ourFormLabel": "Mega Floette",
+   "usage": 11,
+   "winRate": null,
+   "record": "N/A",
+   "moves": [
+    {
+     "name": "Calm Mind",
+     "pct": 83.193
+    },
+    {
+     "name": "Moonblast",
+     "pct": 77.374
+    },
+    {
+     "name": "Draining Kiss",
+     "pct": 65.311
+    },
+    {
+     "name": "Light of Ruin",
+     "pct": 54.336
+    },
+    {
+     "name": "Substitute",
+     "pct": 39.069
+    },
+    {
+     "name": "Synthesis",
+     "pct": 38.57
+    },
+    {
+     "name": "Psychic",
+     "pct": 24.384
+    },
+    {
+     "name": "Other",
+     "pct": 17.763
+    }
+   ],
+   "items": [
+    {
+     "name": "Floettite",
+     "pct": 100
+    }
+   ],
+   "abilities": [
+    {
+     "name": "Fairy Aura",
+     "pct": 100
+    }
+   ],
+   "abilitiesValidated": true,
+   "teammates": [
+    {
+     "name": "Garchomp",
+     "pct": 68.647
+    },
+    {
+     "name": "Corviknight",
+     "pct": 55.732
+    },
+    {
+     "name": "Samurott-Hisui",
+     "pct": 50.491
+    },
+    {
+     "name": "Ceruledge",
+     "pct": 34.824
+    },
+    {
+     "name": "Slowking-Galar",
+     "pct": 28.482
+    },
+    {
+     "name": "Glimmora",
+     "pct": 24.727
+    }
+   ],
+   "recommendedSet": {
+    "ability": "Fairy Aura",
+    "item": "Floettite",
+    "moves": [
+     "Calm Mind",
+     "Moonblast",
+     "Draining Kiss",
+     "Light of Ruin"
+    ],
+    "observations": 0,
+    "sources": [],
+    "note": "Derived from aggregate usage (no featured teams published)."
+   },
+   "featuredTeams": []
+  },
+  "Glimmora-Mega": {
+   "name": "Glimmora-Mega",
+   "ourFormLabel": "Mega Glimmora",
+   "usage": 11,
+   "winRate": null,
+   "record": "N/A",
+   "moves": [
+    {
+     "name": "Power Gem",
+     "pct": 99.695
+    },
+    {
+     "name": "Sludge Wave",
+     "pct": 97.402
+    },
+    {
+     "name": "Earth Power",
+     "pct": 97.036
+    },
+    {
+     "name": "Mortal Spin",
+     "pct": 58.559
+    },
+    {
+     "name": "Rock Polish",
+     "pct": 19.393
+    },
+    {
+     "name": "Stealth Rock",
+     "pct": 11.918
+    },
+    {
+     "name": "Other",
+     "pct": 15.996
+    }
+   ],
+   "items": [
+    {
+     "name": "Glimmoranite",
+     "pct": 100
+    }
+   ],
+   "abilities": [
+    {
+     "name": "Adaptability",
+     "pct": 100
+    }
+   ],
+   "abilitiesValidated": true,
+   "teammates": [
+    {
+     "name": "Corviknight",
+     "pct": 80.92
+    },
+    {
+     "name": "Garchomp",
+     "pct": 60.788
+    },
+    {
+     "name": "Samurott-Hisui",
+     "pct": 46.197
+    },
+    {
+     "name": "Dragapult",
+     "pct": 44.249
+    },
+    {
+     "name": "Ditto",
+     "pct": 25.134
+    },
+    {
+     "name": "Empoleon",
+     "pct": 25.038
+    }
+   ],
+   "recommendedSet": {
+    "ability": "Adaptability",
+    "item": "Glimmoranite",
+    "moves": [
+     "Power Gem",
+     "Sludge Wave",
+     "Earth Power",
+     "Mortal Spin"
+    ],
+    "observations": 0,
+    "sources": [],
+    "note": "Derived from aggregate usage (no featured teams published)."
+   },
+   "featuredTeams": []
+  },
+  "Rotom-Wash": {
+   "name": "Rotom-Wash",
+   "ourFormLabel": null,
+   "usage": 11,
+   "winRate": null,
+   "record": "N/A",
+   "moves": [
+    {
+     "name": "Hydro Pump",
+     "pct": 99.195
+    },
+    {
+     "name": "Volt Switch",
+     "pct": 92.025
+    },
+    {
+     "name": "Will-O-Wisp",
+     "pct": 72.036
+    },
+    {
+     "name": "Pain Split",
+     "pct": 49.521
+    },
+    {
+     "name": "Thunderbolt",
+     "pct": 28.424
+    },
+    {
+     "name": "Trick",
+     "pct": 22.505
+    },
+    {
+     "name": "Thunder Wave",
+     "pct": 12.325
+    },
+    {
+     "name": "Nasty Plot",
+     "pct": 7.688
+    },
+    {
+     "name": "Other",
+     "pct": 16.282
+    }
+   ],
+   "items": [
+    {
+     "name": "Sitrus Berry",
+     "pct": 38.031
+    },
+    {
+     "name": "Choice Scarf",
+     "pct": 28.6
+    },
+    {
+     "name": "Leftovers",
+     "pct": 15.547
+    },
+    {
+     "name": "Nothing",
+     "pct": 5.132
+    },
+    {
+     "name": "Chesto Berry",
+     "pct": 3.999
+    },
+    {
+     "name": "Mystic Water",
+     "pct": 2.633
+    },
+    {
+     "name": "Magnet",
+     "pct": 2.605
+    },
+    {
+     "name": "Other",
+     "pct": 3.453
+    }
+   ],
+   "abilities": [
+    {
+     "name": "Levitate",
+     "pct": 100
+    }
+   ],
+   "abilitiesValidated": true,
+   "teammates": [
+    {
+     "name": "Garchomp",
+     "pct": 53.628
+    },
+    {
+     "name": "Corviknight",
+     "pct": 42.098
+    },
+    {
+     "name": "Kingambit",
+     "pct": 31.027
+    },
+    {
+     "name": "Slowking-Galar",
+     "pct": 26.122
+    },
+    {
+     "name": "Samurott-Hisui",
+     "pct": 19.089
+    },
+    {
+     "name": "Excadrill",
+     "pct": 17.521
+    }
+   ],
+   "recommendedSet": {
+    "ability": "Levitate",
+    "item": "Sitrus Berry",
+    "moves": [
+     "Hydro Pump",
+     "Volt Switch",
+     "Will-O-Wisp",
+     "Pain Split"
+    ],
+    "observations": 0,
+    "sources": [],
+    "note": "Derived from aggregate usage (no featured teams published)."
+   },
+   "featuredTeams": []
+  },
+  "Hatterene": {
+   "name": "Hatterene",
+   "ourFormLabel": null,
+   "usage": 11,
+   "winRate": null,
+   "record": "N/A",
+   "moves": [
+    {
+     "name": "Draining Kiss",
+     "pct": 79.899
+    },
+    {
+     "name": "Psychic Noise",
+     "pct": 77.663
+    },
+    {
+     "name": "Nuzzle",
+     "pct": 76.198
+    },
+    {
+     "name": "Mystical Fire",
+     "pct": 44.559
+    },
+    {
+     "name": "Healing Wish",
+     "pct": 33.467
+    },
+    {
+     "name": "Pain Split",
+     "pct": 25.39
+    },
+    {
+     "name": "Calm Mind",
+     "pct": 21.837
+    },
+    {
+     "name": "Dazzling Gleam",
+     "pct": 17.615
+    },
+    {
+     "name": "Psyshock",
+     "pct": 14.389
+    },
+    {
+     "name": "Other",
+     "pct": 8.982
+    }
+   ],
+   "items": [
+    {
+     "name": "Sitrus Berry",
+     "pct": 56.811
+    },
+    {
+     "name": "Leftovers",
+     "pct": 16.176
+    },
+    {
+     "name": "Kasib Berry",
+     "pct": 8.871
+    },
+    {
+     "name": "Babiri Berry",
+     "pct": 3.979
+    },
+    {
+     "name": "Fairy Feather",
+     "pct": 3.861
+    },
+    {
+     "name": "Kebia Berry",
+     "pct": 2.817
+    },
+    {
+     "name": "Nothing",
+     "pct": 2.756
+    },
+    {
+     "name": "Other",
+     "pct": 4.73
+    }
+   ],
+   "abilities": [
+    {
+     "name": "Magic Bounce",
+     "pct": 99.378
+    },
+    {
+     "name": "Healer",
+     "pct": 0.546
+    },
+    {
+     "name": "Anticipation",
+     "pct": 0.076
+    }
+   ],
+   "abilitiesValidated": true,
+   "teammates": [
+    {
+     "name": "Garchomp",
+     "pct": 54.601
+    },
+    {
+     "name": "Samurott-Hisui",
+     "pct": 40.764
+    },
+    {
+     "name": "Corviknight",
+     "pct": 36.136
+    },
+    {
+     "name": "Ceruledge",
+     "pct": 28.696
+    },
+    {
+     "name": "Kingambit",
+     "pct": 21.703
+    },
+    {
+     "name": "Volcarona",
+     "pct": 20.691
+    }
+   ],
+   "recommendedSet": {
+    "ability": "Magic Bounce",
+    "item": "Sitrus Berry",
+    "moves": [
+     "Draining Kiss",
+     "Psychic Noise",
+     "Nuzzle",
+     "Mystical Fire"
+    ],
+    "observations": 0,
+    "sources": [],
+    "note": "Derived from aggregate usage (no featured teams published)."
+   },
+   "featuredTeams": []
+  },
+  "Meowscarada": {
+   "name": "Meowscarada",
+   "ourFormLabel": null,
+   "usage": 10,
+   "winRate": null,
+   "record": "N/A",
+   "moves": [
+    {
+     "name": "U-turn",
+     "pct": 96.734
+    },
+    {
+     "name": "Flower Trick",
+     "pct": 93.233
+    },
+    {
+     "name": "Knock Off",
+     "pct": 91.623
+    },
+    {
+     "name": "Triple Axel",
+     "pct": 91.237
+    },
+    {
+     "name": "Low Kick",
+     "pct": 8.441
+    },
+    {
+     "name": "Other",
+     "pct": 18.731
+    }
+   ],
+   "items": [
+    {
+     "name": "Choice Scarf",
+     "pct": 89.529
+    },
+    {
+     "name": "Focus Sash",
+     "pct": 3.429
+    },
+    {
+     "name": "Black Glasses",
+     "pct": 2.302
+    },
+    {
+     "name": "Other",
+     "pct": 4.74
+    }
+   ],
+   "abilities": [
+    {
+     "name": "Protean",
+     "pct": 98.038
+    },
+    {
+     "name": "Overgrow",
+     "pct": 1.962
+    }
+   ],
+   "abilitiesValidated": true,
+   "teammates": [
+    {
+     "name": "Corviknight",
+     "pct": 68.228
+    },
+    {
+     "name": "Garchomp",
+     "pct": 67.752
+    },
+    {
+     "name": "Aegislash",
+     "pct": 31.824
+    },
+    {
+     "name": "Primarina",
+     "pct": 28.768
+    },
+    {
+     "name": "Glimmora-Mega",
+     "pct": 24.472
+    },
+    {
+     "name": "Slowking-Galar",
+     "pct": 23.281
+    }
+   ],
+   "recommendedSet": {
+    "ability": "Protean",
+    "item": "Choice Scarf",
+    "moves": [
+     "U-turn",
+     "Flower Trick",
+     "Knock Off",
+     "Triple Axel"
+    ],
+    "observations": 0,
+    "sources": [],
+    "note": "Derived from aggregate usage (no featured teams published)."
+   },
+   "featuredTeams": []
+  },
+  "Archaludon": {
+   "name": "Archaludon",
+   "ourFormLabel": null,
+   "usage": 10,
+   "winRate": null,
+   "record": "N/A",
+   "moves": [
+    {
+     "name": "Flash Cannon",
+     "pct": 87.39
+    },
+    {
+     "name": "Electro Shot",
+     "pct": 72.197
+    },
+    {
+     "name": "Aura Sphere",
+     "pct": 51.081
+    },
+    {
+     "name": "Draco Meteor",
+     "pct": 49.362
+    },
+    {
+     "name": "Dragon Pulse",
+     "pct": 48.146
+    },
+    {
+     "name": "Stealth Rock",
+     "pct": 42.349
+    },
+    {
+     "name": "Thunderbolt",
+     "pct": 16.144
+    },
+    {
+     "name": "Thunder Wave",
+     "pct": 13.155
+    },
+    {
+     "name": "Dragon Tail",
+     "pct": 4.2
+    },
+    {
+     "name": "Other",
+     "pct": 15.975
+    }
+   ],
+   "items": [
+    {
+     "name": "Leftovers",
+     "pct": 42.289
+    },
+    {
+     "name": "Shuca Berry",
+     "pct": 33.54
+    },
+    {
+     "name": "Choice Scarf",
+     "pct": 6.058
+    },
+    {
+     "name": "Sitrus Berry",
+     "pct": 4.812
+    },
+    {
+     "name": "Chople Berry",
+     "pct": 3.215
+    },
+    {
+     "name": "White Herb",
+     "pct": 2.707
+    },
+    {
+     "name": "Lum Berry",
+     "pct": 1.987
+    },
+    {
+     "name": "Metal Coat",
+     "pct": 1.153
+    }
+   ],
+   "abilities": [
+    {
+     "name": "Stamina",
+     "pct": 93.754
+    },
+    {
+     "name": "Sturdy",
+     "pct": 6.236
+    },
+    {
+     "name": "Stalwart",
+     "pct": 0.01
+    }
+   ],
+   "abilitiesValidated": true,
+   "teammates": [
+    {
+     "name": "Pelipper",
+     "pct": 65.387
+    },
+    {
+     "name": "Basculegion",
+     "pct": 40.614
+    },
+    {
+     "name": "Excadrill",
+     "pct": 29.87
+    },
+    {
+     "name": "Meganium-Mega",
+     "pct": 29.848
+    },
+    {
+     "name": "Garchomp",
+     "pct": 26.908
+    },
+    {
+     "name": "Samurott-Hisui",
+     "pct": 26.11
+    }
+   ],
+   "recommendedSet": {
+    "ability": "Stamina",
+    "item": "Leftovers",
+    "moves": [
+     "Flash Cannon",
+     "Electro Shot",
+     "Aura Sphere",
+     "Draco Meteor"
+    ],
+    "observations": 0,
+    "sources": [],
+    "note": "Derived from aggregate usage (no featured teams published)."
+   },
+   "featuredTeams": []
+  },
+  "Araquanid": {
+   "name": "Araquanid",
+   "ourFormLabel": null,
+   "usage": 9,
+   "winRate": null,
+   "record": "N/A",
+   "moves": [
+    {
+     "name": "Sticky Web",
+     "pct": 98.983
+    },
+    {
+     "name": "Surf",
+     "pct": 56.911
+    },
+    {
+     "name": "Endeavor",
+     "pct": 41.13
+    },
+    {
+     "name": "Liquidation",
+     "pct": 38.159
+    },
+    {
+     "name": "Leech Life",
+     "pct": 32.848
+    },
+    {
+     "name": "Mirror Coat",
+     "pct": 27.888
+    },
+    {
+     "name": "Bug Buzz",
+     "pct": 24.117
+    },
+    {
+     "name": "Ice Beam",
+     "pct": 23.381
+    },
+    {
+     "name": "Lunge",
+     "pct": 18.442
+    },
+    {
+     "name": "Hydro Pump",
+     "pct": 10.151
+    }
+   ],
+   "items": [
+    {
+     "name": "Sitrus Berry",
+     "pct": 36.309
+    },
+    {
+     "name": "Mystic Water",
+     "pct": 21.851
+    },
+    {
+     "name": "Mental Herb",
+     "pct": 19.167
+    },
+    {
+     "name": "Focus Sash",
+     "pct": 15.408
+    },
+    {
+     "name": "Leftovers",
+     "pct": 3.316
+    },
+    {
+     "name": "Other",
+     "pct": 3.95
+    }
+   ],
+   "abilities": [
+    {
+     "name": "Water Bubble",
+     "pct": 99.564
+    },
+    {
+     "name": "Water Absorb",
+     "pct": 0.436
+    }
+   ],
+   "abilitiesValidated": true,
+   "teammates": [
+    {
+     "name": "Kingambit",
+     "pct": 68.954
+    },
+    {
+     "name": "Garchomp",
+     "pct": 40.939
+    },
+    {
+     "name": "Glimmora",
+     "pct": 28.405
+    },
+    {
+     "name": "Corviknight",
+     "pct": 27.983
+    },
+    {
+     "name": "Aegislash",
+     "pct": 26.551
+    },
+    {
+     "name": "Dragapult",
+     "pct": 25.895
+    }
+   ],
+   "recommendedSet": {
+    "ability": "Water Bubble",
+    "item": "Sitrus Berry",
+    "moves": [
+     "Sticky Web",
+     "Surf",
+     "Endeavor",
+     "Liquidation"
+    ],
+    "observations": 0,
+    "sources": [],
+    "note": "Derived from aggregate usage (no featured teams published)."
+   },
+   "featuredTeams": []
+  },
+  "Primarina": {
+   "name": "Primarina",
+   "ourFormLabel": null,
+   "usage": 9,
+   "winRate": null,
+   "record": "N/A",
+   "moves": [
+    {
+     "name": "Calm Mind",
+     "pct": 67.567
+    },
+    {
+     "name": "Draining Kiss",
+     "pct": 60.111
+    },
+    {
+     "name": "Moonblast",
+     "pct": 46.567
+    },
+    {
+     "name": "Surf",
+     "pct": 38.402
+    },
+    {
+     "name": "Hyper Voice",
+     "pct": 30.656
+    },
+    {
+     "name": "Psychic Noise",
+     "pct": 30.388
+    },
+    {
+     "name": "Flip Turn",
+     "pct": 27.967
+    },
+    {
+     "name": "Substitute",
+     "pct": 22.008
+    },
+    {
+     "name": "Shadow Ball",
+     "pct": 20.726
+    },
+    {
+     "name": "Encore",
+     "pct": 17.861
+    }
+   ],
+   "items": [
+    {
+     "name": "Leftovers",
+     "pct": 57.004
+    },
+    {
+     "name": "Sitrus Berry",
+     "pct": 17.793
+    },
+    {
+     "name": "Mystic Water",
+     "pct": 8.529
+    },
+    {
+     "name": "Fairy Feather",
+     "pct": 6.114
+    },
+    {
+     "name": "Kebia Berry",
+     "pct": 3.888
+    },
+    {
+     "name": "Nothing",
+     "pct": 1.31
+    },
+    {
+     "name": "Choice Scarf",
+     "pct": 1.075
+    },
+    {
+     "name": "Other",
+     "pct": 4.288
+    }
+   ],
+   "abilities": [
+    {
+     "name": "Torrent",
+     "pct": 54.08
+    },
+    {
+     "name": "Liquid Voice",
+     "pct": 45.92
+    }
+   ],
+   "abilitiesValidated": true,
+   "teammates": [
+    {
+     "name": "Garchomp",
+     "pct": 73.012
+    },
+    {
+     "name": "Corviknight",
+     "pct": 64.475
+    },
+    {
+     "name": "Aegislash",
+     "pct": 39.702
+    },
+    {
+     "name": "Meowscarada",
+     "pct": 34.075
+    },
+    {
+     "name": "Glimmora-Mega",
+     "pct": 26.395
+    },
+    {
+     "name": "Kingambit",
+     "pct": 22.407
+    }
+   ],
+   "recommendedSet": {
+    "ability": "Torrent",
+    "item": "Leftovers",
+    "moves": [
+     "Calm Mind",
+     "Draining Kiss",
+     "Moonblast",
+     "Surf"
+    ],
+    "observations": 0,
+    "sources": [],
+    "note": "Derived from aggregate usage (no featured teams published)."
+   },
+   "featuredTeams": []
+  },
+  "Toxapex": {
+   "name": "Toxapex",
+   "ourFormLabel": null,
+   "usage": 9,
+   "winRate": null,
+   "record": "N/A",
+   "moves": [
+    {
+     "name": "Recover",
+     "pct": 98.158
+    },
+    {
+     "name": "Haze",
+     "pct": 89.317
+    },
+    {
+     "name": "Toxic",
+     "pct": 81.275
+    },
+    {
+     "name": "Liquidation",
+     "pct": 41.97
+    },
+    {
+     "name": "Poison Jab",
+     "pct": 39.872
+    },
+    {
+     "name": "Surf",
+     "pct": 17.474
+    },
+    {
+     "name": "Toxic Spikes",
+     "pct": 8.079
+    },
+    {
+     "name": "Infestation",
+     "pct": 7.811
+    },
+    {
+     "name": "Other",
+     "pct": 16.045
+    }
+   ],
+   "items": [
+    {
+     "name": "Nothing",
+     "pct": 34.822
+    },
+    {
+     "name": "Sitrus Berry",
+     "pct": 16.119
+    },
+    {
+     "name": "Payapa Berry",
+     "pct": 14.572
+    },
+    {
+     "name": "Shuca Berry",
+     "pct": 11.468
+    },
+    {
+     "name": "Wacan Berry",
+     "pct": 9.636
+    },
+    {
+     "name": "Leftovers",
+     "pct": 8.282
+    },
+    {
+     "name": "Mental Herb",
+     "pct": 3.699
+    },
+    {
+     "name": "Other",
+     "pct": 1.403
+    }
+   ],
+   "abilities": [
+    {
+     "name": "Regenerator",
+     "pct": 99.207
+    },
+    {
+     "name": "Merciless",
+     "pct": 0.789
+    },
+    {
+     "name": "Limber",
+     "pct": 0.004
+    }
+   ],
+   "abilitiesValidated": true,
+   "teammates": [
+    {
+     "name": "Corviknight",
+     "pct": 83.31
+    },
+    {
+     "name": "Slowking-Galar",
+     "pct": 37.023
+    },
+    {
+     "name": "Clefable-Mega",
+     "pct": 27.377
+    },
+    {
+     "name": "Dragapult",
+     "pct": 26.062
+    },
+    {
+     "name": "Samurott-Hisui",
+     "pct": 25.824
+    },
+    {
+     "name": "Hippowdon",
+     "pct": 25.447
+    }
+   ],
+   "recommendedSet": {
+    "ability": "Regenerator",
+    "item": "Nothing",
+    "moves": [
+     "Recover",
+     "Haze",
+     "Toxic",
+     "Liquidation"
+    ],
+    "observations": 0,
+    "sources": [],
+    "note": "Derived from aggregate usage (no featured teams published)."
+   },
+   "featuredTeams": []
+  },
+  "Pelipper": {
+   "name": "Pelipper",
+   "ourFormLabel": null,
+   "usage": 7,
+   "winRate": null,
+   "record": "N/A",
+   "moves": [
+    {
+     "name": "Hurricane",
+     "pct": 99.692
+    },
+    {
+     "name": "U-turn",
+     "pct": 96.841
+    },
+    {
+     "name": "Weather Ball",
+     "pct": 73.612
+    },
+    {
+     "name": "Roost",
+     "pct": 51.362
+    },
+    {
+     "name": "Ice Beam",
+     "pct": 39.982
+    },
+    {
+     "name": "Surf",
+     "pct": 23.4
+    },
+    {
+     "name": "Other",
+     "pct": 15.11
+    }
+   ],
+   "items": [
+    {
+     "name": "Choice Scarf",
+     "pct": 33.333
+    },
+    {
+     "name": "Sitrus Berry",
+     "pct": 31.258
+    },
+    {
+     "name": "Leftovers",
+     "pct": 15.434
+    },
+    {
+     "name": "Focus Sash",
+     "pct": 7.698
+    },
+    {
+     "name": "Wacan Berry",
+     "pct": 5.402
+    },
+    {
+     "name": "Mystic Water",
+     "pct": 3.269
+    },
+    {
+     "name": "Other",
+     "pct": 3.606
+    }
+   ],
+   "abilities": [
+    {
+     "name": "Drizzle",
+     "pct": 99.962
+    },
+    {
+     "name": "Rain Dish",
+     "pct": 0.027
+    },
+    {
+     "name": "Keen Eye",
+     "pct": 0.011
+    }
+   ],
+   "abilitiesValidated": true,
+   "teammates": [
+    {
+     "name": "Archaludon",
+     "pct": 90.726
+    },
+    {
+     "name": "Basculegion",
+     "pct": 56.97
+    },
+    {
+     "name": "Meganium-Mega",
+     "pct": 41.623
+    },
+    {
+     "name": "Excadrill",
+     "pct": 38.585
+    },
+    {
+     "name": "Samurott-Hisui",
+     "pct": 28.274
+    },
+    {
+     "name": "Garchomp",
+     "pct": 26.247
+    }
+   ],
+   "recommendedSet": {
+    "ability": "Drizzle",
+    "item": "Choice Scarf",
+    "moves": [
+     "Hurricane",
+     "U-turn",
+     "Weather Ball",
+     "Roost"
+    ],
+    "observations": 0,
+    "sources": [],
+    "note": "Derived from aggregate usage (no featured teams published)."
+   },
+   "featuredTeams": []
+  },
+  "Hydreigon": {
+   "name": "Hydreigon",
+   "ourFormLabel": null,
+   "usage": 7,
+   "winRate": null,
+   "record": "N/A",
+   "moves": [
+    {
+     "name": "Dark Pulse",
+     "pct": 94.298
+    },
+    {
+     "name": "Draco Meteor",
+     "pct": 81.285
+    },
+    {
+     "name": "U-turn",
+     "pct": 50.278
+    },
+    {
+     "name": "Flamethrower",
+     "pct": 42.526
+    },
+    {
+     "name": "Earth Power",
+     "pct": 33.478
+    },
+    {
+     "name": "Nasty Plot",
+     "pct": 30.34
+    },
+    {
+     "name": "Flash Cannon",
+     "pct": 25.129
+    },
+    {
+     "name": "Fire Blast",
+     "pct": 19.283
+    },
+    {
+     "name": "Stealth Rock",
+     "pct": 7.667
+    },
+    {
+     "name": "Other",
+     "pct": 15.716
+    }
+   ],
+   "items": [
+    {
+     "name": "Choice Scarf",
+     "pct": 54.736
+    },
+    {
+     "name": "Sitrus Berry",
+     "pct": 23.512
+    },
+    {
+     "name": "Leftovers",
+     "pct": 6.051
+    },
+    {
+     "name": "Chople Berry",
+     "pct": 4.154
+    },
+    {
+     "name": "Black Glasses",
+     "pct": 4.076
+    },
+    {
+     "name": "Haban Berry",
+     "pct": 2.133
+    },
+    {
+     "name": "Dragon Fang",
+     "pct": 1.909
+    },
+    {
+     "name": "Other",
+     "pct": 3.428
+    }
+   ],
+   "abilities": [
+    {
+     "name": "Levitate",
+     "pct": 100
+    }
+   ],
+   "abilitiesValidated": true,
+   "teammates": [
+    {
+     "name": "Glimmora",
+     "pct": 37.618
+    },
+    {
+     "name": "Ceruledge",
+     "pct": 34.958
+    },
+    {
+     "name": "Excadrill",
+     "pct": 27.059
+    },
+    {
+     "name": "Scizor-Mega",
+     "pct": 25.31
+    },
+    {
+     "name": "Dragonite",
+     "pct": 24.211
+    },
+    {
+     "name": "Aegislash",
+     "pct": 22.838
+    }
+   ],
+   "recommendedSet": {
+    "ability": "Levitate",
+    "item": "Choice Scarf",
+    "moves": [
+     "Dark Pulse",
+     "Draco Meteor",
+     "U-turn",
+     "Flamethrower"
+    ],
+    "observations": 0,
+    "sources": [],
+    "note": "Derived from aggregate usage (no featured teams published)."
+   },
+   "featuredTeams": []
+  },
+  "Clefable": {
+   "name": "Clefable",
+   "ourFormLabel": null,
+   "usage": 6,
+   "winRate": null,
+   "record": "N/A",
+   "moves": [
+    {
+     "name": "Moonblast",
+     "pct": 85.264
+    },
+    {
+     "name": "Moonlight",
+     "pct": 70.243
+    },
+    {
+     "name": "Stealth Rock",
+     "pct": 47.424
+    },
+    {
+     "name": "Calm Mind",
+     "pct": 40.315
+    },
+    {
+     "name": "Flamethrower",
+     "pct": 31.985
+    },
+    {
+     "name": "Wish",
+     "pct": 29.254
+    },
+    {
+     "name": "Protect",
+     "pct": 27.088
+    },
+    {
+     "name": "Thunder Wave",
+     "pct": 24.134
+    },
+    {
+     "name": "Encore",
+     "pct": 14.766
+    },
+    {
+     "name": "Fire Blast",
+     "pct": 11.219
+    }
+   ],
+   "items": [
+    {
+     "name": "Leftovers",
+     "pct": 76.843
+    },
+    {
+     "name": "Sitrus Berry",
+     "pct": 11.163
+    },
+    {
+     "name": "Babiri Berry",
+     "pct": 2.458
+    },
+    {
+     "name": "Lum Berry",
+     "pct": 2.081
+    },
+    {
+     "name": "Nothing",
+     "pct": 1.559
+    },
+    {
+     "name": "Fairy Feather",
+     "pct": 1.429
+    },
+    {
+     "name": "Other",
+     "pct": 4.468
+    }
+   ],
+   "abilities": [
+    {
+     "name": "Unaware",
+     "pct": 57.721
+    },
+    {
+     "name": "Magic Guard",
+     "pct": 42.01
+    },
+    {
+     "name": "Cute Charm",
+     "pct": 0.269
+    }
+   ],
+   "abilitiesValidated": true,
+   "teammates": [
+    {
+     "name": "Corviknight",
+     "pct": 72.026
+    },
+    {
+     "name": "Garchomp",
+     "pct": 46.21
+    },
+    {
+     "name": "Slowking-Galar",
+     "pct": 38.337
+    },
+    {
+     "name": "Samurott-Hisui",
+     "pct": 36.054
+    },
+    {
+     "name": "Lopunny-Mega",
+     "pct": 23.585
+    },
+    {
+     "name": "Toxapex",
+     "pct": 23.04
+    }
+   ],
+   "recommendedSet": {
+    "ability": "Unaware",
+    "item": "Leftovers",
+    "moves": [
+     "Moonblast",
+     "Moonlight",
+     "Stealth Rock",
+     "Calm Mind"
+    ],
+    "observations": 0,
+    "sources": [],
+    "note": "Derived from aggregate usage (no featured teams published)."
+   },
+   "featuredTeams": []
+  },
+  "Scizor-Mega": {
+   "name": "Scizor-Mega",
+   "ourFormLabel": "Mega Scizor",
+   "usage": 6,
+   "winRate": null,
+   "record": "N/A",
+   "moves": [
+    {
+     "name": "Bullet Punch",
+     "pct": 99.999
+    },
+    {
+     "name": "Swords Dance",
+     "pct": 91.515
+    },
+    {
+     "name": "Knock Off",
+     "pct": 73.587
+    },
+    {
+     "name": "Roost",
+     "pct": 64.75
+    },
+    {
+     "name": "Close Combat",
+     "pct": 34.009
+    },
+    {
+     "name": "U-turn",
+     "pct": 16.16
+    },
+    {
+     "name": "Other",
+     "pct": 19.979
+    }
+   ],
+   "items": [
+    {
+     "name": "Scizorite",
+     "pct": 100
+    }
+   ],
+   "abilities": [
+    {
+     "name": "Technician",
+     "pct": 100
+    }
+   ],
+   "abilitiesValidated": true,
+   "teammates": [
+    {
+     "name": "Garchomp",
+     "pct": 43.08
+    },
+    {
+     "name": "Dragonite",
+     "pct": 38.932
+    },
+    {
+     "name": "Glimmora",
+     "pct": 34.817
+    },
+    {
+     "name": "Ceruledge",
+     "pct": 29.538
+    },
+    {
+     "name": "Samurott-Hisui",
+     "pct": 29.267
+    },
+    {
+     "name": "Hydreigon",
+     "pct": 27.966
+    }
+   ],
+   "recommendedSet": {
+    "ability": "Technician",
+    "item": "Scizorite",
+    "moves": [
+     "Bullet Punch",
+     "Swords Dance",
+     "Knock Off",
+     "Roost"
+    ],
+    "observations": 0,
+    "sources": [],
+    "note": "Derived from aggregate usage (no featured teams published)."
+   },
+   "featuredTeams": []
+  },
+  "Scizor": {
+   "name": "Scizor",
+   "ourFormLabel": null,
+   "usage": 6,
+   "winRate": null,
+   "record": "N/A",
+   "moves": [
+    {
+     "name": "Bullet Punch",
+     "pct": 99.941
+    },
+    {
+     "name": "Swords Dance",
+     "pct": 65.816
+    },
+    {
+     "name": "Defog",
+     "pct": 53.42
+    },
+    {
+     "name": "U-turn",
+     "pct": 50.929
+    },
+    {
+     "name": "Close Combat",
+     "pct": 42.07
+    },
+    {
+     "name": "Knock Off",
+     "pct": 41.166
+    },
+    {
+     "name": "Roost",
+     "pct": 30.386
+    },
+    {
+     "name": "Other",
+     "pct": 16.273
+    }
+   ],
+   "items": [
+    {
+     "name": "Metal Coat",
+     "pct": 50.327
+    },
+    {
+     "name": "Sitrus Berry",
+     "pct": 28.692
+    },
+    {
+     "name": "Leftovers",
+     "pct": 11.625
+    },
+    {
+     "name": "Occa Berry",
+     "pct": 4.806
+    },
+    {
+     "name": "Other",
+     "pct": 4.55
+    }
+   ],
+   "abilities": [
+    {
+     "name": "Technician",
+     "pct": 97.432
+    },
+    {
+     "name": "Swarm",
+     "pct": 2.568
+    },
+    {
+     "name": "Light Metal",
+     "pct": 0
+    }
+   ],
+   "abilitiesValidated": true,
+   "teammates": [
+    {
+     "name": "Garchomp",
+     "pct": 32.979
+    },
+    {
+     "name": "Kingambit",
+     "pct": 30.411
+    },
+    {
+     "name": "Dragonite",
+     "pct": 23.201
+    },
+    {
+     "name": "Pelipper",
+     "pct": 22.082
+    },
+    {
+     "name": "Archaludon",
+     "pct": 20.955
+    },
+    {
+     "name": "Meganium-Mega",
+     "pct": 18.995
+    }
+   ],
+   "recommendedSet": {
+    "ability": "Technician",
+    "item": "Metal Coat",
+    "moves": [
+     "Bullet Punch",
+     "Swords Dance",
+     "Defog",
+     "U-turn"
+    ],
+    "observations": 0,
+    "sources": [],
+    "note": "Derived from aggregate usage (no featured teams published)."
+   },
+   "featuredTeams": []
+  },
+  "Greninja": {
+   "name": "Greninja",
+   "ourFormLabel": null,
+   "usage": 6,
+   "winRate": null,
+   "record": "N/A",
+   "moves": [
+    {
+     "name": "Ice Beam",
+     "pct": 98.706
+    },
+    {
+     "name": "Surf",
+     "pct": 81.984
+    },
+    {
+     "name": "Spikes",
+     "pct": 68.282
+    },
+    {
+     "name": "Water Shuriken",
+     "pct": 51.073
+    },
+    {
+     "name": "Sludge Wave",
+     "pct": 43.231
+    },
+    {
+     "name": "Dark Pulse",
+     "pct": 20.105
+    },
+    {
+     "name": "U-turn",
+     "pct": 17.231
+    },
+    {
+     "name": "Other",
+     "pct": 19.388
+    }
+   ],
+   "items": [
+    {
+     "name": "Focus Sash",
+     "pct": 72.613
+    },
+    {
+     "name": "Choice Scarf",
+     "pct": 15.034
+    },
+    {
+     "name": "Mystic Water",
+     "pct": 10.097
+    },
+    {
+     "name": "Other",
+     "pct": 2.257
+    }
+   ],
+   "abilities": [
+    {
+     "name": "Protean",
+     "pct": 54.757
+    },
+    {
+     "name": "Torrent",
+     "pct": 45.243
+    }
+   ],
+   "abilitiesValidated": true,
+   "teammates": [
+    {
+     "name": "Garchomp",
+     "pct": 80.492
+    },
+    {
+     "name": "Ceruledge",
+     "pct": 70.003
+    },
+    {
+     "name": "Meganium-Mega",
+     "pct": 68.194
+    },
+    {
+     "name": "Quaquaval",
+     "pct": 67.318
+    },
+    {
+     "name": "Aegislash",
+     "pct": 67.258
+    },
+    {
+     "name": "Kingambit",
+     "pct": 22.846
+    }
+   ],
+   "recommendedSet": {
+    "ability": "Protean",
+    "item": "Focus Sash",
+    "moves": [
+     "Ice Beam",
+     "Surf",
+     "Spikes",
+     "Water Shuriken"
+    ],
+    "observations": 0,
+    "sources": [],
+    "note": "Derived from aggregate usage (no featured teams published)."
+   },
+   "featuredTeams": []
+  },
+  "Clefable-Mega": {
+   "name": "Clefable-Mega",
+   "ourFormLabel": "Mega Clefable",
+   "usage": 6,
+   "winRate": null,
+   "record": "N/A",
+   "moves": [
+    {
+     "name": "Moonblast",
+     "pct": 99.32
+    },
+    {
+     "name": "Moonlight",
+     "pct": 65.059
+    },
+    {
+     "name": "Flamethrower",
+     "pct": 59.348
+    },
+    {
+     "name": "Calm Mind",
+     "pct": 53.902
+    },
+    {
+     "name": "Wish",
+     "pct": 34.86
+    },
+    {
+     "name": "Protect",
+     "pct": 33.92
+    },
+    {
+     "name": "Knock Off",
+     "pct": 25.732
+    },
+    {
+     "name": "Thunder Wave",
+     "pct": 10.935
+    },
+    {
+     "name": "Other",
+     "pct": 16.924
+    }
+   ],
+   "items": [
+    {
+     "name": "Clefablite",
+     "pct": 100
+    }
+   ],
+   "abilities": [
+    {
+     "name": "Magic Bounce",
+     "pct": 100
+    }
+   ],
+   "abilitiesValidated": true,
+   "teammates": [
+    {
+     "name": "Slowking-Galar",
+     "pct": 61.687
+    },
+    {
+     "name": "Corviknight",
+     "pct": 54.928
+    },
+    {
+     "name": "Toxapex",
+     "pct": 42.438
+    },
+    {
+     "name": "Skeledirge",
+     "pct": 32.54
+    },
+    {
+     "name": "Samurott-Hisui",
+     "pct": 30.765
+    },
+    {
+     "name": "Hippowdon",
+     "pct": 30.058
+    }
+   ],
+   "recommendedSet": {
+    "ability": "Magic Bounce",
+    "item": "Clefablite",
+    "moves": [
+     "Moonblast",
+     "Moonlight",
+     "Flamethrower",
+     "Calm Mind"
+    ],
+    "observations": 0,
+    "sources": [],
+    "note": "Derived from aggregate usage (no featured teams published)."
+   },
+   "featuredTeams": []
+  },
+  "Ditto": {
+   "name": "Ditto",
+   "ourFormLabel": null,
+   "usage": 5,
+   "winRate": null,
+   "record": "N/A",
+   "moves": [
+    {
+     "name": "Nothing",
+     "pct": 300
+    },
+    {
+     "name": "Transform",
+     "pct": 100
+    }
+   ],
+   "items": [
+    {
+     "name": "Choice Scarf",
+     "pct": 95.616
+    },
+    {
+     "name": "Other",
+     "pct": 4.384
+    }
+   ],
+   "abilities": [
+    {
+     "name": "Imposter",
+     "pct": 99.816
+    },
+    {
+     "name": "Limber",
+     "pct": 0.184
+    }
+   ],
+   "abilitiesValidated": true,
+   "teammates": [
+    {
+     "name": "Corviknight",
+     "pct": 75.583
+    },
+    {
+     "name": "Dragapult",
+     "pct": 60.718
+    },
+    {
+     "name": "Samurott-Hisui",
+     "pct": 54.211
+    },
+    {
+     "name": "Glimmora-Mega",
+     "pct": 50.852
+    },
+    {
+     "name": "Empoleon",
+     "pct": 49.715
+    },
+    {
+     "name": "Garchomp",
+     "pct": 16.384
+    }
+   ],
+   "recommendedSet": {
+    "ability": "Imposter",
+    "item": "Choice Scarf",
+    "moves": [
+     "Nothing",
+     "Transform"
+    ],
+    "observations": 0,
+    "sources": [],
+    "note": "Derived from aggregate usage (no featured teams published)."
+   },
+   "featuredTeams": []
+  },
+  "Rotom-Heat": {
+   "name": "Rotom-Heat",
+   "ourFormLabel": null,
+   "usage": 5,
+   "winRate": null,
+   "record": "N/A",
+   "moves": [
+    {
+     "name": "Overheat",
+     "pct": 99.877
+    },
+    {
+     "name": "Volt Switch",
+     "pct": 99.262
+    },
+    {
+     "name": "Will-O-Wisp",
+     "pct": 74.605
+    },
+    {
+     "name": "Pain Split",
+     "pct": 64.835
+    },
+    {
+     "name": "Trick",
+     "pct": 27.22
+    },
+    {
+     "name": "Thunderbolt",
+     "pct": 19.643
+    },
+    {
+     "name": "Other",
+     "pct": 14.559
+    }
+   ],
+   "items": [
+    {
+     "name": "Choice Scarf",
+     "pct": 28.57
+    },
+    {
+     "name": "Sitrus Berry",
+     "pct": 26.436
+    },
+    {
+     "name": "Leftovers",
+     "pct": 25.901
+    },
+    {
+     "name": "Shell Bell",
+     "pct": 8.23
+    },
+    {
+     "name": "Nothing",
+     "pct": 6.875
+    },
+    {
+     "name": "Other",
+     "pct": 3.988
+    }
+   ],
+   "abilities": [
+    {
+     "name": "Levitate",
+     "pct": 100
+    }
+   ],
+   "abilitiesValidated": true,
+   "teammates": [
+    {
+     "name": "Garchomp",
+     "pct": 62.705
+    },
+    {
+     "name": "Corviknight",
+     "pct": 58.39
+    },
+    {
+     "name": "Samurott-Hisui",
+     "pct": 52.358
+    },
+    {
+     "name": "Dragapult",
+     "pct": 22.837
+    },
+    {
+     "name": "Aegislash",
+     "pct": 22.21
+    },
+    {
+     "name": "Slowking-Galar",
+     "pct": 21.995
+    }
+   ],
+   "recommendedSet": {
+    "ability": "Levitate",
+    "item": "Choice Scarf",
+    "moves": [
+     "Overheat",
+     "Volt Switch",
+     "Will-O-Wisp",
+     "Pain Split"
+    ],
+    "observations": 0,
+    "sources": [],
+    "note": "Derived from aggregate usage (no featured teams published)."
+   },
+   "featuredTeams": []
+  },
+  "Empoleon": {
+   "name": "Empoleon",
+   "ourFormLabel": null,
+   "usage": 5,
+   "winRate": null,
+   "record": "N/A",
+   "moves": [
+    {
+     "name": "Surf",
+     "pct": 98.653
+    },
+    {
+     "name": "Roost",
+     "pct": 93.954
+    },
+    {
+     "name": "Stealth Rock",
+     "pct": 65.963
+    },
+    {
+     "name": "Roar",
+     "pct": 58.497
+    },
+    {
+     "name": "Ice Beam",
+     "pct": 36.235
+    },
+    {
+     "name": "Knock Off",
+     "pct": 27.348
+    },
+    {
+     "name": "Other",
+     "pct": 19.349
+    }
+   ],
+   "items": [
+    {
+     "name": "Leftovers",
+     "pct": 58.498
+    },
+    {
+     "name": "Sitrus Berry",
+     "pct": 27.541
+    },
+    {
+     "name": "Shuca Berry",
+     "pct": 9.86
+    },
+    {
+     "name": "Other",
+     "pct": 4.1
+    }
+   ],
+   "abilities": [
+    {
+     "name": "Competitive",
+     "pct": 99.713
+    },
+    {
+     "name": "Torrent",
+     "pct": 0.287
+    }
+   ],
+   "abilitiesValidated": true,
+   "teammates": [
+    {
+     "name": "Corviknight",
+     "pct": 59.331
+    },
+    {
+     "name": "Dragapult",
+     "pct": 58.219
+    },
+    {
+     "name": "Glimmora-Mega",
+     "pct": 55.71
+    },
+    {
+     "name": "Samurott-Hisui",
+     "pct": 54.936
+    },
+    {
+     "name": "Ditto",
+     "pct": 54.673
+    },
+    {
+     "name": "Skeledirge",
+     "pct": 29.497
+    }
+   ],
+   "recommendedSet": {
+    "ability": "Competitive",
+    "item": "Leftovers",
+    "moves": [
+     "Surf",
+     "Roost",
+     "Stealth Rock",
+     "Roar"
+    ],
+    "observations": 0,
+    "sources": [],
+    "note": "Derived from aggregate usage (no featured teams published)."
+   },
+   "featuredTeams": []
+  },
+  "Delphox-Mega": {
+   "name": "Delphox-Mega",
+   "ourFormLabel": "Mega Delphox",
+   "usage": 5,
+   "winRate": null,
+   "record": "N/A",
+   "moves": [
+    {
+     "name": "Nasty Plot",
+     "pct": 72.664
+    },
+    {
+     "name": "Flamethrower",
+     "pct": 68.364
+    },
+    {
+     "name": "Psyshock",
+     "pct": 65.882
+    },
+    {
+     "name": "Dazzling Gleam",
+     "pct": 37.17
+    },
+    {
+     "name": "Fire Blast",
+     "pct": 30.209
+    },
+    {
+     "name": "Encore",
+     "pct": 29.113
+    },
+    {
+     "name": "Psychic",
+     "pct": 28.706
+    },
+    {
+     "name": "Substitute",
+     "pct": 14.397
+    },
+    {
+     "name": "Focus Blast",
+     "pct": 11.912
+    },
+    {
+     "name": "Grass Knot",
+     "pct": 10.145
+    }
+   ],
+   "items": [
+    {
+     "name": "Delphoxite",
+     "pct": 100
+    }
+   ],
+   "abilities": [
+    {
+     "name": "Levitate",
+     "pct": 100
+    }
+   ],
+   "abilitiesValidated": true,
+   "teammates": [
+    {
+     "name": "Garchomp",
+     "pct": 58.833
+    },
+    {
+     "name": "Corviknight",
+     "pct": 40.773
+    },
+    {
+     "name": "Kingambit",
+     "pct": 39.574
+    },
+    {
+     "name": "Glimmora",
+     "pct": 33.86
+    },
+    {
+     "name": "Aegislash",
+     "pct": 30.736
+    },
+    {
+     "name": "Samurott-Hisui",
+     "pct": 28.473
+    }
+   ],
+   "recommendedSet": {
+    "ability": "Levitate",
+    "item": "Delphoxite",
+    "moves": [
+     "Nasty Plot",
+     "Flamethrower",
+     "Psyshock",
+     "Dazzling Gleam"
+    ],
+    "observations": 0,
+    "sources": [],
+    "note": "Derived from aggregate usage (no featured teams published)."
+   },
+   "featuredTeams": []
+  },
+  "Froslass-Mega": {
+   "name": "Froslass-Mega",
+   "ourFormLabel": "Mega Froslass",
+   "usage": 5,
+   "winRate": null,
+   "record": "N/A",
+   "moves": [
+    {
+     "name": "Blizzard",
+     "pct": 99.522
+    },
+    {
+     "name": "Shadow Ball",
+     "pct": 95.937
+    },
+    {
+     "name": "Aurora Veil",
+     "pct": 90.779
+    },
+    {
+     "name": "Thunderbolt",
+     "pct": 47.783
+    },
+    {
+     "name": "Nasty Plot",
+     "pct": 21.499
+    },
+    {
+     "name": "Hex",
+     "pct": 21.152
+    },
+    {
+     "name": "Destiny Bond",
+     "pct": 8.738
+    },
+    {
+     "name": "Other",
+     "pct": 14.59
+    }
+   ],
+   "items": [
+    {
+     "name": "Froslassite",
+     "pct": 100
+    }
+   ],
+   "abilities": [
+    {
+     "name": "Snow Warning",
+     "pct": 100
+    }
+   ],
+   "abilitiesValidated": true,
+   "teammates": [
+    {
+     "name": "Garchomp",
+     "pct": 79.156
+    },
+    {
+     "name": "Volcarona",
+     "pct": 72.403
+    },
+    {
+     "name": "Glimmora",
+     "pct": 72.301
+    },
+    {
+     "name": "Quaquaval",
+     "pct": 68.919
+    },
+    {
+     "name": "Dragapult",
+     "pct": 68.522
+    },
+    {
+     "name": "Corviknight",
+     "pct": 16.12
+    }
+   ],
+   "recommendedSet": {
+    "ability": "Snow Warning",
+    "item": "Froslassite",
+    "moves": [
+     "Blizzard",
+     "Shadow Ball",
+     "Aurora Veil",
+     "Thunderbolt"
+    ],
+    "observations": 0,
+    "sources": [],
+    "note": "Derived from aggregate usage (no featured teams published)."
+   },
+   "featuredTeams": []
+  },
+  "Basculegion": {
+   "name": "Basculegion",
+   "ourFormLabel": null,
+   "usage": 4,
+   "winRate": null,
+   "record": "N/A",
+   "moves": [
+    {
+     "name": "Flip Turn",
+     "pct": 98.461
+    },
+    {
+     "name": "Wave Crash",
+     "pct": 97.927
+    },
+    {
+     "name": "Aqua Jet",
+     "pct": 96.564
+    },
+    {
+     "name": "Head Smash",
+     "pct": 32.565
+    },
+    {
+     "name": "Phantom Force",
+     "pct": 22.128
+    },
+    {
+     "name": "Ice Fang",
+     "pct": 19.019
+    },
+    {
+     "name": "Rain Dance",
+     "pct": 18.904
+    },
+    {
+     "name": "Other",
+     "pct": 14.434
+    }
+   ],
+   "items": [
+    {
+     "name": "Mystic Water",
+     "pct": 75.808
+    },
+    {
+     "name": "Choice Scarf",
+     "pct": 15.322
+    },
+    {
+     "name": "Sitrus Berry",
+     "pct": 6.936
+    },
+    {
+     "name": "Other",
+     "pct": 1.934
+    }
+   ],
+   "abilities": [
+    {
+     "name": "Swift Swim",
+     "pct": 73.523
+    },
+    {
+     "name": "Adaptability",
+     "pct": 26.476
+    },
+    {
+     "name": "Mold Breaker",
+     "pct": 0.001
+    }
+   ],
+   "abilitiesValidated": false,
+   "teammates": [
+    {
+     "name": "Pelipper",
+     "pct": 89.756
+    },
+    {
+     "name": "Archaludon",
+     "pct": 88.783
+    },
+    {
+     "name": "Excadrill",
+     "pct": 53.777
+    },
+    {
+     "name": "Meganium-Mega",
+     "pct": 45.214
+    },
+    {
+     "name": "Hydreigon",
+     "pct": 21.265
+    },
+    {
+     "name": "Samurott-Hisui",
+     "pct": 20.639
+    }
+   ],
+   "recommendedSet": {
+    "ability": "Swift Swim",
+    "item": "Mystic Water",
+    "moves": [
+     "Flip Turn",
+     "Wave Crash",
+     "Aqua Jet",
+     "Head Smash"
+    ],
+    "observations": 0,
+    "sources": [],
+    "note": "Derived from aggregate usage (no featured teams published)."
+   },
+   "featuredTeams": []
+  },
+  "Skeledirge": {
+   "name": "Skeledirge",
+   "ourFormLabel": null,
+   "usage": 4,
+   "winRate": null,
+   "record": "N/A",
+   "moves": [
+    {
+     "name": "Torch Song",
+     "pct": 99.983
+    },
+    {
+     "name": "Slack Off",
+     "pct": 99.88
+    },
+    {
+     "name": "Will-O-Wisp",
+     "pct": 95.329
+    },
+    {
+     "name": "Hex",
+     "pct": 62.339
+    },
+    {
+     "name": "Shadow Ball",
+     "pct": 37.402
+    },
+    {
+     "name": "Other",
+     "pct": 5.066
+    }
+   ],
+   "items": [
+    {
+     "name": "Kasib Berry",
+     "pct": 35.438
+    },
+    {
+     "name": "Sitrus Berry",
+     "pct": 34.933
+    },
+    {
+     "name": "Leftovers",
+     "pct": 10.775
+    },
+    {
+     "name": "Nothing",
+     "pct": 7.586
+    },
+    {
+     "name": "Colbur Berry",
+     "pct": 6.881
+    },
+    {
+     "name": "Other",
+     "pct": 4.387
+    }
+   ],
+   "abilities": [
+    {
+     "name": "Unaware",
+     "pct": 99.15
+    },
+    {
+     "name": "Blaze",
+     "pct": 0.85
+    }
+   ],
+   "abilitiesValidated": true,
+   "teammates": [
+    {
+     "name": "Corviknight",
+     "pct": 58.047
+    },
+    {
+     "name": "Slowking-Galar",
+     "pct": 48.409
+    },
+    {
+     "name": "Clefable-Mega",
+     "pct": 42.538
+    },
+    {
+     "name": "Toxapex",
+     "pct": 38.631
+    },
+    {
+     "name": "Empoleon",
+     "pct": 34.437
+    },
+    {
+     "name": "Skarmory",
+     "pct": 31.407
+    }
+   ],
+   "recommendedSet": {
+    "ability": "Unaware",
+    "item": "Kasib Berry",
+    "moves": [
+     "Torch Song",
+     "Slack Off",
+     "Will-O-Wisp",
+     "Hex"
+    ],
+    "observations": 0,
+    "sources": [],
+    "note": "Derived from aggregate usage (no featured teams published)."
+   },
+   "featuredTeams": []
+  },
+  "Scovillain-Mega": {
+   "name": "Scovillain-Mega",
+   "ourFormLabel": "Mega Scovillain",
+   "usage": 4,
+   "winRate": null,
+   "record": "N/A",
+   "moves": [
+    {
+     "name": "Leech Seed",
+     "pct": 94.219
+    },
+    {
+     "name": "Protect",
+     "pct": 91.343
+    },
+    {
+     "name": "Overheat",
+     "pct": 78.765
+    },
+    {
+     "name": "Giga Drain",
+     "pct": 74
+    },
+    {
+     "name": "Rest",
+     "pct": 24.174
+    },
+    {
+     "name": "Flamethrower",
+     "pct": 17.234
+    },
+    {
+     "name": "Substitute",
+     "pct": 6.636
+    },
+    {
+     "name": "Other",
+     "pct": 13.627
+    }
+   ],
+   "items": [
+    {
+     "name": "Scovillainite",
+     "pct": 100
+    }
+   ],
+   "abilities": [
+    {
+     "name": "Spicy Spray",
+     "pct": 100
+    }
+   ],
+   "abilitiesValidated": true,
+   "teammates": [
+    {
+     "name": "Corviknight",
+     "pct": 62.03
+    },
+    {
+     "name": "Slowking-Galar",
+     "pct": 54.594
+    },
+    {
+     "name": "Dragapult",
+     "pct": 33.667
+    },
+    {
+     "name": "Garchomp",
+     "pct": 32.865
+    },
+    {
+     "name": "Kingambit",
+     "pct": 31.272
+    },
+    {
+     "name": "Dragonite",
+     "pct": 30.577
+    }
+   ],
+   "recommendedSet": {
+    "ability": "Spicy Spray",
+    "item": "Scovillainite",
+    "moves": [
+     "Leech Seed",
+     "Protect",
+     "Overheat",
+     "Giga Drain"
+    ],
+    "observations": 0,
+    "sources": [],
+    "note": "Derived from aggregate usage (no featured teams published)."
+   },
+   "featuredTeams": []
+  },
+  "Charizard-Mega-X": {
+   "name": "Charizard-Mega-X",
+   "ourFormLabel": "Mega Charizard X",
+   "usage": 4,
+   "winRate": null,
+   "record": "N/A",
+   "moves": [
+    {
+     "name": "Dragon Claw",
+     "pct": 94.496
+    },
+    {
+     "name": "Dragon Dance",
+     "pct": 85.701
+    },
+    {
+     "name": "Flare Blitz",
+     "pct": 84.786
+    },
+    {
+     "name": "Roost",
+     "pct": 69.37
+    },
+    {
+     "name": "Earthquake",
+     "pct": 15.281
+    },
+    {
+     "name": "Swords Dance",
+     "pct": 14.938
+    },
+    {
+     "name": "Flame Charge",
+     "pct": 14.609
+    },
+    {
+     "name": "Thunder Punch",
+     "pct": 13.708
+    },
+    {
+     "name": "Other",
+     "pct": 7.11
+    }
+   ],
+   "items": [
+    {
+     "name": "Charizardite X",
+     "pct": 100
+    }
+   ],
+   "abilities": [
+    {
+     "name": "Tough Claws",
+     "pct": 100
+    }
+   ],
+   "abilitiesValidated": true,
+   "teammates": [
+    {
+     "name": "Garchomp",
+     "pct": 65.096
+    },
+    {
+     "name": "Corviknight",
+     "pct": 59.822
+    },
+    {
+     "name": "Hatterene",
+     "pct": 40.309
+    },
+    {
+     "name": "Kingambit",
+     "pct": 37.89
+    },
+    {
+     "name": "Aegislash",
+     "pct": 30.49
+    },
+    {
+     "name": "Slowking-Galar",
+     "pct": 21.782
+    }
+   ],
+   "recommendedSet": {
+    "ability": "Tough Claws",
+    "item": "Charizardite X",
+    "moves": [
+     "Dragon Claw",
+     "Dragon Dance",
+     "Flare Blitz",
+     "Roost"
+    ],
+    "observations": 0,
+    "sources": [],
+    "note": "Derived from aggregate usage (no featured teams published)."
+   },
+   "featuredTeams": []
+  },
+  "Hippowdon": {
+   "name": "Hippowdon",
+   "ourFormLabel": null,
+   "usage": 3,
+   "winRate": null,
+   "record": "N/A",
+   "moves": [
+    {
+     "name": "Slack Off",
+     "pct": 99.92
+    },
+    {
+     "name": "Earthquake",
+     "pct": 99.544
+    },
+    {
+     "name": "Stealth Rock",
+     "pct": 97.302
+    },
+    {
+     "name": "Whirlwind",
+     "pct": 84.566
+    },
+    {
+     "name": "Other",
+     "pct": 18.669
+    }
+   ],
+   "items": [
+    {
+     "name": "Leftovers",
+     "pct": 45.369
+    },
+    {
+     "name": "Sitrus Berry",
+     "pct": 41.36
+    },
+    {
+     "name": "Soft Sand",
+     "pct": 6.276
+    },
+    {
+     "name": "Passho Berry",
+     "pct": 2.55
+    },
+    {
+     "name": "Other",
+     "pct": 4.445
+    }
+   ],
+   "abilities": [
+    {
+     "name": "Sand Stream",
+     "pct": 99.482
+    },
+    {
+     "name": "Sand Force",
+     "pct": 0.518
+    }
+   ],
+   "abilitiesValidated": true,
+   "teammates": [
+    {
+     "name": "Corviknight",
+     "pct": 76.673
+    },
+    {
+     "name": "Toxapex",
+     "pct": 72.465
+    },
+    {
+     "name": "Clefable-Mega",
+     "pct": 55.218
+    },
+    {
+     "name": "Samurott-Hisui",
+     "pct": 54.717
+    },
+    {
+     "name": "Slowking-Galar",
+     "pct": 46.456
+    },
+    {
+     "name": "Dragapult",
+     "pct": 21.513
+    }
+   ],
+   "recommendedSet": {
+    "ability": "Sand Stream",
+    "item": "Leftovers",
+    "moves": [
+     "Slack Off",
+     "Earthquake",
+     "Stealth Rock",
+     "Whirlwind"
+    ],
+    "observations": 0,
+    "sources": [],
+    "note": "Derived from aggregate usage (no featured teams published)."
+   },
+   "featuredTeams": []
+  },
+  "Charizard-Mega-Y": {
+   "name": "Charizard-Mega-Y",
+   "ourFormLabel": "Mega Charizard Y",
+   "usage": 3,
+   "winRate": null,
+   "record": "N/A",
+   "moves": [
+    {
+     "name": "Solar Beam",
+     "pct": 97.697
+    },
+    {
+     "name": "Roost",
+     "pct": 58.701
+    },
+    {
+     "name": "Air Slash",
+     "pct": 47.359
+    },
+    {
+     "name": "Weather Ball",
+     "pct": 45.655
+    },
+    {
+     "name": "Flamethrower",
+     "pct": 41.211
+    },
+    {
+     "name": "Scorching Sands",
+     "pct": 25.385
+    },
+    {
+     "name": "Fire Blast",
+     "pct": 25.139
+    },
+    {
+     "name": "Focus Blast",
+     "pct": 17.599
+    },
+    {
+     "name": "Overheat",
+     "pct": 12.036
+    },
+    {
+     "name": "Dragon Pulse",
+     "pct": 8.738
+    }
+   ],
+   "items": [
+    {
+     "name": "Charizardite Y",
+     "pct": 100
+    }
+   ],
+   "abilities": [
+    {
+     "name": "Drought",
+     "pct": 100
+    }
+   ],
+   "abilitiesValidated": true,
+   "teammates": [
+    {
+     "name": "Excadrill",
+     "pct": 52.393
+    },
+    {
+     "name": "Kingambit",
+     "pct": 49.301
+    },
+    {
+     "name": "Corviknight",
+     "pct": 36.158
+    },
+    {
+     "name": "Garchomp",
+     "pct": 33.094
+    },
+    {
+     "name": "Dragapult",
+     "pct": 32.957
+    },
+    {
+     "name": "Azumarill",
+     "pct": 21.121
+    }
+   ],
+   "recommendedSet": {
+    "ability": "Drought",
+    "item": "Charizardite Y",
+    "moves": [
+     "Solar Beam",
+     "Roost",
+     "Air Slash",
+     "Weather Ball"
+    ],
+    "observations": 0,
+    "sources": [],
+    "note": "Derived from aggregate usage (no featured teams published)."
+   },
+   "featuredTeams": []
+  },
+  "Tyranitar": {
+   "name": "Tyranitar",
+   "ourFormLabel": null,
+   "usage": 2,
+   "winRate": null,
+   "record": "N/A",
+   "moves": [
+    {
+     "name": "Knock Off",
+     "pct": 91.557
+    },
+    {
+     "name": "Stealth Rock",
+     "pct": 69.05
+    },
+    {
+     "name": "Ice Beam",
+     "pct": 49.708
+    },
+    {
+     "name": "Stone Edge",
+     "pct": 46.291
+    },
+    {
+     "name": "Thunder Wave",
+     "pct": 36.567
+    },
+    {
+     "name": "Fire Blast",
+     "pct": 17.746
+    },
+    {
+     "name": "Ice Punch",
+     "pct": 16.878
+    },
+    {
+     "name": "Low Kick",
+     "pct": 14.375
+    },
+    {
+     "name": "Dragon Tail",
+     "pct": 7.211
+    },
+    {
+     "name": "Earthquake",
+     "pct": 6.639
+    }
+   ],
+   "items": [
+    {
+     "name": "Leftovers",
+     "pct": 25.404
+    },
+    {
+     "name": "Sitrus Berry",
+     "pct": 21.874
+    },
+    {
+     "name": "Shuca Berry",
+     "pct": 19.452
+    },
+    {
+     "name": "Chople Berry",
+     "pct": 16.936
+    },
+    {
+     "name": "Choice Scarf",
+     "pct": 5.644
+    },
+    {
+     "name": "Focus Sash",
+     "pct": 3.171
+    },
+    {
+     "name": "Lum Berry",
+     "pct": 2.333
+    },
+    {
+     "name": "Chesto Berry",
+     "pct": 1.64
+    }
+   ],
+   "abilities": [
+    {
+     "name": "Sand Stream",
+     "pct": 99.59
+    },
+    {
+     "name": "Unnerve",
+     "pct": 0.41
+    }
+   ],
+   "abilitiesValidated": true,
+   "teammates": [
+    {
+     "name": "Excadrill",
+     "pct": 65.207
+    },
+    {
+     "name": "Corviknight",
+     "pct": 60.823
+    },
+    {
+     "name": "Dragapult",
+     "pct": 32.639
+    },
+    {
+     "name": "Slowking-Galar",
+     "pct": 30.524
+    },
+    {
+     "name": "Meganium-Mega",
+     "pct": 24.852
+    },
+    {
+     "name": "Garchomp",
+     "pct": 22.896
+    }
+   ],
+   "recommendedSet": {
+    "ability": "Sand Stream",
+    "item": "Leftovers",
+    "moves": [
+     "Knock Off",
+     "Stealth Rock",
+     "Ice Beam",
+     "Stone Edge"
+    ],
+    "observations": 0,
+    "sources": [],
+    "note": "Derived from aggregate usage (no featured teams published)."
+   },
+   "featuredTeams": []
+  },
+  "Arcanine-Hisui": {
+   "name": "Arcanine-Hisui",
+   "ourFormLabel": null,
+   "usage": 2,
+   "winRate": null,
+   "record": "N/A",
+   "moves": [
+    {
+     "name": "Flare Blitz",
+     "pct": 99.731
+    },
+    {
+     "name": "Head Smash",
+     "pct": 98.86
+    },
+    {
+     "name": "Extreme Speed",
+     "pct": 86.979
+    },
+    {
+     "name": "Close Combat",
+     "pct": 31.822
+    },
+    {
+     "name": "Morning Sun",
+     "pct": 26.761
+    },
+    {
+     "name": "Will-O-Wisp",
+     "pct": 14.097
+    },
+    {
+     "name": "Wild Charge",
+     "pct": 12.634
+    },
+    {
+     "name": "Stealth Rock",
+     "pct": 10.785
+    },
+    {
+     "name": "Other",
+     "pct": 18.33
+    }
+   ],
+   "items": [
+    {
+     "name": "Focus Sash",
+     "pct": 32.858
+    },
+    {
+     "name": "Choice Scarf",
+     "pct": 18.336
+    },
+    {
+     "name": "Hard Stone",
+     "pct": 17.864
+    },
+    {
+     "name": "Charcoal",
+     "pct": 13.318
+    },
+    {
+     "name": "Nothing",
+     "pct": 9.013
+    },
+    {
+     "name": "Shuca Berry",
+     "pct": 2.719
+    },
+    {
+     "name": "Sitrus Berry",
+     "pct": 2.07
+    },
+    {
+     "name": "Other",
+     "pct": 3.823
+    }
+   ],
+   "abilities": [
+    {
+     "name": "Rock Head",
+     "pct": 98.55
+    },
+    {
+     "name": "Intimidate",
+     "pct": 1.398
+    },
+    {
+     "name": "Flash Fire",
+     "pct": 0.052
+    }
+   ],
+   "abilitiesValidated": true,
+   "teammates": [
+    {
+     "name": "Garchomp",
+     "pct": 40.993
+    },
+    {
+     "name": "Corviknight",
+     "pct": 37.827
+    },
+    {
+     "name": "Slowking-Galar",
+     "pct": 31.687
+    },
+    {
+     "name": "Meganium-Mega",
+     "pct": 26.275
+    },
+    {
+     "name": "Aegislash",
+     "pct": 22.819
+    },
+    {
+     "name": "Sneasler",
+     "pct": 21.652
+    }
+   ],
+   "recommendedSet": {
+    "ability": "Rock Head",
+    "item": "Focus Sash",
+    "moves": [
+     "Flare Blitz",
+     "Head Smash",
+     "Extreme Speed",
+     "Close Combat"
+    ],
+    "observations": 0,
+    "sources": [],
+    "note": "Derived from aggregate usage (no featured teams published)."
+   },
+   "featuredTeams": []
+  },
+  "Ninetales-Alola": {
+   "name": "Ninetales-Alola",
+   "ourFormLabel": null,
+   "usage": 2,
+   "winRate": null,
+   "record": "N/A",
+   "moves": [
+    {
+     "name": "Aurora Veil",
+     "pct": 98.994
+    },
+    {
+     "name": "Moonblast",
+     "pct": 96.827
+    },
+    {
+     "name": "Freeze-Dry",
+     "pct": 92.177
+    },
+    {
+     "name": "Encore",
+     "pct": 88.455
+    },
+    {
+     "name": "Blizzard",
+     "pct": 15.573
+    },
+    {
+     "name": "Other",
+     "pct": 7.974
+    }
+   ],
+   "items": [
+    {
+     "name": "Babiri Berry",
+     "pct": 43.071
+    },
+    {
+     "name": "Leftovers",
+     "pct": 39.945
+    },
+    {
+     "name": "Never-Melt Ice",
+     "pct": 7.232
+    },
+    {
+     "name": "Focus Sash",
+     "pct": 6.847
+    },
+    {
+     "name": "Other",
+     "pct": 2.905
+    }
+   ],
+   "abilities": [
+    {
+     "name": "Snow Warning",
+     "pct": 99.939
+    },
+    {
+     "name": "Snow Cloak",
+     "pct": 0.061
+    }
+   ],
+   "abilitiesValidated": true,
+   "teammates": [
+    {
+     "name": "Dragonite",
+     "pct": 80.313
+    },
+    {
+     "name": "Glimmora",
+     "pct": 80.103
+    },
+    {
+     "name": "Ceruledge",
+     "pct": 79.947
+    },
+    {
+     "name": "Scizor-Mega",
+     "pct": 77.2
+    },
+    {
+     "name": "Hydreigon",
+     "pct": 68.917
+    },
+    {
+     "name": "Garchomp",
+     "pct": 11.405
+    }
+   ],
+   "recommendedSet": {
+    "ability": "Snow Warning",
+    "item": "Babiri Berry",
+    "moves": [
+     "Aurora Veil",
+     "Moonblast",
+     "Freeze-Dry",
+     "Encore"
+    ],
+    "observations": 0,
+    "sources": [],
+    "note": "Derived from aggregate usage (no featured teams published)."
+   },
+   "featuredTeams": []
+  },
+  "Espathra": {
+   "name": "Espathra",
+   "ourFormLabel": null,
+   "usage": 2,
+   "winRate": null,
+   "record": "N/A",
+   "moves": [
+    {
+     "name": "Calm Mind",
+     "pct": 99.704
+    },
+    {
+     "name": "Dazzling Gleam",
+     "pct": 98.198
+    },
+    {
+     "name": "Stored Power",
+     "pct": 92.177
+    },
+    {
+     "name": "Substitute",
+     "pct": 64.398
+    },
+    {
+     "name": "Protect",
+     "pct": 25.706
+    },
+    {
+     "name": "Other",
+     "pct": 19.815
+    }
+   ],
+   "items": [
+    {
+     "name": "Leftovers",
+     "pct": 80.709
+    },
+    {
+     "name": "Colbur Berry",
+     "pct": 10.865
+    },
+    {
+     "name": "Twisted Spoon",
+     "pct": 3.576
+    },
+    {
+     "name": "Other",
+     "pct": 4.85
+    }
+   ],
+   "abilities": [
+    {
+     "name": "Speed Boost",
+     "pct": 99.965
+    },
+    {
+     "name": "Opportunist",
+     "pct": 0.035
+    },
+    {
+     "name": "Frisk",
+     "pct": 0
+    }
+   ],
+   "abilitiesValidated": true,
+   "teammates": [
+    {
+     "name": "Dragonite",
+     "pct": 67.842
+    },
+    {
+     "name": "Scovillain-Mega",
+     "pct": 58.768
+    },
+    {
+     "name": "Kingambit",
+     "pct": 58.625
+    },
+    {
+     "name": "Scizor",
+     "pct": 50.43
+    },
+    {
+     "name": "Maushold",
+     "pct": 49.941
+    },
+    {
+     "name": "Aegislash",
+     "pct": 18.5
+    }
+   ],
+   "recommendedSet": {
+    "ability": "Speed Boost",
+    "item": "Leftovers",
+    "moves": [
+     "Calm Mind",
+     "Dazzling Gleam",
+     "Stored Power",
+     "Substitute"
+    ],
+    "observations": 0,
+    "sources": [],
+    "note": "Derived from aggregate usage (no featured teams published)."
+   },
+   "featuredTeams": []
+  },
+  "Greninja-Mega": {
+   "name": "Greninja-Mega",
+   "ourFormLabel": "Mega Greninja",
+   "usage": 2,
+   "winRate": null,
+   "record": "N/A",
+   "moves": [
+    {
+     "name": "Ice Beam",
+     "pct": 88.522
+    },
+    {
+     "name": "Dark Pulse",
+     "pct": 66.352
+    },
+    {
+     "name": "Sludge Wave",
+     "pct": 49.949
+    },
+    {
+     "name": "Hydro Pump",
+     "pct": 36.538
+    },
+    {
+     "name": "Surf",
+     "pct": 36.412
+    },
+    {
+     "name": "Water Shuriken",
+     "pct": 31.234
+    },
+    {
+     "name": "U-turn",
+     "pct": 29.651
+    },
+    {
+     "name": "Low Kick",
+     "pct": 22.768
+    },
+    {
+     "name": "Gunk Shot",
+     "pct": 19.569
+    },
+    {
+     "name": "Other",
+     "pct": 19.006
+    }
+   ],
+   "items": [
+    {
+     "name": "Greninjite",
+     "pct": 100
+    }
+   ],
+   "abilities": [
+    {
+     "name": "Protean",
+     "pct": 100
+    }
+   ],
+   "abilitiesValidated": true,
+   "teammates": [
+    {
+     "name": "Garchomp",
+     "pct": 54.408
+    },
+    {
+     "name": "Corviknight",
+     "pct": 45.398
+    },
+    {
+     "name": "Ceruledge",
+     "pct": 28.696
+    },
+    {
+     "name": "Archaludon",
+     "pct": 27.283
+    },
+    {
+     "name": "Sneasler",
+     "pct": 25.952
+    },
+    {
+     "name": "Aegislash",
+     "pct": 21.588
+    }
+   ],
+   "recommendedSet": {
+    "ability": "Protean",
+    "item": "Greninjite",
+    "moves": [
+     "Ice Beam",
+     "Dark Pulse",
+     "Sludge Wave",
+     "Hydro Pump"
+    ],
+    "observations": 0,
+    "sources": [],
+    "note": "Derived from aggregate usage (no featured teams published)."
+   },
+   "featuredTeams": []
+  },
+  "Skarmory": {
+   "name": "Skarmory",
+   "ourFormLabel": null,
+   "usage": 2,
+   "winRate": null,
+   "record": "N/A",
+   "moves": [
+    {
+     "name": "Roost",
+     "pct": 97.578
+    },
+    {
+     "name": "Body Press",
+     "pct": 93.784
+    },
+    {
+     "name": "Spikes",
+     "pct": 81.621
+    },
+    {
+     "name": "Whirlwind",
+     "pct": 75.42
+    },
+    {
+     "name": "Stealth Rock",
+     "pct": 17.505
+    },
+    {
+     "name": "Brave Bird",
+     "pct": 15.854
+    },
+    {
+     "name": "Other",
+     "pct": 18.238
+    }
+   ],
+   "items": [
+    {
+     "name": "Leftovers",
+     "pct": 71.675
+    },
+    {
+     "name": "Occa Berry",
+     "pct": 16.253
+    },
+    {
+     "name": "Sitrus Berry",
+     "pct": 7.737
+    },
+    {
+     "name": "Other",
+     "pct": 4.334
+    }
+   ],
+   "abilities": [
+    {
+     "name": "Sturdy",
+     "pct": 98.869
+    },
+    {
+     "name": "Weak Armor",
+     "pct": 0.821
+    },
+    {
+     "name": "Keen Eye",
+     "pct": 0.311
+    }
+   ],
+   "abilitiesValidated": true,
+   "teammates": [
+    {
+     "name": "Slowking-Galar",
+     "pct": 70.4
+    },
+    {
+     "name": "Clefable-Mega",
+     "pct": 70.303
+    },
+    {
+     "name": "Empoleon",
+     "pct": 66.31
+    },
+    {
+     "name": "Skeledirge",
+     "pct": 65.995
+    },
+    {
+     "name": "Aerodactyl",
+     "pct": 65.336
+    },
+    {
+     "name": "Garchomp",
+     "pct": 14.533
+    }
+   ],
+   "recommendedSet": {
+    "ability": "Sturdy",
+    "item": "Leftovers",
+    "moves": [
+     "Roost",
+     "Body Press",
+     "Spikes",
+     "Whirlwind"
+    ],
+    "observations": 0,
+    "sources": [],
+    "note": "Derived from aggregate usage (no featured teams published)."
+   },
+   "featuredTeams": []
+  },
+  "Feraligatr-Mega": {
+   "name": "Feraligatr-Mega",
+   "ourFormLabel": "Mega Feraligatr",
+   "usage": 2,
+   "winRate": null,
+   "record": "N/A",
+   "moves": [
+    {
+     "name": "Liquidation",
+     "pct": 88.652
+    },
+    {
+     "name": "Dragon Dance",
+     "pct": 79.185
+    },
+    {
+     "name": "Aqua Jet",
+     "pct": 66.399
+    },
+    {
+     "name": "Body Slam",
+     "pct": 62.569
+    },
+    {
+     "name": "Double-Edge",
+     "pct": 25.238
+    },
+    {
+     "name": "Swords Dance",
+     "pct": 18.507
+    },
+    {
+     "name": "Earthquake",
+     "pct": 11.757
+    },
+    {
+     "name": "Facade",
+     "pct": 9.97
+    },
+    {
+     "name": "Waterfall",
+     "pct": 8.097
+    },
+    {
+     "name": "Ice Punch",
+     "pct": 7.144
+    }
+   ],
+   "items": [
+    {
+     "name": "Feraligite",
+     "pct": 100
+    }
+   ],
+   "abilities": [
+    {
+     "name": "Dragonize",
+     "pct": 100
+    }
+   ],
+   "abilitiesValidated": true,
+   "teammates": [
+    {
+     "name": "Kingambit",
+     "pct": 51.658
+    },
+    {
+     "name": "Glimmora",
+     "pct": 39.41
+    },
+    {
+     "name": "Araquanid",
+     "pct": 37.776
+    },
+    {
+     "name": "Volcarona",
+     "pct": 30.369
+    },
+    {
+     "name": "Corviknight",
+     "pct": 28.532
+    },
+    {
+     "name": "Aegislash",
+     "pct": 26.923
+    }
+   ],
+   "recommendedSet": {
+    "ability": "Dragonize",
+    "item": "Feraligite",
+    "moves": [
+     "Liquidation",
+     "Dragon Dance",
+     "Aqua Jet",
+     "Body Slam"
+    ],
+    "observations": 0,
+    "sources": [],
+    "note": "Derived from aggregate usage (no featured teams published)."
+   },
+   "featuredTeams": []
+  }
+ }
+}
