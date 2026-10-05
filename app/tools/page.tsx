@@ -101,6 +101,11 @@ const TEAM_TOOLS: Tool[] = [
     desc: "Which Pokémon are rising and falling across tournaments — usage swings from the earliest to the latest archived event.",
   },
   {
+    href: "/tools/team-archetype",
+    title: "Team Archetype Analyzer",
+    desc: "Drop in 6 Pokémon and find out what kind of team it really is — sun, rain, Trick Room, hyper offense — with a commitment meter.",
+  },
+  {
     href: "/tools/tournament-prep",
     title: "Tournament Prep Mode",
     desc: "Pick your event, import your team, get a threat report against the meta — and print a cheat sheet for the venue.",
@@ -129,6 +134,11 @@ const TEAM_TOOLS: Tool[] = [
     href: "/tools/rental-teams",
     title: "Rental Team Sharing",
     desc: "Turn a team-builder team into a shareable rental link — anyone opening it sees the full team, ready to view or import.",
+  },
+  {
+    href: "/tools/draft-assistant",
+    title: "Draft League Assistant",
+    desc: "Track your draft-league picks as they happen, see what's taken, and get next-pick suggestions that patch your weaknesses.",
   },
   {
     href: "/tools/nuzlocke-encounters",

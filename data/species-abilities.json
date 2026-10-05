@@ -1,0 +1,1045 @@
+{
+ "3": [
+  "Chlorophyll",
+  "Overgrow"
+ ],
+ "6": [
+  "Blaze",
+  "Drought",
+  "Solar Power"
+ ],
+ "8": [
+  "Rain Dish"
+ ],
+ "9": [
+  "Rain Dish",
+  "Torrent"
+ ],
+ "15": [
+  "Swarm"
+ ],
+ "18": [
+  "Big Pecks",
+  "Keen Eye"
+ ],
+ "24": [
+  "Intimidate"
+ ],
+ "25": [
+  "Lightning Rod"
+ ],
+ "26": [
+  "Lightning Rod",
+  "Static",
+  "Surge Surfer"
+ ],
+ "35": [
+  "Friend Guard"
+ ],
+ "36": [
+  "Cute Charm",
+  "Magic Guard",
+  "Unaware"
+ ],
+ "38": [
+  "Drought",
+  "Snow Warning"
+ ],
+ "45": [
+  "Chlorophyll"
+ ],
+ "51": [
+  "Arena Trap"
+ ],
+ "53": [
+  "Fur Coat",
+  "Technician"
+ ],
+ "59": [
+  "Flash Fire",
+  "Intimidate",
+  "Punk Rock",
+  "Rock Head"
+ ],
+ "65": [
+  "Inner Focus",
+  "Magic Guard"
+ ],
+ "68": [
+  "Guts"
+ ],
+ "71": [
+  "Chlorophyll"
+ ],
+ "80": [
+  "Oblivious",
+  "Quick Draw"
+ ],
+ "83": [
+  "Defiant",
+  "Inner Focus"
+ ],
+ "89": [
+  "Power of Alchemy"
+ ],
+ "94": [
+  "Cursed Body",
+  "Shadow Tag"
+ ],
+ "101": [
+  "Soundproof"
+ ],
+ "103": [
+  "Chlorophyll"
+ ],
+ "110": [
+  "Neutralizing Gas"
+ ],
+ "113": [
+  "Natural Cure"
+ ],
+ "115": [
+  "Inner Focus",
+  "Scrappy"
+ ],
+ "121": [
+  "Illuminate",
+  "Natural Cure"
+ ],
+ "123": [
+  "Technician"
+ ],
+ "125": [
+  "Vital Spirit"
+ ],
+ "126": [
+  "Flame Body",
+  "Vital Spirit"
+ ],
+ "127": [
+  "Hyper Cutter"
+ ],
+ "128": [
+  "Intimidate"
+ ],
+ "130": [
+  "Intimidate"
+ ],
+ "132": [
+  "Imposter"
+ ],
+ "134": [
+  "Water Absorb"
+ ],
+ "135": [
+  "Volt Absorb"
+ ],
+ "142": [
+  "Pressure",
+  "Unaware",
+  "Unnerve"
+ ],
+ "143": [
+  "Gluttony",
+  "Thick Fat"
+ ],
+ "144": [
+  "Competitive",
+  "Snow Cloak"
+ ],
+ "145": [
+  "Defiant",
+  "Static"
+ ],
+ "146": [
+  "Berserk"
+ ],
+ "149": [
+  "Inner Focus",
+  "Multiscale"
+ ],
+ "154": [
+  "Leaf Guard",
+  "Mega Sol",
+  "Overgrow"
+ ],
+ "157": [
+  "Blaze",
+  "Frisk"
+ ],
+ "160": [
+  "Sheer Force"
+ ],
+ "168": [
+  "Insomnia"
+ ],
+ "181": [
+  "Static"
+ ],
+ "184": [
+  "Huge Power",
+  "Sap Sipper"
+ ],
+ "186": [
+  "Drizzle"
+ ],
+ "189": [
+  "Chlorophyll"
+ ],
+ "196": [
+  "Magic Bounce"
+ ],
+ "197": [
+  "Inner Focus"
+ ],
+ "198": [
+  "Prankster"
+ ],
+ "199": [
+  "Oblivious",
+  "Regenerator"
+ ],
+ "205": [
+  "Sturdy"
+ ],
+ "208": [
+  "Sturdy"
+ ],
+ "212": [
+  "Adaptability",
+  "Technician"
+ ],
+ "214": [
+  "Guts",
+  "Moxie"
+ ],
+ "227": [
+  "Keen Eye",
+  "Sturdy",
+  "Weak Armor"
+ ],
+ "229": [
+  "Flash Fire"
+ ],
+ "230": [
+  "Swift Swim"
+ ],
+ "231": [
+  "Pickup"
+ ],
+ "233": [
+  "Download"
+ ],
+ "235": [
+  "Moody",
+  "Own Tempo",
+  "Technician"
+ ],
+ "242": [
+  "Healer"
+ ],
+ "244": [
+  "Inner Focus"
+ ],
+ "245": [
+  "Inner Focus"
+ ],
+ "248": [
+  "Sand Force",
+  "Sand Rush",
+  "Sand Stream",
+  "Unnerve"
+ ],
+ "254": [
+  "Overgrow"
+ ],
+ "257": [
+  "Blaze",
+  "Speed Boost"
+ ],
+ "260": [
+  "Damp",
+  "Torrent"
+ ],
+ "272": [
+  "Swift Swim"
+ ],
+ "279": [
+  "Drizzle"
+ ],
+ "282": [
+  "Synchronize",
+  "Telepathy",
+  "Trace"
+ ],
+ "289": [
+  "Truant"
+ ],
+ "297": [
+  "Guts"
+ ],
+ "302": [
+  "Prankster"
+ ],
+ "303": [
+  "Huge Power",
+  "Hyper Cutter",
+  "Intimidate"
+ ],
+ "306": [
+  "Heavy Metal",
+  "Sturdy"
+ ],
+ "308": [
+  "Pure Power"
+ ],
+ "310": [
+  "Lightning Rod"
+ ],
+ "319": [
+  "Speed Boost"
+ ],
+ "323": [
+  "Magma Armor",
+  "Solar Power",
+  "Solid Rock"
+ ],
+ "324": [
+  "Drought"
+ ],
+ "334": [
+  "Cloud Nine"
+ ],
+ "350": [
+  "Competitive",
+  "Marvel Scale"
+ ],
+ "356": [
+  "Frisk",
+  "Pressure"
+ ],
+ "358": [
+  "Levitate"
+ ],
+ "359": [
+  "Justified",
+  "Pressure",
+  "Super Luck"
+ ],
+ "362": [
+  "Inner Focus"
+ ],
+ "373": [
+  "Intimidate"
+ ],
+ "376": [
+  "Clear Body"
+ ],
+ "378": [
+  "Clear Body",
+  "Ice Body"
+ ],
+ "379": [
+  "Clear Body"
+ ],
+ "380": [
+  "Levitate"
+ ],
+ "381": [
+  "Levitate"
+ ],
+ "389": [
+  "Overgrow",
+  "Shell Armor"
+ ],
+ "392": [
+  "Blaze",
+  "Iron Fist"
+ ],
+ "395": [
+  "Competitive"
+ ],
+ "398": [
+  "Intimidate",
+  "Reckless"
+ ],
+ "405": [
+  "Intimidate"
+ ],
+ "409": [
+  "Sheer Force"
+ ],
+ "411": [
+  "Soundproof",
+  "Sturdy"
+ ],
+ "423": [
+  "Storm Drain"
+ ],
+ "426": [
+  "Unburden"
+ ],
+ "428": [
+  "Cute Charm",
+  "Klutz",
+  "Limber"
+ ],
+ "437": [
+  "Levitate"
+ ],
+ "442": [
+  "Infiltrator",
+  "Pressure"
+ ],
+ "445": [
+  "Levitate",
+  "Rough Skin",
+  "Sand Veil"
+ ],
+ "448": [
+  "Inner Focus",
+  "Steadfast"
+ ],
+ "450": [
+  "Sand Stream"
+ ],
+ "460": [
+  "Snow Warning",
+  "Soundproof"
+ ],
+ "461": [
+  "Pickpocket",
+  "Pressure"
+ ],
+ "464": [
+  "Lightning Rod",
+  "Solid Rock"
+ ],
+ "467": [
+  "Vital Spirit"
+ ],
+ "470": [
+  "Chlorophyll"
+ ],
+ "471": [
+  "Ice Body",
+  "Snow Cloak"
+ ],
+ "472": [
+  "Hyper Cutter",
+  "Sand Veil"
+ ],
+ "473": [
+  "Oblivious",
+  "Snow Cloak",
+  "Thick Fat"
+ ],
+ "474": [
+  "Download"
+ ],
+ "475": [
+  "Justified",
+  "Sharpness"
+ ],
+ "478": [
+  "Cursed Body",
+  "Snow Cloak"
+ ],
+ "479": [
+  "Levitate"
+ ],
+ "485": [
+  "Flash Fire"
+ ],
+ "486": [
+  "Slow Start"
+ ],
+ "488": [
+  "Levitate"
+ ],
+ "497": [
+  "Contrary"
+ ],
+ "500": [
+  "Reckless"
+ ],
+ "503": [
+  "Sharpness"
+ ],
+ "510": [
+  "Prankster"
+ ],
+ "518": [
+  "Telepathy"
+ ],
+ "530": [
+  "Mold Breaker",
+  "Sand Force",
+  "Sand Rush"
+ ],
+ "531": [
+  "Healer",
+  "Regenerator"
+ ],
+ "534": [
+  "Guts",
+  "Iron Fist"
+ ],
+ "545": [
+  "Speed Boost"
+ ],
+ "547": [
+  "Chlorophyll",
+  "Infiltrator",
+  "Prankster"
+ ],
+ "549": [
+  "Chlorophyll"
+ ],
+ "553": [
+  "Intimidate"
+ ],
+ "560": [
+  "Intimidate"
+ ],
+ "563": [
+  "Mummy"
+ ],
+ "571": [
+  "Illusion"
+ ],
+ "576": [
+  "Shadow Tag"
+ ],
+ "579": [
+  "Regenerator"
+ ],
+ "584": [
+  "Snow Warning"
+ ],
+ "587": [
+  "Motor Drive"
+ ],
+ "591": [
+  "Effect Spore",
+  "Regenerator"
+ ],
+ "604": [
+  "Levitate"
+ ],
+ "609": [
+  "Flash Fire"
+ ],
+ "614": [
+  "Slush Rush"
+ ],
+ "618": [
+  "Sand Veil"
+ ],
+ "620": [
+  "Inner Focus"
+ ],
+ "623": [
+  "Iron Fist",
+  "No Guard"
+ ],
+ "630": [
+  "Overcoat"
+ ],
+ "635": [
+  "Levitate"
+ ],
+ "637": [
+  "Flame Body"
+ ],
+ "638": [
+  "Justified"
+ ],
+ "639": [
+  "Justified"
+ ],
+ "641": [
+  "Prankster"
+ ],
+ "642": [
+  "Prankster",
+  "Volt Absorb"
+ ],
+ "645": [
+  "Intimidate",
+  "Sand Force",
+  "Sheer Force"
+ ],
+ "652": [
+  "Bulletproof"
+ ],
+ "655": [
+  "Blaze",
+  "Magician"
+ ],
+ "658": [
+  "Protean",
+  "Torrent"
+ ],
+ "663": [
+  "Flame Body",
+  "Gale Wings"
+ ],
+ "666": [
+  "Compound Eyes",
+  "Friend Guard"
+ ],
+ "668": [
+  "Moxie",
+  "Rivalry",
+  "Unnerve"
+ ],
+ "670": [
+  "Fairy Aura",
+  "Flower Veil",
+  "Symbiosis"
+ ],
+ "671": [
+  "Symbiosis"
+ ],
+ "675": [
+  "Scrappy"
+ ],
+ "676": [
+  "Fur Coat"
+ ],
+ "678": [
+  "Competitive",
+  "Prankster"
+ ],
+ "681": [
+  "Stance Change"
+ ],
+ "683": [
+  "Aroma Veil"
+ ],
+ "687": [
+  "Contrary"
+ ],
+ "689": [
+  "Tough Claws"
+ ],
+ "691": [
+  "Adaptability",
+  "Poison Point"
+ ],
+ "693": [
+  "Mega Launcher"
+ ],
+ "695": [
+  "Dry Skin",
+  "Solar Power"
+ ],
+ "699": [
+  "Snow Warning"
+ ],
+ "700": [
+  "Pixilate"
+ ],
+ "701": [
+  "Limber",
+  "Unburden"
+ ],
+ "706": [
+  "Sap Sipper",
+  "Shell Armor"
+ ],
+ "707": [
+  "Prankster"
+ ],
+ "713": [
+  "Sturdy"
+ ],
+ "715": [
+  "Infiltrator",
+  "Telepathy"
+ ],
+ "724": [
+  "Scrappy"
+ ],
+ "727": [
+  "Blaze",
+  "Intimidate"
+ ],
+ "730": [
+  "Liquid Voice",
+  "Torrent"
+ ],
+ "733": [
+  "Skill Link"
+ ],
+ "740": [
+  "Anger Point",
+  "Hyper Cutter",
+  "Iron Fist"
+ ],
+ "741": [
+  "Dancer"
+ ],
+ "743": [
+  "Shield Dust"
+ ],
+ "745": [
+  "No Guard",
+  "Sand Rush",
+  "Tough Claws"
+ ],
+ "748": [
+  "Regenerator"
+ ],
+ "750": [
+  "Inner Focus",
+  "Stamina"
+ ],
+ "752": [
+  "Water Bubble"
+ ],
+ "763": [
+  "Queenly Majesty"
+ ],
+ "764": [
+  "Triage"
+ ],
+ "765": [
+  "Inner Focus",
+  "Telepathy"
+ ],
+ "766": [
+  "Defiant"
+ ],
+ "768": [
+  "Emergency Exit"
+ ],
+ "778": [
+  "Disguise"
+ ],
+ "779": [
+  "Dazzling"
+ ],
+ "780": [
+  "Berserk",
+  "Cloud Nine"
+ ],
+ "784": [
+  "Bulletproof",
+  "Overcoat",
+  "Soundproof"
+ ],
+ "812": [
+  "Grassy Surge",
+  "Overgrow"
+ ],
+ "815": [
+  "Libero"
+ ],
+ "818": [
+  "Sniper"
+ ],
+ "822": [
+  "Unnerve"
+ ],
+ "823": [
+  "Mirror Armor",
+  "Unnerve"
+ ],
+ "849": [
+  "Punk Rock"
+ ],
+ "853": [
+  "Technician"
+ ],
+ "855": [
+  "Cursed Body"
+ ],
+ "858": [
+  "Magic Bounce",
+  "Magic Guard"
+ ],
+ "861": [
+  "Prankster"
+ ],
+ "865": [
+  "Scrappy"
+ ],
+ "866": [
+  "Screen Cleaner"
+ ],
+ "867": [
+  "Wandering Spirit"
+ ],
+ "869": [
+  "Aroma Veil",
+  "Sweet Veil"
+ ],
+ "871": [
+  "Electric Surge"
+ ],
+ "873": [
+  "Ice Scales"
+ ],
+ "874": [
+  "Power Spot"
+ ],
+ "876": [
+  "Own Tempo",
+  "Psychic Surge",
+  "Synchronize"
+ ],
+ "877": [
+  "Hunger Switch"
+ ],
+ "887": [
+  "Clear Body",
+  "Cursed Body",
+  "Infiltrator"
+ ],
+ "892": [
+  "Iron Fist",
+  "Unseen Fist"
+ ],
+ "894": [
+  "Transistor"
+ ],
+ "895": [
+  "Dragon's Maw"
+ ],
+ "899": [
+  "Intimidate"
+ ],
+ "900": [
+  "Sharpness"
+ ],
+ "901": [
+  "Guts",
+  "Mind’s Eye"
+ ],
+ "902": [
+  "Adaptability",
+  "Swift Swim"
+ ],
+ "903": [
+  "Poison Point",
+  "Poison Touch",
+  "Pressure",
+  "Unburden",
+  "Unseen Fist"
+ ],
+ "904": [
+  "Intimidate",
+  "Swift Swim"
+ ],
+ "905": [
+  "Overcoat"
+ ],
+ "907": [
+  "Overgrow"
+ ],
+ "908": [
+  "Overgrow",
+  "Protean"
+ ],
+ "911": [
+  "Unaware"
+ ],
+ "914": [
+  "Moxie"
+ ],
+ "916": [
+  "Aroma Veil"
+ ],
+ "923": [
+  "Iron Fist",
+  "Natural Cure",
+  "Volt Absorb"
+ ],
+ "925": [
+  "Friend Guard",
+  "Technician"
+ ],
+ "927": [
+  "Well-Baked Body"
+ ],
+ "931": [
+  "Intimidate"
+ ],
+ "934": [
+  "Purifying Salt"
+ ],
+ "935": [
+  "Flash Fire"
+ ],
+ "936": [
+  "Flash Fire",
+  "Weak Armor"
+ ],
+ "937": [
+  "Flash Fire",
+  "Weak Armor"
+ ],
+ "939": [
+  "Electromorphosis"
+ ],
+ "941": [
+  "Competitive"
+ ],
+ "949": [
+  "Mycelium Might"
+ ],
+ "952": [
+  "Chlorophyll",
+  "Insomnia",
+  "Moody"
+ ],
+ "956": [
+  "Speed Boost"
+ ],
+ "959": [
+  "Mold Breaker",
+  "Own Tempo"
+ ],
+ "964": [
+  "Zero to Hero"
+ ],
+ "968": [
+  "Earth Eater",
+  "Sand Veil"
+ ],
+ "970": [
+  "Toxic Debris"
+ ],
+ "972": [
+  "Sand Rush"
+ ],
+ "973": [
+  "Costar",
+  "Scrappy"
+ ],
+ "977": [
+  "Oblivious",
+  "Unaware"
+ ],
+ "978": [
+  "Commander"
+ ],
+ "979": [
+  "Defiant"
+ ],
+ "980": [
+  "Poison Point",
+  "Water Absorb"
+ ],
+ "981": [
+  "Armor Tail",
+  "Sap Sipper",
+  "Surge Surfer"
+ ],
+ "982": [
+  "Serene Grace"
+ ],
+ "983": [
+  "Defiant",
+  "Pressure",
+  "Supreme Overlord"
+ ],
+ "984": [
+  "Protosynthesis"
+ ],
+ "985": [
+  "Protosynthesis"
+ ],
+ "986": [
+  "Protosynthesis"
+ ],
+ "987": [
+  "Protosynthesis"
+ ],
+ "988": [
+  "Protosynthesis"
+ ],
+ "989": [
+  "Protosynthesis"
+ ],
+ "990": [
+  "Quark Drive"
+ ],
+ "991": [
+  "Quark Drive"
+ ],
+ "992": [
+  "Quark Drive"
+ ],
+ "994": [
+  "Quark Drive"
+ ],
+ "998": [
+  "Ice Body",
+  "Thermal Exchange"
+ ],
+ "1000": [
+  "Good as Gold"
+ ],
+ "1001": [
+  "Tablets of Ruin"
+ ],
+ "1002": [
+  "Sword of Ruin"
+ ],
+ "1003": [
+  "Vessel of Ruin"
+ ],
+ "1004": [
+  "Beads of Ruin"
+ ],
+ "1005": [
+  "Protosynthesis"
+ ],
+ "1006": [
+  "Quark Drive"
+ ],
+ "1009": [
+  "Protosynthesis"
+ ],
+ "1013": [
+  "Heatproof",
+  "Hospitality",
+  "Regenerator"
+ ],
+ "1014": [
+  "Guard Dog"
+ ],
+ "1016": [
+  "Toxic Chain"
+ ],
+ "1017": [
+  "Defiant",
+  "Mold Breaker",
+  "Sturdy",
+  "Water Absorb"
+ ],
+ "1018": [
+  "Stalwart",
+  "Stamina",
+  "Sturdy"
+ ],
+ "1019": [
+  "Regenerator",
+  "Supersweet Syrup"
+ ],
+ "1020": [
+  "Protosynthesis"
+ ],
+ "1021": [
+  "Protosynthesis"
+ ],
+ "1022": [
+  "Quark Drive"
+ ],
+ "1023": [
+  "Quark Drive"
+ ]
+}
