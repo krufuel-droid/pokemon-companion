@@ -56,6 +56,16 @@ function isActive(pathname: string, href: string): boolean {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
+// The Tools dropdown links to /tools#section anchors. Next.js doesn't fire
+// hashchange for same-page hash Links, so announce the section and let the
+// Tools page open it itself.
+function announceToolSection(href: string) {
+  const hash = href.split("#")[1];
+  if (hash) {
+    window.dispatchEvent(new CustomEvent("open-tool-section", { detail: hash }));
+  }
+}
+
 export default function Nav() {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -117,6 +127,7 @@ export default function Nav() {
                           key={child.href}
                           href={child.href}
                           aria-current={active ? "page" : undefined}
+                          onClick={() => announceToolSection(child.href)}
                           className={`block rounded-lg px-3 py-2 text-sm transition-colors ${
                             active
                               ? "bg-emerald-100 font-semibold text-emerald-900 dark:bg-emerald-900 dark:text-emerald-100"
@@ -223,7 +234,10 @@ export default function Nav() {
                                 key={child.href}
                                 href={child.href}
                                 aria-current={active ? "page" : undefined}
-                                onClick={() => setMenuOpen(false)}
+                                onClick={() => {
+                                  setMenuOpen(false);
+                                  announceToolSection(child.href);
+                                }}
                                 className={`block rounded-lg px-3 py-2.5 pl-6 text-base font-medium transition-colors ${
                                   active
                                     ? "bg-emerald-50 font-semibold text-slate-900 dark:bg-emerald-950 dark:text-slate-100"

@@ -268,9 +268,11 @@ function ToolDropdown({ id, title, tools, defaultOpen = false }: { id: string; t
 export default function ToolsIndex() {
   // Deep links from the nav Tools dropdown (e.g. /tools#team-tools): open
   // the matching section and scroll it into view, below the sticky header.
+  // The nav announces same-page taps via "open-tool-section" because Next.js
+  // doesn't fire hashchange for those; direct loads and cross-page navs are
+  // covered by the initial hash read.
   useEffect(() => {
-    const applyHash = () => {
-      const hash = window.location.hash.replace(/^#/, "");
+    const openSection = (hash: string) => {
       if (!hash) return;
       const el = document.getElementById(hash);
       if (el instanceof HTMLDetailsElement) {
@@ -280,9 +282,17 @@ export default function ToolsIndex() {
         });
       }
     };
-    applyHash();
-    window.addEventListener("hashchange", applyHash);
-    return () => window.removeEventListener("hashchange", applyHash);
+    const onAnnounce = (e: Event) =>
+      openSection((e as CustomEvent<string>).detail);
+    const onHashChange = () =>
+      openSection(window.location.hash.replace(/^#/, ""));
+    openSection(window.location.hash.replace(/^#/, ""));
+    window.addEventListener("open-tool-section", onAnnounce);
+    window.addEventListener("hashchange", onHashChange);
+    return () => {
+      window.removeEventListener("open-tool-section", onAnnounce);
+      window.removeEventListener("hashchange", onHashChange);
+    };
   }, []);
 
   return (
