@@ -5,6 +5,7 @@ import { AuthProvider } from "@/components/AuthProvider";
 import { THEME_INIT_SCRIPT } from "@/components/theme-toggle";
 import { GlobalSearch } from "@/components/global-search";
 import { PwaRegister } from "@/components/pwa-register";
+import PopStateTracker from "@/components/pop-state-tracker";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -35,6 +36,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body>
         <AuthProvider>
           <PwaRegister />
+          <PopStateTracker />
           <GlobalSearch />
           <Nav />
           <main className="min-h-screen">{children}</main>

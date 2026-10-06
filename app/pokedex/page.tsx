@@ -13,6 +13,7 @@ import {
 } from "@/lib/data/forms";
 import { TypePills } from "./type-pills";
 import FavoriteButton from "@/components/FavoriteButton";
+import { consumeRecentPopState } from "@/components/pop-state-tracker";
 
 const TOTAL_COUNT = 1025;
 
@@ -176,7 +177,6 @@ export default function PokedexPage() {
   const lastSetYRef = useRef<number | null>(null);
   const restoreTimerRef = useRef<number | null>(null);
   const cancelRestoreRef = useRef<(() => void) | null>(null);
-  const popTimerRef = useRef<number | null>(null);
 
   // Scroll the saved anchor card back to its saved viewport offset, retrying
   // on rAF until the measured offset converges (layout, fonts, and lazy
@@ -272,10 +272,16 @@ export default function PokedexPage() {
   };
 
   // Fresh mount with a saved state (Link navigation back, reload, etc.).
+  // History-back mounts are special: Next.js performs its own pixel-based
+  // scroll restoration (which drifts with content-visibility estimates), so
+  // we let it land first and then correct it — immediately, and again later
+  // in case it lands late. PopStateTracker (root layout) tells us when the
+  // mount followed a back/forward navigation.
   useEffect(() => {
     if (restoredRef.current) return;
     restoredRef.current = true;
     const saved = loadListState();
+    const historyBack = consumeRecentPopState();
     if (!saved) {
       // No saved state (e.g. landed here directly): start at the top.
       window.scrollTo(0, 0);
@@ -284,42 +290,24 @@ export default function PokedexPage() {
     if (saved.query) setQuery(saved.query);
     if (saved.region) setRegion(saved.region);
     if (saved.favoritesOnly) setFavoritesOnly(true);
-    startRestore(saved);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // History back/forward (e.g. the Android system back button): Next.js may
-  // restore the page from its router cache WITHOUT remounting, so the mount
-  // effect above never reruns — and Next's own pixel-based scroll
-  // restoration drifts with content-visibility estimates (the ~100-card
-  // miss Wolf kept hitting). Re-anchor from the saved card instead.
-  useEffect(() => {
-    const onPopState = () => {
-      const saved = loadListState();
-      if (!saved) return;
-      // Block saves immediately: Next's restoration scrolls must not clobber
-      // the good anchor before we re-anchor.
+    if (historyBack) {
+      // Block saves during the whole window: Next's restoration scrolls
+      // must not clobber the good anchor before we correct them.
       restoringRef.current = true;
-      if (saved.query) setQuery(saved.query);
-      if (saved.region) setRegion(saved.region);
-      if (saved.favoritesOnly) setFavoritesOnly(true);
-      // Start now (falls back to pixel scroll if the list DOM isn't back
-      // yet) and again after Next's own restoration settles, so the anchor
-      // correction always has the last word.
-      startRestore(saved);
-      if (popTimerRef.current) clearTimeout(popTimerRef.current);
-      popTimerRef.current = window.setTimeout(() => {
-        popTimerRef.current = null;
-        startRestore(saved);
-      }, 400);
-    };
-    window.addEventListener("popstate", onPopState);
+    }
+    startRestore(saved);
+    let t1: number | undefined;
+    let t2: number | undefined;
+    if (historyBack) {
+      // Re-anchor after Next's restoration settles; the correction always
+      // gets the last word. No-ops when already settled.
+      t1 = window.setTimeout(() => startRestore(saved), 600);
+      t2 = window.setTimeout(() => startRestore(saved), 1600);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     return () => {
-      window.removeEventListener("popstate", onPopState);
-      if (popTimerRef.current) {
-        clearTimeout(popTimerRef.current);
-        popTimerRef.current = null;
-      }
+      if (t1) clearTimeout(t1);
+      if (t2) clearTimeout(t2);
     };
   }, []);
 
@@ -329,7 +317,6 @@ export default function PokedexPage() {
     return () => {
       cancelRestoreRef.current?.();
       if (restoreTimerRef.current) clearTimeout(restoreTimerRef.current);
-      if (popTimerRef.current) clearTimeout(popTimerRef.current);
     };
   }, []);
 
