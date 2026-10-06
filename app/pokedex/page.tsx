@@ -159,55 +159,65 @@ export default function PokedexPage() {
   const [favoritesOnly, setFavoritesOnly] = useState(false);
   const [favoriteIds, setFavoriteIds] = useState<Set<number>>(new Set());
   const restoredRef = useRef(false);
-  // True from the moment the list mounts with a saved state until the restore
-  // finishes. While true, scroll events are ignored for saving and for
-  // interrupt detection: they come from our own scrollTo calls or the
-  // router's scroll management (Next.js scrolls to top on Link navigation),
-  // never from the user. Without this, the router's scroll-to-top trips the
-  // "user interrupted" flag and the restore bails before its first tick —
-  // which is exactly the "lands at #1" bug Wolf reproduced.
+  // True during the whole restore window (from the moment we know a restore
+  // is coming until it finishes). While true, scroll events are ignored for
+  // saving and interrupt detection: they come from our own scrollTo calls or
+  // the router's scroll management, never from the user.
   const restoringRef = useRef(false);
-  // Set by real user input (wheel / touch / keys) during a restore: the user
-  // grabbed the page, so stop fighting them. This is the ONLY thing that
-  // stops the retry loop — scroll events alone can't be trusted.
+  // True while a retry loop is actively flying. Used to avoid stacking two
+  // loops on the same anchor (e.g. popstate + remount racing).
+  const loopActiveRef = useRef(false);
+  // Set by real user input (wheel / touch / keys / mouse) during a restore:
+  // the user grabbed the page, so stop fighting them. This is the ONLY thing
+  // that stops the retry loop — scroll events alone can't be trusted.
   const userGrabbedRef = useRef(false);
   // The Y we last scrolled to ourselves during restore (extra guard so our
   // own scrolls are never treated as user input).
   const lastSetYRef = useRef<number | null>(null);
+  const restoreTimerRef = useRef<number | null>(null);
+  const cancelRestoreRef = useRef<(() => void) | null>(null);
+  const popTimerRef = useRef<number | null>(null);
 
-  // Restore list position + filters when returning (e.g. back from a detail page).
-  useEffect(() => {
-    if (restoredRef.current) return;
-    restoredRef.current = true;
-    const saved = loadListState();
-    if (!saved) {
-      // No saved state (e.g. landed here directly): start at the top.
-      window.scrollTo(0, 0);
-      return;
-    }
-    if (saved.query) setQuery(saved.query);
-    if (saved.region) setRegion(saved.region);
-    if (saved.favoritesOnly) setFavoritesOnly(true);
-
-    // Block saves + interrupt detection for the whole restore window,
-    // starting NOW — the router may scroll (to top) before run() begins.
+  // Scroll the saved anchor card back to its saved viewport offset, retrying
+  // on rAF until the measured offset converges (layout, fonts, and lazy
+  // cards keep shifting positions for a bit). No-ops if a loop is already
+  // flying — it targets the same anchor.
+  const startRestore = (saved: ListState) => {
+    if (loopActiveRef.current) return;
     restoringRef.current = true;
     userGrabbedRef.current = false;
+    if (restoreTimerRef.current) {
+      clearTimeout(restoreTimerRef.current);
+      restoreTimerRef.current = null;
+    }
 
     const onGrab = () => {
       userGrabbedRef.current = true;
     };
     const finish = () => {
+      loopActiveRef.current = false;
       restoringRef.current = false;
       lastSetYRef.current = null;
+      cancelRestoreRef.current = null;
+      if (restoreTimerRef.current) {
+        clearTimeout(restoreTimerRef.current);
+        restoreTimerRef.current = null;
+      }
       window.removeEventListener("wheel", onGrab);
       window.removeEventListener("touchmove", onGrab);
+      window.removeEventListener("touchstart", onGrab);
+      window.removeEventListener("mousedown", onGrab);
       window.removeEventListener("keydown", onGrab);
     };
+    cancelRestoreRef.current = finish;
 
     const run = () => {
-      window.addEventListener("wheel", onGrab, { passive: true });
-      window.addEventListener("touchmove", onGrab, { passive: true });
+      loopActiveRef.current = true;
+      const opts = { passive: true } as AddEventListenerOptions;
+      window.addEventListener("wheel", onGrab, opts);
+      window.addEventListener("touchmove", onGrab, opts);
+      window.addEventListener("touchstart", onGrab, opts);
+      window.addEventListener("mousedown", onGrab);
       window.addEventListener("keydown", onGrab);
       let attempts = 0;
       const tick = () => {
@@ -244,22 +254,82 @@ export default function PokedexPage() {
       };
       requestAnimationFrame(tick);
     };
+
     // Fonts change card heights, so wait for them before anchoring. The
     // timeout is a safety net in case fonts.ready hangs.
     let ran = false;
     const runOnce = () => {
       if (!ran) {
         ran = true;
+        restoreTimerRef.current = null;
         run();
       }
     };
     if (typeof document !== "undefined" && document.fonts?.ready) {
       document.fonts.ready.then(runOnce).catch(runOnce);
     }
-    const fallback = setTimeout(runOnce, 1500);
+    restoreTimerRef.current = window.setTimeout(runOnce, 1500);
+  };
+
+  // Fresh mount with a saved state (Link navigation back, reload, etc.).
+  useEffect(() => {
+    if (restoredRef.current) return;
+    restoredRef.current = true;
+    const saved = loadListState();
+    if (!saved) {
+      // No saved state (e.g. landed here directly): start at the top.
+      window.scrollTo(0, 0);
+      return;
+    }
+    if (saved.query) setQuery(saved.query);
+    if (saved.region) setRegion(saved.region);
+    if (saved.favoritesOnly) setFavoritesOnly(true);
+    startRestore(saved);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // History back/forward (e.g. the Android system back button): Next.js may
+  // restore the page from its router cache WITHOUT remounting, so the mount
+  // effect above never reruns — and Next's own pixel-based scroll
+  // restoration drifts with content-visibility estimates (the ~100-card
+  // miss Wolf kept hitting). Re-anchor from the saved card instead.
+  useEffect(() => {
+    const onPopState = () => {
+      const saved = loadListState();
+      if (!saved) return;
+      // Block saves immediately: Next's restoration scrolls must not clobber
+      // the good anchor before we re-anchor.
+      restoringRef.current = true;
+      if (saved.query) setQuery(saved.query);
+      if (saved.region) setRegion(saved.region);
+      if (saved.favoritesOnly) setFavoritesOnly(true);
+      // Start now (falls back to pixel scroll if the list DOM isn't back
+      // yet) and again after Next's own restoration settles, so the anchor
+      // correction always has the last word.
+      startRestore(saved);
+      if (popTimerRef.current) clearTimeout(popTimerRef.current);
+      popTimerRef.current = window.setTimeout(() => {
+        popTimerRef.current = null;
+        startRestore(saved);
+      }, 400);
+    };
+    window.addEventListener("popstate", onPopState);
     return () => {
-      clearTimeout(fallback);
-      finish();
+      window.removeEventListener("popstate", onPopState);
+      if (popTimerRef.current) {
+        clearTimeout(popTimerRef.current);
+        popTimerRef.current = null;
+      }
+    };
+  }, []);
+
+  // Never leave a restore running (or its timers/listeners) after unmount —
+  // a stray loop could scroll a page the user has already left.
+  useEffect(() => {
+    return () => {
+      cancelRestoreRef.current?.();
+      if (restoreTimerRef.current) clearTimeout(restoreTimerRef.current);
+      if (popTimerRef.current) clearTimeout(popTimerRef.current);
     };
   }, []);
 
