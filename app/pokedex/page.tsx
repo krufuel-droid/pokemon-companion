@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { getAllSpecies, searchSpecies } from "@/lib/pokedex";
 import type { SpeciesIndex } from "@/lib/pokedex";
@@ -277,7 +277,15 @@ export default function PokedexPage() {
   // we let it land first and then correct it — immediately, and again later
   // in case it lands late. PopStateTracker (root layout) tells us when the
   // mount followed a back/forward navigation.
-  useEffect(() => {
+  // NOTE: useLayoutEffect (not useEffect) for the mount-restore and the
+  // scroll-save effects below. Passive effects clean up asynchronously after
+  // paint; a layout effect cleans up synchronously in the commit phase. That
+  // matters because Next.js performs its navigation scroll (e.g. scroll to
+  // top when leaving the list for a detail page) in a layout effect AFTER
+  // our cleanup. With a passive cleanup, our window scroll listener was still
+  // attached when that scroll fired, so it saved {anchor: mon-1, scrollY: 0}
+  // and clobbered the good save — the return trip then "restored" to #001.
+  useLayoutEffect(() => {
     if (restoredRef.current) return;
     restoredRef.current = true;
     const saved = loadListState();
@@ -313,7 +321,8 @@ export default function PokedexPage() {
 
   // Never leave a restore running (or its timers/listeners) after unmount —
   // a stray loop could scroll a page the user has already left.
-  useEffect(() => {
+  // useLayoutEffect so the cancel happens synchronously in the commit phase.
+  useLayoutEffect(() => {
     return () => {
       cancelRestoreRef.current?.();
       if (restoreTimerRef.current) clearTimeout(restoreTimerRef.current);
@@ -321,7 +330,9 @@ export default function PokedexPage() {
   }, []);
 
   // Persist list state as the user scrolls / filters, so "back" lands where they were.
-  useEffect(() => {
+  // useLayoutEffect: the listener must be detached synchronously on unmount,
+  // before Next.js's navigation scroll fires (see the mount effect note).
+  useLayoutEffect(() => {
     let ticking = false;
     const save = () => {
       ticking = false;
