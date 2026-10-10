@@ -10,6 +10,18 @@ import { NATURES } from "@/lib/data/natures";
 import { ITEMS } from "@/lib/data/items";
 import { MOVES } from "@/lib/data/moves";
 import { buildRentalUrl, decodeSharedTeam } from "@/lib/rental-teams";
+import { createClient } from "@/lib/supabase/client";
+import { isSupabaseConfigured } from "@/lib/supabase/config";
+
+/** 6-char share codes. Ambiguous glyphs (0/O, 1/I/L) excluded. */
+const CODE_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
+function makeShareCode(): string {
+  const bytes = new Uint8Array(6);
+  crypto.getRandomValues(bytes);
+  let s = "";
+  for (const b of bytes) s += CODE_ALPHABET[b % CODE_ALPHABET.length];
+  return s;
+}
 
 const ALL = getAllSpecies();
 
@@ -636,6 +648,8 @@ export default function TeamBuilder() {
   const [notice, setNotice] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [rentalCopied, setRentalCopied] = useState(false);
+  const [shareCode, setShareCode] = useState<string | null>(null);
+  const [sharing, setSharing] = useState(false);
   const [importText, setImportText] = useState("");
   const [importOpen, setImportOpen] = useState(false);
 
@@ -782,6 +796,47 @@ export default function TeamBuilder() {
     }
   }
 
+  /** Mint a short share code for the full team (Aura Corner auto-import). */
+  async function mintShareCode() {
+    if (team.length === 0) {
+      setNotice("Add at least one Pokémon to share.");
+      return;
+    }
+    if (!isSupabaseConfigured()) {
+      setNotice("Team sharing isn't set up yet.");
+      return;
+    }
+    setSharing(true);
+    try {
+      const supabase = createClient();
+      const name = teamName.trim() || "My Team";
+      for (let attempt = 0; attempt < 5; attempt++) {
+        const code = makeShareCode();
+        const { error } = await supabase.from("shared_teams").insert({
+          code,
+          name,
+          team,
+        });
+        if (!error) {
+          try {
+            await navigator.clipboard.writeText(code);
+          } catch {
+            /* code still shown on screen */
+          }
+          setShareCode(code);
+          setNotice(`Share code ${code} copied — Aura Corner can import this team with it.`);
+          return;
+        }
+        if (error.code !== "23505") throw error; // unique violation → fresh code
+      }
+      setNotice("Couldn't mint a share code — please try again.");
+    } catch {
+      setNotice("Couldn't create a share code — please try again.");
+    } finally {
+      setSharing(false);
+    }
+  }
+
   /** Import a PokéPaste / Showdown team with full sets. */
   function importPaste() {
     const { members, skipped } = parsePokePaste(importText);
@@ -863,6 +918,15 @@ export default function TeamBuilder() {
               className="rounded-full bg-emerald-500 px-4 py-1.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-600"
             >
               {rentalCopied ? "Copied!" : "Share as link"}
+            </button>
+            <button
+              type="button"
+              onClick={() => void mintShareCode()}
+              disabled={sharing}
+              title="Get a short share code for this team (for Aura Corner auto-import)"
+              className="rounded-full bg-emerald-500 px-4 py-1.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-600 disabled:opacity-60"
+            >
+              {sharing ? "…" : shareCode ? `Code: ${shareCode}` : "Share code"}
             </button>
             <button
               type="button"
