@@ -132,6 +132,21 @@ export function FeedbackForm() {
       });
       if (insertError) throw insertError;
       setPhase("thanks");
+      // Best-effort email notification to the Poke Companion inbox.
+      // Never blocks or breaks the thanks screen.
+      try {
+        await fetch("/api/feedback/notify", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            type,
+            message: trimmed,
+            trainer_name: name.trim() || null,
+          }),
+        });
+      } catch {
+        /* email is a courtesy copy; the feedback itself is saved */
+      }
     } catch (err) {
       if (isMissingTable(err)) {
         setPhase("fallback");
