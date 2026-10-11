@@ -196,7 +196,15 @@ export default function Nav() {
         </div>
         {/* Mobile dropdown menu */}
         {menuOpen && (
-          <div className="absolute inset-x-0 top-full border-b border-stone-200 bg-white shadow-lg sm:hidden dark:border-slate-700 dark:bg-slate-900">
+          <>
+            {/* Tap-outside-to-close backdrop (below header, above page content) */}
+            <button
+              type="button"
+              aria-label="Close menu"
+              onClick={() => setMenuOpen(false)}
+              className="fixed inset-0 z-40 cursor-default bg-transparent sm:hidden"
+            />
+          <div className="absolute inset-x-0 top-full z-50 border-b border-stone-200 bg-white shadow-lg sm:hidden dark:border-slate-700 dark:bg-slate-900">
             <div className="flex flex-col px-4 py-2">
               {LINKS.map((link) => {
                 if ("children" in link) {
@@ -278,6 +286,7 @@ export default function Nav() {
               <ThemeToggle />
             </div>
           </div>
+          </>
         )}
       </nav>
     </header>
