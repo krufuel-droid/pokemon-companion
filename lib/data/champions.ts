@@ -97,7 +97,7 @@ export interface FollowLink {
 }
 
 /** Honest "as of" label shown on the page — this file is updated by hand. */
-export const SNAPSHOT_DATE = "October 1, 2026";
+export const SNAPSHOT_DATE = "October 2026";
 
 export const REGULATION = {
   name: "Regulation M-C",
@@ -111,53 +111,53 @@ export const REGULATION = {
 export const META_PICKS: MetaPick[] = [
   {
     name: "Rillaboom",
-    note: "The #1 most-used Pokémon in Regulation M-C at 53.6% usage — Grassy Surge, Fake Out, and priority Grassy Glide.",
+    note: "The #1 most-used Pokémon in Regulation M-C at 52.3% usage — Grassy Surge, Fake Out, and priority Grassy Glide.",
   },
   {
     name: "Sneasler",
-    note: "41.0% usage — Dire Claw and Fake Out pressure every team preview.",
+    note: "41.7% usage — Dire Claw and Fake Out pressure every team preview.",
   },
   {
     name: "Incineroar",
-    note: "38.1% usage — Fake Out + Intimidate + Parting Shot is still the glue of doubles.",
+    note: "38.2% usage — Fake Out + Intimidate + Parting Shot is still the glue of doubles.",
   },
   {
     name: "Kingambit",
-    note: "32.3% usage — Sucker Punch + Kowtow Cleave win condition.",
+    note: "31.7% usage — Sucker Punch + Kowtow Cleave win condition.",
   },
   {
     name: "Gholdengo",
-    note: "27.8% usage — Make It Rain spread damage with Good as Gold status immunity.",
+    note: "26.5% usage — Make It Rain spread damage with Good as Gold status immunity.",
   },
   {
     name: "Raichu",
-    note: "27.1% usage — Mega Raichu Y is one of M-C's defining new Megas; Fake Out + Lightning Rod support.",
+    note: "26.4% usage — Mega Raichu Y is one of M-C's defining new Megas; Fake Out + Lightning Rod support.",
   },
   {
     name: "Garchomp",
-    note: "23.6% usage — Mega Garchomp Z headlined back-to-back Regional wins (Frankfurt and Brisbane).",
+    note: "26.1% usage — Mega Garchomp Z headlined back-to-back Regional wins (Frankfurt and Brisbane).",
   },
   {
     name: "Salamence",
-    note: "22.7% usage — Mega Salamence's Intimidate + Aerilate-boosted attacks.",
+    note: "22.3% usage — Mega Salamence's Intimidate + Aerilate-boosted attacks.",
   },
   {
     name: "Hisuian Arcanine",
     speciesName: "Arcanine",
-    note: "21.7% usage in its Hisuian form — an Intimidate physical attacker with strong Fire/Rock coverage.",
+    note: "20.9% usage in its Hisuian form — an Intimidate physical attacker with strong Fire/Rock coverage.",
   },
   {
     name: "Eternal Flower Floette",
     speciesName: "Floette",
-    note: "17.7% usage in its Eternal Flower form — a fast Fairy-type special attacker.",
+    note: "18.1% usage in its Eternal Flower form — a fast Fairy-type special attacker.",
   },
   {
     name: "Archaludon",
-    note: "16.9% usage — Electro Shot setup tank, a doubles and singles staple.",
+    note: "17.5% usage — Electro Shot setup tank, a doubles and singles staple.",
   },
   {
     name: "Charizard",
-    note: "16.5% usage — Mega Charizard Y's Drought sun remains one of the format's defining archetypes.",
+    note: "17.5% usage — Mega Charizard Y's Drought sun remains one of the format's defining archetypes.",
   },
 ];
 
@@ -422,22 +422,7 @@ export function hasPlayerProfile(name: string): boolean {
 
 export const EVENT_FINDER_URL = "https://championships.pokemon.com/en-us/events";
 
-export const UPCOMING_TOURNAMENTS: UpcomingTournament[] = [  { id: "tourn-recife", name: "Recife Regional Championships", dates: "Oct 3–4", kind: "Regional" },
-  { id: "tourn-louisville", name: "Louisville Regional Championships", dates: "Oct 9–11", kind: "Regional",
-    playersToWatch: [
-      { name: "Joseph Ugarte", note: "won Baltimore (Sept 2026, first M-C event) with Mega Salamence + Mega Tyranitar; 3x Regional Champion" },
-      { name: "Wolfe Glick", note: "2016 World Champion; Top 64 at Baltimore" },
-      { name: "Brady Smith", note: "Baltimore Top Cut" },
-      { name: "Blaik Thompson", note: "Baltimore Top Cut" },
-      { name: "Dorian Kang", note: "Baltimore Top Cut" },
-      { name: "Justin Tang", note: "Baltimore Top Cut" },
-    ],
-    storylines: [
-      "Back-to-back? Louisville is the second NA regional of the M-C era — if Ugarte's Salamence/Tyranitar core wins again, it becomes the defining team of early M-C.",
-      "Meta still unsolved: with only Baltimore as NA data, Louisville is where the format's first real counter-meta emerges.",
-    ],
-    broadcast: "Expected on Twitch.tv/Pokemon and YouTube.com/Pokemon (2025 event streamed there); Victory Road covers via @VGCVictoryRoad.",
-  },
+export const UPCOMING_TOURNAMENTS: UpcomingTournament[] = [
   { id: "tourn-nice", name: "Nice Regional Championships", dates: "Oct 17–18", kind: "Regional",
     playersToWatch: [
       { name: "Eric Rios", note: "won Frankfurt (Sept 2026, Europe's first M-C event) with Mega Garchomp Z + Mega Raichu Y; 5x Regional Champion" },
@@ -463,6 +448,28 @@ export const UPCOMING_TOURNAMENTS: UpcomingTournament[] = [  { id: "tourn-recife
   { id: "tourn-laic", name: "Latin America International Championships", dates: "Nov 20–22", kind: "International" },
   { id: "tourn-stuttgart", name: "Stuttgart Regional Championships", dates: "Nov 28–29", kind: "Regional" },
   { id: "tourn-las-vegas", name: "Las Vegas Regional Championships", dates: "Dec 4–6", kind: "Regional" },
+  // ---- 2027 season, announced on the official event finder (checked Oct 2026) ----
+  { id: "tourn-san-jose", name: "San Jose Regional Championships", dates: "Jan 9–10", kind: "Regional" },
+  { id: "tourn-atlanta", name: "Atlanta Regional Championships", dates: "Jan 15–17", kind: "Regional" },
+  { id: "tourn-sydney", name: "Sydney Regional Championships", dates: "Jan 16–17", kind: "Regional" },
+  { id: "tourn-merida", name: "Mérida Regional Championships", dates: "Jan 23–24", kind: "Regional" },
+  { id: "tourn-birmingham", name: "Birmingham Regional Championships", dates: "Jan 30–31", kind: "Regional" },
+  { id: "tourn-auckland", name: "Auckland Special Championships", dates: "Jan 30–31", kind: "Special" },
+  { id: "tourn-euic", name: "Europe International Championships", dates: "Feb 19–21", kind: "International" },
+  { id: "tourn-santiago", name: "Santiago Regional Championships", dates: "Feb 27–28", kind: "Regional" },
+  { id: "tourn-rio-de-janeiro", name: "Rio de Janeiro Special Championships", dates: "Mar 6–7", kind: "Special" },
+  { id: "tourn-toronto", name: "Toronto Regional Championships", dates: "Apr 2–4", kind: "Regional" },
+  { id: "tourn-monterrey", name: "Monterrey Regional Championships", dates: "Apr 10–11", kind: "Regional" },
+  { id: "tourn-lisbon", name: "Lisbon Special Championships", dates: "Apr 10–11", kind: "Special" },
+  { id: "tourn-milwaukee", name: "Milwaukee Regional Championships", dates: "Apr 16–18", kind: "Regional" },
+  { id: "tourn-lima", name: "Lima Special Championships", dates: "Apr 24–25", kind: "Special" },
+  { id: "tourn-prague", name: "Prague Special Championships", dates: "May 8–9", kind: "Special" },
+  { id: "tourn-porto-alegre", name: "Porto Alegre Regional Championships", dates: "May 8–9", kind: "Regional" },
+  { id: "tourn-utrecht", name: "Utrecht Special Championships", dates: "May 22–23", kind: "Special" },
+  { id: "tourn-san-diego", name: "San Diego Regional Championships", dates: "May 28–30", kind: "Regional" },
+  { id: "tourn-melbourne", name: "Melbourne Regional Championships", dates: "May 29–30", kind: "Regional" },
+  { id: "tourn-bologna", name: "Bologna Special Championships", dates: "Jun 5–6", kind: "Special" },
+  { id: "tourn-naic", name: "North America International Championships", dates: "Jun 18–20", kind: "International" },
 ];
 
 /** Completed tournament results — newest first. Populated by the weekly meta check. */
@@ -486,6 +493,24 @@ export interface TournamentResult {
 }
 
 export const TOURNAMENT_RESULTS: TournamentResult[] = [
+  {
+    name: "Louisville Regional Championships",
+    dates: "Oct 9–11, 2026",
+    kind: "Regional",
+    winner: "Joseph Ugarte",
+    winningTeam: "Mega Charizard Y",
+    runnerUp: "Andrew Figueras",
+    pickKey: "tourn-louisville",
+  },
+  {
+    name: "Recife Regional Championships",
+    dates: "Oct 3–4, 2026",
+    kind: "Regional",
+    winner: "Juan Salerno",
+    winningTeam: "Mega Charizard Y",
+    runnerUp: "Luciano Begot",
+    pickKey: "tourn-recife",
+  },
   {
     name: "Frankfurt Regional Championships",
     dates: "Sept 26–27, 2026",

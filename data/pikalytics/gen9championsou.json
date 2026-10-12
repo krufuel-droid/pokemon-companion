@@ -8,7 +8,7 @@
   "note": "Usage data aggregated by Pikalytics from ranked battles. Ability aggregates validated against PokéAPI; impossible entries dropped (see droppedAbilities in scraper log)."
  },
  "dataDate": "2026-05",
- "fetchedAt": "2026-10-05T20:23:37.495Z",
+ "fetchedAt": "2026-10-12T12:58:26.752Z",
  "roster": [
   "Garchomp",
   "Corviknight",

@@ -8,7 +8,7 @@
   "note": "Usage data aggregated by Pikalytics from ranked battles. Ability aggregates validated against PokéAPI; impossible entries dropped (see droppedAbilities in scraper log)."
  },
  "dataDate": "2026-05",
- "fetchedAt": "2026-10-05T20:21:38.633Z",
+ "fetchedAt": "2026-10-12T12:58:23.763Z",
  "roster": [
   "Rillaboom",
   "Sneasler",

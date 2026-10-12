@@ -29,7 +29,11 @@ const UA =
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 async function getJson(url) {
-  const res = await fetch(url, { headers: { "User-Agent": UA } });
+  // "Connection: close" — pokedata.ovh drops reused keep-alive sockets
+  // (undici UND_ERR_SOCKET) when roster + standings are fetched in sequence.
+  const res = await fetch(url, {
+    headers: { "User-Agent": UA, Connection: "close" },
+  });
   if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
   return res.json();
 }
