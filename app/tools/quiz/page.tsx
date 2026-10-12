@@ -10,8 +10,24 @@ interface Round {
   options: SpeciesIndex[];
 }
 
-function makeRound(pool: SpeciesIndex[]): Round {
-  const answer = pool[Math.floor(Math.random() * pool.length)];
+/** Generation dex ranges. */
+const GENERATIONS = [
+  { label: "All generations", min: 1, max: 1025 },
+  { label: "Gen 1 — Kanto", min: 1, max: 151 },
+  { label: "Gen 2 — Johto", min: 152, max: 251 },
+  { label: "Gen 3 — Hoenn", min: 252, max: 386 },
+  { label: "Gen 4 — Sinnoh", min: 387, max: 493 },
+  { label: "Gen 5 — Unova", min: 494, max: 649 },
+  { label: "Gen 6 — Kalos", min: 650, max: 721 },
+  { label: "Gen 7 — Alola", min: 722, max: 809 },
+  { label: "Gen 8 — Galar / Hisui", min: 810, max: 905 },
+  { label: "Gen 9 — Paldea", min: 906, max: 1025 },
+];
+
+function makeRound(pool: SpeciesIndex[], excludeIds: Set<number>): Round {
+  const available = pool.filter((s) => !excludeIds.has(s.id));
+  const pickFrom = available.length > 0 ? available : pool;
+  const answer = pickFrom[Math.floor(Math.random() * pickFrom.length)];
   const others = new Set<SpeciesIndex>();
   while (others.size < 3) {
     const cand = pool[Math.floor(Math.random() * pool.length)];
@@ -23,7 +39,9 @@ function makeRound(pool: SpeciesIndex[]): Round {
 
 export default function QuizPage() {
   const [pool, setPool] = useState<SpeciesIndex[]>([]);
+  const [genIndex, setGenIndex] = useState(0);
   const [round, setRound] = useState<Round | null>(null);
+  const [roundNum, setRoundNum] = useState(0);
   const [picked, setPicked] = useState<number | null>(null);
   const [score, setScore] = useState(0);
   const [streak, setStreak] = useState(0);
@@ -31,22 +49,38 @@ export default function QuizPage() {
   const [roundsPlayed, setRoundsPlayed] = useState(0);
   const [newAchievements, setNewAchievements] = useState<string[]>([]);
   const userIdRef = useRef<string | null>(null);
+  /** Answer IDs already shown this session — avoids repeats until pool exhausts. */
+  const usedIdsRef = useRef<Set<number>>(new Set());
 
   useEffect(() => {
     const all = getAllSpecies();
     setPool(all);
-    setRound(makeRound(all));
+    setRound(makeRound(all, usedIdsRef.current));
     setBest(Number(localStorage.getItem("quiz-best-streak") ?? 0));
     createClient().auth.getUser().then(({ data }: { data: { user?: { id?: string } | null } }) => {
       userIdRef.current = data.user?.id ?? null;
     });
   }, []);
 
+  /** Switch generation: rebuild pool, reset session. */
+  const changeGeneration = (index: number) => {
+    const gen = GENERATIONS[index];
+    const filtered = getAllSpecies().filter((s) => s.id >= gen.min && s.id <= gen.max);
+    usedIdsRef.current = new Set();
+    setGenIndex(index);
+    setPool(filtered);
+    setRound(makeRound(filtered, usedIdsRef.current));
+    setRoundNum((n) => n + 1);
+    setPicked(null);
+    setNewAchievements([]);
+  };
+
   const nextRound = useCallback(() => {
     setRound((prev) => {
       void prev;
-      return makeRound(pool);
+      return makeRound(pool, usedIdsRef.current);
     });
+    setRoundNum((n) => n + 1);
     setPicked(null);
     setNewAchievements([]);
   }, [pool]);
@@ -55,6 +89,7 @@ export default function QuizPage() {
     if (picked !== null || !round) return;
     setPicked(id);
     setRoundsPlayed((r) => r + 1);
+    usedIdsRef.current.add(round.answer.id);
     const correct = id === round.answer.id;
     if (correct) {
       const newScore = score + 1;
@@ -101,8 +136,29 @@ export default function QuizPage() {
         </div>
       </div>
 
+      <div className="mt-4">
+        <label htmlFor="quiz-gen" className="text-sm font-medium text-slate-600 dark:text-slate-400">
+          Generation
+        </label>
+        <select
+          id="quiz-gen"
+          value={genIndex}
+          onChange={(e) => changeGeneration(Number(e.target.value))}
+          className="ml-2 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
+        >
+          {GENERATIONS.map((g, i) => (
+            <option key={g.label} value={i}>
+              {g.label}
+            </option>
+          ))}
+        </select>
+      </div>
+
       <div className="mt-6 rounded-2xl bg-gradient-to-b from-indigo-900 to-slate-900 p-8 text-center shadow-lg">
+        {/* key forces a fresh img each round so the silhouette filter applies
+            from first paint — no transition flash of the new Pokémon. */}
         <img
+          key={roundNum}
           src={round.answer.sprites.regular}
           alt="Who's that Pokémon?"
           className="mx-auto h-56 w-56 object-contain transition-all duration-500"

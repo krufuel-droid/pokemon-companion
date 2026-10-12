@@ -152,7 +152,7 @@ function TrainerCodeCard({ trainerCode }: { trainerCode: string | null }) {
           {trainerCode ? (
             <>
               <div className="mt-1 flex flex-wrap items-center gap-2">
-                <span className="font-mono text-2xl font-bold tracking-widest text-slate-900 dark:text-slate-100">
+                <span className="break-all font-mono text-xl font-bold tracking-widest text-slate-900 sm:text-2xl dark:text-slate-100">
                   {trainerCode}
                 </span>
                 <button
