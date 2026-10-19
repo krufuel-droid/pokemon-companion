@@ -111,53 +111,52 @@ export const REGULATION = {
 export const META_PICKS: MetaPick[] = [
   {
     name: "Rillaboom",
-    note: "The #1 most-used Pokémon in Regulation M-C at 52.3% usage — Grassy Surge, Fake Out, and priority Grassy Glide.",
-  },
-  {
-    name: "Sneasler",
-    note: "41.7% usage — Dire Claw and Fake Out pressure every team preview.",
+    note: "The #1 most-used Pokémon in Regulation M-C at 47.8% usage — Grassy Surge, Fake Out, and priority Grassy Glide.",
   },
   {
     name: "Incineroar",
-    note: "38.2% usage — Fake Out + Intimidate + Parting Shot is still the glue of doubles.",
+    note: "41.1% usage — Fake Out + Intimidate + Parting Shot is still the glue of doubles; up to #2 after Nice.",
   },
   {
-    name: "Kingambit",
-    note: "31.7% usage — Sucker Punch + Kowtow Cleave win condition.",
-  },
-  {
-    name: "Gholdengo",
-    note: "26.5% usage — Make It Rain spread damage with Good as Gold status immunity.",
-  },
-  {
-    name: "Raichu",
-    note: "26.4% usage — Mega Raichu Y is one of M-C's defining new Megas; Fake Out + Lightning Rod support.",
+    name: "Sneasler",
+    note: "40.0% usage — Dire Claw and Fake Out pressure every team preview.",
   },
   {
     name: "Garchomp",
-    note: "26.1% usage — Mega Garchomp Z headlined back-to-back Regional wins (Frankfurt and Brisbane).",
+    note: "33.6% usage — Mega Garchomp Z headlined back-to-back Regional wins (Frankfurt and Brisbane), and usage surged after Nice.",
   },
   {
-    name: "Salamence",
-    note: "22.3% usage — Mega Salamence's Intimidate + Aerilate-boosted attacks.",
+    name: "Kingambit",
+    note: "31.1% usage — Sucker Punch + Kowtow Cleave win condition.",
   },
   {
-    name: "Hisuian Arcanine",
-    speciesName: "Arcanine",
-    note: "20.9% usage in its Hisuian form — an Intimidate physical attacker with strong Fire/Rock coverage.",
+    name: "Raichu",
+    note: "26.3% usage — Mega Raichu Y defined the early format, and Mega Raichu X just won Nice on Louis Fontvieille's rain team.",
+  },
+  {
+    name: "Charizard",
+    note: "21.6% usage — Mega Charizard Y's Drought sun remains one of the format's defining archetypes, and it won back-to-back Regionals in Recife and Louisville.",
+  },
+  {
+    name: "Gholdengo",
+    note: "21.6% usage — Make It Rain spread damage with Good as Gold status immunity.",
+  },
+  {
+    name: "Archaludon",
+    note: "18.6% usage — Electro Shot setup tank; part of the Nice-winning rain team.",
   },
   {
     name: "Eternal Flower Floette",
     speciesName: "Floette",
-    note: "18.1% usage in its Eternal Flower form — a fast Fairy-type special attacker.",
+    note: "18.5% usage in its Eternal Flower form — a fast Fairy-type special attacker.",
   },
   {
-    name: "Archaludon",
-    note: "17.5% usage — Electro Shot setup tank, a doubles and singles staple.",
+    name: "Salamence",
+    note: "17.0% usage — Mega Salamence's Intimidate + Aerilate-boosted attacks; usage has dipped since its Baltimore win.",
   },
   {
-    name: "Charizard",
-    note: "17.5% usage — Mega Charizard Y's Drought sun remains one of the format's defining archetypes.",
+    name: "Basculegion",
+    note: "16.3% usage — new to the top 12; its female form's Swift Swim rain sweeping just won Nice alongside Mega Raichu X.",
   },
 ];
 
@@ -315,7 +314,7 @@ export const FEATURED_TEAMS: FeaturedTeam[] = [
 export const PLAYERS_TO_WATCH: PlayerToWatch[] = [
   {
     name: "Wolfe Glick",
-    tagline: "All-time #1 · 913 pts · $91,500 earned",
+    tagline: "All-time #1 · 918 pts · $91,500 earned",
     bio: "Limitless VGC's all-time points leader and top earner — the 2016 World Champion whose teams and meta reads still shape every format. 15th at Baltimore (Sept 2026) with Incineroar / Sneasler / Gholdengo / Gardevoir / Salamence / Indeedee-F.",
     socials: {
       x: "https://x.com/WolfeyGlick",
@@ -325,26 +324,31 @@ export const PLAYERS_TO_WATCH: PlayerToWatch[] = [
   {
     name: "Eric Rios",
     tagline: "All-time #2 · 5x Regional Champion",
-    bio: "Went a perfect 17-0 to win Frankfurt (Sept 2026, 1,129 players) — the first Regulation M-C European Regional — with Mega Garchomp Z and Mega Raichu Y. That was his fifth Regional title, making him the hottest player in Europe heading into Nice.",
+    bio: "Went a perfect 17-0 to win Frankfurt (Sept 2026, 1,129 players) — the first Regulation M-C European Regional — with Mega Garchomp Z and Mega Raichu Y. That was his fifth Regional title.",
   },
   {
     name: "Paul Chua",
-    tagline: "All-time #3 · 635 pts · $64,250 earned",
+    tagline: "All-time #3 · 647 pts · $65,000 earned",
     bio: "One of the most consistent competitors in VGC history — top-3 all-time in both points and career earnings.",
   },
   {
-    name: "Alex Gómez Berna",
-    tagline: "All-time #4 · 629 pts",
-    bio: "Spain's top-ranked VGC competitor and a fixture of European top cuts.",
-  },
-  {
     name: "Joseph Ugarte",
-    tagline: "All-time #5 · 616 pts · Baltimore Regional Champion",
-    bio: "Won the first Regulation M-C official event over 1,081 trainers with sand + Psychic Terrain, and regularly breaks down his own tournament runs on his channel.",
+    tagline: "All-time #4 · 643 pts · Baltimore & Louisville Regional Champion",
+    bio: "Won the first Regulation M-C official event over 1,081 trainers with sand + Psychic Terrain, then won Louisville back-to-back for his fourth Regional title, and regularly breaks down his own tournament runs on his channel.",
     socials: {
       x: "https://x.com/JoeUX9",
       youtube: "https://www.youtube.com/@joeux9",
     },
+  },
+  {
+    name: "Alex Gómez Berna",
+    tagline: "All-time #5 · 629 pts",
+    bio: "Spain's top-ranked VGC competitor and a fixture of European top cuts.",
+  },
+  {
+    name: "Eduardo Cunha",
+    tagline: "All-time #7 · 505 pts · Nice Regional finalist",
+    bio: "Took 2nd at Nice (Oct 2026) with a Perish Song core of Primarina + Mega Gengar alongside Mega Garchomp Z, falling to Louis Fontvieille's rain team in the final.",
   },
   {
     name: "Marco Hemantha Kaludura Silva",
@@ -423,19 +427,6 @@ export function hasPlayerProfile(name: string): boolean {
 export const EVENT_FINDER_URL = "https://championships.pokemon.com/en-us/events";
 
 export const UPCOMING_TOURNAMENTS: UpcomingTournament[] = [
-  { id: "tourn-nice", name: "Nice Regional Championships", dates: "Oct 17–18", kind: "Regional",
-    playersToWatch: [
-      { name: "Eric Rios", note: "won Frankfurt (Sept 2026, Europe's first M-C event) with Mega Garchomp Z + Mega Raichu Y; 5x Regional Champion" },
-      { name: "Sebastian Liu Li", note: "Frankfurt runner-up" },
-      { name: "Giuseppe Musicco", note: "Frankfurt Top 8" },
-      { name: "Théotime Massaut", note: "2026 LAIC semifinalist; won the Victory Road September Challenge #2" },
-    ],
-    storylines: [
-      "Rios's reign: five regional titles and a fresh Frankfurt win — Nice is where Europe finds out if anyone has an answer for his Garchomp Z + Raichu Y core.",
-      "Europe vs. NA meta split: Frankfurt's top cut looked different from Baltimore's — Nice shows whether the regions converge or develop separately.",
-    ],
-    broadcast: "Expected on Twitch.tv/Pokemon and YouTube.com/Pokemon; Victory Road covers via @VGCVictoryRoad.",
-  },
   { id: "tourn-puebla", name: "Puebla Regional Championships", dates: "Oct 24–25", kind: "Regional",
     storylines: [
       "Recife fallout: Latin America's first Champions-era regional (Oct 3–4) just concluded — if a new star or team broke out there, Puebla is where the region adapts.",
@@ -449,13 +440,14 @@ export const UPCOMING_TOURNAMENTS: UpcomingTournament[] = [
   { id: "tourn-stuttgart", name: "Stuttgart Regional Championships", dates: "Nov 28–29", kind: "Regional" },
   { id: "tourn-las-vegas", name: "Las Vegas Regional Championships", dates: "Dec 4–6", kind: "Regional" },
   // ---- 2027 season, announced on the official event finder (checked Oct 2026) ----
-  { id: "tourn-san-jose", name: "San Jose Regional Championships", dates: "Jan 9–10", kind: "Regional" },
   { id: "tourn-atlanta", name: "Atlanta Regional Championships", dates: "Jan 15–17", kind: "Regional" },
   { id: "tourn-sydney", name: "Sydney Regional Championships", dates: "Jan 16–17", kind: "Regional" },
   { id: "tourn-merida", name: "Mérida Regional Championships", dates: "Jan 23–24", kind: "Regional" },
   { id: "tourn-birmingham", name: "Birmingham Regional Championships", dates: "Jan 30–31", kind: "Regional" },
   { id: "tourn-auckland", name: "Auckland Special Championships", dates: "Jan 30–31", kind: "Special" },
+  { id: "tourn-seattle", name: "Seattle Regional Championships", dates: "Feb 5–7", kind: "Regional" },
   { id: "tourn-euic", name: "Europe International Championships", dates: "Feb 19–21", kind: "International" },
+  { id: "tourn-san-antonio", name: "San Antonio Regional Championships", dates: "Feb 26–28", kind: "Regional" },
   { id: "tourn-santiago", name: "Santiago Regional Championships", dates: "Feb 27–28", kind: "Regional" },
   { id: "tourn-rio-de-janeiro", name: "Rio de Janeiro Special Championships", dates: "Mar 6–7", kind: "Special" },
   { id: "tourn-toronto", name: "Toronto Regional Championships", dates: "Apr 2–4", kind: "Regional" },
@@ -493,6 +485,61 @@ export interface TournamentResult {
 }
 
 export const TOURNAMENT_RESULTS: TournamentResult[] = [
+  {
+    name: "Nice Regional Championships",
+    dates: "Oct 17–18, 2026",
+    kind: "Regional",
+    winner: "Louis Fontvieille",
+    winningTeam: "Mega Raichu X + Mega Golisopod",
+    runnerUp: "Eduardo Cunha",
+    pickKey: "tourn-nice",
+    team: [
+      {
+        name: "Raichu",
+        form: "Mega Raichu X",
+        ability: "Lightning Rod",
+        item: "Raichunite X",
+        nature: "Jolly",
+        moves: ["Volt Tackle", "Volt Switch", "Feint", "Fake Out"],
+      },
+      {
+        name: "Golisopod",
+        form: "Mega Golisopod",
+        ability: "Emergency Exit",
+        item: "Golisopite",
+        nature: "Adamant",
+        moves: ["Leech Life", "Iron Head", "Sucker Punch", "Protect"],
+      },
+      {
+        name: "Archaludon",
+        ability: "Stamina",
+        item: "Leftovers",
+        nature: "Calm",
+        moves: ["Electro Shot", "Dragon Pulse", "Snarl", "Protect"],
+      },
+      {
+        name: "Pelipper",
+        ability: "Drizzle",
+        item: "Damp Rock",
+        nature: "Bold",
+        moves: ["Weather Ball", "Hurricane", "Wide Guard", "Helping Hand"],
+      },
+      {
+        name: "Basculegion",
+        ability: "Swift Swim",
+        item: "Focus Sash",
+        nature: "Modest",
+        moves: ["Muddy Water", "Shadow Ball", "Ice Beam", "Protect"],
+      },
+      {
+        name: "Sneasler",
+        ability: "Unburden",
+        item: "Electric Seed",
+        nature: "Adamant",
+        moves: ["Poison Jab", "Close Combat", "Swords Dance", "Protect"],
+      },
+    ],
+  },
   {
     name: "Louisville Regional Championships",
     dates: "Oct 9–11, 2026",

@@ -221,16 +221,6 @@ export const GAME_EVENTS: GameEvent[] = [
   },
   // ---- 2027 season, from the official event finder (checked Oct 2026) ----
   {
-    id: "tourn-san-jose",
-    title: "San Jose Regional Championships",
-    game: "Scarlet & Violet",
-    kind: "tournament",
-    startDate: "2027-01-09",
-    endDate: "2027-01-10",
-    detail: "Play! Pokémon Regional Championships — VGC. San José, Costa Rica.",
-    href: "/champions#tourn-san-jose",
-  },
-  {
     id: "tourn-atlanta",
     title: "Atlanta Regional Championships",
     game: "Scarlet & Violet",
@@ -281,6 +271,16 @@ export const GAME_EVENTS: GameEvent[] = [
     href: "/champions#tourn-auckland",
   },
   {
+    id: "tourn-seattle",
+    title: "Seattle Regional Championships",
+    game: "Scarlet & Violet",
+    kind: "tournament",
+    startDate: "2027-02-05",
+    endDate: "2027-02-07",
+    detail: "Play! Pokémon Regional Championships — VGC. Seattle, Washington.",
+    href: "/champions#tourn-seattle",
+  },
+  {
     id: "tourn-euic",
     title: "Europe International Championships",
     game: "Scarlet & Violet",
@@ -289,6 +289,16 @@ export const GAME_EVENTS: GameEvent[] = [
     endDate: "2027-02-21",
     detail: "Play! Pokémon International Championships — VGC. London, United Kingdom.",
     href: "/champions#tourn-euic",
+  },
+  {
+    id: "tourn-san-antonio",
+    title: "San Antonio Regional Championships",
+    game: "Scarlet & Violet",
+    kind: "tournament",
+    startDate: "2027-02-26",
+    endDate: "2027-02-28",
+    detail: "Play! Pokémon Regional Championships — VGC. San Antonio, Texas.",
+    href: "/champions#tourn-san-antonio",
   },
   {
     id: "tourn-santiago",
