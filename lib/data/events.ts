@@ -312,12 +312,12 @@ export const GAME_EVENTS: GameEvent[] = [
   },
   {
     id: "tourn-rio-de-janeiro",
-    title: "Rio de Janeiro Special Championships",
+    title: "Rio de Janeiro Regional Championships",
     game: "Scarlet & Violet",
     kind: "tournament",
     startDate: "2027-03-06",
     endDate: "2027-03-07",
-    detail: "Play! Pokémon Special Championships — VGC. Rio de Janeiro, Brazil.",
+    detail: "Play! Pokémon Regional Championships — VGC. Rio de Janeiro, Brazil.",
     href: "/champions#tourn-rio-de-janeiro",
   },
   {
@@ -372,12 +372,12 @@ export const GAME_EVENTS: GameEvent[] = [
   },
   {
     id: "tourn-prague",
-    title: "Prague Special Championships",
+    title: "Prague Regional Championships",
     game: "Scarlet & Violet",
     kind: "tournament",
     startDate: "2027-05-08",
     endDate: "2027-05-09",
-    detail: "Play! Pokémon Special Championships — VGC. Prague, Czechia.",
+    detail: "Play! Pokémon Regional Championships — VGC. Prague, Czechia.",
     href: "/champions#tourn-prague",
   },
   {
@@ -392,12 +392,12 @@ export const GAME_EVENTS: GameEvent[] = [
   },
   {
     id: "tourn-utrecht",
-    title: "Utrecht Special Championships",
+    title: "Utrecht Regional Championships",
     game: "Scarlet & Violet",
     kind: "tournament",
     startDate: "2027-05-22",
     endDate: "2027-05-23",
-    detail: "Play! Pokémon Special Championships — VGC. Utrecht, Netherlands.",
+    detail: "Play! Pokémon Regional Championships — VGC. Utrecht, Netherlands.",
     href: "/champions#tourn-utrecht",
   },
   {

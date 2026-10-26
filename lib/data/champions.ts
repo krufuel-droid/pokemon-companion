@@ -135,7 +135,7 @@ export const META_PICKS: MetaPick[] = [
   },
   {
     name: "Charizard",
-    note: "21.6% usage — Mega Charizard Y's Drought sun remains one of the format's defining archetypes, and it won back-to-back Regionals in Recife and Louisville.",
+    note: "21.6% usage — Mega Charizard Y's Drought sun remains one of the format's defining archetypes; it won Recife and Louisville back-to-back, and just won Puebla too (with Mega Froslass).",
   },
   {
     name: "Gholdengo",
@@ -427,13 +427,6 @@ export function hasPlayerProfile(name: string): boolean {
 export const EVENT_FINDER_URL = "https://championships.pokemon.com/en-us/events";
 
 export const UPCOMING_TOURNAMENTS: UpcomingTournament[] = [
-  { id: "tourn-puebla", name: "Puebla Regional Championships", dates: "Oct 24–25", kind: "Regional",
-    storylines: [
-      "Recife fallout: Latin America's first Champions-era regional (Oct 3–4) just concluded — if a new star or team broke out there, Puebla is where the region adapts.",
-      "Road to São Paulo: the Latin America International is Nov 20–22 — Puebla is the last big CP stop before the continent's biggest event.",
-    ],
-    broadcast: "Expected on Twitch.tv/Pokemon and YouTube.com/Pokemon; Victory Road covers via @VGCVictoryRoad.",
-  },
   { id: "tourn-gdansk", name: "Gdańsk Regional Championships", dates: "Oct 31 – Nov 1", kind: "Regional" },
   { id: "tourn-buenos-aires", name: "Buenos Aires Special Championships", dates: "Nov 14–15", kind: "Special" },
   { id: "tourn-laic", name: "Latin America International Championships", dates: "Nov 20–22", kind: "International" },
@@ -449,15 +442,15 @@ export const UPCOMING_TOURNAMENTS: UpcomingTournament[] = [
   { id: "tourn-euic", name: "Europe International Championships", dates: "Feb 19–21", kind: "International" },
   { id: "tourn-san-antonio", name: "San Antonio Regional Championships", dates: "Feb 26–28", kind: "Regional" },
   { id: "tourn-santiago", name: "Santiago Regional Championships", dates: "Feb 27–28", kind: "Regional" },
-  { id: "tourn-rio-de-janeiro", name: "Rio de Janeiro Special Championships", dates: "Mar 6–7", kind: "Special" },
+  { id: "tourn-rio-de-janeiro", name: "Rio de Janeiro Regional Championships", dates: "Mar 6–7", kind: "Regional" },
   { id: "tourn-toronto", name: "Toronto Regional Championships", dates: "Apr 2–4", kind: "Regional" },
   { id: "tourn-monterrey", name: "Monterrey Regional Championships", dates: "Apr 10–11", kind: "Regional" },
   { id: "tourn-lisbon", name: "Lisbon Special Championships", dates: "Apr 10–11", kind: "Special" },
   { id: "tourn-milwaukee", name: "Milwaukee Regional Championships", dates: "Apr 16–18", kind: "Regional" },
   { id: "tourn-lima", name: "Lima Special Championships", dates: "Apr 24–25", kind: "Special" },
-  { id: "tourn-prague", name: "Prague Special Championships", dates: "May 8–9", kind: "Special" },
+  { id: "tourn-prague", name: "Prague Regional Championships", dates: "May 8–9", kind: "Regional" },
   { id: "tourn-porto-alegre", name: "Porto Alegre Regional Championships", dates: "May 8–9", kind: "Regional" },
-  { id: "tourn-utrecht", name: "Utrecht Special Championships", dates: "May 22–23", kind: "Special" },
+  { id: "tourn-utrecht", name: "Utrecht Regional Championships", dates: "May 22–23", kind: "Regional" },
   { id: "tourn-san-diego", name: "San Diego Regional Championships", dates: "May 28–30", kind: "Regional" },
   { id: "tourn-melbourne", name: "Melbourne Regional Championships", dates: "May 29–30", kind: "Regional" },
   { id: "tourn-bologna", name: "Bologna Special Championships", dates: "Jun 5–6", kind: "Special" },
@@ -485,6 +478,15 @@ export interface TournamentResult {
 }
 
 export const TOURNAMENT_RESULTS: TournamentResult[] = [
+  {
+    name: "Puebla Regional Championships",
+    dates: "Oct 24–25, 2026",
+    kind: "Regional",
+    winner: "Kyle Livinghouse",
+    winningTeam: "Mega Charizard Y + Mega Froslass",
+    runnerUp: "Renzo Navarro",
+    pickKey: "tourn-puebla",
+  },
   {
     name: "Nice Regional Championships",
     dates: "Oct 17–18, 2026",
