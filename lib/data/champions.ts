@@ -97,7 +97,7 @@ export interface FollowLink {
 }
 
 /** Honest "as of" label shown on the page — this file is updated by hand. */
-export const SNAPSHOT_DATE = "October 2026";
+export const SNAPSHOT_DATE = "November 2026";
 
 export const REGULATION = {
   name: "Regulation M-C",
@@ -111,52 +111,52 @@ export const REGULATION = {
 export const META_PICKS: MetaPick[] = [
   {
     name: "Rillaboom",
-    note: "The #1 most-used Pokémon in Regulation M-C at 47.8% usage — Grassy Surge, Fake Out, and priority Grassy Glide.",
-  },
-  {
-    name: "Incineroar",
-    note: "41.1% usage — Fake Out + Intimidate + Parting Shot is still the glue of doubles; up to #2 after Nice.",
+    note: "Still the #1 most-used Pokémon in Regulation M-C at 44.6% usage — Grassy Surge, Fake Out, and priority Grassy Glide — though its lead narrowed after Gdańsk.",
   },
   {
     name: "Sneasler",
-    note: "40.0% usage — Dire Claw and Fake Out pressure every team preview.",
+    note: "40.6% usage — up to #2 after Gdańsk; Dire Claw and Fake Out pressure every team preview.",
+  },
+  {
+    name: "Incineroar",
+    note: "39.9% usage — Fake Out + Intimidate + Parting Shot is still the glue of doubles; slips to #3 as Sneasler climbs.",
   },
   {
     name: "Garchomp",
-    note: "33.6% usage — Mega Garchomp Z headlined back-to-back Regional wins (Frankfurt and Brisbane), and usage surged after Nice.",
+    note: "34.4% usage — Mega Garchomp Z headlined back-to-back Regional wins (Frankfurt and Brisbane), and usage surged after Nice.",
   },
   {
     name: "Kingambit",
-    note: "31.1% usage — Sucker Punch + Kowtow Cleave win condition.",
+    note: "32.9% usage — Sucker Punch + Kowtow Cleave win condition.",
   },
   {
     name: "Raichu",
-    note: "26.3% usage — Mega Raichu Y defined the early format, and Mega Raichu X just won Nice on Louis Fontvieille's rain team.",
+    note: "26.2% usage — Mega Raichu Y defined the early format, and Mega Raichu X won Nice on Louis Fontvieille's rain team.",
   },
   {
     name: "Charizard",
-    note: "21.6% usage — Mega Charizard Y's Drought sun remains one of the format's defining archetypes; it won Recife and Louisville back-to-back, and just won Puebla too (with Mega Froslass).",
+    note: "24.6% usage — Mega Charizard Y's Drought sun remains one of the format's defining archetypes; it won Recife and Louisville back-to-back, and won Puebla too (with Mega Froslass).",
   },
   {
     name: "Gholdengo",
-    note: "21.6% usage — Make It Rain spread damage with Good as Gold status immunity.",
-  },
-  {
-    name: "Archaludon",
-    note: "18.6% usage — Electro Shot setup tank; part of the Nice-winning rain team.",
+    note: "20.4% usage — Make It Rain spread damage with Good as Gold status immunity; part of Javier Varela's Gdańsk-winning team.",
   },
   {
     name: "Eternal Flower Floette",
     speciesName: "Floette",
-    note: "18.5% usage in its Eternal Flower form — a fast Fairy-type special attacker.",
-  },
-  {
-    name: "Salamence",
-    note: "17.0% usage — Mega Salamence's Intimidate + Aerilate-boosted attacks; usage has dipped since its Baltimore win.",
+    note: "18.6% usage in its Eternal Flower form — a fast Fairy-type special attacker; up to #9 after Gdańsk.",
   },
   {
     name: "Basculegion",
-    note: "16.3% usage — new to the top 12; its female form's Swift Swim rain sweeping just won Nice alongside Mega Raichu X.",
+    note: "18.5% usage — up to #10; its female form's Swift Swim rain sweeping won Nice alongside Mega Raichu X.",
+  },
+  {
+    name: "Archaludon",
+    note: "18.4% usage — Electro Shot setup tank; part of the Nice-winning rain team, now #11 as Floette and Basculegion climb past it.",
+  },
+  {
+    name: "Salamence",
+    note: "15.6% usage — Mega Salamence's Intimidate + Aerilate-boosted attacks; usage has dipped since its Baltimore win.",
   },
 ];
 
@@ -347,13 +347,13 @@ export const PLAYERS_TO_WATCH: PlayerToWatch[] = [
   },
   {
     name: "Eduardo Cunha",
-    tagline: "All-time #7 · 505 pts · Nice Regional finalist",
+    tagline: "All-time #6 · 513 pts · Nice Regional finalist",
     bio: "Took 2nd at Nice (Oct 2026) with a Perish Song core of Primarina + Mega Gengar alongside Mega Garchomp Z, falling to Louis Fontvieille's rain team in the final.",
   },
   {
     name: "Marco Hemantha Kaludura Silva",
-    tagline: "#2 all-time earnings · $80,750",
-    bio: "The second-highest earner in VGC history (497 all-time points) — a threat at every International he enters.",
+    tagline: "#2 all-time earnings · $81,500",
+    bio: "The second-highest earner in VGC history (507 all-time points) — a threat at every International he enters.",
   },
   {
     name: "Brady Smith",
@@ -427,7 +427,6 @@ export function hasPlayerProfile(name: string): boolean {
 export const EVENT_FINDER_URL = "https://championships.pokemon.com/en-us/events";
 
 export const UPCOMING_TOURNAMENTS: UpcomingTournament[] = [
-  { id: "tourn-gdansk", name: "Gdańsk Regional Championships", dates: "Oct 31 – Nov 1", kind: "Regional" },
   { id: "tourn-buenos-aires", name: "Buenos Aires Special Championships", dates: "Nov 14–15", kind: "Special" },
   { id: "tourn-laic", name: "Latin America International Championships", dates: "Nov 20–22", kind: "International" },
   { id: "tourn-stuttgart", name: "Stuttgart Regional Championships", dates: "Nov 28–29", kind: "Regional" },
@@ -478,6 +477,61 @@ export interface TournamentResult {
 }
 
 export const TOURNAMENT_RESULTS: TournamentResult[] = [
+  {
+    name: "Gdańsk Regional Championships",
+    dates: "Oct 31 – Nov 1, 2026",
+    kind: "Regional",
+    winner: "Javier Varela",
+    winningTeam: "Mega Tyranitar + Mega Staraptor",
+    runnerUp: "Jude Gerard Lee Wei Cong",
+    pickKey: "tourn-gdansk",
+    team: [
+      {
+        name: "Gholdengo",
+        ability: "Good as Gold",
+        item: "Life Orb",
+        nature: "Modest",
+        moves: ["Shadow Ball", "Make It Rain", "Nasty Plot", "Protect"],
+      },
+      {
+        name: "Excadrill",
+        ability: "Sand Rush",
+        item: "Focus Sash",
+        nature: "Adamant",
+        moves: ["High Horsepower", "Iron Head", "Rock Slide", "Protect"],
+      },
+      {
+        name: "Tyranitar",
+        form: "Mega Tyranitar",
+        ability: "Sand Stream",
+        item: "Tyranitarite",
+        nature: "Jolly",
+        moves: ["Rock Slide", "Knock Off", "Dragon Dance", "Protect"],
+      },
+      {
+        name: "Staraptor",
+        form: "Mega Staraptor",
+        ability: "Intimidate",
+        item: "Staraptite",
+        nature: "Jolly",
+        moves: ["Brave Bird", "Close Combat", "Tailwind", "Protect"],
+      },
+      {
+        name: "Sinistcha",
+        ability: "Hospitality",
+        item: "Rocky Helmet",
+        nature: "Bold",
+        moves: ["Matcha Gotcha", "Strength Sap", "Rage Powder", "Protect"],
+      },
+      {
+        name: "Milotic",
+        ability: "Competitive",
+        item: "Sitrus Berry",
+        nature: "Calm",
+        moves: ["Scald", "Ice Beam", "Icy Wind", "Protect"],
+      },
+    ],
+  },
   {
     name: "Puebla Regional Championships",
     dates: "Oct 24–25, 2026",
