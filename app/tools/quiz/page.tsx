@@ -48,6 +48,8 @@ export default function QuizPage() {
   const [best, setBest] = useState(0);
   const [roundsPlayed, setRoundsPlayed] = useState(0);
   const [newAchievements, setNewAchievements] = useState<string[]>([]);
+  /** Silhouette card collapse (Wolf QA request, Nov 2, 2026). */
+  const [cardCollapsed, setCardCollapsed] = useState(false);
   const userIdRef = useRef<string | null>(null);
   /** Answer IDs already shown this session — avoids repeats until pool exhausts. */
   const usedIdsRef = useRef<Set<number>>(new Set());
@@ -73,6 +75,7 @@ export default function QuizPage() {
     setRoundNum((n) => n + 1);
     setPicked(null);
     setNewAchievements([]);
+    setCardCollapsed(false);
   };
 
   const nextRound = useCallback(() => {
@@ -83,6 +86,7 @@ export default function QuizPage() {
     setRoundNum((n) => n + 1);
     setPicked(null);
     setNewAchievements([]);
+    setCardCollapsed(false);
   }, [pool]);
 
   const pick = (id: number) => {
@@ -154,21 +158,37 @@ export default function QuizPage() {
         </select>
       </div>
 
-      <div className="mt-6 rounded-2xl bg-gradient-to-b from-indigo-900 to-slate-900 p-8 text-center shadow-lg">
-        {/* key forces a fresh img each round so the silhouette filter applies
-            from first paint — no transition flash of the new Pokémon. */}
-        <img
-          key={roundNum}
-          src={round.answer.sprites.regular}
-          alt="Who's that Pokémon?"
-          className="mx-auto h-56 w-56 object-contain transition-all duration-500"
-          style={picked === null ? { filter: "brightness(0)" } : undefined}
-          draggable={false}
-        />
-        {picked !== null && (
-          <div className="mt-2 text-2xl font-black text-white animate-bounce">
-            It's {round.answer.name}!
+      <div className="relative mt-6 rounded-2xl bg-gradient-to-b from-indigo-900 to-slate-900 p-4 text-center shadow-lg sm:p-8">
+        <button
+          type="button"
+          onClick={() => setCardCollapsed((c) => !c)}
+          aria-expanded={!cardCollapsed}
+          className="absolute right-3 top-3 rounded-full bg-white/10 px-3 py-1 text-xs font-bold text-white ring-1 ring-white/25 transition hover:bg-white/20"
+        >
+          {cardCollapsed ? "Expand ▼" : "Collapse ▲"}
+        </button>
+        {cardCollapsed ? (
+          <div className="py-2 text-sm font-medium text-slate-300">
+            {picked !== null ? `It's ${round.answer.name}!` : "Silhouette hidden — tap Expand to peek"}
           </div>
+        ) : (
+          <>
+            {/* key forces a fresh img each round so the silhouette filter applies
+                from first paint — no transition flash of the new Pokémon. */}
+            <img
+              key={roundNum}
+              src={round.answer.sprites.regular}
+              alt="Who's that Pokémon?"
+              className="mx-auto h-44 w-44 object-contain transition-all duration-500 sm:h-56 sm:w-56"
+              style={picked === null ? { filter: "brightness(0)" } : undefined}
+              draggable={false}
+            />
+            {picked !== null && (
+              <div className="mt-2 text-2xl font-black text-white animate-bounce">
+                It's {round.answer.name}!
+              </div>
+            )}
+          </>
         )}
       </div>
 
