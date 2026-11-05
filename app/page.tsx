@@ -157,6 +157,12 @@ export default function HomePage() {
             >
               Try the tools
             </Link>
+            <Link
+              href="/feedback?type=bug"
+              className="rounded-full border-2 border-emerald-300 bg-white px-6 py-3 text-sm font-semibold text-slate-800 transition hover:bg-emerald-50 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-emerald-950"
+            >
+              🐛 Report a Bug
+            </Link>
           </div>
         </div>
       </section>

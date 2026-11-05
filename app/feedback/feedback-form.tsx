@@ -8,7 +8,7 @@ import { useAuth } from "@/components/AuthProvider";
 const ISSUES_URL = "https://github.com/krufuel-droid/pokemon-companion/issues";
 const MAX_MESSAGE = 2000;
 
-type FeedbackType = "bug" | "idea" | "hello";
+export type FeedbackType = "bug" | "idea" | "hello";
 
 const TYPES: { value: FeedbackType; label: string; blurb: string }[] = [
   { value: "bug", label: "Bug report", blurb: "Something's broken" },
@@ -64,13 +64,17 @@ function FallbackCard() {
   );
 }
 
-export function FeedbackForm() {
+export function FeedbackForm({
+  initialType,
+}: {
+  initialType?: FeedbackType;
+}) {
   const { user, profile } = useAuth();
   // Skip straight to the fallback when Supabase isn't configured at all.
   const [phase, setPhase] = useState<Phase>(() =>
     isSupabaseConfigured() ? "checking" : "fallback",
   );
-  const [type, setType] = useState<FeedbackType>("idea");
+  const [type, setType] = useState<FeedbackType>(initialType ?? "idea");
   const [message, setMessage] = useState("");
   const [name, setName] = useState("");
   const [error, setError] = useState<string | null>(null);

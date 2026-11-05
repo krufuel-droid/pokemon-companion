@@ -27,6 +27,7 @@ const LINKS = [
       { href: "/tools#reference", label: "Reference" },
       { href: "/tools#trackers", label: "Trackers" },
       { href: "/tools#fun", label: "Fun" },
+      { href: "/feedback?type=bug", label: "🐛 Report a Bug" },
     ],
   },
   { href: "/guides", label: "Guides" },
