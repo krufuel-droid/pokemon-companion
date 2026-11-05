@@ -26,6 +26,7 @@ const LINKS = [
       { href: "/tools#team-tools", label: "Team Tools" },
       { href: "/tools#reference", label: "Reference" },
       { href: "/tools#trackers", label: "Trackers" },
+      { href: "/tools/card-database", label: "Card Database" },
       { href: "/tools#fun", label: "Fun" },
       { href: "/feedback?type=bug", label: "🐛 Report a Bug" },
     ],

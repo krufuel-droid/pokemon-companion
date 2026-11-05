@@ -63,6 +63,14 @@ export interface CardPricing {
   usdFinish: string | null;
 }
 
+export interface TcgdexSetSummary {
+  id: string;
+  name: string;
+  logo: string | null;
+  /** Total printed cards in the set (including secret rares). */
+  total: number;
+}
+
 export interface TcgdexCardDetail {
   id: string;
   name: string;
@@ -86,6 +94,8 @@ interface CacheEntry<T> {
 
 const searchCache = new Map<string, CacheEntry<TcgdexCardSummary[]>>();
 const detailCache = new Map<string, CacheEntry<TcgdexCardDetail | null>>();
+const setsCache = { entry: null as CacheEntry<TcgdexSetSummary[]> | null };
+const setCardsCache = new Map<string, CacheEntry<TcgdexCardSummary[]>>();
 
 function fresh<T>(entry: CacheEntry<T> | undefined): T | null {
   if (!entry) return null;
@@ -134,6 +144,42 @@ export async function searchPrints(pokemonName: string): Promise<TcgdexCardSumma
     image: c.image ?? null,
   }));
   searchCache.set(key, { at: Date.now(), value: cards });
+  return cards;
+}
+
+/** Every English set in the database, in the API's (roughly chronological) order. */
+export async function listSets(): Promise<TcgdexSetSummary[]> {
+  const cached = fresh(setsCache.entry ?? undefined);
+  if (cached) return cached;
+  const json = (await fetchJson(`${BASE}/en/sets`)) as
+    | { id: string; name: string; logo?: string; cardCount?: { total?: number } }[]
+    | null;
+  const sets = (json ?? []).map((s) => ({
+    id: s.id,
+    name: s.name,
+    logo: s.logo ?? null,
+    total: s.cardCount?.total ?? 0,
+  }));
+  setsCache.entry = { at: Date.now(), value: sets };
+  return sets;
+}
+
+/** Every card in one set (summary level: id, name, image). */
+export async function setCards(setId: string): Promise<TcgdexCardSummary[]> {
+  const cached = fresh(setCardsCache.get(setId));
+  if (cached) return cached;
+  const json = (await fetchJson(
+    `${BASE}/en/sets/${encodeURIComponent(setId)}`
+  )) as {
+    cards?: { id: string; localId: string; name: string; image?: string }[];
+  } | null;
+  const cards = (json?.cards ?? []).map((c) => ({
+    id: c.id,
+    localId: c.localId,
+    name: c.name,
+    image: c.image ?? null,
+  }));
+  setCardsCache.set(setId, { at: Date.now(), value: cards });
   return cards;
 }
 

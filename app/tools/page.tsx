@@ -208,6 +208,11 @@ const TRACKERS: Tool[] = [
     desc: "Check off all 50 obtainable marks in Scarlet & Violet — wild, weather, time-of-day, and special marks.",
   },
   {
+    href: "/tools/card-database",
+    title: "Card Database",
+    desc: "Browse and search every Pokémon TCG print — by name or by set — with rarities, variants, and market prices. Reference only; no account needed.",
+  },
+  {
     href: "/tools/tcg-collection",
     title: "TCG Collection Tracker",
     desc: "Search every Pokémon TCG card, track your collection and want list by set, and watch sets fill up.",
