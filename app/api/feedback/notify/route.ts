@@ -1,6 +1,6 @@
 /**
- * POST /api/feedback/notify — email new feedback to Amanda's inbox
- * (busch.amanda@gigabytelife.net).
+ * POST /api/feedback/notify — email new feedback to the Poke Companion
+ * inbox (poke-companion@gigabytelife.net).
  *
  * Called by the feedback form after a successful Supabase insert. Sends a
  * plain-text notification via Resend so the feedback inbox (monitored daily)
@@ -12,7 +12,7 @@ import { Resend } from "resend";
 
 export const dynamic = "force-dynamic";
 
-const FEEDBACK_INBOX = "busch.amanda@gigabytelife.net";
+const FEEDBACK_INBOX = "poke-companion@gigabytelife.net";
 const MAX_MESSAGE = 5000;
 
 interface NotifyBody {
