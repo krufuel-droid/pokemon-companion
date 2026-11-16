@@ -427,7 +427,6 @@ export function hasPlayerProfile(name: string): boolean {
 export const EVENT_FINDER_URL = "https://championships.pokemon.com/en-us/events";
 
 export const UPCOMING_TOURNAMENTS: UpcomingTournament[] = [
-  { id: "tourn-buenos-aires", name: "Buenos Aires Special Championships", dates: "Nov 14–15", kind: "Special" },
   { id: "tourn-laic", name: "Latin America International Championships", dates: "Nov 20–22", kind: "International" },
   { id: "tourn-stuttgart", name: "Stuttgart Regional Championships", dates: "Nov 28–29", kind: "Regional" },
   { id: "tourn-las-vegas", name: "Las Vegas Regional Championships", dates: "Dec 4–6", kind: "Regional" },
@@ -477,6 +476,15 @@ export interface TournamentResult {
 }
 
 export const TOURNAMENT_RESULTS: TournamentResult[] = [
+  {
+    name: "Buenos Aires Special Championships",
+    dates: "Nov 14–15, 2026",
+    kind: "Special",
+    winner: "Ezequiel Bustamante",
+    winningTeam: "Mega Raichu Y + Mega Baxcalibur",
+    runnerUp: "Bruno Quiroga",
+    pickKey: "tourn-buenos-aires",
+  },
   {
     name: "Gdańsk Regional Championships",
     dates: "Oct 31 – Nov 1, 2026",
